@@ -10,7 +10,7 @@
 // It runs as a new dynamic camera state (FREELOOK_CAM_STATE). ba_camera's
 // rotate handler calls port_freeLook_handle() to decide when to enter, hold, or
 // hand the frame back; dynamicCamera's update loop calls
-// port_freeLookCamera_update() to actually move the camera each frame.
+// FreeLookCamera_Update() to actually move the camera each frame.
 //
 // Behavior: controls yaw + pitch and holds its angle indefinitely. Distance
 // tracks the vanilla zoom level (shared with the modern-scheme camera), so the
@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-int port_freeLook_isEnabled(void);
+int FreeLookCamera_IsEnabled(void);
 int port_freeLook_handle(void);
-void port_freeLookCamera_update(void);
+void FreeLookCamera_Update(void);
 
 #ifdef __cplusplus
 }

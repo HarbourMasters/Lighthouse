@@ -141,7 +141,7 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        if (port_anchor_isWorldSyncActive()) {
+        if (Anchor_IsWorldSyncActive()) {
             jujuCtlPtr->unk4 = mm_juju_sharedKnocked();
             if (jujuCtlPtr->unk4 >= 4) {
                 marker_despawn(this->marker);

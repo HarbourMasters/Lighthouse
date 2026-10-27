@@ -356,7 +356,7 @@ void audioManagerThread_entry(void *arg) {
     while (true) {
         // [port] False when the pump owes the playback cushion a catch-up frame, which it takes
         // without waiting.
-        if (port_audioPumpShouldWait()) {
+        if (OS_AudioPumpShouldWait()) {
             osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
         }
         if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
@@ -401,7 +401,7 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
     // and the game brackets its audio writes with osSetIntMask, which blocks
     // preemption. On PC those brackets map to a lock, and the engine advance
     // here has to take the same one.
-    port_lockAudio();
+    AudioSync_Lock();
 
     outbuffer = (s16 *) osVirtualToPhysical(info->data);
     audioManager_func_802403F0();
@@ -444,12 +444,12 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
 #endif
 
     if (command_list_len == 0) {
-        port_unlockAudio(); // [port]
+        AudioSync_Unlock(); // [port]
         return false;
     } else {
         core1_15B30_addAudioTaskData(audioManager.ACMDList[sCmdBufferIndex], command_list_end, &audioManager.audioReplyMsgQ, OS_MESG_PTR(&info->reply_mesg_data)); // [port] OSMesg is a union on PC
         func_80250650();
-        port_unlockAudio(); // [port]
+        AudioSync_Unlock(); // [port]
         sCmdBufferIndex ^= 1;
         return true;
     }

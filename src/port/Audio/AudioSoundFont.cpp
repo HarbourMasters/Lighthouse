@@ -308,7 +308,7 @@ ALInstrument* BuildInstrument(const DescInstrument& desc, const std::map<std::st
 
 } // namespace
 
-extern "C" ALBankFile* port_alBnkfLoad(const char* descriptorPath) {
+extern "C" ALBankFile* AudioSoundFont_LoadBankFile(const char* descriptorPath) {
     const Ship::Blob* descriptor = LoadBody(descriptorPath);
     if (descriptor == nullptr) {
         SPDLOG_ERROR("[Audio] soundfont descriptor '{}' is missing", descriptorPath);
@@ -417,11 +417,11 @@ extern "C" ALBankFile* port_alBnkfLoad(const char* descriptorPath) {
     return file;
 }
 
-extern "C" void port_alBnkfReleaseSources(void) {
+extern "C" void AudioSoundFont_ReleaseSources(void) {
     sBankResources.clear();
 }
 
-extern "C" void port_alBnkfFreeAll(void) {
+extern "C" void AudioSoundFont_FreeAll(void) {
     for (void* p : sBankAllocations) {
         free(p);
     }

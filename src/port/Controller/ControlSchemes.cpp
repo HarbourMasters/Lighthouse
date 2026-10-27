@@ -331,7 +331,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         static uint16_t sLatchDir = 0;
         static int32_t sLatchTTL = 0;
 
-        if (port_freeLook_isEnabled() && !onJigsawPodium) {
+        if (FreeLookCamera_IsEnabled() && !onJigsawPodium) {
             uint16_t stickBits = 0;
             if (arx * arx + ary * ary > 24 * 24) {
                 if (arx >= ary) {

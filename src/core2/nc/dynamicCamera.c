@@ -384,15 +384,15 @@ void ncDynamicCamera_update(void){
             break;
 
         case FREELOOK_CAM_STATE: // [port] right-stick free look
-            port_freeLookCamera_update();
+            FreeLookCamera_Update();
             break;
 
         case MODERN_ORBIT_CAM_STATE: // [port] modern scheme right-stick yaw orbit
-            port_modernCamera_update();
+            ModernCamera_Update();
             break;
 
         case BEAK_BOMB_AIM_CAM_STATE: // [port] Beak Bomb Aiming's view
-            port_beakBombAimCamera_update();
+            BeakBombAiming_UpdateCamera();
             break;
     }//// L802BD064
     ml_vec3f_copy(position, cameraPosition);

@@ -33,7 +33,7 @@ static bool sPadPlanesDirty = true;
 
 // TODO: Find better place for these two warn functions
 // Capped so a bad frame can't flood the log; one print is enough to investigate.
-extern "C" void port_warnPropNotInCube(int32_t index, int32_t propCnt) {
+extern "C" void PerfPatches_WarnPropNotInCube(int32_t index, int32_t propCnt) {
     static int32_t sReported = 0;
     if (sReported < 20) {
         sReported++;
@@ -43,7 +43,7 @@ extern "C" void port_warnPropNotInCube(int32_t index, int32_t propCnt) {
 
 // Fires only for a cube the old :5 unk0_4 would have silently corrupted, so if this
 // never prints, no shipped map reaches the limit and the widening is forward-looking.
-extern "C" void port_warnNodePropSplit(int32_t splitIndex, int32_t nodeCnt) {
+extern "C" void PerfPatches_WarnNodePropSplit(int32_t splitIndex, int32_t nodeCnt) {
     static int32_t sReported = 0;
     if (sReported < 20) {
         sReported++;

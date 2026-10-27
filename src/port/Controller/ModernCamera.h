@@ -8,12 +8,12 @@ extern "C" {
 #endif
 
 int port_modernCamera_handleYaw(void);
-void port_modernCamera_update(void);
+void ModernCamera_Update(void);
 void port_modernCamera_handleZoom(void);
 int port_camera_suppressVanillaZoom(void);
-float port_cameraInvertXSign(void);
-float port_cameraInvertYSign(void);
-float port_firstPersonInvertXSign(void);
+float ModernCamera_GetInvertXSign(void);
+float ModernCamera_GetInvertYSign(void);
+float ModernCamera_GetFirstPersonInvertXSign(void);
 
 #ifdef __cplusplus
 }

@@ -8,7 +8,7 @@
 #define CVAR_MIRRORED_WORLD_STATE CVAR_ENHANCEMENT("Modes.MirroredWorld.State")
 
 void RegisterMirroredWorld_Init() {
-    port_mirror_patchTextActors();
+    MirrorPatches_PatchTextActors();
 
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_MIRRORED_WORLD_MODE, 0),
               [](IEvent* event) { CVarSetInteger(CVAR_MIRRORED_WORLD_STATE, 1); });

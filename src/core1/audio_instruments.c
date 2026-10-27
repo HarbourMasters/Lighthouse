@@ -236,8 +236,8 @@ void musicInstruments_init(void) {
 
     // [port] the soundfont ships as one resource per sound rather than a ctl/tbl pair;
     // assemble the bank from the descriptor and the sounds it names
-    extern ALBankFile *port_alBnkfLoad(const char *descriptorPath);
-    bnk_f = port_alBnkfLoad("assets/instrument_bank");
+    extern ALBankFile *AudioSoundFont_LoadBankFile(const char *descriptorPath);
+    bnk_f = AudioSoundFont_LoadBankFile("assets/instrument_bank");
 
     sMusicInstrumentsSeqConfig.maxVoices = 24;
     sMusicInstrumentsSeqConfig.maxEvents = 85;
@@ -277,18 +277,18 @@ void musicTrack_release(enum comusic_e track_id) {
     int i;
 
     if ((s32)track_id < 0 || (s32)track_id >= sNumMIDIAssets) return; // [port]
-    port_lockAudio();
+    AudioSync_Lock();
     if (sMIDIAssets[track_id] != NULL) {
         for (i = 0; i < NUM_MUSIC_SLOTS; i++) {
             if (sMusicSlots[i].track_id == track_id) {
-                port_unlockAudio();
+                AudioSync_Unlock();
                 return;
             }
         }
         assetcache_release(sMIDIAssets[track_id]);
         sMIDIAssets[track_id] = NULL;
     }
-    port_unlockAudio();
+    AudioSync_Unlock();
 }
 
 void musicTrack_releaseAll(void) {
@@ -305,7 +305,7 @@ void musicSlot_loadTrack(u8 index, enum comusic_e track_id) {
     // [port] This function directly mutates the sequence player's target (n_alCSeqNew) and
     // chanMask while the free-running audio worker reads them in n_alAudioFrame. Unlike
     // the rest of the audio code, it has no osSetIntMask bracket. Guard it with the audio lock.
-    port_lockAudio();
+    AudioSync_Lock();
     if (track_id == -1) {
         if (track_id != sMusicSlots[index].track_id) {
             alCSPStop((ALCSPlayer *) &sMusicSlots[index].cseqp);
@@ -337,7 +337,7 @@ void musicSlot_loadTrack(u8 index, enum comusic_e track_id) {
             func_8025F3F0(&sMusicSlots[index].cseqp, sMusicSlots[index].unk17C, sMusicSlots[index].unk180);
         }
     }
-    port_unlockAudio();
+    AudioSync_Unlock();
 }
 
 enum comusic_e musicSlot_getTrack(u8 index) {
@@ -499,8 +499,8 @@ s32 gcMusic_getDefaultVolumeForTrack(enum comusic_e track_id) {
     if (track_id >= 0 && track_id < 176) { // [port] bounds guard
         // [port] a track carries its own slot volume in the archive, so a music mod
         // can set it without this table.
-        extern s32 port_getMusicTrackVolume(u32 assetId);
-        s32 volume = port_getMusicTrackVolume(MUSIC_TRACK_ASSET_BASE_ID + track_id);
+        extern s32 ResourceHelpers_GetMusicTrackVolume(u32 assetId);
+        s32 volume = ResourceHelpers_GetMusicTrackVolume(MUSIC_TRACK_ASSET_BASE_ID + track_id);
 
         if (volume >= 0) {
             return volume;

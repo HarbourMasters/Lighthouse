@@ -521,7 +521,7 @@ s32 func_8032D9C0(Cube *cube, Prop* prop){
         ptrdiff_t index = prop - cube->prop2Ptr;
         // [port] A stale propPtr makes elementsAfter enormous; drop the removal instead.
         if (index < 0 || index >= (ptrdiff_t)cube->prop2Cnt) {
-            port_warnPropNotInCube((s32)index, (s32)cube->prop2Cnt);
+            PerfPatches_WarnPropNotInCube((s32)index, (s32)cube->prop2Cnt);
             return sp24;
         }
 
@@ -955,7 +955,7 @@ static void __codeA5BC0_initPropPointerForCube(NodeProp *node, Cube *cube, s32 c
 
     // [port] unk0_4 is the front index of this partition; :5 wrapped it here.
     if(cube->unk0_4 > 31){
-        port_warnNodePropSplit(cube->unk0_4, cnt);
+        PerfPatches_WarnNodePropSplit(cube->unk0_4, cnt);
     }
 
     bk_free(node);
@@ -1645,7 +1645,7 @@ void func_803308A0(void) {
     ModelCache *var_s0;
     s32 var_a1;
 
-    port_spriteDisplayCache_clear(); // [port] Clear stale display data pointers before freeing modelCache
+    SpritePatches_ClearDisplayCache(); // [port] Clear stale display data pointers before freeing modelCache
     for (i = 0; i < 0x3D5; i++) {
         var_s0 = &modelCache[i];
         if (var_s0->modelPtr) {

@@ -96,7 +96,7 @@ bool UpdatesAtAnyDistance(const Actor* actor) {
 bool InView(Actor* actor) {
     f32 camera[3];
     viewport_getPosition_vec3f(camera);
-    f32 range = 4000.0f * port_drawDistanceMul() + 1000.0f;
+    f32 range = 4000.0f * GraphicsPatches_GetDrawDistanceMultiplier() + 1000.0f;
     if (ml_distanceSquared_vec3f(actor->position, camera) > range * range) {
         return false;
     }

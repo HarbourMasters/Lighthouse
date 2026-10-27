@@ -168,7 +168,7 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
         memcpy(composed, gfxList, bytes);
         // Each door's list becomes a call to its composed number and an end; the geo selectors don't change
         for (s32 door = 0; door < kNoteDoorCount; door++) {
-            BuildNoteDoorNumberList(sNoteDoorNumberLists[door], gfxList->list, (u16)port_getNoteDoorCost(door));
+            BuildNoteDoorNumberList(sNoteDoorNumberLists[door], gfxList->list, (u16)NoteDoorNumbers_GetCost(door));
             gSPDisplayList(&composed->list[kNoteDoorNumberList[door]], sNoteDoorNumberLists[door]);
             gSPEndDisplayList(&composed->list[kNoteDoorNumberList[door] + 1]);
         }
@@ -206,12 +206,12 @@ RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 
 } // namespace
 
-extern "C" int port_getNoteDoorCost(int doorIdx) {
+extern "C" int NoteDoorNumbers_GetCost(int doorIdx) {
     const int cost = port_getRomhackNoteDoor(doorIdx);
     return cost >= 0 ? cost : D_8039347C[doorIdx];
 }
 
-extern "C" void port_enableNoteDoorComposer(void) {
+extern "C" void NoteDoorNumbers_EnableComposer(void) {
     sComposeNoteDoors = true;
     ApplyNoteDoorNumbers();
 }

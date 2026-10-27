@@ -4,7 +4,7 @@
 //
 // BK's map model conditionally culls chunks of level geometry via a few geo commands
 // (camera-area portal, LOD distance band, frustum sphere). render.c routes each of those
-// decisions through port_geoCullDraw, which fires the OnGeoCull event so port-side
+// decisions through GeoCull_ShouldDraw, which fires the OnGeoCull event so port-side
 // listeners — the occlusion debugger and the draw-distance enhancement — can force a chunk
 // to draw. When no listener is active the call is a cheap no-op, so normal play pays
 // nothing.
@@ -22,7 +22,7 @@ extern "C" {
 #define GEOCULL_CONSUMER_DEBUG 1
 #define GEOCULL_CONSUMER_ENHANCEMENT 2
 
-int port_geoCullDraw(int type, const void* cmd, const void* modelBin, int drawnVanilla, const unsigned char* areaIds,
+int GeoCull_ShouldDraw(int type, const void* cmd, const void* modelBin, int drawnVanilla, const unsigned char* areaIds,
                      int areaCount, int detail0, int detail1);
 
 // Listeners enable/disable themselves as consumers so the per-command event firing can be

@@ -877,7 +877,7 @@ s16 __n_vsVol(N_ALVoiceState *vs, N_ALSeqPlayer *seqp)
     t1 *= t2;
     t1 >>=  15;
 //  return ((s16)t1);
-    return ((s16)(t1 * port_getMusicVolume()));
+    return ((s16)(t1 * AudioVolume_GetMusic()));
 }
 
 ALMicroTime __n_vsDelta(N_ALVoiceState *vs, ALMicroTime t)

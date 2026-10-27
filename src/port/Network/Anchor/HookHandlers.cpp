@@ -566,7 +566,7 @@ void Anchor::RegisterHooks() {
         if (Anchor_WorldSyncActive()) {
             // By level, not map: a romhack's Spiral Mountain may be a different map id.
             if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
-                (port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+                (PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
                 *should = false;
             } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) &&
                        !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
@@ -581,7 +581,7 @@ void Anchor::RegisterHooks() {
     // answered (synced bit) or a move is already known (covers skip-tutorial saves).
     COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
         if (Anchor_WorldSyncActive() && !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
-            !(port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+            !(PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
         }
     });

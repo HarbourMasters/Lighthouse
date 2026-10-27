@@ -343,13 +343,13 @@ void Anchor::ClearDummies() {
 }
 
 // Presence only: true in any room, including the global one. For dummy-player visuals.
-extern "C" s32 port_anchor_isConnected(void) {
+extern "C" s32 Anchor_IsConnected(void) {
     Anchor* anchor = Anchor::GetInstance();
     return (anchor != nullptr && anchor->isConnected) ? 1 : 0;
 }
 
 // Lets decomp gate Anchor-only catch-up paths so single player keeps vanilla behaviour.
-extern "C" s32 port_anchor_isWorldSyncActive(void) {
+extern "C" s32 Anchor_IsWorldSyncActive(void) {
     Anchor* anchor = Anchor::GetInstance();
     return (anchor != nullptr && anchor->IsWorldSyncActive()) ? 1 : 0;
 }

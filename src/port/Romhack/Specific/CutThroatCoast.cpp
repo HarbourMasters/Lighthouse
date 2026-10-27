@@ -206,7 +206,7 @@ void RegisterCutThroatCoastPatches() {
     });
 
     // TODO: CTC's blob also patches the gravestone model's display lists once it loads.
-    port_enableNoteDoorComposer();
+    NoteDoorNumbers_EnableComposer();
 
     // Exiting via the exit pad should go back to the CTC lobby map
     REGISTER_VB_SHOULD(VB_MAP_CHANGE_REQUEST, EVENT_PRIORITY_NORMAL, {

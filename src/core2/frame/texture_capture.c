@@ -44,7 +44,7 @@ void model_copyFramebufferToTextures(BKModelBin *this) {
     // [port] The blocks below read the rendered frame from the CPU-side
     // buffer, so the frame this tick submitted has to be drawn first. One
     // sync covers the whole capture.
-    port_pipelineSyncPoint();
+    Graphics_PipelineSyncPoint();
     osInvalDCache(gFramebuffers[getActiveFramebuffer()], gFramebufferWidth * gFramebufferHeight * sizeof(u16));
 
     for (y = 0; y < 8; y++) {
@@ -57,5 +57,5 @@ void model_copyFramebufferToTextures(BKModelBin *this) {
 
     // [port] The CPU just modified texture data that LUS may have cached on the GPU.
     // Clear the texture cache so the next draw re-uploads from CPU memory.
-    port_runOnRenderThread(__textureCacheClearFn, NULL);
+    Graphics_RunOnRenderThread(__textureCacheClearFn, NULL);
 }

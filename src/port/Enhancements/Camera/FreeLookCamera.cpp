@@ -95,12 +95,12 @@ void ExitOrbit() {
 
 } // namespace
 
-extern "C" int port_freeLook_isEnabled(void) {
+extern "C" int FreeLookCamera_IsEnabled(void) {
     return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0;
 }
 
 extern "C" int port_freeLook_handle(void) {
-    if (!port_freeLook_isEnabled()) {
+    if (!FreeLookCamera_IsEnabled()) {
         if (sActive) {
             ExitOrbit();
         }
@@ -138,7 +138,7 @@ extern "C" int port_freeLook_handle(void) {
     return 0;
 }
 
-extern "C" void port_freeLookCamera_update(void) {
+extern "C" void FreeLookCamera_Update(void) {
     float dt = time_getDelta();
 
     float stick[2];

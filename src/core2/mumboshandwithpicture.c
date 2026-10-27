@@ -76,7 +76,7 @@ Actor *chMumbosHandWithPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, V
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     {
         BKModelBin *model_bin = marker_loadModelBin(marker);
-        port_patchPictureModel(model_bin, -55, -5, -6, 34, 0);
+        Framebuffer_PatchPictureModel(model_bin, -55, -5, -6, 34, 0);
         modelRender_draw(gfx, mtx, this->position, NULL, 4.5f, sp4C, model_bin);
     }
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);

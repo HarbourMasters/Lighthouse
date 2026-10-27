@@ -139,7 +139,7 @@ enum map_e getSpecialBootMap(void) {
 
 // [port] Boot sequence: 0=Default (Rareware logo), 1=Authentic (same), 2=File Select
 enum map_e getDefaultBootMap(void) {
-    int seq = port_getBootSequence();
+    int seq = Ship_GetBootSequence();
     if (seq == 2) // BOOTSEQUENCE_FILESELECT
         return MAP_91_FILE_SELECT;
     return MAP_1F_CS_START_RAREWARE;
@@ -181,7 +181,7 @@ void core1_init(void) {
     D_8027A130 = 0;
     gGlobalTimer = 0;
 //  func_8023DA9C(3);
-    func_8023DA9C(port_bootsUnloaded() ? 0 : 3);
+    func_8023DA9C(Ship_BootsUnloaded() ? 0 : 3);
 }
 
 void globalTimer_incTimer(void) {

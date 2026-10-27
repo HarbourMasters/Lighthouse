@@ -109,7 +109,7 @@ OSMesgQueue* thread5_getSyncQueue(void) {
 void thread5_sendTaskToQueue(OSMesg arg0) {
     static bool clear_freeze = true;
 
-    port_thread5_onSubmit(arg0.ptr); // [port] carry the interpolation pair with the task
+    Graphics_OnThread5Submit(arg0.ptr); // [port] carry the interpolation pair with the task
     osSendMesg(&sThread5MesgQueue, arg0, 1);
     // Lighthouse [port] Adjustment here to account for our OSMesg union definition
     if (arg0.data32 == THREAD5_MESSAGE_EVENT_SYNC) {
@@ -372,7 +372,7 @@ void thread5_handleTask7Mesg(OSMesg arg0) {
 void thread5_handleAudioTimerEvent(void) {
     // [port] While the demo audio hold is up, skip the frame message so the
     // engine does not consume sfx cues queued for the demo's first frame.
-    if (port_audioHeld() || port_audioStallHold()) {
+    if (GameEngine_IsAudioHeld() || AudioSync_IsStallHeld()) {
         return;
     }
     osSendMesgPtr(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);

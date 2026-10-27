@@ -17,7 +17,7 @@ enum map_e gsworld_getMap(void);
 }
 
 // Check if in parade
-extern "C" int port_isInCharacterParade(void) {
+extern "C" int GameFixes_IsInCharacterParade(void) {
     return volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE) != 0;
 }
 

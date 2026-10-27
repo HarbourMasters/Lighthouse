@@ -34,7 +34,7 @@ extern s32 gFramebufferHeight;
 
 // Romhack model display lists can leave a palette (TLUT) mode enabled and leak it
 // into the next model's draw.
-void port_modelRenderResetTLUT(Gfx** gfx) {
+void GraphicsPatches_ResetModelTLUT(Gfx** gfx) {
     if (!port_isRomhack()) {
         return;
     }
@@ -45,7 +45,7 @@ void port_modelRenderResetTLUT(Gfx** gfx) {
 
 static const float kHudCenterBand = 32.0f;
 
-float port_hudOrthoShift(float refX) {
+float GraphicsPatches_GetHudOrthoShift(float refX) {
     float halfW = (f32)gFramebufferWidth * 0.5f;
     float extraHalf = (f32)gFramebufferHeight * 0.5f * GameEngine_GetAspectRatio() - halfW;
     if (extraHalf < 0.0f) {
@@ -60,41 +60,41 @@ float port_hudOrthoShift(float refX) {
     return 0.0f; // centered
 }
 
-int port_getDrawDistanceSetting(void) {
+int GraphicsPatches_GetDrawDistanceSetting(void) {
     return sDrawDistanceLevel;
 }
 
-int port_getDrawDistanceLevel(void) {
-    int mul = port_getDrawDistanceSetting();
+int GraphicsPatches_GetDrawDistanceLevel(void) {
+    int mul = GraphicsPatches_GetDrawDistanceSetting();
     if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
         mul = 1;
     }
     return mul;
 }
 
-float port_drawDistanceMul(void) {
-    int level = port_getDrawDistanceLevel();
+float GraphicsPatches_GetDrawDistanceMultiplier(void) {
+    int level = GraphicsPatches_GetDrawDistanceLevel();
     if (level <= 1) {
         return 1.0f;
     }
     return (float)level + 0.1f; // Nudge
 }
 
-void port_applyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist) {
-    float mul = port_drawDistanceMul();
+void GraphicsPatches_ApplyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist) {
+    float mul = GraphicsPatches_GetDrawDistanceMultiplier();
     *cullMult *= mul;
     *cullDist *= mul;
 }
 
-int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag) {
+int GraphicsPatches_IsSpriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag) {
     if (disableFlag) {
         return 0;
     }
-    float scale = port_drawDistanceMul();
+    float scale = GraphicsPatches_GetDrawDistanceMultiplier();
     return (3000.0f * scale < depth) && (((size / depth) * scale) < baseThreshold);
 }
 
-int port_shouldDisableLOD(void) {
+int GraphicsPatches_IsLodDisabled(void) {
     if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
         return 0;
     }
@@ -136,7 +136,7 @@ static RegisterShipInitFunc sInitLevelOcclusion(RegisterLevelOcclusion_Init, { C
 static void RegisterDrawDistanceGraphics_Init() {
     COND_HOOK(DrawDistanceCubeWidth, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DRAW_DISTANCE, 1) > 1,
               [](IEvent* event) {
-                  int mul = port_getDrawDistanceLevel();
+                  int mul = GraphicsPatches_GetDrawDistanceLevel();
                   if (mul <= 1) {
                       return;
                   }

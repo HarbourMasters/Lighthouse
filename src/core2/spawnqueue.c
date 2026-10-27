@@ -8,7 +8,7 @@
 #include "prop.h"
 #include "functions.h"
 #include "core2/ch/snacker.h"
-#include "port/Patches/Patches.h" // port_getDrawDistanceLevel
+#include "port/Patches/Patches.h" // GraphicsPatches_GetDrawDistanceLevel
 #include "port/Romhack/RomhackConfig.h"
 
 void spawnQueue_unlock(void);
@@ -204,9 +204,9 @@ void spawnQueue_malloc(void){
 #endif
     u32 base = (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
     // [port] The setting, not the render-time level: this runs during a map load, where
-    // port_getDrawDistanceLevel() clamps to 1x and would under-size the queue for the
+    // GraphicsPatches_GetDrawDistanceLevel() clamps to 1x and would under-size the queue for the
     // gameplay that follows.
-    sSpawnQueueMax = base * (u32) port_getDrawDistanceSetting();
+    sSpawnQueueMax = base * (u32) GraphicsPatches_GetDrawDistanceSetting();
     spawnQueue = (FunctionQueue *) bk_malloc(sSpawnQueueMax * sizeof(FunctionQueue));
 }
 

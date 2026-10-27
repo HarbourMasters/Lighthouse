@@ -155,7 +155,7 @@ void baMotor_80250D94(f32 arg0, f32 arg1, f32 arg2) {
     if ((arg2 != 0.0f) && sbaMotorAvialable) {
         if(func_802E4A08() == 0){
             if(!(0.1 < D_80282420 - D_80282424) || !(arg0 + arg1 < D_80282428 + D_8028242C)){
-                f32 scale = port_getRumbleScale();
+                f32 scale = Ship_GetRumbleScale();
                 D_80282420 = arg2;
                 D_80282424 = 0.0f;
                 D_80282428 = MIN(arg0 * scale, 1.0f);

@@ -87,9 +87,9 @@ void ReloadDialogFontSlot() {
     print_sFonts[0] = print_getLettersFromFont(print_sFontSpriteAssets[0], tex);
     assetcache_release(tex);
     // A pack may ship an extended dialog font; refresh the reachable glyph count to match.
-    port_refreshDialogFontGlyphCount();
+    SpritePatches_RefreshDialogFontGlyphCount();
     // Build cross-revision-corrected HD glyph textures for the current base (no-op without a pack).
-    port_dialogFontHd_rebuild();
+    AltDialogFont_RebuildHd();
 }
 
 // Per cached-model-slot generation
@@ -105,7 +105,7 @@ void gcpausemenu_zoomboxes_initMainMenu(void);
 void gcPauseMenu_setState(int state); // enum gcpausemenu_state_e
 }
 
-extern "C" int port_pauseMenuNeedsRefresh(void) {
+extern "C" int Localization_PauseMenuNeedsRefresh(void) {
     static int sGen = 0;
     static int sLair = 0;
     static bool sInit = false;
@@ -128,7 +128,7 @@ extern "C" int port_pauseMenuNeedsRefresh(void) {
 // Rebuild the main pause-menu option zoomboxes and replay the open animation, so they
 // re-localize / re-evaluate cleanly (re-setting a live box's string would reveal it as a 2nd line).
 // The caller re-evaluates the Return to Lair option (a decomp bitfield) first, before the recreate.
-extern "C" void port_pauseMenuRebuild(void) {
+extern "C" void Localization_RebuildPauseMenu(void) {
     gcpausemenu_zoomboxes_free();
     gcpausemenu_zoomboxes_initMainMenu();
     gcPauseMenu_setState(1); // PAUSE_STATE_1_MENU_OPENING
@@ -146,7 +146,7 @@ extern "C" PrintBufferView* print_sCurrentPtr;
 
 // Override the scale of the most-recently pushed print entry (e.g. right after print_dialog),
 // so callers can shrink/grow buffered text without a dedicated scaled print variant. No-op if none.
-extern "C" void port_setPrintScale(float scale) {
+extern "C" void Localization_SetPrintScale(float scale) {
     if (print_sCurrentPtr != nullptr) {
         print_sCurrentPtr->scale = scale;
     }

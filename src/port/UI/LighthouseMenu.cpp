@@ -170,7 +170,7 @@ void LighthouseMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return Lighthouse::GetAvailableLanguageCount() <= 1; },
             "Only one language available. Add a language pack to enable more." } },
         { DISABLE_DURING_PARADE,
-          { [](disabledInfo& info) -> bool { return port_isInCharacterParade(); },
+          { [](disabledInfo& info) -> bool { return GameFixes_IsInCharacterParade(); },
             "Not available during the character parade." } },
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },

@@ -129,11 +129,11 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
 
     setupFramebufferForGamemode(gfx, framebuffer_idx);
     sGameState.unkC = false;
-    port_mirror_beginScene();
+    MirrorPatches_BeginScene();
     gsworld_draw(gfx, mtx, vtx);
     CALL_EVENT(OnWorldDraw, gfx, mtx, vtx);
-    port_mirror_endScene();
-    port_mirror_undoProjection(gfx, mtx);
+    MirrorPatches_EndScene();
+    MirrorPatches_UndoProjection(gfx, mtx);
     if (!arg4) { // related to framebufferdraw_ functions
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());
@@ -142,8 +142,8 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
     }
 
     if ((sGameState.game_mode == GAME_MODE_A_SNS_PICTURE) && (sGameState.map_transition_style != 6) && (sGameState.map_transition_style != 5)) {
-        if (port_shouldCaptureTransition()) {
-            port_captureTransitionFb(gfx);
+        if (TransitionPatches_ShouldCapture()) {
+            Framebuffer_CaptureTransition(gfx);
         }
         gctransition_draw(gfx, mtx, vtx);
     }
@@ -187,8 +187,8 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
 
     if ((sGameState.game_mode != GAME_MODE_A_SNS_PICTURE) || (sGameState.map_transition_style == 6) || (sGameState.map_transition_style == 5)) {
         // [port] Snapshot the composed frame for the falling-jiggy piece textures.
-        if (port_shouldCaptureTransition()) {
-            port_captureTransitionFb(gfx);
+        if (TransitionPatches_ShouldCapture()) {
+            Framebuffer_CaptureTransition(gfx);
         }
         gctransition_draw(gfx, mtx, vtx);
     }
@@ -196,7 +196,7 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
     // Transitions and particles read from gFramebuffers during game logic.
     // On N64, gFramebuffers was the render target directly; on PC the GPU renders
     // to its own buffer, so we read it back here when requested.
-    if (port_consumeReadbackRequest()) {
+    if (Framebuffer_ConsumeReadbackRequest()) {
         gDPReadFB((*gfx)++, 0, (u16 *)gFramebuffers[getActiveFramebuffer()],
                   0, 0, gFramebufferWidth, gFramebufferHeight, 1);
     }
@@ -497,7 +497,7 @@ void func_802E4384(void){
         func_8033DC18();
         // [port] Latch this cutscene frame's stutter before anything reads it, so the
         // time delta below and the renderer's frame budget agree for the whole tick.
-        port_tickCutsceneStutter();
+        FramePacingPatches_TickCutsceneStutter();
         // [port] Use a fixed 2-VI timestep for normal gameplay.
         s32 viDivisor = viMgr_func_8024BFA0();
         func_8033DC20(); // always consume wall-clock to keep last_ticks fresh
@@ -567,7 +567,7 @@ bool game_update(void) {
             case 6:                                     /* switch 1 */
                 // [port] Hold audio across the attract-demo load so its jingle starts fresh once
                 // the demo is on screen instead of playing (and drifting) through the cold freeze.
-                port_beginDemoAudioHold();
+                GameEngine_BeginDemoAudioHold();
                 func_8034B8C0(sGameState.map, sGameState.exit);
                 game_changeMap(GAME_MODE_7_ATTRACT_DEMO);
                 return false;
@@ -579,7 +579,7 @@ bool game_update(void) {
                 return false;
 
             case 7:                                     /* switch 1 */
-                port_beginDemoAudioHold();
+                GameEngine_BeginDemoAudioHold();
                 func_8034B8C0(sGameState.map, sGameState.exit);
                 game_changeMap(GAME_MODE_8_BOTTLES_BONUS);
                 return false;

@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void port_beakBombAimCamera_update(void);
+void BeakBombAiming_UpdateCamera(void);
 #ifdef __cplusplus
 }
 #endif

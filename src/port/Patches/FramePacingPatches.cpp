@@ -34,11 +34,11 @@ static std::mutex sDemoViMutex;
 static std::condition_variable sDemoViCv;
 static constexpr int kMaxDemoViCount = 0xF;
 
-int port_getDemoViCount(void) {
+int FramePacingPatches_GetDemoViCount(void) {
     return sDemoViCount.load(std::memory_order_acquire);
 }
 
-void port_setDemoViCount(int viCount) {
+void FramePacingPatches_SetDemoViCount(int viCount) {
     sDemoViCount.store((viCount > kMaxDemoViCount) ? kMaxDemoViCount : viCount, std::memory_order_release);
     {
         std::lock_guard<std::mutex> lock(sDemoViMutex);
@@ -47,17 +47,17 @@ void port_setDemoViCount(int viCount) {
     sDemoViCv.notify_all();
 }
 
-unsigned port_getDemoViSerial(void) {
+unsigned FramePacingPatches_GetDemoViSerial(void) {
     return sDemoViSerial.load(std::memory_order_acquire);
 }
 
-int port_waitDemoViSerial(unsigned seen, int timeoutUs) {
+int FramePacingPatches_WaitDemoViSerial(unsigned seen, int timeoutUs) {
     std::unique_lock<std::mutex> lock(sDemoViMutex);
     return sDemoViCv.wait_for(lock, std::chrono::microseconds(timeoutUs),
                               [seen] { return sDemoViSerial.load(std::memory_order_acquire) != seen; });
 }
 
-int port_getDemoDisplayViCount(int rawViCount) {
+int FramePacingPatches_GetDemoDisplayViCount(int rawViCount) {
     if (getGameMode() == GAME_MODE_A_SNS_PICTURE) {
         switch (gsworld_getMap()) {
             case MAP_7F_FP_WOZZAS_CAVE:
@@ -120,8 +120,8 @@ static void resetCutsceneTimings(void) {
 
 // Advances the stutter tables by one cutscene frame. Called from func_802E4384,
 // the single point where a tick commits its time delta, so every consumer of
-// port_getCutsceneExtraVis() sees the same answer for that tick.
-void port_tickCutsceneStutter(void) {
+// FramePacingPatches_GetCutsceneExtraVis() sees the same answer for that tick.
+void FramePacingPatches_TickCutsceneStutter(void) {
     sCutsceneExtraVis = 0;
 
     if (!CVarGetInteger(CVAR_CUTSCENE_SYNC, 1))
@@ -147,7 +147,7 @@ void port_tickCutsceneStutter(void) {
     }
 }
 
-int port_getCutsceneExtraVis(void) {
+int FramePacingPatches_GetCutsceneExtraVis(void) {
     return sCutsceneExtraVis;
 }
 

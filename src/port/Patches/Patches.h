@@ -11,55 +11,55 @@ extern "C" {
 // Threaded rendering (Game.cpp)
 
 // Carries the interpolation pair with a submitted display list.
-void port_thread5_onSubmit(void* taskData);
+void Graphics_OnThread5Submit(void* taskData);
 // Runs fn on the window thread when the tick is on its own thread.
-void port_runOnRenderThread(void (*fn)(void*), void* arg);
-void port_serviceRenderRequests(void);
+void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg);
+void Graphics_ServiceRenderRequests(void);
 // Waits for in-flight display lists before freeing or reading what they use.
-void port_pipelineSyncPoint(void);
+void Graphics_PipelineSyncPoint(void);
 
 // Frame Pacing (FramePacingPatches.cpp)
 
-int port_getDemoViCount(void);
-void port_setDemoViCount(int viCount);
-unsigned port_getDemoViSerial(void);
-int port_waitDemoViSerial(unsigned seen, int timeoutUs);
-int port_getDemoDisplayViCount(int rawViCount);
-void port_tickCutsceneStutter(void);
-int port_getCutsceneExtraVis(void);
+int FramePacingPatches_GetDemoViCount(void);
+void FramePacingPatches_SetDemoViCount(int viCount);
+unsigned FramePacingPatches_GetDemoViSerial(void);
+int FramePacingPatches_WaitDemoViSerial(unsigned seen, int timeoutUs);
+int FramePacingPatches_GetDemoDisplayViCount(int rawViCount);
+void FramePacingPatches_TickCutsceneStutter(void);
+int FramePacingPatches_GetCutsceneExtraVis(void);
 
 // Localization (Localization.cpp)
 
-int port_pauseMenuNeedsRefresh(void); // language or Return-to-Lair CVar changed while menu open
-void port_pauseMenuRebuild(void);     // free + recreate + replay the main menu open
-void port_setPrintScale(float scale);
+int Localization_PauseMenuNeedsRefresh(void); // language or Return-to-Lair CVar changed while menu open
+void Localization_RebuildPauseMenu(void);     // free + recreate + replay the main menu open
+void Localization_SetPrintScale(float scale);
 
 // Dialog font (AltDialogFont.cpp, SpritePatches.cpp)
 
-void port_dialogFontHd_rebuild(void);        // rebuild the HD glyph textures for the current base
-void port_refreshDialogFontGlyphCount(void); // re-read the reachable glyph count from the active font
-int port_dialogFontUsesShiftedCodes(void);   // format codes shifted past the extended (PAL) glyph range
+void AltDialogFont_RebuildHd(void);        // rebuild the HD glyph textures for the current base
+void SpritePatches_RefreshDialogFontGlyphCount(void); // re-read the reachable glyph count from the active font
+int SpritePatches_DialogFontUsesShiftedCodes(void);   // format codes shifted past the extended (PAL) glyph range
 
 // Framebuffer (FramebufferPatches.cpp)
 
-void port_freezeReadback(int freeze);
-void port_requestReadback(void);
-int port_consumeReadbackRequest(void);
-int port_getPauseFramebufferId(void);
-int port_capturePauseFramebuffer(void);
-void port_getPauseFramebufferSize(int* w, int* h);
-int port_pauseConsumeRecaptureRequest(void);
-int port_shouldCaptureTransition(void);
+void Framebuffer_FreezeReadback(int freeze);
+void Framebuffer_RequestReadback(void);
+int Framebuffer_ConsumeReadbackRequest(void);
+int Framebuffer_GetPauseId(void);
+int Framebuffer_CapturePause(void);
+void Framebuffer_GetPauseSize(int* w, int* h);
+int Framebuffer_ConsumePauseRecapture(void);
+int TransitionPatches_ShouldCapture(void);
 
-void port_patchPictureModel(void* model_bin, int32_t min_xy, int32_t max_xy, int32_t min_z, int32_t max_z,
+void Framebuffer_PatchPictureModel(void* model_bin, int32_t min_xy, int32_t max_xy, int32_t min_z, int32_t max_z,
                             uint32_t from);
-int32_t port_getTransitionGpuFbId(void);
-void port_captureTransitionFb(void* gfx_ptr);
-void port_patchTransitionModel(void* model_bin);
+int32_t Framebuffer_GetTransitionGpuId(void);
+void Framebuffer_CaptureTransition(void* gfx_ptr);
+void Framebuffer_PatchTransitionModel(void* model_bin);
 
 // Sprite Display Cache (SpritePatches.cpp)
 
-void port_spriteDisplayCache_clear(void);
+void SpritePatches_ClearDisplayCache(void);
 
 // Save (SaveEnhancements.cpp)
 
@@ -67,12 +67,12 @@ void port_syncBottlesBonusIndex(void);
 
 // Camera (CameraPatches.cpp)
 
-float port_wsCameraYawScale(void);
-float port_wsCameraPitchScale(void);
+float CameraPatches_GetWidescreenYawScale(void);
+float CameraPatches_GetWidescreenPitchScale(void);
 
 // Input
 
-float port_getRumbleScale(void);
+float Ship_GetRumbleScale(void);
 
 // Gameplay
 
@@ -80,59 +80,59 @@ int port_scalePlayerDamage(int damage);
 
 // Graphics (GraphicsPatches.cpp)
 
-int port_getDrawDistanceSetting(void); // configured multiplier; safe during map load
-int port_getDrawDistanceLevel(void);   // render-time multiplier; clamped to 1x outside normal gameplay
-int port_shouldDisableLOD(void);
-float port_drawDistanceMul(void);
-void port_applyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist);
-int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
-float port_hudOrthoShift(float refX);
-void port_modelRenderResetTLUT(Gfx** gfx);
+int GraphicsPatches_GetDrawDistanceSetting(void); // configured multiplier; safe during map load
+int GraphicsPatches_GetDrawDistanceLevel(void);   // render-time multiplier; clamped to 1x outside normal gameplay
+int GraphicsPatches_IsLodDisabled(void);
+float GraphicsPatches_GetDrawDistanceMultiplier(void);
+void GraphicsPatches_ApplyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist);
+int GraphicsPatches_IsSpriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
+float GraphicsPatches_GetHudOrthoShift(float refX);
+void GraphicsPatches_ResetModelTLUT(Gfx** gfx);
 
 // Vertex-animated models (AnimVertexPatches.cpp)
 
 // Recycles the per-draw vertex arena; once per tick, before the display list is built.
-void port_animVtx_beginTick(void);
+void AnimVertexPatches_BeginTick(void);
 // Copies the just-posed vertices somewhere only this draw points at, and repoints
 // segment 0x01 at the copy.
-void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t count);
+void AnimVertexPatches_SnapshotVertices(Gfx** gfx, void* vertices, int32_t count);
 
 // Mirror (MirrorPatches.cpp)
 
-int port_mirror_active(void);
-void port_mirror_beginScene(void);
-void port_mirror_endScene(void);
-void port_mirror_undoProjection(Gfx** gfx, Mtx** mtx);
-void port_viewport_applyMirror(Gfx** gfx, Mtx** mtx);
-void port_mirror_markCapture(void);
-int port_mirror_shouldFlipPauseBg(void);
+int MirrorPatches_IsActive(void);
+void MirrorPatches_BeginScene(void);
+void MirrorPatches_EndScene(void);
+void MirrorPatches_UndoProjection(Gfx** gfx, Mtx** mtx);
+void MirrorPatches_ApplyViewport(Gfx** gfx, Mtx** mtx);
+void MirrorPatches_MarkCapture(void);
+int MirrorPatches_ShouldFlipPauseBg(void);
 
 // Mirror per-model exclusion (counter-mirror text-bearing objects)
-void port_mirror_setExclude(void);
-void port_mirror_clearExclude(void);
-int port_mirror_bakeCounterScale(void);
-void port_mirror_patchTextActors(void);
+void MirrorPatches_SetExclude(void);
+void MirrorPatches_ClearExclude(void);
+int MirrorPatches_BakeCounterScale(void);
+void MirrorPatches_PatchTextActors(void);
 
 // Volatile flag checks
 
-int port_isInCharacterParade(void);
+int GameFixes_IsInCharacterParade(void);
 
 // Audio engine lock
 
-void port_lockAudio(void);
-void port_unlockAudio(void);
-void port_audioIntMaskEnter(void);
-void port_audioIntMaskExit(void);
+void AudioSync_Lock(void);
+void AudioSync_Unlock(void);
+void AudioSync_IntMaskEnter(void);
+void AudioSync_IntMaskExit(void);
 
 // Volume sliders (AudioVolume.cpp)
 
-float port_getMusicVolume(void);
-float port_getSfxVolume(void);
+float AudioVolume_GetMusic(void);
+float AudioVolume_GetSfx(void);
 
 // Note doors (NoteDoorNumbers.cpp)
 
-int port_getNoteDoorCost(int doorIdx);
-void port_enableNoteDoorComposer(void);
+int NoteDoorNumbers_GetCost(int doorIdx);
+void NoteDoorNumbers_EnableComposer(void);
 
 // Romhacks
 
@@ -141,12 +141,12 @@ void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 
 // Attract-demo audio hold
 
-void port_beginDemoAudioHold(void);
-void port_tickDemoAudioHold(void);
-int port_audioHeld(void);
-void port_noteMainLoopAlive(void);
-int port_audioStallHold(void);
-int32_t port_audioPumpShouldWait(void);
+void GameEngine_BeginDemoAudioHold(void);
+void GameEngine_TickDemoAudioHold(void);
+int GameEngine_IsAudioHeld(void);
+void AudioSync_NoteMainLoopAlive(void);
+int AudioSync_IsStallHeld(void);
+int32_t OS_AudioPumpShouldWait(void);
 
 // One-shot cues when a teammate's file-progress flag arrives
 void port_progressFlag_remoteCue(int32_t progressFlag);
@@ -201,13 +201,13 @@ void port_remoteCarry_reset(void);
 void port_anchorDummies_onActorsFreed(void);
 
 // Connected, in a real room, syncing world state.
-int32_t port_anchor_isWorldSyncActive(void);
+int32_t Anchor_IsWorldSyncActive(void);
 
 // The puzzle mirrors below are home-scoped.
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
-int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId);
+int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId);
 
 void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
@@ -229,10 +229,10 @@ void port_jiggyCrane_broadcast(int32_t stage);
 void port_jiggyCrane_remoteApply(int32_t stage);
 
 // Rate-limited: a marker reached cube_removeProp with a propPtr outside its cube.
-void port_warnPropNotInCube(int32_t index, int32_t propCnt);
+void PerfPatches_WarnPropNotInCube(int32_t index, int32_t propCnt);
 
 // Rate-limited: a cube's node-prop split index passed 31, where the old :5 field wrapped.
-void port_warnNodePropSplit(int32_t splitIndex, int32_t nodeCnt);
+void PerfPatches_WarnNodePropSplit(int32_t splitIndex, int32_t nodeCnt);
 
 #ifdef __cplusplus
 }

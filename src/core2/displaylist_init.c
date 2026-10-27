@@ -41,7 +41,7 @@ s32 D_803830A0;
 /* .code */
 void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void *frame_buffer_2) {
     // [port] GPU-side pause snapshot
-    s32 pauseFb = port_getPauseFramebufferId();
+    s32 pauseFb = Framebuffer_GetPauseId();
     bool isCapture = (frame_buffer_1 == depthbuffer_getDataPtr());
 
     gSPDisplayList((*gfx)++, D_8036C630);
@@ -49,21 +49,21 @@ void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void 
     if (isCapture) {
         // First frame: size the pause FB to the current render res (only changes on a
         // resolution/aspect toggle between pauses), then copy the backbuffer into it.
-        pauseFb = port_capturePauseFramebuffer();
+        pauseFb = Framebuffer_CapturePause();
         gDPCopyFB((*gfx)++, pauseFb, 0, 0, NULL);
     }
 
     // Draw the saved pause FB as a full-screen background, edge-to-edge in widescreen
     s32 renderW;
     s32 renderH;
-    port_getPauseFramebufferSize(&renderW, &renderH);
+    Framebuffer_GetPauseSize(&renderW, &renderH);
     s32 x0 = OTRGetRectDimensionFromLeftEdge(0);
     s32 x1 = OTRGetRectDimensionFromRightEdge((f32)gFramebufferWidth);
 
     gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, pauseFb);
     {
-        int16_t uls = port_mirror_shouldFlipPauseBg() ? renderW : 0;
-        int16_t lrs = port_mirror_shouldFlipPauseBg() ? 0 : renderW;
+        int16_t uls = MirrorPatches_ShouldFlipPauseBg() ? renderW : 0;
+        int16_t lrs = MirrorPatches_ShouldFlipPauseBg() ? 0 : renderW;
         gDPImageRectangle((*gfx)++,
             x0 << 2, 0,
             uls, 0,
@@ -81,7 +81,7 @@ void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     gsworld_setEnableDraw(0);
     D_803830A0 = 2;
     func_80314BB0(gfx, mtx, vtx, depthbuffer_getDataPtr(), gFramebuffers[getActiveFramebuffer()]);
-    port_mirror_markCapture();
+    MirrorPatches_MarkCapture();
 }
 
 void func_80315110(Gfx **gfx, Mtx **mtx, Vtx **vtx){

@@ -19,7 +19,7 @@ static s32 levelCollectible_syncKind(s32 markerId) {
     }
 }
 
-extern s32 port_anchor_getDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
+extern s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
 extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
 void __chLevelCollectible_presentReturnEmitSparkles(f32 position[3], enum asset_e sprite_id);
@@ -125,7 +125,7 @@ static void __remoteCarry_spawnMethod(s32 markerId, s32 clientId) {
     if (slot < 0 || sRemoteCarry[slot].markerId != markerId || actorId == 0) {
         return; // stale queue entry
     }
-    if (!port_anchor_getDummyTransform((u32)clientId, pos, &yaw)) {
+    if (!CarryThrow_GetDummyTransform((u32)clientId, pos, &yaw)) {
         __remoteCarry_clearSlot(slot);
         return;
     }
@@ -225,7 +225,7 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
     if (this->state == 6 || slot >= 0) { // carried: glued to the owner's dummy
         f32 pos[3];
         f32 yaw = 0.0f;
-        if (slot < 0 || !port_anchor_getDummyTransform(sRemoteCarry[slot].clientId, pos, &yaw)) {
+        if (slot < 0 || !CarryThrow_GetDummyTransform(sRemoteCarry[slot].clientId, pos, &yaw)) {
             if (slot >= 0) {
                 __remoteCarry_clearSlot(slot);
             }

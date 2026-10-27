@@ -345,7 +345,7 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
 }
 
 // A track carries its own slot volume, read on first ask and kept.
-extern "C" int32_t port_getMusicTrackVolume(uint32_t assetId) {
+extern "C" int32_t ResourceHelpers_GetMusicTrackVolume(uint32_t assetId) {
     static std::unordered_map<uint32_t, int32_t> sVolumeCache;
     static std::mutex sVolumeMutex;
     {

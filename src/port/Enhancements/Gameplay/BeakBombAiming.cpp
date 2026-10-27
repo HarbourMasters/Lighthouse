@@ -59,7 +59,7 @@ void Steer(f32 launch[3]) {
 
 } // namespace
 
-extern "C" void port_beakBombAimCamera_update(void) {
+extern "C" void BeakBombAiming_UpdateCamera(void) {
     // Hit mid-aim into a state that leaves the camera alone.
     if (bs_getState() != BS_2A_BOMB) {
         func_802914CC(kFlyCamera);

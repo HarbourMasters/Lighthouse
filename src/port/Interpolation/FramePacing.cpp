@@ -22,7 +22,7 @@
 #define gVIsPerFrame 2 // 30 Hz
 
 extern "C" bool prevAltAssets;
-extern "C" void port_releaseRcpTask(void);
+extern "C" void Graphics_ReleaseRcpTask(void);
 
 namespace {
 long long sLastSubFrameNs = 0;
@@ -93,9 +93,9 @@ void GameEngine::RunCommands(Gfx* Commands) {
 }
 
 int GameEngine::CurrentViPerTick() {
-    int viPerTick = port_getDemoViCount();
+    int viPerTick = FramePacingPatches_GetDemoViCount();
     if (viPerTick <= 0) {
-        viPerTick = gVIsPerFrame + port_getCutsceneExtraVis();
+        viPerTick = gVIsPerFrame + FramePacingPatches_GetCutsceneExtraVis();
     }
     if (viPerTick < gVIsPerFrame) {
         viPerTick = gVIsPerFrame;
@@ -196,7 +196,7 @@ Prefetcher& GetPrefetcher() {
 void RunTimedPass(Gfx* commands, int fps) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
     if (wnd == nullptr) {
-        port_releaseRcpTask();
+        Graphics_ReleaseRcpTask();
         return;
     }
     auto interpreter = wnd->GetInterpreterWeak().lock().get();
@@ -210,11 +210,11 @@ void RunTimedPass(Gfx* commands, int fps) {
     // The tick after this list's sets its VI count when it polls input, right after the submit, and that
     // count decides when this frame latches.
     const long long waitEndNs = OS_SteadyNs() + 3000000;
-    while (port_getDemoViSerial() == sFrameViSerial && OS_SteadyNs() < waitEndNs) {
-        port_serviceRenderRequests();
-        port_waitDemoViSerial(sFrameViSerial, 250);
+    while (FramePacingPatches_GetDemoViSerial() == sFrameViSerial && OS_SteadyNs() < waitEndNs) {
+        Graphics_ServiceRenderRequests();
+        FramePacingPatches_WaitDemoViSerial(sFrameViSerial, 250);
     }
-    const int vis = std::max(port_getDemoViCount(), 2);
+    const int vis = std::max(FramePacingPatches_GetDemoViCount(), 2);
     const long long tickNs = 1000000000LL * vis / 60;
     const long long presentNs = 1000000000LL / fps;
     const long long passStartNs = OS_SteadyNs();
@@ -258,7 +258,7 @@ void RunTimedPass(Gfx* commands, int fps) {
         Nametag::SetSubframeBlend(t);
         DrawSubframe(interpreter, wndBase, commands, replacements);
         if (last) {
-            port_releaseRcpTask();
+            Graphics_ReleaseRcpTask();
         }
         PresentSubframe(interpreter);
         count++;

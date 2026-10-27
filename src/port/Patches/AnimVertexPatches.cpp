@@ -25,7 +25,7 @@ bool gWarnedExhausted = false;
 
 } // namespace
 
-extern "C" void port_animVtx_beginTick(void) {
+extern "C" void AnimVertexPatches_BeginTick(void) {
     gSlot = (gSlot + 1) % kSlots;
     gUsed = 0;
     if (gArena[gSlot] == nullptr) {
@@ -33,7 +33,7 @@ extern "C" void port_animVtx_beginTick(void) {
     }
 }
 
-extern "C" void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t count) {
+extern "C" void AnimVertexPatches_SnapshotVertices(Gfx** gfx, void* vertices, int32_t count) {
     if (gfx == nullptr || vertices == nullptr || count <= 0) {
         return;
     }

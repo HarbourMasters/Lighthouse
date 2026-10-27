@@ -144,7 +144,7 @@ const char* port_mapName(int map_id) {
     return port_levelName(map_getLevel((enum map_e)map_id));
 }
 
-int port_getBootSequence(void) {
+int Ship_GetBootSequence(void) {
     // Romhacks always boot to file select; their intros aren't compatible with the
     // vanilla cutscene/demo path.
     if (port_isRomhack())
@@ -152,11 +152,11 @@ int port_getBootSequence(void) {
     return CVarGetInteger(CVAR_SETTING("BootSequence"), BOOTSEQUENCE_DEFAULT);
 }
 
-int port_bootsUnloaded(void) {
+int Ship_BootsUnloaded(void) {
     return Lighthouse::GetFrameHost() != nullptr;
 }
 
-float port_getRumbleScale(void) {
+float Ship_GetRumbleScale(void) {
     auto ctx = Ship::Context::GetRawInstance();
     if (!ctx) {
         return 0.5f;

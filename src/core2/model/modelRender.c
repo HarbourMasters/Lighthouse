@@ -744,7 +744,7 @@ void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     
     if (cmd->branch_offset) {
         s32 draw;
-        if (port_shouldDisableLOD()) {
+        if (GraphicsPatches_IsLodDisabled()) {
             dist = 1.0f;
         } else {
             mlMtx_apply_vec3f(transformed_pos, cmd->position);
@@ -752,7 +752,7 @@ void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
         }
 //      if ((cmd->min < dist) && (dist <= cmd->max)) {
         draw = (cmd->min < dist) && (dist <= cmd->max);
-        draw = port_geoCullDraw(OCCLUSION_CMD_LOD, cmd, modelRenderModelBin, draw, NULL, 0, (s32)cmd->min, (s32)cmd->max);
+        draw = GeoCull_ShouldDraw(OCCLUSION_CMD_LOD, cmd, modelRenderModelBin, draw, NULL, 0, (s32)cmd->min, (s32)cmd->max);
         if (draw) {
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
         }
@@ -859,7 +859,7 @@ void modelRender_geoCmd_UnkE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
 
 //      if (viewport_func_8024DB50(pos_scaled, dist_scaled) && cmd->branch_offset) {
         draw = (viewport_func_8024DB50(pos_scaled, dist_scaled) && cmd->branch_offset) ? 1 : 0;
-        draw = port_geoCullDraw(OCCLUSION_CMD_UNKE, cmd, modelRenderModelBin, draw, NULL, 0, 0, 0) && cmd->branch_offset;
+        draw = GeoCull_ShouldDraw(OCCLUSION_CMD_UNKE, cmd, modelRenderModelBin, draw, NULL, 0, 0, 0) && cmd->branch_offset;
         if (draw) {
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
         }
@@ -883,7 +883,7 @@ void modelRender_geoCmd_UnkE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
         pos_scaled[2] += modelRenderCameraPosition[2];
 //      if (viewport_func_8024DB50(pos_scaled, dist_scaled) && cmd->branch_offset) {
         draw = (viewport_func_8024DB50(pos_scaled, dist_scaled) && cmd->branch_offset) ? 1 : 0;
-        draw = port_geoCullDraw(OCCLUSION_CMD_UNKE, cmd, modelRenderModelBin, draw, NULL, 0, 0, 0) && cmd->branch_offset;
+        draw = GeoCull_ShouldDraw(OCCLUSION_CMD_UNKE, cmd, modelRenderModelBin, draw, NULL, 0, 0, 0) && cmd->branch_offset;
         if (draw) {
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
         }
@@ -897,7 +897,7 @@ void modelRender_geoCmd_CAMERA(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) 
 
 //  if ((!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) || (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT))) {
     draw = (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) || (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT));
-    draw = port_geoCullDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw, cmd->id_list, cmd->count, cmd->flags, 0);
+    draw = GeoCull_ShouldDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw, cmd->id_list, cmd->count, cmd->flags, 0);
     if (draw) {
         if (cmd->branch_offset)
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
@@ -940,7 +940,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
 
     // [port] Extended draw distance: scale/extend the model cull, keep the fade flag.
-    port_applyModelDrawDistanceCull(&D_80383710, &D_8038370C, &D_80383708);
+    GraphicsPatches_ApplyModelDrawDistanceCull(&D_80383710, &D_8038370C, &D_80383708);
 
     D_80370990 = FALSE;
 
@@ -1005,7 +1005,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
     camera_focus_distance = gu_sqrtf(camera_focus[0]*camera_focus[0] + camera_focus[1]*camera_focus[1] + camera_focus[2]*camera_focus[2]);
 //  if( 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
-    if( !port_shouldDisableLOD() && 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
+    if( !GraphicsPatches_IsLodDisabled() && 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 
@@ -1179,7 +1179,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     if(model_bin->anim_vertices_list_offset != 0 && D_8038371C != NULL){
         animVerticesList_transform(modelbin_getAnimVerticesList_MACRO(modelRenderModelBin), modelRendervertexList, D_8038371C);
         // [port] The transform just posed the model's shared vertex array. Hand this draw a private copy.
-        port_modelRender_snapshotAnimVertices(gfx, vtxList_getVertices(modelRendervertexList), vtxList_getVtxCount(modelRendervertexList));
+        AnimVertexPatches_SnapshotVertices(gfx, vtxList_getVertices(modelRendervertexList), vtxList_getVtxCount(modelRendervertexList));
     }
 
     mlMtxIdent();
@@ -1194,7 +1194,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         mlMtxRotatePYR(D_803837B0.unk4[0], D_803837B0.unk4[1], D_803837B0.unk4[2]);
     }
     // [port] Mirror mode: bake counter-mirror into modelview for text-bearing models
-    int _mirror_excluded = port_mirror_bakeCounterScale();
+    int _mirror_excluded = MirrorPatches_BakeCounterScale();
     mlMtxGet(&D_80383BF8);
 
     mlMtxApply(*mtx);
@@ -1218,7 +1218,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     // [port] Romhack model DLs can leave a palette (TLUT) mode enabled and leak it
     // into the next model's draw; reset it after every model for romhacks.
-    port_modelRenderResetTLUT(gfx);
+    GraphicsPatches_ResetModelTLUT(gfx);
 
     if (modelRenderCallback.post_draw != NULL) {
         modelRenderCallback.post_draw(modelRenderCallback.post_draw_arg);

@@ -1033,7 +1033,7 @@ void func_80387730(Actor *this) {
             code_73640_printItemCount(0xC);
         }
         doorIdx = this->actorTypeSpecificField - 1;
-        noteThreshold = port_getNoteDoorCost(doorIdx);
+        noteThreshold = NoteDoorNumbers_GetCost(doorIdx);
         if (forceOpen || itemscore_noteScores_getTotal() >= noteThreshold) {
             if (this->marker->unk14_21) {
                 func_8032BC60(this, 5, sp90);

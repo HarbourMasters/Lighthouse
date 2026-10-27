@@ -829,7 +829,7 @@ void func_803162B4(GcZoombox *this){
           }else{
                print_dialog(this->unk16A, this->unk16C, this->unk0);
           }
-          port_setPrintScale(textScale);
+          Localization_SetPrintScale(textScale);
      }
      if(this->unk1A4_29){
           if(this->unk1A4_15){
@@ -837,7 +837,7 @@ void func_803162B4(GcZoombox *this){
           }else{
                print_dialog(this->unk16A, this->unk16E, this->unk30);
           }
-          port_setPrintScale(textScale);
+          Localization_SetPrintScale(textScale);
      }
      text_setNormalTextColor(0xff, 0xff, 0xff);
      this->unk16A -= textXOfs;

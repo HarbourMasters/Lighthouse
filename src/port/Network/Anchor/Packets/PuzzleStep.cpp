@@ -106,7 +106,7 @@ extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
 
 // For level-homed puzzles: a relocated actor writes under the romhack's map
 // key, which a map-keyed read can't know. ORs the puzzle's bits across the level.
-extern "C" int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId) {
+extern "C" int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId) {
     int32_t bits = 0;
     for (const auto& [key, val] : sPuzzleBits) {
         if (key[1] == puzzleId && mirrorAllowedFor(puzzleId, key[0]) &&

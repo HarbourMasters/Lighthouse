@@ -180,7 +180,7 @@ Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
 
     // [port] Patch vertex positions
     BKModelBin *model_bin = marker_loadModelBin(marker);
-    port_patchPictureModel(model_bin, 260, 398, -273, -100, 1);
+    Framebuffer_PatchPictureModel(model_bin, 260, 398, -273, -100, 1);
     modelRender_draw(gfx, mtx, sp60, NULL, D_80368250, sp54, model_bin);
 
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);

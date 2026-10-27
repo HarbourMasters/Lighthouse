@@ -11,7 +11,7 @@
 
 // From Patches.h; declared here because this file's definitions use concrete
 // Gfx/model types where the header declares void*.
-extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg);
+extern "C" void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg);
 
 extern "C" {
 
@@ -31,17 +31,17 @@ static bool s_freezeReadback = false;
 // On-demand readback
 static int s_readbackRequestFrames = 0;
 
-void port_freezeReadback(int freeze) {
+void Framebuffer_FreezeReadback(int freeze) {
     s_freezeReadback = (freeze != 0);
 }
 
-void port_requestReadback(void) {
+void Framebuffer_RequestReadback(void) {
     s_readbackRequestFrames = 2;
 }
 
 // Consumed by the display list builder (bufferreadback.c) to emit
 // gDPReadFB into the DL, populating gFramebuffers at native resolution.
-int port_consumeReadbackRequest(void) {
+int Framebuffer_ConsumeReadbackRequest(void) {
     if (s_freezeReadback || s_readbackRequestFrames <= 0)
         return 0;
     s_readbackRequestFrames--;
@@ -77,10 +77,10 @@ static void createPauseFb(void* arg) {
     s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
 }
 
-int port_getPauseFramebufferId(void) {
+int Framebuffer_GetPauseId(void) {
     if (s_pauseFbId < 0) {
         currentRenderSize(&s_pauseFbW, &s_pauseFbH);
-        port_runOnRenderThread(createPauseFb, NULL);
+        Graphics_RunOnRenderThread(createPauseFb, NULL);
     }
     return s_pauseFbId;
 }
@@ -89,19 +89,19 @@ int port_getPauseFramebufferId(void) {
 // snapshot copy, recreating it only when the resolution actually changed since the last
 // capture. Recreating leaks the previous FB id (there is no destroy API), but this fires only
 // on a real resolution change at pause entry, not every pause, so it is bounded and rare.
-int port_capturePauseFramebuffer(void) {
+int Framebuffer_CapturePause(void) {
     int w;
     int h;
     currentRenderSize(&w, &h);
     if (s_pauseFbId < 0 || w != s_pauseFbW || h != s_pauseFbH) {
         s_pauseFbW = w;
         s_pauseFbH = h;
-        port_runOnRenderThread(createPauseFb, NULL);
+        Graphics_RunOnRenderThread(createPauseFb, NULL);
     }
     return s_pauseFbId;
 }
 
-void port_getPauseFramebufferSize(int* w, int* h) {
+void Framebuffer_GetPauseSize(int* w, int* h) {
     *w = s_pauseFbW;
     *h = s_pauseFbH;
 }
@@ -110,7 +110,7 @@ static int s_recapLastW = 0;
 static int s_recapLastH = 0;
 static int s_recapStable = 0;
 
-int port_pauseConsumeRecaptureRequest(void) {
+int Framebuffer_ConsumePauseRecapture(void) {
     if (s_pauseFbId < 0 || s_pauseFbW < 1 || s_pauseFbH < 1) {
         return 0;
     }
@@ -241,7 +241,7 @@ static s32 auxGpuFbId(void) {
     if (sAuxGpuFbId < 0 || w != s_auxFbRenderW || h != s_auxFbRenderH) {
         s_auxFbRenderW = w;
         s_auxFbRenderH = h;
-        port_runOnRenderThread(createAuxFb, NULL);
+        Graphics_RunOnRenderThread(createAuxFb, NULL);
     }
     return sAuxGpuFbId;
 }
@@ -268,7 +268,7 @@ static void setPictureVertexTexcoord(Vtx* v) {
     }
 }
 
-void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from) {
+void Framebuffer_PatchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from) {
     if (((u8*)model_bin)[0] == 0xBA)
         return;
     ((u8*)model_bin)[0] = 0xBA;
@@ -295,9 +295,9 @@ static void createTransitionFb(void* arg) {
     gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
 }
 
-s32 port_getTransitionGpuFbId(void) {
+s32 Framebuffer_GetTransitionGpuId(void) {
     if (sTransitionGpuFbId < 0) {
-        port_runOnRenderThread(createTransitionFb, NULL);
+        Graphics_RunOnRenderThread(createTransitionFb, NULL);
     }
     return sTransitionGpuFbId;
 }
@@ -305,8 +305,8 @@ s32 port_getTransitionGpuFbId(void) {
 // Capture the finished scene for the falling-jiggy piece textures by blitting the
 // main framebuffer into the transition FB (same technique as the pause snapshot).
 // Called after the scene draw.
-void port_captureTransitionFb(Gfx** gfx) {
-    s32 trFb = port_getTransitionGpuFbId(); // create + register on first use
+void Framebuffer_CaptureTransition(Gfx** gfx) {
+    s32 trFb = Framebuffer_GetTransitionGpuId(); // create + register on first use
     if (trFb >= 0) {
         gDPCopyFB((*gfx)++, trFb, 0, 0, NULL); // copy main FB -> transition FB
     }
@@ -324,7 +324,7 @@ static void setTransitionVertexTexcoord(Vtx* v) {
     v->v.tc[1] = (s16)(texelT * 64.0f);
 }
 
-void port_patchTransitionModel(BKModelBin* model_bin) {
+void Framebuffer_PatchTransitionModel(BKModelBin* model_bin) {
     if (((u8*)model_bin)[0] == 0xBA)
         return;
     ((u8*)model_bin)[0] = 0xBA;

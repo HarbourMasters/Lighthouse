@@ -177,7 +177,7 @@ void DrawCameraTools() {
     f32 liveRotation[3];
     viewport_getPosition_vec3f(livePosition);
     viewport_getRotation_vec3f(liveRotation);
-    const f32 scale[3] = { port_wsCameraPitchScale(), port_wsCameraYawScale(), 1.0f };
+    const f32 scale[3] = { CameraPatches_GetWidescreenPitchScale(), CameraPatches_GetWidescreenYawScale(), 1.0f };
     f32 delta[3];
     f32 tableAdjust[3];
     for (int i = 0; i < 3; i++) {

@@ -122,7 +122,7 @@ void chRBBWhistleSwitch_free(Actor *this){
     if(local->unkC != NULL){
         // [port] No queued display list may still reference these vertices once
         // they are handed back to the heap.
-        port_pipelineSyncPoint();
+        Graphics_PipelineSyncPoint();
         vtxList_free(local->unkC);
         vtxList_free(local->portVtxBack);
         local->unkC = NULL;

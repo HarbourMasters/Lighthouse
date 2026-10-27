@@ -19,7 +19,7 @@ static int32_t sTransitionModelId = 0;
 static int32_t sTransitionUid = 0;
 static int32_t sTransitionSubstate = 0;
 
-extern "C" int port_shouldCaptureTransition(void) {
+extern "C" int TransitionPatches_ShouldCapture(void) {
     if (sTransitionModelId != ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES) {
         return 0;
     }
@@ -42,7 +42,7 @@ void RegisterTransitionPatches_Init() {
 
     // Widescreen transition scaling. For the falling jiggy pieces, X-scale the
     // projection so the pieces fill a non-4:3 viewport; the captured-FB UVs
-    // (port_patchTransitionModel) map 1:1 to match. Other transitions get a small
+    // (Framebuffer_PatchTransitionModel) map 1:1 to match. Other transitions get a small
     // overscan. Structural widescreen fix, always on.
     REGISTER_LISTENER(OnTransitionModelScale, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnTransitionModelScale*)event;

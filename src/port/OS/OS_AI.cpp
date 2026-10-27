@@ -37,7 +37,7 @@ int32_t AudioCatchupFrames() {
     if (sLastFrameWasCatchup) {
         return 0;
     }
-    if (port_audioHeld() || port_audioStallHold()) {
+    if (GameEngine_IsAudioHeld() || AudioSync_IsStallHeld()) {
         return 0;
     }
     const int32_t deficit = AudioPlayerGetDesiredBuffered() - AudioPlayerBuffered();
@@ -46,7 +46,7 @@ int32_t AudioCatchupFrames() {
 
 } // namespace
 
-extern "C" int32_t port_audioPumpShouldWait(void) {
+extern "C" int32_t OS_AudioPumpShouldWait(void) {
     if (sCatchupOwed > 0) {
         sCatchupOwed--;
         sLastFrameWasCatchup = true;

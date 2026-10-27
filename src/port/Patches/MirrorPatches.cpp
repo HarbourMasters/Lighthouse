@@ -41,24 +41,24 @@ extern void mlMtxScale_xyz(f32 x, f32 y, f32 z);
 // Animation state in render.c — non-NULL when the current model is animated
 extern AnimMtxList* D_8038371C;
 
-int port_mirror_active(void) {
+int MirrorPatches_IsActive(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0);
 }
 
-void port_mirror_beginScene(void) {
+void MirrorPatches_BeginScene(void) {
     sMirrorSceneActive = true;
     sMirrorAppliedProjection = false;
 }
 
-void port_mirror_endScene(void) {
+void MirrorPatches_EndScene(void) {
     sMirrorSceneActive = false;
 }
 
 // Apply horizontal mirror via projection scale and invert culling.
 // guScale(-1,1,1) reverses triangle winding order, so G_EX_INVERT_CULLING
 // tells the LUS interpreter to negate the cross product during culling checks.
-void port_viewport_applyMirror(Gfx** gfx, Mtx** mtx) {
-    if (port_mirror_active() && sMirrorSceneActive) {
+void MirrorPatches_ApplyViewport(Gfx** gfx, Mtx** mtx) {
+    if (MirrorPatches_IsActive() && sMirrorSceneActive) {
         guScale(*mtx, -1.0f, 1.0f, 1.0f);
         gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
         gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
@@ -71,7 +71,7 @@ void port_viewport_applyMirror(Gfx** gfx, Mtx** mtx) {
 
 // After scene draw, rebuild the projection without the mirror scale so
 // HUD elements (speech bubble, jiggy icon, pause menu) render normally.
-void port_mirror_undoProjection(Gfx** gfx, Mtx** mtx) {
+void MirrorPatches_UndoProjection(Gfx** gfx, Mtx** mtx) {
     if (sMirrorAppliedProjection) {
         extern void viewport_setRenderViewportAndPerspectiveMatrix(Gfx**, Mtx**);
         viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
@@ -81,21 +81,21 @@ void port_mirror_undoProjection(Gfx** gfx, Mtx** mtx) {
 
 // --- Pause menu capture state tracking ---
 
-void port_mirror_markCapture(void) {
-    sMirrorAtCapture = port_mirror_active();
+void MirrorPatches_MarkCapture(void) {
+    sMirrorAtCapture = MirrorPatches_IsActive();
 }
 
-int port_mirror_shouldFlipPauseBg(void) {
-    return port_mirror_active() != sMirrorAtCapture ? 1 : 0;
+int MirrorPatches_ShouldFlipPauseBg(void) {
+    return MirrorPatches_IsActive() != sMirrorAtCapture ? 1 : 0;
 }
 
 // --- Per-model counter-mirror for text-bearing objects ---
 
-void port_mirror_setExclude(void) {
+void MirrorPatches_SetExclude(void) {
     sMirrorExcludeNextModel = true;
 }
 
-void port_mirror_clearExclude(void) {
+void MirrorPatches_ClearExclude(void) {
     sMirrorExcludeNextModel = false;
 }
 
@@ -104,7 +104,7 @@ void port_mirror_clearExclude(void) {
 // making text readable. Skips animated models (D_8038371C != NULL) because
 // bone transforms use G_MTX_LOAD which would lose the counter-mirror while
 // G_EX_INVERT_CULLING is cleared, causing bone geometry to be culled.
-int port_mirror_bakeCounterScale(void) {
+int MirrorPatches_BakeCounterScale(void) {
     if (!sMirrorExcludeNextModel || !sMirrorAppliedProjection)
         return 0;
     sMirrorExcludeNextModel = false;
@@ -117,25 +117,25 @@ int port_mirror_bakeCounterScale(void) {
 // --- Wrapper draw functions ---
 
 static Actor* mirror_excluded_lair_func_80387560(ActorMarker* m, Gfx** g, Mtx** t, Vtx** v) {
-    if (port_mirror_active())
-        port_mirror_setExclude();
+    if (MirrorPatches_IsActive())
+        MirrorPatches_SetExclude();
     Actor* r = sOrig_lair_func_80387560(m, g, t, v);
-    port_mirror_clearExclude();
+    MirrorPatches_ClearExclude();
     return r;
 }
 
 static Actor* mirror_excluded_actor_draw(ActorMarker* m, Gfx** g, Mtx** t, Vtx** v) {
-    if (port_mirror_active())
-        port_mirror_setExclude();
+    if (MirrorPatches_IsActive())
+        MirrorPatches_SetExclude();
     Actor* r = sOrig_actor_draw(m, g, t, v);
-    port_mirror_clearExclude();
+    MirrorPatches_ClearExclude();
     return r;
 }
 
 // Patch ActorInfo draw_func pointers for text-bearing models.
-// Called once at init. Wrappers check port_mirror_active() so they're
+// Called once at init. Wrappers check MirrorPatches_IsActive() so they're
 // no-ops when mirror mode is off.
-void port_mirror_patchTextActors(void) {
+void MirrorPatches_PatchTextActors(void) {
     // Level entry signs
     sOrig_lair_func_80387560 = (ActorDrawFunc)lair_func_80387560;
     D_80393354.draw_func = mirror_excluded_lair_func_80387560;

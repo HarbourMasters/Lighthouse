@@ -123,7 +123,7 @@ struct WsAuthoredCamera {
 static WsAuthoredCamera sWsAuthored;
 static float sWsLastAspect;
 
-extern "C" float port_wsCameraYawScale(void) {
+extern "C" float CameraPatches_GetWidescreenYawScale(void) {
     float fovY = sViewportFOVy > 0.0f ? sViewportFOVy : 40.0f;
     float tanHalfFovY = std::tan((fovY * 0.5f) * (float)(M_PI / 180.0));
     float base = std::atan(tanHalfFovY * sViewportAspect);
@@ -135,12 +135,12 @@ extern "C" float port_wsCameraYawScale(void) {
     return extra > 0.0f ? extra / reference : 0.0f;
 }
 
-extern "C" float port_wsCameraPitchScale(void) {
-    return std::sqrt(port_wsCameraYawScale());
+extern "C" float CameraPatches_GetWidescreenPitchScale(void) {
+    return std::sqrt(CameraPatches_GetWidescreenYawScale());
 }
 
 static void wsCameraScales(float scale[3]) {
-    scale[1] = port_wsCameraYawScale();
+    scale[1] = CameraPatches_GetWidescreenYawScale();
     scale[0] = std::sqrt(scale[1]);
     scale[2] = 1.0f;
 }

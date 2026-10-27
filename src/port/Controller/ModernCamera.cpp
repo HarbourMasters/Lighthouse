@@ -37,7 +37,7 @@ using namespace PortCamera;
 
 bool ModernSchemeActive() {
     return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN &&
-           !port_freeLook_isEnabled() && port_rightStickIsMapped();
+           !FreeLookCamera_IsEnabled() && port_rightStickIsMapped();
 }
 
 constexpr int kClimbCamState = 0x10;
@@ -161,7 +161,7 @@ extern "C" int port_modernCamera_handleYaw(void) {
     return 0;
 }
 
-extern "C" void port_modernCamera_update(void) {
+extern "C" void ModernCamera_Update(void) {
     float dt = time_getDelta();
 
     // Drive yaw from the stick. Freeze it during look-around so it doesn't drift
@@ -170,7 +170,7 @@ extern "C" void port_modernCamera_update(void) {
         float x;
         float y;
         ReadStickNorm(x, y);
-        D_8037DB70 = mlNormalizeAngle(D_8037DB70 + YawInput(x) * kYawSpeed * dt * port_cameraInvertXSign());
+        D_8037DB70 = mlNormalizeAngle(D_8037DB70 + YawInput(x) * kYawSpeed * dt * ModernCamera_GetInvertXSign());
     }
 
     // From here down this is ncDynamicCamB_update with our own yaw and height filter.
@@ -216,7 +216,7 @@ extern "C" void port_modernCamera_update(void) {
 }
 
 extern "C" int port_camera_suppressVanillaZoom(void) {
-    if (IsDemoMode() || port_freeLook_isEnabled()) {
+    if (IsDemoMode() || FreeLookCamera_IsEnabled()) {
         return 0;
     }
     int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
@@ -279,14 +279,14 @@ extern "C" void port_modernCamera_handleZoom(void) {
     }
 }
 
-extern "C" float port_cameraInvertXSign(void) {
+extern "C" float ModernCamera_GetInvertXSign(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertX"), 0) ? -1.0f : 1.0f;
 }
 
-extern "C" float port_cameraInvertYSign(void) {
+extern "C" float ModernCamera_GetInvertYSign(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertY"), 0) ? -1.0f : 1.0f;
 }
 
-extern "C" float port_firstPersonInvertXSign(void) {
+extern "C" float ModernCamera_GetFirstPersonInvertXSign(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0) ? -1.0f : 1.0f;
 }

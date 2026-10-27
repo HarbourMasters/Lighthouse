@@ -474,7 +474,7 @@ void print_init(void){
     print_sFontSpriteAssets[4] = assetcache_get(print_getCurrentMapBoldFontTexture());
     print_sFonts[0] =  print_getLettersFromFont(print_sFontSpriteAssets[0], print_sFontSpriteAssets[4]);
     print_sDialogFontGlyphCount = sprite_getFramePtr(print_sFontSpriteAssets[0], 0)->chunkCnt;
-    port_dialogFontHd_rebuild();
+    AltDialogFont_RebuildHd();
     print_sFonts[1] =  print_getLettersFromFont(print_sFontSpriteAssets[1], print_sFontSpriteAssets[4]);
     if (PRINT_JP) {
         // [port] JP font index 2 = the Japanese dialog font (sprite 1770, 256 I4 glyphs).
@@ -988,7 +988,7 @@ void _printbuffer_push_new(s32 x, s32 y, u8 * string) {
 void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72l" : "fl");
+        bk_strcpy(print_sCurrentPtr->fmtString, SpritePatches_DialogFontUsesShiftedCodes() ? "\x72l" : "fl");
         print_sCurrentPtr->scale = arg2;
     }
 }
@@ -996,21 +996,21 @@ void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
 void print_bold_spaced(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72" : "f");
+        bk_strcpy(print_sCurrentPtr->fmtString, SpritePatches_DialogFontUsesShiftedCodes() ? "\x72" : "f");
     }
 }
 
 void print_dialog(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6Flq" : "elq");
+        bk_strcpy(print_sCurrentPtr->fmtString, SpritePatches_DialogFontUsesShiftedCodes() ? "\x6Flq" : "elq");
     }
 }
 
 void print_dialog_w_bg(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "p\x6D" : "pb");
+        bk_strcpy(print_sCurrentPtr->fmtString, SpritePatches_DialogFontUsesShiftedCodes() ? "p\x6D" : "pb");
     }
 }
 
@@ -1028,7 +1028,7 @@ void print_dialog_gradient2(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
     if(print_sCurrentPtr){
         print_sCurrentPtr->topVertexAlpha = arg3;
         print_sCurrentPtr->bottomVertexAlpha = arg4;
-        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6E\x6Flq" : "delq");
+        bk_strcpy(print_sCurrentPtr->fmtString, SpritePatches_DialogFontUsesShiftedCodes() ? "\x6E\x6Flq" : "delq");
 
     }
 }

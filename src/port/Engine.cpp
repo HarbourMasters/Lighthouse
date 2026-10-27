@@ -434,7 +434,7 @@ void GameEngine::Create(int argc, char* argv[]) {
 
 extern void ResourceHelpers_ClearRefCache();
 void ReleaseSoundfonts();
-extern "C" void port_alBnkfFreeAll();
+extern "C" void AudioSoundFont_FreeAll();
 
 void GameEngine::Destroy() {
     if (Instance->context && Instance->context->GetControlDeck()) {
@@ -470,7 +470,7 @@ void GameEngine::ArchivesChanged() {
         interpreter->TextureCacheClear();
     }
     ResourceHelpers_ClearRefCache();
-    port_spriteDisplayCache_clear();
+    SpritePatches_ClearDisplayCache();
 }
 
 void GameEngine::StartFrame() const {
@@ -541,7 +541,7 @@ extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
     return SAMPLES_PER_FRAME;
 }
 
-extern "C" void port_beginDemoAudioHold(void) {
+extern "C" void GameEngine_BeginDemoAudioHold(void) {
     if (kDemoAudioHoldFrames <= 0) {
         return;
     }
@@ -549,18 +549,18 @@ extern "C" void port_beginDemoAudioHold(void) {
     sHoldAudio.store(true);
 }
 
-extern "C" void port_tickDemoAudioHold(void) {
+extern "C" void GameEngine_TickDemoAudioHold(void) {
     if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
         sHoldAudio.store(false);
     }
 }
 
-extern "C" int port_audioHeld(void) {
+extern "C" int GameEngine_IsAudioHeld(void) {
     return sHoldAudio.load() ? 1 : 0;
 }
 
 void ReleaseSoundfonts() {
-    port_alBnkfFreeAll();
+    AudioSoundFont_FreeAll();
 }
 
 extern "C" uint32_t GameEngine_GetSampleRate() {

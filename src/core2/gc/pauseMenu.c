@@ -46,9 +46,9 @@ extern void print_resetBoldFontTexture(void);
 extern void code_73640_printItemCount(enum item_e);
 
 // [port] JP pause-menu world-name banner
-extern s32 port_pauseBannerUpdate(s32 page_id);
-extern BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
-extern void port_pauseBannerFree(void);
+extern s32 SpritePatches_UpdatePauseBanner(s32 page_id);
+extern BKSprite* SpritePatches_GetPauseBannerDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
+extern void SpritePatches_FreePauseBanner(void);
 
 enum gcpausemenu_state_e {
     PAUSE_STATE_0_MENU_INIT,
@@ -243,7 +243,7 @@ void gcpausemenu_free(void) {
         D_80383010.b_button_sprite = NULL;
     }
     gcpausemenu_zoomboxes_free();
-    port_pauseBannerFree(); // [port]
+    SpritePatches_FreePauseBanner(); // [port]
     gcdialog_decrementYPositionModifier();
 }
 
@@ -888,7 +888,7 @@ void gcpausemenu_printTotalsHeader(s32 page_id) {
     const char *name = port_getRomhackLevelName(page_id);
     // [port] If a pre-rendered world-name banner exists (JP, or a language pack that ships one),
     // draw it here instead of the bold-font name.
-    if (port_pauseBannerUpdate(page_id)) {
+    if (SpritePatches_UpdatePauseBanner(page_id)) {
         return;
     }
     // [port] A custom romhack name inherits the vanilla name's hand-tuned x; let a
@@ -1047,9 +1047,9 @@ s32 gcPauseMenu_update(void) {
             break;
 
         case PAUSE_STATE_2_MENU: //open
-            if (port_pauseMenuNeedsRefresh()) {
+            if (Localization_PauseMenuNeedsRefresh()) {
                 D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
-                port_pauseMenuRebuild();
+                Localization_RebuildPauseMenu();
                 break;
             }
             if (D_80383010.unk70_31 && !func_802FC3C4()) {
@@ -1473,7 +1473,7 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         // [port] Aspect changed while paused (e.g. an advanced-resolution toggle): re-enable
         // world draw and re-run the capture sequence so the frozen background re-frames to the
         // new aspect instead of showing a stretched snapshot.
-        if (port_pauseConsumeRecaptureRequest()) {
+        if (Framebuffer_ConsumePauseRecapture()) {
             gsworld_setEnableDraw(1);
             D_8036C620 = 1;
         }
@@ -1497,7 +1497,7 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         {
             // [port] World-name title banner (JP, or a language pack that ships one)
             f32 bx, by, bw, bh;
-            BKSprite *banner = port_pauseBannerGetDraw(D_80383010.unk8, &bx, &by, &bw, &bh);
+            BKSprite *banner = SpritePatches_GetPauseBannerDraw(D_80383010.unk8, &bx, &by, &bw, &bh);
             if (banner != NULL) {
                 __gcpausemenu_drawSprite(gfx, mtx, vtx, banner, 0, bx, by, bw, bh, 0xFF);
             }
