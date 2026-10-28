@@ -78,7 +78,10 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     temp_f0 = sp3C * self->sprite->unk8;
     temp_f12 = sp38 * self->sprite->unkA;
     var_f2_2 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
-    if (GraphicsPatches_IsSpriteSizeCulled(temp_f14, var_f2_2, D_80371ECC, D_803858B0)) {
+    f32 cullScale = 1.0f;
+    CALL_EVENT(DrawDistanceScale, &cullScale);
+//  if ((3000.0f < temp_f14) && ((var_f2_2 / temp_f14) < D_80371ECC) && !D_803858B0) {
+    if ((3000.0f * cullScale < temp_f14) && (((var_f2_2 / temp_f14) * cullScale) < D_80371ECC) && !D_803858B0) {
         func_80344124();
     FrameInterpolation_RecordCloseChild();
         return;
@@ -152,7 +155,10 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     temp_f0 = sp3C * arg0->sprite->unk8;
     temp_f12 = sp38 * arg0->sprite->unkA;
     var_f2_2 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
-    if (GraphicsPatches_IsSpriteSizeCulled(sp5C, var_f2_2, D_80371ECC, D_803858B0)) {
+    f32 cullScale = 1.0f;
+    CALL_EVENT(DrawDistanceScale, &cullScale);
+//  if ((3000.0f < sp5C) && ((var_f2_2 / sp5C) < D_80371ECC) && !D_803858B0) {
+    if ((3000.0f * cullScale < sp5C) && (((var_f2_2 / sp5C) * cullScale) < D_80371ECC) && !D_803858B0) {
         func_80344124();
     FrameInterpolation_RecordCloseChild();
         return;
@@ -218,7 +224,10 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     temp_f0 = scale[0] * arg0->sprite->unk8;
     temp_f12 = scale[1] * arg0->sprite->unkA;
     var_f14 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
-    if (GraphicsPatches_IsSpriteSizeCulled(sp4C, var_f14, D_80371ECC, D_803858B0)) {
+    f32 cullScale = 1.0f;
+    CALL_EVENT(DrawDistanceScale, &cullScale);
+//  if ((3000.0f < sp4C) && ((var_f14 / sp4C) < D_80371ECC) && !D_803858B0) {
+    if ((3000.0f * cullScale < sp4C) && (((var_f14 / sp4C) * cullScale) < D_80371ECC) && !D_803858B0) {
         func_80344124();
         FrameInterpolation_RecordCloseChild();
         return;

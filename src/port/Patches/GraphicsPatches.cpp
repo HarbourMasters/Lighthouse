@@ -71,20 +71,6 @@ float GraphicsPatches_GetDrawDistanceMultiplier(void) {
     return (float)level + 0.1f; // Nudge
 }
 
-void GraphicsPatches_ApplyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist) {
-    float mul = GraphicsPatches_GetDrawDistanceMultiplier();
-    *cullMult *= mul;
-    *cullDist *= mul;
-}
-
-int GraphicsPatches_IsSpriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag) {
-    if (disableFlag) {
-        return 0;
-    }
-    float scale = GraphicsPatches_GetDrawDistanceMultiplier();
-    return (3000.0f * scale < depth) && (((size / depth) * scale) < baseThreshold);
-}
-
 int GraphicsPatches_IsLodDisabled(void) {
     if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
         return 0;
@@ -125,22 +111,63 @@ void RegisterLevelOcclusion_Init() {
 static RegisterShipInitFunc sInitLevelOcclusion(RegisterLevelOcclusion_Init, { CVAR_DRAW_DISTANCE });
 
 static void RegisterDrawDistanceGraphics_Init() {
-    COND_HOOK(DrawDistanceCubeWidth, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DRAW_DISTANCE, 1) > 1,
-              [](IEvent* event) {
-                  int mul = GraphicsPatches_GetDrawDistanceLevel();
-                  if (mul <= 1) {
-                      return;
-                  }
-                  auto* ev = (DrawDistanceCubeWidth*)event;
-                  int width = sDrawDistanceCubeWidth(mul);
-                  if (width > ev->mapWidth) {
-                      width = ev->mapWidth;
-                  }
-                  *ev->width = width;
-              });
+    const bool extended = CVarGetInteger(CVAR_DRAW_DISTANCE, 1) > 1;
+
+    COND_HOOK(DrawDistanceCubeWidth, EVENT_PRIORITY_NORMAL, extended, [](IEvent* event) {
+        int mul = GraphicsPatches_GetDrawDistanceLevel();
+        if (mul <= 1) {
+            return;
+        }
+        auto* ev = (DrawDistanceCubeWidth*)event;
+        int width = sDrawDistanceCubeWidth(mul);
+        if (width > ev->mapWidth) {
+            width = ev->mapWidth;
+        }
+        *ev->width = width;
+    });
+    COND_HOOK(DrawDistanceScale, EVENT_PRIORITY_NORMAL, extended, [](IEvent* event) {
+        *((DrawDistanceScale*)event)->distance *= GraphicsPatches_GetDrawDistanceMultiplier();
+    });
+    COND_HOOK(ModelCullDistance, EVENT_PRIORITY_NORMAL, extended, [](IEvent* event) {
+        auto* ev = (ModelCullDistance*)event;
+        float mul = GraphicsPatches_GetDrawDistanceMultiplier();
+        *ev->multiplier *= mul;
+        *ev->distance *= mul;
+    });
+    // The setting, not the render-time level, which is still 1x during the map load that sizes the queue.
+    COND_HOOK(SpawnQueueCapacity, EVENT_PRIORITY_NORMAL, extended, [](IEvent* event) {
+        *((SpawnQueueCapacity*)event)->capacity *= (u32)GraphicsPatches_GetDrawDistanceSetting();
+    });
 }
 
 static RegisterShipInitFunc drawDistanceGraphicsInit(RegisterDrawDistanceGraphics_Init, { CVAR_DRAW_DISTANCE });
+
+static void RegisterDisableLod_Init() {
+    const bool disableLod = CVarGetInteger(CVAR_DISABLE_LOD, 0);
+
+    COND_HOOK(ModelLodDistance, EVENT_PRIORITY_NORMAL, disableLod, [](IEvent* event) {
+        if (GraphicsPatches_IsLodDisabled()) {
+            *((ModelLodDistance*)event)->distance = 1.0f;
+        }
+    });
+    COND_VB_SHOULD(VB_MODEL_SIZE_CULL, EVENT_PRIORITY_NORMAL, disableLod, {
+        if (GraphicsPatches_IsLodDisabled()) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAYER_LOW_POLY, EVENT_PRIORITY_NORMAL, disableLod, {
+        if (GraphicsPatches_IsLodDisabled()) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_SHADOW_DISTANCE_CULL, EVENT_PRIORITY_NORMAL, disableLod, {
+        if (GraphicsPatches_IsLodDisabled()) {
+            *should = false;
+        }
+    });
+}
+
+static RegisterShipInitFunc disableLodInit(RegisterDisableLod_Init, { CVAR_DISABLE_LOD });
 
 static void RefreshDrawDistanceCVars() {
     int mul = CVarGetInteger(CVAR_DRAW_DISTANCE, 1);

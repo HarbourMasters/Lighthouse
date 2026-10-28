@@ -201,10 +201,8 @@ void spawnQueue_malloc(void){
     spawnQueue = (FunctionQueue *) bk_malloc(tmp * sizeof(FunctionQueue));
 #endif
     u32 base = (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
-    // [port] The setting, not the render-time level: this runs during a map load, where
-    // GraphicsPatches_GetDrawDistanceLevel() clamps to 1x and would under-size the queue for the
-    // gameplay that follows.
-    sSpawnQueueMax = base * (u32) GraphicsPatches_GetDrawDistanceSetting();
+    sSpawnQueueMax = base;
+    CALL_EVENT(SpawnQueueCapacity, &sSpawnQueueMax);
     spawnQueue = (FunctionQueue *) bk_malloc(sSpawnQueueMax * sizeof(FunctionQueue));
 }
 

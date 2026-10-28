@@ -89,8 +89,6 @@ int GraphicsPatches_GetDrawDistanceSetting(void); // configured multiplier; safe
 int GraphicsPatches_GetDrawDistanceLevel(void);   // render-time multiplier; clamped to 1x outside normal gameplay
 int GraphicsPatches_IsLodDisabled(void);
 float GraphicsPatches_GetDrawDistanceMultiplier(void);
-void GraphicsPatches_ApplyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist);
-int GraphicsPatches_IsSpriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
 float GraphicsPatches_GetHudOrthoShift(float refX);
 
 // Vertex-animated models (AnimVertexPatches.cpp)

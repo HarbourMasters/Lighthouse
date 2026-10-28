@@ -744,12 +744,9 @@ void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     
     if (cmd->branch_offset) {
         s32 draw;
-        if (GraphicsPatches_IsLodDisabled()) {
-            dist = 1.0f;
-        } else {
-            mlMtx_apply_vec3f(transformed_pos, cmd->position);
-            dist = LENGTH_VEC3F(transformed_pos);
-        }
+        mlMtx_apply_vec3f(transformed_pos, cmd->position);
+        dist = LENGTH_VEC3F(transformed_pos);
+        CALL_EVENT(ModelLodDistance, &dist);
 //      if ((cmd->min < dist) && (dist <= cmd->max)) {
         draw = (cmd->min < dist) && (dist <= cmd->max);
         draw = GeoCull_ShouldDraw(OCCLUSION_CMD_LOD, cmd, modelRenderModelBin, draw, NULL, 0, (s32)cmd->min, (s32)cmd->max);
@@ -938,8 +935,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         return NULL;
     }
 
-    // [port] Extended draw distance: scale/extend the model cull, keep the fade flag.
-    GraphicsPatches_ApplyModelDrawDistanceCull(&D_80383710, &D_8038370C, &D_80383708);
+    // [port] Extended draw distance: scale/extend the model cull.
+    CALL_EVENT(ModelCullDistance, &D_8038370C, &D_80383708);
 
     D_80370990 = FALSE;
 
@@ -1004,7 +1001,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
     camera_focus_distance = gu_sqrtf(camera_focus[0]*camera_focus[0] + camera_focus[1]*camera_focus[1] + camera_focus[2]*camera_focus[2]);
 //  if( 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
-    if( !GraphicsPatches_IsLodDisabled() && 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
+    if( EventSystem_Should(VB_MODEL_SIZE_CULL, true) && 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 

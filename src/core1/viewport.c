@@ -363,7 +363,9 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     {
         // [port] Extended draw distance: scale the cube cull threshold by the distance multiplier.
         // Vanilla threshold is 1.6e7 (4000 units squared); the multiplier is linear, so square it.
-        f32 mul = GraphicsPatches_GetDrawDistanceMultiplier();
+        f32 mul = 1.0f;
+        CALL_EVENT(DrawDistanceScale, &mul);
+//      if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
         if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f * mul * mul) {
             return false;
         }
@@ -386,7 +388,7 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
     s32 i;
 
     // [port] Extended draw distance: scale bounding radius by the distance multiplier.
-    distance *= GraphicsPatches_GetDrawDistanceMultiplier();
+    CALL_EVENT(DrawDistanceScale, &distance);
 
     delta[0] = pos[0] - sViewportPosition[0];
     delta[1] = pos[1] - sViewportPosition[1];

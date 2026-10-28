@@ -93,10 +93,12 @@ f32 func_802D7038(Actor *this) {
 
 void func_802D7124(Actor *actor, f32 arg1) {
     f32 vp[3];
-    f32 mul = GraphicsPatches_GetDrawDistanceMultiplier();
+    f32 mul = 1.0f;
 
+    CALL_EVENT(DrawDistanceScale, &mul);
     viewport_getPosition_vec3f(vp);
-    if (GraphicsPatches_IsLodDisabled()
+//  if ((actor->position[0] - vp[0]) * (actor->position[0] - vp[0]) + (actor->position[2] - vp[2]) * (actor->position[2] - vp[2]) < 12250000.0f) {
+    if (!EventSystem_Should(VB_SHADOW_DISTANCE_CULL, true)
         || (actor->position[0] - vp[0]) * (actor->position[0] - vp[0]) + (actor->position[2] - vp[2]) * (actor->position[2] - vp[2]) < 12250000.0f * mul * mul) {
         func_802D729C(actor, arg1);
     }
