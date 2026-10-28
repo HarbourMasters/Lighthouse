@@ -1,5 +1,6 @@
 #include "Anchor.h"
 #include "Authority.h"
+#include "CarriedSync.h"
 #include <cstring>
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
@@ -9,6 +10,7 @@
 #include "port/ObjectExtension/ObjectExtension.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/FrameHost.h"
+#include "port/Patches/Patches.h"
 
 #include "variables.h"
 #include "functions.h"
@@ -431,13 +433,6 @@ void Anchor::RemoveDummy(uint32_t clientId) {
         dummies.erase(clientId);
     }
 }
-
-extern "C" s32 cutsceneWarp_getReturnMap(void);
-extern void BreakObject_ClearForLevel(int32_t levelId);
-extern void HutSmash_ClearForLevel(int32_t levelId);
-extern void EggToll_ClearForLevel(int32_t levelId);
-extern void PuzzleStep_ClearForLevel(int32_t levelId);
-extern void CarriedSync_ClearForLevel(int32_t levelId);
 
 s32 Anchor_LevelOfMap(s32 map) {
     if (map <= 0 || map >= MAP_NUM_MAPS) {

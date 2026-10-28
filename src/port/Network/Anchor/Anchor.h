@@ -52,6 +52,31 @@ struct RoomState {
 };
 
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
+s32 Anchor_LevelOfMap(s32 map);
+void Anchor_DespawnCollectedCollectibles();
+int32_t ScopedFlag_WasMapFlagSetRemotely(int32_t index);
+void SpawnJiggy_Remove(int32_t jiggyId);
+int32_t SpawnJiggy_IsRecorded(int32_t jiggyId);
+
+// In-memory session sets that aren't part of the save but still ride team state, as flat int tuples.
+std::vector<int32_t> BreakObject_SnapshotBroken();
+void BreakObject_RestoreBroken(const std::vector<int32_t>& flat);
+void BreakObject_ClearForLevel(int32_t levelId);
+std::vector<int32_t> EggToll_Snapshot();
+void EggToll_Restore(const std::vector<int32_t>& flat);
+void EggToll_ClearForLevel(int32_t levelId);
+std::vector<int32_t> HutSmash_Snapshot();
+void HutSmash_Restore(const std::vector<int32_t>& flat);
+void HutSmash_ClearForLevel(int32_t levelId);
+std::vector<int32_t> PuzzleStep_Snapshot();
+void PuzzleStep_Restore(const std::vector<int32_t>& flat);
+void PuzzleStep_ClearForLevel(int32_t levelId);
+std::vector<int32_t> PuzzleStep_SnapshotPositions();
+void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat);
+std::vector<int32_t> PuzzleStep_SnapshotCounts();
+void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat);
+std::vector<int32_t> SpawnJiggy_Snapshot();
+void SpawnJiggy_Restore(const std::vector<int32_t>& flat);
 
 class Anchor : public Network {
 private:

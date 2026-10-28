@@ -1,4 +1,5 @@
 #include <libultraship/bridge.h>
+#include "port/Enhancements/Backports/TooieJiggyDance.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/Shared/HackShared.h"
 
@@ -7,9 +8,6 @@ extern "C" {
 #include "functions.h"
 #include "core2/model.h"
 }
-
-// The Tooie jiggy animation exists in this hack
-void TooieJiggyDance_ForceEnable();
 
 // The hack draws these from far away, so they don't pop in
 constexpr SpawnRewrite kBubblingBogSpawnRewrites[] = {
@@ -50,6 +48,7 @@ static void BubblingBog_RestoreBogHazard(BKModelBin* bin) {
 }
 
 void RegisterBubblingBogPatches() {
+    // The Tooie jiggy animation exists in this hack
     TooieJiggyDance_ForceEnable();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
     HackShared_EnableSpawnRewrites(kBubblingBogSpawnRewrites);

@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include <n_audio/PR/n_libaudio.h>
+#include "port/Audio/AudioSoundFont.h"
 
 extern void func_80243070(Struct87s *arg0);
 
@@ -16,7 +17,6 @@ void sfxInstruments_init(void) {
 
     // [port] the soundfont ships as one resource per sound rather than a ctl/tbl pair;
     // assemble the bank from the descriptor and the sounds it names
-    extern ALBankFile *AudioSoundFont_LoadBankFile(const char *descriptorPath);
     bnk_f = AudioSoundFont_LoadBankFile("assets/sfx_bank");
 
     bnk = bnk_f->bankArray[0];

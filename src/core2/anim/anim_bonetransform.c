@@ -234,9 +234,6 @@ bool asset_isCompressed(enum asset_e arg0){ //asset_compressed?
     return (assetSectionRomMetaList[arg0].compFlag & 1) !=0;
 }
 
-// [port] Sprite display data cache lives in SpritePatches.cpp
-extern BKSpriteDisplayData *SpritePatches_GetOrCreateDisplayData(BKSprite *sprite);
-
 //returns raw sprite(as saved in ROM) and points arg1 to a parsed sprite(?)
 BKSprite *codeB3A80_getSprite(enum asset_e sprite_id, BKSpriteDisplayData **arg1){
     BKSprite *s0;
@@ -277,7 +274,6 @@ void *assetcache_get(enum asset_e assetId) {
 // cache preserves modified data (e.g. displaced vertices in map models).
 // Use this for assets whose data gets mutated at runtime.
 void *assetcache_reload(enum asset_e assetId) {
-    extern char* ResourceMgr_ReloadByAssetId(uint32_t);
     void *result = ResourceMgr_ReloadByAssetId(assetId);
     if (result) {
         assetCacheCurrentSize = (s32)ResourceMgr_GetResourceSize(assetId);

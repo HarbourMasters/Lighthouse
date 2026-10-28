@@ -44,11 +44,6 @@ extern void print_setBoldFontTexture(enum asset_e);
 extern void print_resetBoldFontTexture(void);
 extern void code_73640_printItemCount(enum item_e);
 
-// [port] JP pause-menu world-name banner
-extern s32 SpritePatches_UpdatePauseBanner(s32 page_id);
-extern BKSprite* SpritePatches_GetPauseBannerDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
-extern void SpritePatches_FreePauseBanner(void);
-
 enum gcpausemenu_state_e {
     PAUSE_STATE_0_MENU_INIT,
     PAUSE_STATE_1_MENU_OPENING,

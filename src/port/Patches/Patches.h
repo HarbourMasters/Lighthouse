@@ -14,11 +14,14 @@ extern "C" {
 
 // Carries the interpolation pair with a submitted display list.
 void Graphics_OnThread5Submit(void* taskData);
+void Graphics_ReleaseRcpTask(void);
+int Graphics_RenderServicePending(void);
 // Runs fn on the window thread when the tick is on its own thread.
 void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg);
 void Graphics_ServiceRenderRequests(void);
 // Waits for in-flight display lists before freeing or reading what they use.
 void Graphics_PipelineSyncPoint(void);
+void Graphics_PushFrame(Gfx* data);
 
 // Frame Pacing (FramePacingPatches.cpp)
 
@@ -47,6 +50,7 @@ int SpritePatches_DialogFontUsesShiftedCodes(void);   // format codes shifted pa
 void Framebuffer_FreezeReadback(int freeze);
 void Framebuffer_RequestReadback(void);
 int Framebuffer_ConsumeReadbackRequest(void);
+void Framebuffer_ReadbackGPU(int bufferIndex);
 int Framebuffer_GetPauseId(void);
 int Framebuffer_CapturePause(void);
 void Framebuffer_GetPauseSize(int* w, int* h);
@@ -62,6 +66,13 @@ void Framebuffer_PatchTransitionModel(void* model_bin);
 // Sprite Display Cache (SpritePatches.cpp)
 
 void SpritePatches_ClearDisplayCache(void);
+BKSpriteDisplayData* SpritePatches_GetOrCreateDisplayData(BKSprite* sprite);
+
+// JP pause-menu world-name banner (SpritePatches.cpp)
+
+s32 SpritePatches_UpdatePauseBanner(s32 page_id);
+BKSprite* SpritePatches_GetPauseBannerDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
+void SpritePatches_FreePauseBanner(void);
 
 // Camera (CameraPatches.cpp)
 
@@ -211,6 +222,7 @@ void eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 void remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 void remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void remoteCarry_reset(void);
+s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
 
 // Connected, in a real room, syncing world state.
 int32_t Anchor_IsWorldSyncActive(void);

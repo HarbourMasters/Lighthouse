@@ -4,9 +4,6 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void Graphics_PushFrame(Gfx* data);
-extern void Framebuffer_ReadbackGPU(int bufferIndex);
-
 #include "core2/gc/transition.h"
 #include "bk_time.h"
 

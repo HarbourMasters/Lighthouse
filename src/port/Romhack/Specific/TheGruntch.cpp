@@ -6,6 +6,8 @@
 #include <libultraship/bridge.h>
 #include <cmath>
 
+#include "port/Enhancements/Backports/TooieJiggyDance.h"
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/Shared/HackShared.h"
@@ -46,8 +48,6 @@ extern PauseTotalsRow D_8036C520[4];
 extern s8 D_8036C5F4[];
 extern s32 D_803726F0[2];
 }
-
-void TooieJiggyDance_ForceEnable();
 
 // Suppressed dialogs
 constexpr int kGruntchSuppressedDialogs[] = {
@@ -686,8 +686,6 @@ constexpr StealthNoiseConfig kGruntchStealth = {
 //     { MAP_2E_MMM_HONEYCOMB_ROOM, -112.0f },
 //     { MAP_3D_RBB_NAVIGATION_ROOM, -352.0f },
 // };
-
-void CluckerCutscene_ForceSkip();
 
 // ------------------------------------------------------- Patch registration
 void RegisterGruntchPatches() {

@@ -8,8 +8,7 @@
 
 #include <core2/file.h>
 #include "port/Interpolation/FrameInterpolation.h"
-
-extern int ResourceMgr_IsModelAsset(uint32_t assetId);
+#include "port/ResourceHelpers.h"
 
 #define AssetCacheSize 0x3D5
 

@@ -16,6 +16,8 @@ extern "C" {
 #include <string>
 #include <vector>
 
+#include "port/Audio/AudioSoundFont.h"
+
 namespace {
 
 class BodyReader {

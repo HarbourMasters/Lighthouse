@@ -1,4 +1,5 @@
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/CarriedSync.h"
 #include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
@@ -14,25 +15,6 @@
 
 #include "variables.h"
 #include "functions.h"
-
-// In-memory session sets that aren't part of the save but still ride team state. Flat int
-// tuples; defined in the respective port modules.
-extern std::vector<int32_t> BreakObject_SnapshotBroken();
-extern void BreakObject_RestoreBroken(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> CarriedSync_SnapshotCollected();
-extern void CarriedSync_RestoreCollected(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> EggToll_Snapshot();
-extern void EggToll_Restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> PuzzleStep_Snapshot();
-extern void PuzzleStep_Restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> PuzzleStep_SnapshotCounts();
-extern void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> PuzzleStep_SnapshotPositions();
-extern void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> SpawnJiggy_Snapshot();
-extern void SpawnJiggy_Restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> HutSmash_Snapshot();
-extern void HutSmash_Restore(const std::vector<int32_t>& flat);
 
 /**
  * UPDATE_TEAM_STATE

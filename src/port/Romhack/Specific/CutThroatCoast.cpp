@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <cmath>
 #include <vector>
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
@@ -127,8 +128,6 @@ void UpdateLighthouseBeam() {
 }
 
 } // namespace
-
-void CluckerCutscene_ForceSkip();
 
 extern "C" void CutThroatCoast_DoubloonUpdate(Actor* thisx) {
     thisx->yaw = mlNormalizeAngle(thisx->yaw + 12.0f);

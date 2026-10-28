@@ -7,8 +7,6 @@ extern void func_8028F7D4(f32, f32);
 void chLevelCollectible_update(Actor *this);
 extern ActorMarker *bacarry_getMarkerWithExtraSteps(void);
 
-extern s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
-
 void __chLevelCollectible_presentReturnEmitSparkles(f32 position[3], enum asset_e sprite_id);
 
 #define REMOTE_CARRY_MAX 16

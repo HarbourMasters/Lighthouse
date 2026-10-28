@@ -1,4 +1,5 @@
 #include <libultraship/bridge.h>
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/Shared/HackShared.h"
 
@@ -7,8 +8,6 @@ extern "C" {
 #include "functions.h"
 #include "macros.h"
 }
-
-void CluckerCutscene_ForceSkip();
 
 namespace {
 

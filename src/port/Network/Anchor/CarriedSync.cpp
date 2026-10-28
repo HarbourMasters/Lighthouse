@@ -10,6 +10,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Network/Anchor/CarriedSync.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Patches/Patches.h"
 
 #include <array>
 #include <set>
@@ -18,7 +19,6 @@
 extern "C" {
 #include "enums.h"
 #include "actor.h"
-s32 Anchor_IsWorldSyncActive(void);
 }
 
 namespace {

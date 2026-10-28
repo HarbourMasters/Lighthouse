@@ -4,7 +4,9 @@
 #include <fast/resource/type/Texture.h>
 
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ResourceHelpers.h"
 #include "port/ShipInit.hpp"
+#include "port/ShipUtils.h"
 #include "port/UI/cvar_prefixes.h"
 #include "port/UI/enhancementTypes.h"
 
@@ -12,8 +14,6 @@
 
 extern "C" {
 #include "enums.h"
-int Ship_GetBootSequence(void);
-void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath);
 }
 
 namespace {

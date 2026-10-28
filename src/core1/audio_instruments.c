@@ -5,6 +5,8 @@
 #include "core1/music.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Audio/AudioSoundFont.h"
+#include "port/ResourceHelpers.h"
 #include "port/ShipUtils.h" // gPortResetPending
 #include "version.h"
 
@@ -235,7 +237,6 @@ void musicInstruments_init(void) {
 
     // [port] the soundfont ships as one resource per sound rather than a ctl/tbl pair;
     // assemble the bank from the descriptor and the sounds it names
-    extern ALBankFile *AudioSoundFont_LoadBankFile(const char *descriptorPath);
     bnk_f = AudioSoundFont_LoadBankFile("assets/instrument_bank");
 
     sMusicInstrumentsSeqConfig.maxVoices = 24;
@@ -498,7 +499,6 @@ s32 gcMusic_getDefaultVolumeForTrack(enum comusic_e track_id) {
     if (track_id >= 0 && track_id < 176) { // [port] bounds guard
         // [port] a track carries its own slot volume in the archive, so a music mod
         // can set it without this table.
-        extern s32 ResourceHelpers_GetMusicTrackVolume(u32 assetId);
         s32 volume = ResourceHelpers_GetMusicTrackVolume(MUSIC_TRACK_ASSET_BASE_ID + track_id);
 
         if (volume >= 0) {

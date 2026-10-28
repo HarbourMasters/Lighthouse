@@ -1,10 +1,7 @@
 #include "Sprite.h"
 #include <cstring>
 
-extern "C" {
-void AltSprites_RegisterChunk(const void* chunkAddr, const char* path);
-void AltSprites_UnregisterChunk(const void* chunkAddr);
-}
+#include "port/Resource/Alt/AltSprites.h"
 
 namespace Factories {
 

@@ -3,6 +3,8 @@
 #include <cstring>
 #include <string>
 #include <libultraship/bridge.h>
+#include "port/Enhancements/Backports/TooieJiggyDance.h"
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
@@ -63,10 +65,6 @@ extern struct {
 void _levelSpecificFlags_updateCRC1(void);
 void _levelSpecificFlags_updateCRC2(void);
 }
-
-void TooieJiggyDance_ForceEnable();
-void TooieJiggyDance_SetMapSuppression(const s32* maps, s32 count);
-void CluckerCutscene_ForceSkip();
 
 namespace {
 

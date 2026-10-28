@@ -95,9 +95,6 @@ void func_802E3460(s32 arg0) {
     }
 }
 
-extern void Graphics_PushFrame(Gfx* data);
-extern void Framebuffer_ReadbackGPU(int bufferIndex);
-
 void func_802E3524(s32 arg0) {
     Gfx *gfx_begin;
     Gfx *gfx_end;

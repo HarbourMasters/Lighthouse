@@ -22,7 +22,6 @@
 #define gVIsPerFrame 2 // 30 Hz
 
 extern "C" bool prevAltAssets;
-extern "C" void Graphics_ReleaseRcpTask(void);
 
 namespace {
 long long sLastSubFrameNs = 0;

@@ -9,6 +9,7 @@
 #include "libultraship/libultra/gbi.h"
 #include "bk_math.h"
 
+#include "port/Engine.h"
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/Patches/GeoCull.h"
 
@@ -820,7 +821,6 @@ void modelRender_geoCmd_SELECTOR(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data
 }
 
 //CmdD_DRAW_DISTANCE
-extern f32 GameEngine_GetAspectRatio(void);
 void modelRender_geoCmd_DRAWDIST(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     f32 scaled_min[3], scaled_max[3];
     struct geo_cmd_draw_distance_s *cmd = (struct geo_cmd_draw_distance_s *) data;

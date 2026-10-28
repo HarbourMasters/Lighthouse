@@ -11,6 +11,7 @@
 #include <SDL2/SDL_thread.h>
 
 #include "port/OS/OS.h"
+#include "port/Patches/Patches.h"
 
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -43,8 +44,6 @@ OSMesgQueue* baMotor_getRetraceQueue(void);
 OSMesgQueue* viMgr_getRetraceQueue(void);
 OSMesgQueue* viMgr_getFrameTokenQueue(void);
 OSMesgQueue* viMgr_getTickRetraceQueue(void);
-int GameEngine_IsAudioHeld(void);
-int Graphics_RenderServicePending(void);
 // Repro context
 int gsworld_getMap(void);
 int gsworld_getExit(void);

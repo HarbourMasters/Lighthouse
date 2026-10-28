@@ -1,9 +1,8 @@
 #include "Spoiler.h"
+#include "port/Save/SaveManager.h"
 #include "port/UI/Notification.h"
 #include "ship/Context.h"
 #include <fstream>
-
-extern std::string CollapsedJSONArray(const nlohmann::ordered_json& jsonFile);
 
 namespace fs = std::filesystem;
 

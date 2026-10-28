@@ -15,17 +15,9 @@
 extern "C" {
 #include "variables.h"
 
-float OTRGetDimensionFromLeftEdge(float v);
-float OTRGetDimensionFromRightEdge(float v);
 s32 chMrVile_netGetAnimMode(Actor* actor);
-void SpawnJiggy_Remove(int32_t jiggyId);
-int32_t SpawnJiggy_IsRecorded(int32_t jiggyId);
-int32_t ScopedFlag_WasMapFlagSetRemotely(int32_t index);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 }
-
-s32 Anchor_LevelOfMap(s32 map);
-void Anchor_DespawnCollectedCollectibles();
 
 // Every listener below that alters vanilla behaviour is wrapped in this. Presence-only rooms
 // (the global room, or sync turned off) must play exactly like single player.

@@ -34,6 +34,7 @@
 #include "GameVersion/BaseGameVersion.h"
 #include "ship/window/gui/FileBrowserWindow.h"
 #include "Network/Anchor/Anchor.h"
+#include "port/Audio/AudioSoundFont.h"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Patches/Patches.h"
 #include "port/Save/SaveManager.h"
@@ -432,9 +433,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     });
 }
 
-extern void ResourceHelpers_ClearRefCache();
 void ReleaseSoundfonts();
-extern "C" void AudioSoundFont_FreeAll();
 
 void GameEngine::Destroy() {
     if (Instance->context && Instance->context->GetControlDeck()) {
