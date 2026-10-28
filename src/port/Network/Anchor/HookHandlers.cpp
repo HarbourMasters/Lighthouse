@@ -128,6 +128,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         index == MM_SPECIFIC_FLAG_9_JUJU_HAS_HALF_TURNED) {
         return true;
     }
+    // Chimpy's walk-off sets these as it plays, and each client plays its own.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN &&
+        (index == MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED || index == MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT)) {
+        return true;
+    }
     // BGS jiggy-switch timers (walkway=3, maze=0xC): kept local.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
         (index == 3 || index == 0xC)) {
