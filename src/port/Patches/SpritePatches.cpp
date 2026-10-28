@@ -236,3 +236,18 @@ static void RegisterSpriteRestoreAlphaCompare_Init() {
 }
 
 static RegisterShipInitFunc sSpriteRestoreAlphaCompareInit(RegisterSpriteRestoreAlphaCompare_Init);
+
+static void RegisterPauseBanner_Init() {
+    COND_VB_SHOULD(VB_PAUSEMENU_LEVEL_NAME_TEXT, EVENT_PRIORITY_NORMAL, true, {
+        if (SpritePatches_UpdatePauseBanner(va_arg(args, s32))) {
+            *should = false;
+        }
+    });
+    COND_HOOK(PauseMenuBanner, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (PauseMenuBanner*)event;
+        *ev->sprite = SpritePatches_GetPauseBannerDraw(ev->headerY, ev->x, ev->y, ev->w, ev->h);
+    });
+    COND_HOOK(OnPauseMenuFree, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { SpritePatches_FreePauseBanner(); });
+}
+
+static RegisterShipInitFunc sPauseBannerInit(RegisterPauseBanner_Init);

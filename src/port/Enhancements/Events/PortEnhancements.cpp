@@ -70,6 +70,10 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoldFontLetterBuilt);
     REGISTER_EVENT(ResolveBoldFontHd);
     REGISTER_EVENT(OnBoldFontReset);
+    REGISTER_EVENT(OnDialogFontLoaded);
+    REGISTER_EVENT(OnZoomboxTextPrinted);
+    REGISTER_EVENT(PauseMenuBanner);
+    REGISTER_EVENT(OnPauseMenuFree);
     REGISTER_EVENT(OnWorldDrawBegin);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnWorldDrawEnd);

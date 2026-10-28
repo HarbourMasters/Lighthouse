@@ -81,6 +81,8 @@ typedef enum VBehaviorID {
 
     // Dialog and localization
     VB_RESET_DIALOG_LANGUAGE,
+    VB_PAUSEMENU_REBUILD,
+    VB_PAUSEMENU_LEVEL_NAME_TEXT,
     VB_OVERRIDE_DIALOG_SHOW,
 
     // Rendering and performance

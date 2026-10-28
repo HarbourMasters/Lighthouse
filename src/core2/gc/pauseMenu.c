@@ -237,7 +237,7 @@ void gcpausemenu_free(void) {
         D_80383010.b_button_sprite = NULL;
     }
     gcpausemenu_zoomboxes_free();
-    SpritePatches_FreePauseBanner(); // [port]
+    CALL_EVENT(OnPauseMenuFree); // [port]
     gcdialog_decrementYPositionModifier();
 }
 
@@ -873,7 +873,7 @@ void gcpausemenu_printTotalsHeader(s32 page_id) {
     EventSystem_Should(VB_PAUSEMENU_LEVEL_NAME, true, page_id, &name);
     // [port] If a pre-rendered world-name banner exists (JP, or a language pack that ships one),
     // draw it here instead of the bold-font name.
-    if (SpritePatches_UpdatePauseBanner(page_id)) {
+    if (!EventSystem_Should(VB_PAUSEMENU_LEVEL_NAME_TEXT, true, page_id)) {
         return;
     }
     // [port] A custom romhack name inherits the vanilla name's hand-tuned x; let a
@@ -1032,9 +1032,12 @@ s32 gcPauseMenu_update(void) {
             break;
 
         case PAUSE_STATE_2_MENU: //open
-            if (Localization_PauseMenuNeedsRefresh()) {
+            // [port] Rebuilt rather than re-set: a live box's new string shows as a second line.
+            if (EventSystem_Should(VB_PAUSEMENU_REBUILD, false)) {
                 D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
-                Localization_RebuildPauseMenu();
+                gcpausemenu_zoomboxes_free();
+                gcpausemenu_zoomboxes_initMainMenu();
+                gcPauseMenu_setState(PAUSE_STATE_1_MENU_OPENING);
                 break;
             }
             if (D_80383010.unk70_31 && !func_802FC3C4()) {
@@ -1482,7 +1485,8 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         {
             // [port] World-name title banner (JP, or a language pack that ships one)
             f32 bx, by, bw, bh;
-            BKSprite *banner = SpritePatches_GetPauseBannerDraw(D_80383010.unk8, &bx, &by, &bw, &bh);
+            BKSprite *banner = NULL;
+            CALL_EVENT(PauseMenuBanner, D_80383010.unk8, &banner, &bx, &by, &bw, &bh);
             if (banner != NULL) {
                 __gcpausemenu_drawSprite(gfx, mtx, vtx, banner, 0, bx, by, bw, bh, 0xFF);
             }

@@ -98,14 +98,7 @@ std::unordered_set<uint32_t> sEverRepointedModels;
 
 } // namespace
 
-// Decomp pause-menu rebuild hooks
-extern "C" {
-void gcpausemenu_zoomboxes_free(void);
-void gcpausemenu_zoomboxes_initMainMenu(void);
-void gcPauseMenu_setState(int state); // enum gcpausemenu_state_e
-}
-
-extern "C" int Localization_PauseMenuNeedsRefresh(void) {
+static int Localization_PauseMenuNeedsRefresh() {
     static int sGen = 0;
     static int sLair = 0;
     static bool sInit = false;
@@ -125,15 +118,6 @@ extern "C" int Localization_PauseMenuNeedsRefresh(void) {
     return 1;
 }
 
-// Rebuild the main pause-menu option zoomboxes and replay the open animation, so they
-// re-localize / re-evaluate cleanly (re-setting a live box's string would reveal it as a 2nd line).
-// The caller re-evaluates the Return to Lair option (a decomp bitfield) first, before the recreate.
-extern "C" void Localization_RebuildPauseMenu(void) {
-    gcpausemenu_zoomboxes_free();
-    gcpausemenu_zoomboxes_initMainMenu();
-    gcPauseMenu_setState(1); // PAUSE_STATE_1_MENU_OPENING
-}
-
 // Minimal view of PrintBuffer (src/core2/font/print.c)
 struct PrintBufferView {
     int16_t x, y, topVertexAlpha, bottomVertexAlpha;
@@ -143,14 +127,6 @@ struct PrintBufferView {
     uint8_t rgba[4];
 };
 extern "C" PrintBufferView* print_sCurrentPtr;
-
-// Override the scale of the most-recently pushed print entry (e.g. right after print_dialog),
-// so callers can shrink/grow buffered text without a dedicated scaled print variant. No-op if none.
-extern "C" void Localization_SetPrintScale(float scale) {
-    if (print_sCurrentPtr != nullptr) {
-        print_sCurrentPtr->scale = scale;
-    }
-}
 
 // JP parade subtitles
 struct ParadeKana {
@@ -736,6 +712,18 @@ static void RegisterLocalizedText() {
         int* xOfs = va_arg(args, int*);
         if (xOfs != nullptr && boxScale < 1.0 && ResourceMgr_IsJapanese()) {
             *xOfs += 4;
+        }
+    });
+
+    COND_HOOK(OnZoomboxTextPrinted, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (print_sCurrentPtr != nullptr) {
+            print_sCurrentPtr->scale = ((OnZoomboxTextPrinted*)event)->scale;
+        }
+    });
+
+    COND_VB_SHOULD(VB_PAUSEMENU_REBUILD, EVENT_PRIORITY_NORMAL, true, {
+        if (Localization_PauseMenuNeedsRefresh()) {
+            *should = true;
         }
     });
 }

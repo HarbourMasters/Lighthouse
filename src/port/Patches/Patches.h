@@ -33,12 +33,6 @@ int FramePacingPatches_GetDemoDisplayViCount(int rawViCount);
 void FramePacingPatches_TickCutsceneStutter(void);
 int FramePacingPatches_GetCutsceneExtraVis(void);
 
-// Localization (Localization.cpp)
-
-int Localization_PauseMenuNeedsRefresh(void); // language or Return-to-Lair CVar changed while menu open
-void Localization_RebuildPauseMenu(void);     // free + recreate + replay the main menu open
-void Localization_SetPrintScale(float scale);
-
 // Dialog font (AltDialogFont.cpp, SpritePatches.cpp)
 
 void AltDialogFont_RebuildHd(void);                   // rebuild the HD glyph textures for the current base
@@ -67,12 +61,6 @@ void Framebuffer_PatchTransitionModel(void* model_bin);
 
 void SpritePatches_ClearDisplayCache(void);
 BKSpriteDisplayData* SpritePatches_GetOrCreateDisplayData(BKSprite* sprite);
-
-// JP pause-menu world-name banner (SpritePatches.cpp)
-
-s32 SpritePatches_UpdatePauseBanner(s32 page_id);
-BKSprite* SpritePatches_GetPauseBannerDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
-void SpritePatches_FreePauseBanner(void);
 
 // Camera (CameraPatches.cpp)
 

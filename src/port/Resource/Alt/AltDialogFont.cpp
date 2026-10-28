@@ -179,3 +179,9 @@ extern "C" void AltDialogFont_RebuildHd(void) {
         sBuiltSheets.insert(activeFont);
     }
 }
+
+static void RegisterDialogFontHd() {
+    COND_HOOK(OnDialogFontLoaded, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { AltDialogFont_RebuildHd(); });
+}
+
+static RegisterShipInitFunc dialogFontHdInit(RegisterDialogFontHd, {});

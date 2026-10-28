@@ -473,7 +473,7 @@ void print_init(void){
     print_sFontSpriteAssets[4] = assetcache_get(print_getCurrentMapBoldFontTexture());
     print_sFonts[0] =  print_getLettersFromFont(print_sFontSpriteAssets[0], print_sFontSpriteAssets[4]);
     print_sDialogFontGlyphCount = sprite_getFramePtr(print_sFontSpriteAssets[0], 0)->chunkCnt;
-    AltDialogFont_RebuildHd();
+    CALL_EVENT(OnDialogFontLoaded);
     print_sFonts[1] =  print_getLettersFromFont(print_sFontSpriteAssets[1], print_sFontSpriteAssets[4]);
     if (PRINT_JP) {
         // [port] JP font index 2 = the Japanese dialog font (sprite 1770, 256 I4 glyphs).
