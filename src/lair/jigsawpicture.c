@@ -322,7 +322,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
     vec3fArray_get_vec3f(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
-            CALL_EVENT(OnJigsawPedestalLeave, this->actorTypeSpecificField);
+            { CALL_EVENT(OnJigsawPedestalLeave, this->actorTypeSpecificField); }
             func_8028F918(0);
             break;
 
