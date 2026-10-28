@@ -97,6 +97,9 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
+    VB_FINAL_BOSS_BRAIN,
+    VB_FINAL_BOSS_HIT,
+    VB_JINJO_STATUE_EGG_HIT,
     VB_CCW_FLOWER_REMOTE_GROW,  // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
     VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
     VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.

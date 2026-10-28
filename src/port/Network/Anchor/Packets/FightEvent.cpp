@@ -3,6 +3,7 @@
 #include "port/Network/Anchor/FightSync.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
+#include "port/ShipInit.hpp"
 
 #include "functions.h"
 extern "C" {
@@ -70,3 +71,49 @@ void Anchor::HandlePacket_FightEvent(nlohmann::json& payload) {
 
     FightSync_ApplyEvent(ev, a, b, hasVectors ? p : nullptr, hasVectors ? v : nullptr, hasVectors ? w : nullptr);
 }
+
+static void RegisterFightSync_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_FINAL_BOSS_BRAIN, EVENT_PRIORITY_NORMAL, connected, {
+        if (FightSync_BossFollowerTick(va_arg(args, void*))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_FINAL_BOSS_HIT, EVENT_PRIORITY_NORMAL, connected, {
+        if (FightSync_ForwardBossHit(va_arg(args, s32))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_JINJO_STATUE_EGG_HIT, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 statueId = va_arg(args, s32);
+        const s32 padIndex = va_arg(args, s32);
+        if (FightSync_ForwardEgg(statueId, padIndex)) {
+            *should = false;
+        }
+    });
+
+    COND_HOOK(OnFinalBossSpawned, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { FightSync_OnBossSpawned(); });
+    COND_HOOK(OnFinalBossDefeated, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { FightSync_OnBossDefeated(); });
+    COND_HOOK(OnJinjoStatueSlam, EVENT_PRIORITY_NORMAL, true,
+              [](IEvent* event) { FightSync_OnJinjoSlam(((OnJinjoStatueSlam*)event)->statueId); });
+
+    COND_HOOK(OnFinalBossSpell, EVENT_PRIORITY_NORMAL, connected,
+              [](IEvent* event) { FightSync_OnSpellSpawned(((OnFinalBossSpell*)event)->kind); });
+    COND_HOOK(OnFinalBossFlightPad, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        if (((OnFinalBossFlightPad*)event)->spawned) {
+            FightSync_OnFlightPadSpawned();
+        } else {
+            FightSync_OnFlightPadDespawned();
+        }
+    });
+    COND_HOOK(OnFinalBossBarrier, EVENT_PRIORITY_NORMAL, connected, [](IEvent*) { FightSync_OnBarrierSpawned(); });
+    COND_HOOK(OnJinjoStatueSpawned, EVENT_PRIORITY_NORMAL, connected,
+              [](IEvent* event) { FightSync_OnStatueSpawned(((OnJinjoStatueSpawned*)event)->statueId); });
+    COND_HOOK(OnJinjoStatueEgg, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnJinjoStatueEgg*)event;
+        FightSync_ReplicateEgg(ev->statueId, ev->padIndex);
+    });
+}
+
+static RegisterShipInitFunc initFightSync(RegisterFightSync_Init, { ANCHOR_CONNECTED_PATH });

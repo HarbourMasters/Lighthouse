@@ -79,6 +79,14 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnRollUpdate);
     REGISTER_EVENT(OnGeoCull);
     REGISTER_EVENT(OnGruntyJinjonatorComplete);
+    REGISTER_EVENT(OnFinalBossSpawned);
+    REGISTER_EVENT(OnFinalBossDefeated);
+    REGISTER_EVENT(OnFinalBossSpell);
+    REGISTER_EVENT(OnFinalBossFlightPad);
+    REGISTER_EVENT(OnFinalBossBarrier);
+    REGISTER_EVENT(OnJinjoStatueSpawned);
+    REGISTER_EVENT(OnJinjoStatueSlam);
+    REGISTER_EVENT(OnJinjoStatueEgg);
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnTooieJiggyCollect);

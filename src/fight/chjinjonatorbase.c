@@ -4,8 +4,6 @@
 #include "variables.h"
 #include "fight.h"
 
-#include "port/Network/Anchor/FightSync.h"
-
 typedef struct {
     u8 egg_hits[4];
 } ActorLocal_BossJinjonatorBase;
@@ -52,7 +50,7 @@ static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
         if (local->egg_hits[indx]) {
             local->egg_hits[indx]--;
             comusic_playTrack(COMUSIC_2B_DING_B);
-            FightSync_ReplicateEgg(BOSSJINJO_5_JINJONATOR, indx);
+            CALL_EVENT(OnJinjoStatueEgg, BOSSJINJO_5_JINJONATOR, indx);
 
             if (local->egg_hits[indx] <= 0) {
                 chjinjonatorbase_func_8038E0D4(actor_jinjonatorbase, indx + 0x19a, -100.0f, 0.0f, 1.2f);
@@ -75,7 +73,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     int indx = this->unk40_31 - 1;
 
     // Anchor: follower forwards to authority; accepted egg replays via EGG_FED.
-    if (other != NULL && FightSync_ForwardEgg(BOSSJINJO_5_JINJONATOR, indx)) {
+    if (other != NULL && !EventSystem_Should(VB_JINJO_STATUE_EGG_HIT, true, BOSSJINJO_5_JINJONATOR, indx)) {
         return;
     }
 

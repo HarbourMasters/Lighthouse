@@ -43,13 +43,13 @@ typedef struct FightWorldSnapshot {
 extern "C" {
 #endif
 
-// --- hooks called by the FINALE actors (implemented in FightSync.c) --------------------
+// --- the fight's event and VB listeners (FightEvent.cpp) -------------------------------
 
 // Boss lifecycle: spawn resets sync state; defeat drops every client to local simulation.
 void FightSync_OnBossSpawned(void);
 void FightSync_OnBossDefeated(void);
 
-// True = a remote authority drives this boss; chfinalboss_update should skip its brain.
+// True = a remote authority drives this boss, so its brain stands down.
 bool FightSync_BossFollowerTick(void* boss /* Actor* */);
 
 // Forward follower input to the authority; true = handled remotely, skip local apply.
