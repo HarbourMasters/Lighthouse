@@ -65,8 +65,12 @@ void func_803895D8(ActorMarker *caller, enum asset_e text_id, s32 arg2) {
         return;
     }
     MMM_D_8038C4E0.unk0 = 1;
-    timed_exitStaticCamera(1.5f);
-    func_80324E38(1.5f, 0);
+//  timed_exitStaticCamera(1.5f);
+//  func_80324E38(1.5f, 0);
+    if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, actorArray_findActorFromActorId(ACTOR_39_NAPPER))){
+        timed_exitStaticCamera(1.5f);
+        func_80324E38(1.5f, 0);
+    }
 }
 
 void func_8038966C(void){
@@ -83,9 +87,15 @@ void func_8038966C(void){
         && jiggyscore_isCollected(JIGGY_5D_MMM_NAPPER)
     ){
         MMM_D_8038C4E0.unk2 = true;
-        func_80324E38(0.0f, 3);
-        timed_setStaticCameraToNode(0.2f, 1);
-        func_80324DBC(0.2f, VER_SELECT(ASSET_AD9_DIALOG_NAPPER_COMPLETE, 0x94B, 0, 0), 6, NULL, NULL, func_803895D8, NULL);
+        Actor *napper = actorArray_findActorFromActorId(ACTOR_39_NAPPER); // [port]
+//      func_80324E38(0.0f, 3);
+//      timed_setStaticCameraToNode(0.2f, 1);
+//      func_80324DBC(0.2f, VER_SELECT(ASSET_AD9_DIALOG_NAPPER_COMPLETE, 0x94B, 0, 0), 6, NULL, NULL, func_803895D8, NULL);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, napper)){
+            func_80324E38(0.0f, 3);
+            timed_setStaticCameraToNode(0.2f, 1);
+        }
+        if(EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, napper)) func_80324DBC(0.2f, VER_SELECT(ASSET_AD9_DIALOG_NAPPER_COMPLETE, 0x94B, 0, 0), 6, NULL, NULL, func_803895D8, NULL);
     }//L80389700
 
     if(MMM_D_8038C4E0.unk1 != 1) 

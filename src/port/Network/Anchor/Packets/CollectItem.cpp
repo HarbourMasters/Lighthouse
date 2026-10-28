@@ -1,4 +1,5 @@
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/Puzzles/Puzzles.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/Enhancements/Retention/Retention.h"
@@ -91,6 +92,9 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             if (sameMap) {
                 if (id == JIGGY_20_BGS_ELEVATED_WALKWAY || id == JIGGY_25_BGS_MAZE) {
                     func_802D6924();
+                }
+                if (id == JIGGY_5D_MMM_NAPPER) {
+                    AnchorPuzzles_MarkNapperTeammateCollect();
                 }
             }
             break;

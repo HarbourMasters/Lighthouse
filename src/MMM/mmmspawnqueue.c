@@ -313,10 +313,15 @@ void chChurchDoor_update(Actor *this) {
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, MMM_DOOR_CAM_CHURCH))
                 gcStaticCamera_activate(0x21);
             subaddie_set_state(this, 6);
-            core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
+//          core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
+            if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_2_UNKNOWN, false);
-            coMusicPlayer_playMusic(COMUSIC_4_MMM_CLOCK_VERSION, -1);
-            func_8025AE0C(2000, 3.0f);
+//          coMusicPlayer_playMusic(COMUSIC_4_MMM_CLOCK_VERSION, -1);
+//          func_8025AE0C(2000, 3.0f);
+            if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)){
+                coMusicPlayer_playMusic(COMUSIC_4_MMM_CLOCK_VERSION, -1);
+                func_8025AE0C(2000, 3.0f);
+            }
         }
         break;
 
@@ -325,7 +330,8 @@ void chChurchDoor_update(Actor *this) {
         if ((this->yaw <= 270.0f) && (this->yaw > 260.0f)) {
             subaddie_set_state(this, 7U);
             this->yaw = 270.0f;
-            gcsfx_play(0x7F);
+//          gcsfx_play(0x7F);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(0x7F);
             core1_7090_freeSfxSource(0);
             code_4C020_setHourglassTimer(0xE);
             item_set(6, 1);
@@ -349,7 +355,8 @@ void chChurchDoor_update(Actor *this) {
                 }
             }
             subaddie_set_state(this, 8);
-            core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
+//          core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
         }
         break;
     case 8:
@@ -357,16 +364,19 @@ void chChurchDoor_update(Actor *this) {
         if ((this->yaw >= 0.0f) && (this->yaw < 10.0f)) {
             subaddie_set_state(this, 1U);
             this->yaw = 0.0f;
-            gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//          gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_0_UNKNOWN, false);
             core1_7090_freeSfxSource(0);
-            if (!this->unk38_31) {
+//          if (!this->unk38_31) {
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, !this->unk38_31, this)) {
                 coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
                 func_8025AE0C(0x7D0, 2.5f);
             }
             this->unk38_31 = 0;
             this->lifetime_value = 0.0f;
-            progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED);
+//          progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED);
         }
         break;
     }

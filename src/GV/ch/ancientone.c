@@ -4,7 +4,6 @@
 #include "variables.h"
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
-extern s32 port_anchor_isWorldSyncActive(void);
 
 typedef struct {
     f32 unk0[3];
@@ -120,49 +119,22 @@ void chAncientOne_update(Actor *this){
             return;
         }
     }
-    if(!this->initialized){
-        if(D_80390C28[this->actorTypeSpecificField - 1] == NULL){
-            LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
-            this->position_y -= 1100.0f;
-            D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
-            if(this->actorTypeSpecificField != 1){
-                this->marker->propPtr->isNotFeatherEggOrNote = false;
-            }
-            this->marker->propPtr->unk8_3 = true;
-            actor_collisionOff(this);
-            func_80386620(this);
+//  if(!this->initialized){
+    if(EventSystem_Should(VB_ANCIENT_ONE_UNSEEN, !this->initialized, this)){
+        if(D_80390C28[this->actorTypeSpecificField - 1])
             return;
+
+        LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
+        this->position_y -= 1100.0f;
+        D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
+        if(this->actorTypeSpecificField != 1){
+            this->marker->propPtr->isNotFeatherEggOrNote = false;
         }
-        // Anchor only. A statue that has not been drawn yet still has to run the
-        // body below so it can catch up to flags another client set.
-        if(!port_anchor_isWorldSyncActive()){
-            return;
-        }
-        {
-            s32 fc = 0, fi;
-            for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
-            if(fc == 0){
-                return;
-            }
-        }
+        this->marker->propPtr->unk8_3 = true;
+        actor_collisionOff(this);
+        func_80386620(this);
     }
-    {//L803869B4
-        if(port_anchor_isWorldSyncActive() && jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
-            marker_despawn(this->marker);
-            return;
-        }
-        // Anchor: ring order is randomized per-client; advance by synced-flag count.
-        if(port_anchor_isWorldSyncActive()){
-            s32 fc = 0, fi;
-            for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
-            if(this->state == 1 && this->actorTypeSpecificField <= fc){
-                subaddie_set_state_with_direction(this, 2, 0.0f, 1);
-                actor_playAnimationOnce(this);
-                if(this->actorTypeSpecificField < 5 && D_80390C28[this->actorTypeSpecificField]){
-                    D_80390C28[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
-                }
-            }
-        }
+    else{//L803869B4
         switch(this->state){
             case 1: //L803869E4
                 player_getPosition(sp44);

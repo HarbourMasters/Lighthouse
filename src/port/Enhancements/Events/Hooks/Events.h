@@ -366,6 +366,7 @@ typedef enum VBehaviorID {
     // ```c
     // true                                 // Croctus, Boggy, Blubber, the snow managers, Tanktup's look-at and exit
     // true                                 // Juju's landing shakes
+    // true                                 // Napper
     // actor_animationIsAt(this, 0.1f) != 0 // Tanktup's camera
     // ```
     // #### `args`
@@ -376,6 +377,7 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // true                                       // Croctus's second dialog, Boggy, Tanktup's last dialog
+    // true                                       // Napper, Jinxy, the GV and church doors
     // (!this->unk138_23) && (!local->unk14)      // Tanktup's hit dialog
     // !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH) // a Clanker tooth's
     // ```
@@ -388,7 +390,9 @@ typedef enum VBehaviorID {
     // ```c
     // true                                  // Croctus, Tanktup, the pink egg, Blubber, the teeth, the snow buttons
     // true                                  // Juju, FP ice tree
+    // true                                  // Napper, Jinxy, the pyramid, the GV and church doors
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
+    // !this->unk38_31                       // the church door shutting
     // ```
     // #### `args`
     // - `*Actor` (whose step it is, or NULL from FP's snowman-button manager, which has none)
@@ -467,6 +471,49 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_WOZZA_JIGGY_DROPPED,
+
+    // #### `result`
+    // ```c
+    // !this->initialized
+    // ```
+    // #### `args`
+    // - `*Actor` (the Ancient One)
+    VB_ANCIENT_ONE_UNSEEN,
+
+    // A listener that returns true has to end the game.
+    // #### `result`
+    // ```c
+    // !matchingGame.state
+    // ```
+    // #### `args`
+    // - `s32` (matchingGame.state, promoted from `u8`)
+    VB_MATCHING_GAME_IDLE,
+
+    // #### `result`
+    // ```c
+    // arg0->jiggy_marker != NULL
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_HOLDS_JIGGY,
+
+    // #### `result`
+    // ```c
+    // arg0->state == TUMBLAR_STATE_1_CONGRATULATING && mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)
+    // ```
+    // #### `args`
+    // - `s32` (the Tumblar's state, promoted from `u8`)
+    VB_TUMBLAR_BREAK,
+
+    // A listener that returns true has to end the game.
+    // #### `result`
+    // ```c
+    // Me.state == 0
+    // ```
+    // #### `args`
+    // - `s32` (Me.state, promoted from `u8`)
+    // - `*ActorMarker` (Motzhand)
+    VB_ORGAN_GAME_IDLE,
 
     // Romhack port gates
 

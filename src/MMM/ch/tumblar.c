@@ -10,12 +10,7 @@
 extern void sfxsource_setSampleRate(u8, s32);
 
 /* data */
-enum chTumblar_state_e {
-    TUMBLAR_STATE_0_IDLE,
-    TUMBLAR_STATE_1_CONGRATULATING,
-    TUMBLAR_STATE_2_BREAKING,
-    TUMBLAR_STATE_3_DISAPPEARED
-};
+#include "tumblar.h" // [port] the states moved there
 
 typedef struct {
     ActorMarker *jiggy_marker;
@@ -180,7 +175,8 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
         func_80351B28(arg1, position);
         func_8035179C_copyPosition(arg1, position);
 
-        if (arg0->jiggy_marker != NULL) {
+//      if (arg0->jiggy_marker != NULL) {
+        if (EventSystem_Should(VB_TUMBLAR_HOLDS_JIGGY, arg0->jiggy_marker != NULL)) {
             viewport_getPosition_vec3f(viewport_position);
 
             direction[0] = position[0] - viewport_position[0];
@@ -197,7 +193,8 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
         if (arg0->timer >= 1.0f) {
             arg0->state = TUMBLAR_STATE_3_DISAPPEARED;
 
-            if (arg0->jiggy_marker != NULL) {
+//          if (arg0->jiggy_marker != NULL) {
+            if (EventSystem_Should(VB_TUMBLAR_HOLDS_JIGGY, arg0->jiggy_marker != NULL)) {
                 arg0->jiggy_marker->collidable = true;
             }
 
@@ -226,7 +223,8 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
         }
     }
 
-    if (arg0->state == TUMBLAR_STATE_1_CONGRATULATING && mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)) {
+//  if (arg0->state == TUMBLAR_STATE_1_CONGRATULATING && mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)) {
+    if (EventSystem_Should(VB_TUMBLAR_BREAK, arg0->state == TUMBLAR_STATE_1_CONGRATULATING && mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN), arg0->state)) {
         arg0->state = TUMBLAR_STATE_2_BREAKING;
         arg0->timer = 0.0f;
         mapSpecificFlags_set(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN, false);

@@ -4,18 +4,7 @@
 #include "variables.h"
 
 
-typedef struct {
-    s32 unk0;
-    u8 sfxsourceIdx;
-    //u8 pad5[3];
-    u8 *unk8;
-    f32 unkC;
-    u8 unk10;
-    //u8 pad11[3];
-    ActorMarker *unk14;
-    f32 unk18[3];
-    f32 unk24;
-}ActorLocal_GV_6370;
+#include "pyramid_raise.h" // [port] the typedef and states moved there
 
 void chJinxyHeadSandybutt_setState(Actor *this, s32 next_state);
 void chJinxyHeadSandybutt_update(Actor *this);
@@ -44,18 +33,6 @@ ActorInfo chJinxyHeadSandybutt3 = {
     0, NULL,
     chJinxyHeadSandybutt_update, actor_update_func_80326224, chJinxyHeadSandybutt_draw,
     0, 0, 0.0f, 0
-};
-
-enum chjinxyheadsandybutt_state_e {
-    CHJINXYHEADSANDYBUTT_STATE_0_NOT_INIT,
-    CHJINXYHEADSANDYBUTT_STATE_1_UNK,
-    CHJINXYHEADSANDYBUTT_STATE_2_UNK,
-    CHJINXYHEADSANDYBUTT_STATE_3_UNK,
-    CHJINXYHEADSANDYBUTT_STATE_4_UNK,
-    CHJINXYHEADSANDYBUTT_STATE_5_UNK,
-    CHJINXYHEADSANDYBUTT_STATE_6_FED,
-    CHJINXYHEADSANDYBUTT_STATE_7_GO_AWAY,
-    CHJINXYHEADSANDYBUTT_STATE_8_COMPLETED
 };
 
 /* .code */
@@ -208,11 +185,6 @@ void chJinxyHeadSandybutt_update(Actor *this){
 
     if(!local->unk14){
         local->unk14 = actorArray_findActorFromActorId(ACTOR_31D_SANDYBUTT_PYRAMID)->marker;
-    }
-
-    if(this->state != CHJINXYHEADSANDYBUTT_STATE_8_COMPLETED && fileProgressFlag_getN(FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, 2) > *local->unk8){
-        chJinxyHeadSandybutt_setState(this, CHJINXYHEADSANDYBUTT_STATE_8_COMPLETED);
-        return;
     }
 
     if(this->state == CHJINXYHEADSANDYBUTT_STATE_1_UNK){

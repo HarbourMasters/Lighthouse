@@ -212,6 +212,11 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             if (gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY && (index == 3 || index == 4)) {
                 return true;
             }
+            // The star hatch and the church door each close on their own timer (gvspawnqueue.c, mmmspawnqueue.c).
+            if ((gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY && index == 5) ||
+                (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION && index == MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
+                return true;
+            }
             // The Tee-Hees clear 3 and 4 as they wake and leave (ghost.c); a teammate's clear can land with the set.
             if (gsworld_getMap() == MAP_24_MMM_TUMBLARS_SHED &&
                 (index == MMM_SPECIFIC_FLAG_3_UNKNOWN || index == MMM_SPECIFIC_FLAG_4_UNKNOWN)) {
@@ -503,28 +508,27 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            s32 doorId = va_arg(args, s32);
-            switch (doorId) {
-                case GV_DOOR_CAM_SUN:
-                    *should = !port_mapFlag_wasSetRemotely(3);
-                    break;
-                case GV_DOOR_CAM_STAR:
-                    *should = !port_mapFlag_wasSetRemotely(5);
-                    break;
-                case GV_DOOR_CAM_KAZOOIE:
-                    *should = !port_mapFlag_wasSetRemotely(6);
-                    break;
-                case GV_DOOR_CAM_JINXY:
-                    *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
-                    break;
-                case MMM_DOOR_CAM_CHURCH:
-                    *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
-                    break;
-                default:
-                    break;
-            }
+    // Always on: a door that opens while connected plays out if the connection drops.
+    COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, true, {
+        s32 doorId = va_arg(args, s32);
+        switch (doorId) {
+            case GV_DOOR_CAM_SUN:
+                *should = !port_mapFlag_wasSetRemotely(3);
+                break;
+            case GV_DOOR_CAM_STAR:
+                *should = !port_mapFlag_wasSetRemotely(5);
+                break;
+            case GV_DOOR_CAM_KAZOOIE:
+                *should = !port_mapFlag_wasSetRemotely(6);
+                break;
+            case GV_DOOR_CAM_JINXY:
+                *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                break;
+            case MMM_DOOR_CAM_CHURCH:
+                *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                break;
+            default:
+                break;
         }
     });
 
