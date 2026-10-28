@@ -8,4 +8,5 @@ void AnchorPuzzles_Register(bool connected) {
     AnchorPuzzles_RegisterFreezeezyPeak(connected);
     AnchorPuzzles_RegisterGobisValley(connected);
     AnchorPuzzles_RegisterMadMonsterMansion(connected);
+    AnchorPuzzles_RegisterRustyBucketBay(connected);
 }

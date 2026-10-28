@@ -46,11 +46,7 @@ ParticleSettingsVelocityAcceleration D_80390344= {
     {{ 0.0f, -800.0f, 0.0f}, { 0.0f, -800.0f, 0.0f}}
 };
 
-enum chtntdownswitch_state_e {
-    CH_TNT_DOWN_SWITCH_STATE_0_NOT_INIT,
-    CH_TNT_DOWN_SWITCH_STATE_1_NOT_PRESSED,
-    CH_TNT_DOWN_SWITCH_STATE_2_PRESSED
-};
+#include "crane_boombox.h" // [port] the states moved there
 
 /*.code */
 void RBB_func_80387960(f32 arg0){
@@ -251,12 +247,5 @@ void chTNTDownSwitch_update(Actor *this){
             suSetSpriteScale(this, 1.1f);
             chTNTDownSwitch_setState(this, 1);
         }
-    }
-    // Anchor: teammate opened the entrance (LEVEL_FLAG_2D) - snap to opened state.
-    else if (this->state == 1 && levelSpecificFlags_get(LEVEL_FLAG_2D_RBB_UNKNOWN)) {
-        func_80387AC0();
-        RBB_func_80387960(0.0f);
-        func_80387B24();
-        chTNTDownSwitch_setState(this, 3);
     }
 }

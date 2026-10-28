@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 void chEngineFanSwitch_update(Actor *this);
 
 /* .data */
@@ -15,11 +13,7 @@ ActorInfo chRBBGreyPropellerSwitch = {
     0, 0, 0.0f, 0
 };
 
-enum chrbbgreypropellerswitch_state_e {
-    CH_RBB_GREY_PROPELLER_SWITCH_STATE_0_NOT_INIT,
-    CH_RBB_GREY_PROPELLER_SWITCH_STATE_1_NOT_PRESSED,
-    CH_RBB_GREY_PROPELLER_SWITCH_STATE_2_PRESSED
-};
+#include "enginefanswitch.h" // [port] the states moved there
 
 /* .code */
 void chEngineFanSwitch_setPressedFlag(void){
@@ -59,14 +53,5 @@ void chEngineFanSwitch_update(Actor *this){
             this->yaw = -90.0f;
             chEngineFanSwitch_setState(this, CH_RBB_GREY_PROPELLER_SWITCH_STATE_1_NOT_PRESSED);
         }
-    }
-    // [port] Anchor temp-persist: the fan slowdown is transient map flag 0, set by pressing this
-    // switch (RBB_func_803898A0). It syncs live but resets on reload, so persist it
-    if(mapSpecificFlags_get(0)){
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1);
-    } else if((this->state == 1) && (port_puzzleStep_get(ANCHOR_PUZZLE_RBB_ENGINE_FANS) & 1)){
-        this->position_y -= 35.0f;
-        this->state = 2;
-        mapSpecificFlags_set(0, 1);
     }
 }

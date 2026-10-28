@@ -9,4 +9,5 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected);
 void AnchorPuzzles_RegisterFreezeezyPeak(bool connected);
 void AnchorPuzzles_RegisterGobisValley(bool connected);
 void AnchorPuzzles_RegisterMadMonsterMansion(bool connected);
+void AnchorPuzzles_RegisterRustyBucketBay(bool connected);
 void AnchorPuzzles_MarkNapperTeammateCollect();

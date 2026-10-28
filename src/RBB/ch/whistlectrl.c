@@ -21,11 +21,7 @@ ActorInfo chRBBWhistleCtrl = {
 
 f32 chRBBWhistleCtrlJiggyPosition[3] = {-3820.0f, 850.0f, 0.0f};
 
-enum chrbbwhistlectrl_state_e {
-    CH_RBB_WHISTLE_CTRL_STATE_0_NOT_INIT,
-    CH_RBB_WHISTLE_CTRL_STATE_1_AWAITING_PLAYER,
-    CH_RBB_WHISTLE_CTRL_STATE_2_COMPLETE
-};
+#include "whistlectrl.h" // [port] the states moved there
 
 #define RBB_WHISTLE_CODE        "312111"
 
