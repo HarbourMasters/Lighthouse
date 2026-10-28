@@ -1,4 +1,5 @@
 #include "Network.h"
+#include <chrono>
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
 
@@ -76,6 +77,11 @@ void Network::ReceiveFromServer() {
 
                 OnConnected();
                 break;
+            }
+
+            // A refused or unresolvable host fails instantly; don't spin a core retrying it.
+            for (int i = 0; i < 10 && isEnabled; i++) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         }
 
