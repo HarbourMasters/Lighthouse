@@ -125,11 +125,10 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
 
     setupFramebufferForGamemode(gfx, framebuffer_idx);
     sGameState.unkC = false;
-    MirrorPatches_BeginScene();
+    CALL_EVENT(OnWorldDrawBegin);
     gsworld_draw(gfx, mtx, vtx);
     CALL_EVENT(OnWorldDraw, gfx, mtx, vtx);
-    MirrorPatches_EndScene();
-    MirrorPatches_UndoProjection(gfx, mtx);
+    CALL_EVENT(OnWorldDrawEnd, gfx, mtx);
     if (!arg4) { // related to framebufferdraw_ functions
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());

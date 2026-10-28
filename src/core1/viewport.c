@@ -108,7 +108,7 @@ void viewport_setRenderPerspectiveMatrix(Gfx **gfx, Mtx **mtx, f32 near, f32 far
     gSPPerspNormalize((*gfx)++, perspNorm);
     gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
 
-    MirrorPatches_ApplyViewport(gfx, mtx);
+    CALL_EVENT(OnViewportProjection, gfx, mtx);
 
     // [port] Capture each rotation's Mtx* + raw angle so interpolation can
     // angle-lerp and rebuild clean matrices — a matrix lerp on fast spins

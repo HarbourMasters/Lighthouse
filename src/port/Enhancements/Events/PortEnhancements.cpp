@@ -34,6 +34,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnModelDraw);
     REGISTER_EVENT(OnModelDrawEnd);
     REGISTER_EVENT(ViewportFrustumUpdate);
+    REGISTER_EVENT(OnViewportProjection);
     REGISTER_EVENT(CameraRotationAuthored);
     REGISTER_EVENT(OnDynamicCameraUpdate);
     REGISTER_EVENT(MapModelXluScale);
@@ -65,7 +66,11 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoldFontLetterBuilt);
     REGISTER_EVENT(ResolveBoldFontHd);
     REGISTER_EVENT(OnBoldFontReset);
+    REGISTER_EVENT(OnWorldDrawBegin);
     REGISTER_EVENT(OnWorldDraw);
+    REGISTER_EVENT(OnWorldDrawEnd);
+    REGISTER_EVENT(ModelCounterMirror);
+    REGISTER_EVENT(OnPauseCapture);
     REGISTER_EVENT(OnPlayerDraw);
     REGISTER_EVENT(OnHudDraw);
 

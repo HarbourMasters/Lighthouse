@@ -61,8 +61,8 @@ void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void 
 
     gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, pauseFb);
     {
-        int16_t uls = MirrorPatches_ShouldFlipPauseBg() ? renderW : 0;
-        int16_t lrs = MirrorPatches_ShouldFlipPauseBg() ? 0 : renderW;
+        int16_t uls = EventSystem_Should(VB_PAUSE_BG_MIRRORED, false) ? renderW : 0;
+        int16_t lrs = EventSystem_Should(VB_PAUSE_BG_MIRRORED, false) ? 0 : renderW;
         gDPImageRectangle((*gfx)++,
             x0 << 2, 0,
             uls, 0,
@@ -80,7 +80,7 @@ void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     gsworld_setEnableDraw(0);
     D_803830A0 = 2;
     func_80314BB0(gfx, mtx, vtx, depthbuffer_getDataPtr(), gFramebuffers[getActiveFramebuffer()]);
-    MirrorPatches_MarkCapture();
+    CALL_EVENT(OnPauseCapture);
 }
 
 void func_80315110(Gfx **gfx, Mtx **mtx, Vtx **vtx){

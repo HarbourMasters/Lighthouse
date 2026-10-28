@@ -23,6 +23,21 @@ void RegisterMirroredWorld_Init() {
     if (!CVarGetInteger(CVAR_MIRRORED_WORLD_MODE, 0)) {
         CVarClear(CVAR_MIRRORED_WORLD_STATE);
     }
+
+    COND_HOOK(OnWorldDrawBegin, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { MirrorPatches_BeginScene(); });
+    COND_HOOK(OnWorldDrawEnd, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnWorldDrawEnd*)event;
+        MirrorPatches_EndScene();
+        MirrorPatches_UndoProjection(ev->gfx, ev->mtx);
+    });
+    COND_HOOK(OnViewportProjection, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnViewportProjection*)event;
+        MirrorPatches_ApplyViewport(ev->gfx, ev->mtx);
+    });
+    COND_HOOK(ModelCounterMirror, EVENT_PRIORITY_NORMAL, true,
+              [](IEvent* event) { *((ModelCounterMirror*)event)->applied = MirrorPatches_BakeCounterScale(); });
+    COND_HOOK(OnPauseCapture, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { MirrorPatches_MarkCapture(); });
+    COND_VB_SHOULD(VB_PAUSE_BG_MIRRORED, EVENT_PRIORITY_NORMAL, true, { *should = MirrorPatches_ShouldFlipPauseBg(); });
 }
 
 static RegisterShipInitFunc initMirroredWorldFunc(RegisterMirroredWorld_Init, { CVAR_MIRRORED_WORLD_MODE });

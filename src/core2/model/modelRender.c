@@ -1193,7 +1193,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         mlMtxRotatePYR(D_803837B0.unk4[0], D_803837B0.unk4[1], D_803837B0.unk4[2]);
     }
     // [port] Mirror mode: bake counter-mirror into modelview for text-bearing models
-    int _mirror_excluded = MirrorPatches_BakeCounterScale();
+    int _mirror_excluded = 0;
+    CALL_EVENT(ModelCounterMirror, &_mirror_excluded);
     mlMtxGet(&D_80383BF8);
 
     mlMtxApply(*mtx);
