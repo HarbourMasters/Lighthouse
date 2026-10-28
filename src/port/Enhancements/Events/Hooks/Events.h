@@ -220,6 +220,8 @@ typedef enum VBehaviorID {
     VB_PROP_SPRITE_SCALE,
     VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
     VB_CROC_MAX_WALK_VELOCITY,
+
+    VB_COUNT,
 } VBehaviorID;
 
 typedef enum DoorCameraId {
@@ -241,6 +243,10 @@ extern "C" {
 extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
 #ifdef __cplusplus
 }
+
+ListenerID VanillaBehavior_RegisterListener(VBehaviorID id, const char* name, EventPriority priority,
+                                            EventCallback callback, const char* file, int line);
+void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId);
 #endif
 
 // Lighthouse variant of CALL_CANCELLABLE_RETURN_EVENT: returns the event payload's
@@ -253,17 +259,18 @@ extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
         return eventType##_.result;                                                        \
     }
 
-#define REGISTER_VB_SHOULD(idToCheck, priority, body)                \
-    REGISTER_LISTENER(VanillaBehavior, priority, [](IEvent* event) { \
-        auto* ev = reinterpret_cast<VanillaBehavior*>(event);        \
-        if (ev->id == idToCheck) {                                   \
-            bool* should = ev->should;                               \
-            va_list args;                                            \
-            va_copy(args, *ev->originalArgs);                        \
-            body;                                                    \
-            va_end(args);                                            \
-        }                                                            \
-    })
+#define REGISTER_VB_SHOULD(idToCheck, priority, ...)              \
+    VanillaBehavior_RegisterListener(                             \
+        idToCheck, #idToCheck, priority,                          \
+        [](IEvent* event) {                                       \
+            auto* ev = reinterpret_cast<VanillaBehavior*>(event); \
+            bool* should = ev->should;                            \
+            va_list args;                                         \
+            va_copy(args, *ev->originalArgs);                     \
+            __VA_ARGS__;                                          \
+            va_end(args);                                         \
+        },                                                        \
+        __FILE__, __LINE__)
 
 #define COND_HOOK(eventId, priority, condition, ...)                                                          \
     {                                                                                                         \
@@ -276,27 +283,16 @@ extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
             listenerId = EventSystemRegisterListener(eventId##ID, __VA_ARGS__, priority, __FILE__, __LINE__); \
         }                                                                                                     \
     }
-#define COND_ID_HOOK(eventId, id, priority, condition, body)         \
-    {                                                                \
-        static ListenerID listenerId = -1;                           \
-        if (listenerId != -1) {                                      \
-            UNREGISTER_LISTENER(eventId, listenerId);                \
-            listenerId = -1;                                         \
-        }                                                            \
-        if (condition) {                                             \
-            listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                            \
-    }
-#define COND_VB_SHOULD(id, priority, condition, body)            \
-    {                                                            \
-        static ListenerID listenerId = -1;                       \
-        if (listenerId != -1) {                                  \
-            UNREGISTER_LISTENER(VanillaBehavior, listenerId);    \
-            listenerId = -1;                                     \
-        }                                                        \
-        if (condition) {                                         \
-            listenerId = REGISTER_VB_SHOULD(id, priority, body); \
-        }                                                        \
+#define COND_VB_SHOULD(id, priority, condition, ...)                    \
+    {                                                                   \
+        static ListenerID listenerId = -1;                              \
+        if (listenerId != -1) {                                         \
+            VanillaBehavior_UnregisterListener(id, listenerId);         \
+            listenerId = -1;                                            \
+        }                                                               \
+        if (condition) {                                                \
+            listenerId = REGISTER_VB_SHOULD(id, priority, __VA_ARGS__); \
+        }                                                               \
     }
 
 #include "List/EngineEvent.h"
