@@ -395,6 +395,7 @@ typedef enum VBehaviorID {
     // true                                  // Napper, Jinxy, the pyramid, the GV and church doors
     // true                                  // the flower, the egg, baby Eyrie, the season doors
     // true                                  // Gnawty's boulder and its shake
+    // true                                  // a teammate's thrown caterpillar, acorn or gold landing
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
