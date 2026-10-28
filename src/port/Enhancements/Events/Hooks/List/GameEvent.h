@@ -64,6 +64,8 @@ DEFINE_EVENT(OnMumboWishwashyId, int32_t* id;)
 DEFINE_EVENT(OnActorNew, ActorInfo* info; uint32_t * flags;)
 // sfx = SFX_46_KAZOOIE_CHOKING_UP or SFX_57_KAZOOIE_HEGH from Kazooie's head, SFX_3E_POOP_NOISE from her rear.
 DEFINE_EVENT(OnEggFireSfx, int32_t sfx; int32_t * rate;)
+// sfx = SFX_3F5_UNKNOWN, as Napper wakes.
+DEFINE_EVENT(OnNapperWakeSfx, int32_t* sfx;)
 DEFINE_EVENT(OnCrocMaxWalkVelocity, float* velocity;)
 // count = the jiggies a level holds before its last, 9 in vanilla.
 DEFINE_EVENT(OnLastJiggyCount, int32_t* count;)

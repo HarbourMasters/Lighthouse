@@ -56,8 +56,8 @@ void func_803895B0(s32 arg0) {
 
 void func_803895D8(ActorMarker *caller, enum asset_e text_id, s32 arg2) {
     if (text_id == VER_SELECT(ASSET_AD7_DIALOG_NAPPER_AWAKE, 0x949, 0, 0)) {
-        s32 sfx = SFX_3F5_UNKNOWN;
-        EventSystem_Should(VB_NAPPER_WAKE_SFX, true, &sfx);
+        s32 sfx = SFX_3F5_UNKNOWN; // [port]
+        CALL_EVENT(OnNapperWakeSfx, &sfx); // [port]
 //      timed_playSfx(0.1f, SFX_3F5_UNKNOWN, 1.0f, 30000);
         timed_playSfx(0.1f, sfx, 1.0f, 30000);
         timed_exitStaticCamera(1.5f);

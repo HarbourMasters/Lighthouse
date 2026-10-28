@@ -154,6 +154,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnMumboWishwashyId);
     REGISTER_EVENT(OnActorNew);
     REGISTER_EVENT(OnEggFireSfx);
+    REGISTER_EVENT(OnNapperWakeSfx);
     REGISTER_EVENT(OnCrocMaxWalkVelocity);
     REGISTER_EVENT(OnLastJiggyCount);
     REGISTER_EVENT(OnPropSpriteScale);

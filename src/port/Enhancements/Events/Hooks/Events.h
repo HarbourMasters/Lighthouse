@@ -646,8 +646,14 @@ typedef enum VBehaviorID {
     // - `*s32` (diff)
     VB_ITEM_ADJUST_BY_DIFF,
     VB_MM_HUT_DESPAWN_ON_SMASH,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ActorMarker` (Nabnut)
     VB_NABNUT_SNORE_SFX,
-    VB_NAPPER_WAKE_SFX,
     VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
 
     VB_COUNT,
