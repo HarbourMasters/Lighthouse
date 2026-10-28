@@ -167,27 +167,6 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
         SPDLOG_DEBUG("[Anchor] Received payload:\n{}", payload.dump());
     }
 
-    std::string packetType = payload["type"].get<std::string>();
-
-    // Same rule inbound: a peer on an older build must not push world state into a room
-    // that isn't syncing it.
-    if ((!roomState.syncItemsAndFlags || gameMismatchWithTeam) && !AllowedWithoutGameSync(packetType)) {
-        return;
-    }
-
-    // Ignore packets from mismatched clients, except for ALL_CLIENT_STATE, UPDATE_CLIENT_STATE, and
-    // player updates
-    if (packetType != ALL_CLIENT_STATE && packetType != UPDATE_CLIENT_STATE && packetType != PLAYER_UPDATE &&
-        packetType != PLAYER_UPDATE_FULL && packetType != PLAYER_ANIM && packetType != PLAYER_SUBRANGE &&
-        packetType != PLAYER_TRANSFORM) {
-        if (payload.contains("clientId")) {
-            uint32_t clientId = payload["clientId"].get<uint32_t>();
-            if (clients.contains(clientId) && clients[clientId].clientVersion != clientVersion) {
-                return;
-            }
-        }
-    }
-
     // Queue all packets to be processed on the game thread
     std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
     incomingPacketQueue.push(payload);
@@ -207,6 +186,23 @@ void Anchor::ProcessIncomingPacketQueue() {
         packetsToProcess.pop();
 
         std::string packetType = payload["type"].get<std::string>();
+
+        // Checked on this thread, once any room state queued ahead of the packet has applied.
+        if ((!roomState.syncItemsAndFlags || gameMismatchWithTeam) && !AllowedWithoutGameSync(packetType)) {
+            continue;
+        }
+
+        // A client on another build only gets its state and movement through.
+        if (packetType != ALL_CLIENT_STATE && packetType != UPDATE_CLIENT_STATE && packetType != PLAYER_UPDATE &&
+            packetType != PLAYER_UPDATE_FULL && packetType != PLAYER_ANIM && packetType != PLAYER_SUBRANGE &&
+            packetType != PLAYER_TRANSFORM) {
+            if (payload.contains("clientId")) {
+                uint32_t clientId = payload["clientId"].get<uint32_t>();
+                if (clients.contains(clientId) && clients[clientId].clientVersion != clientVersion) {
+                    continue;
+                }
+            }
+        }
 
         // Kept back until the player picks between their file and the team save.
         if (isHoldingTeamState && !AllowedWithoutGameSync(packetType)) {
