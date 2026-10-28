@@ -8,6 +8,7 @@
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/FrameHost.h"
 
 #include "variables.h"
 #include "functions.h"
@@ -43,39 +44,46 @@ bool Anchor::IsWorldSyncActive() {
 void Anchor::Disable() {
     Network::Disable();
 
-    Authority_Reset();
-    dummies.clear();
-    for (auto& [clientId, client] : clients) {
-        if (client.dummy != nullptr) {
-            client.dummy->dummy_free();
-            free(client.dummy);
+    Lighthouse::RunOnGameThread([this]() {
+        Authority_Reset();
+        dummies.clear();
+        for (auto& [clientId, client] : clients) {
+            if (client.dummy != nullptr) {
+                client.dummy->dummy_free();
+                free(client.dummy);
+            }
         }
-    }
-    clients.clear();
-    PlayerColors_reset();
-    RefreshClientActors();
+        clients.clear();
+        PlayerColors_reset();
+        RefreshClientActors();
+    });
 }
 
 void Anchor::OnConnected() {
     SendPacket_Handshake();
-    RegisterHooks();
 
-    port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
-    port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+    Lighthouse::RunOnGameThread([this]() {
+        RegisterHooks();
 
-    if (IsSaveLoaded()) {
-        SendPacket_RequestTeamState();
-        hasRequestedTeamState = true;
-        reloadMapOnTeamState = true;
-    }
+        port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+        port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+
+        if (IsSaveLoaded()) {
+            SendPacket_RequestTeamState();
+            hasRequestedTeamState = true;
+            reloadMapOnTeamState = true;
+        }
+    });
 }
 
 void Anchor::OnDisconnected() {
-    Authority_Reset();
-    RegisterHooks();
+    Lighthouse::RunOnGameThread([this]() {
+        Authority_Reset();
+        RegisterHooks();
 
-    port_noteRetention_setForced(0);
-    port_jinjoRetention_setForced(0);
+        port_noteRetention_setForced(0);
+        port_jinjoRetention_setForced(0);
+    });
 }
 
 void Anchor::ProcessOutgoingPackets() {
