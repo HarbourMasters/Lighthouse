@@ -92,7 +92,6 @@ float GraphicsPatches_GetDrawDistanceMultiplier(void);
 void GraphicsPatches_ApplyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist);
 int GraphicsPatches_IsSpriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
 float GraphicsPatches_GetHudOrthoShift(float refX);
-void GraphicsPatches_ResetModelTLUT(Gfx** gfx);
 
 // Vertex-animated models (AnimVertexPatches.cpp)
 
@@ -138,10 +137,6 @@ float AudioVolume_GetSfx(void);
 
 int NoteDoorNumbers_GetCost(int doorIdx);
 void NoteDoorNumbers_EnableComposer(void);
-
-// Romhacks
-
-void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 
 // Attract-demo audio hold
 

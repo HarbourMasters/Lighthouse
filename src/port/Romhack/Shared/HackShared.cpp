@@ -402,19 +402,18 @@ void HackShared_EnableTransitionPairs(const TransitionPair* pairs, int count) {
 void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count) {
     sSpawnRewrites = rewrites;
     sSpawnRewriteCount = count;
-}
-
-extern "C" void romhack_RewriteActorSpawn(void* actorInfo, u32* flags) {
-    ActorInfo* info = (ActorInfo*)actorInfo;
-    for (int i = 0; i < sSpawnRewriteCount; i++) {
-        const SpawnRewrite& rewrite = sSpawnRewrites[i];
-        if (rewrite.actorId != info->actorId) {
-            continue;
+    COND_HOOK(OnActorNew, EVENT_PRIORITY_NORMAL, sSpawnRewriteCount > 0, [](IEvent* event) {
+        auto* ev = (OnActorNew*)event;
+        for (int i = 0; i < sSpawnRewriteCount; i++) {
+            const SpawnRewrite& rewrite = sSpawnRewrites[i];
+            if (rewrite.actorId != ev->info->actorId) {
+                continue;
+            }
+            *ev->flags = (*ev->flags & ~rewrite.clearFlags) | rewrite.setFlags;
+            if (rewrite.drawDistance != 0) {
+                ev->info->draw_distance = rewrite.drawDistance;
+            }
+            break;
         }
-        *flags = (*flags & ~rewrite.clearFlags) | rewrite.setFlags;
-        if (rewrite.drawDistance != 0) {
-            info->draw_distance = rewrite.drawDistance;
-        }
-        break;
-    }
+    });
 }

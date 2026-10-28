@@ -50,11 +50,6 @@ int RomhackConfig_GetCustomCodeKind(void);
 bool RomhackConfig_GetRomHash(char out_hex[41]);
 const char* RomhackConfig_GetIdentifier(void);
 
-// Hack specific functions
-int romhack_mumboTransform(int transformId);
-int romhack_mumboWishwashyId(void);
-int romhack_mumboRandomEventsAllowed(void);
-
 #ifdef __cplusplus
 }
 #endif

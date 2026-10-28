@@ -32,15 +32,6 @@ extern "C" {
 extern s32 gFramebufferWidth;
 extern s32 gFramebufferHeight;
 
-// Romhack model display lists can leave a palette (TLUT) mode enabled and leak it
-// into the next model's draw.
-void GraphicsPatches_ResetModelTLUT(Gfx** gfx) {
-    if (!RomhackConfig_IsActive()) {
-        return;
-    }
-    gDPSetTextureLUT((*gfx)++, G_TT_NONE);
-}
-
 // Widescreen HUD edge anchoring (centered-ortho HUD geometry).
 
 static const float kHudCenterBand = 32.0f;

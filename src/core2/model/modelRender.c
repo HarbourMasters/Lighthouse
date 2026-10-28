@@ -1216,8 +1216,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     // [port] Romhack model DLs can leave a palette (TLUT) mode enabled and leak it
-    // into the next model's draw; reset it after every model for romhacks.
-    GraphicsPatches_ResetModelTLUT(gfx);
+    // into the next model's draw; listeners reset it after every model.
+    CALL_EVENT(OnModelDrawEnd, gfx);
 
     if (modelRenderCallback.post_draw != NULL) {
         modelRenderCallback.post_draw(modelRenderCallback.post_draw_arg);

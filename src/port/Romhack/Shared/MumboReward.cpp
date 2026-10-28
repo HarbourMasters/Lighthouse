@@ -47,24 +47,6 @@ void MumboReward_setState() {
 }
 } // namespace
 
-extern "C" s32 romhack_mumboTransform(s32 transformId) {
-    if (!sMumboRewardEnabled || gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
-        return player_transform((enum transformation_e)transformId);
-    }
-    timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
-    timedFunc_set_0(kStateDelay, MumboReward_setState);
-    sLeaveHutPending = true;
-    return 1;
-}
-
-extern "C" s32 romhack_mumboWishwashyId(void) {
-    return sMumboRewardEnabled ? 9 : TRANSFORM_7_WISHWASHY;
-}
-
-extern "C" s32 romhack_mumboRandomEventsAllowed(void) {
-    return sMumboRewardEnabled ? 0 : 1;
-}
-
 // Mumbo's reward shows a static camera
 namespace {
 constexpr f32 kPanPosition[3] = { -250.0f, 194.0f, 147.0f };
@@ -140,4 +122,16 @@ void HackShared_EnableMumboReward() {
         fileProgressFlag_set(FILEPROG_DC_HAS_HAD_ENOUGH_TOKENS_BEFORE, TRUE);
         *should = false;
     });
+
+    REGISTER_VB_SHOULD(VB_MUMBO_CAST_TRANSFORM, EVENT_PRIORITY_NORMAL, {
+        if (gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
+            return;
+        }
+        timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
+        timedFunc_set_0(kStateDelay, MumboReward_setState);
+        sLeaveHutPending = true;
+        *should = false;
+    });
+    REGISTER_VB_SHOULD(VB_MUMBO_WISHWASHY_EXEMPT, EVENT_PRIORITY_NORMAL, { *should = false; });
+    REGISTER_VB_SHOULD(VB_MUMBO_RANDOM_EVENT, EVENT_PRIORITY_NORMAL, { *should = false; });
 }

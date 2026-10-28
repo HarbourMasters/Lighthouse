@@ -6,6 +6,7 @@
 extern "C" {
 #include "enums.h"
 #include "functions.h"
+#include "libultraship/libultra/gbi.h"
 }
 
 static void RegisterRomhackHooks_Init() {
@@ -210,6 +211,12 @@ static void RegisterRomhackHooks_Init() {
             *cost = override;
             *should = false;
         }
+    });
+
+    // Hack model DLs can leave a palette (TLUT) mode enabled and leak it into the next model's draw.
+    COND_HOOK(OnModelDrawEnd, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        Gfx** gfx = ((OnModelDrawEnd*)event)->gfx;
+        gDPSetTextureLUT((*gfx)++, G_TT_NONE);
     });
 }
 

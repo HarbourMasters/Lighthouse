@@ -32,6 +32,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnModelDisplayListLoad);
     REGISTER_EVENT(OnModelBinBuilt);
     REGISTER_EVENT(OnModelDraw);
+    REGISTER_EVENT(OnModelDrawEnd);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(CameraRotationAuthored);
     REGISTER_EVENT(MapModelXluScale);
@@ -148,6 +149,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
     REGISTER_EVENT(OnReset);
     REGISTER_EVENT(SetAnimSpeedMult);
+    REGISTER_EVENT(OnActorNew);
     REGISTER_EVENT(OnActorUpdate);
 
     // Register rando events
