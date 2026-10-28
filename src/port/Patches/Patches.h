@@ -222,7 +222,6 @@ void eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 void remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 void remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void remoteCarry_reset(void);
-s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
 
 // Connected, in a real room, syncing world state.
 int32_t Anchor_IsWorldSyncActive(void);

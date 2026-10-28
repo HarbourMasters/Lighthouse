@@ -110,7 +110,7 @@ static void __remoteCarry_spawnMethod(s32 markerId, s32 clientId) {
     if (slot < 0 || sRemoteCarry[slot].markerId != markerId || actorId == 0) {
         return; // stale queue entry
     }
-    if (!CarryThrow_GetDummyTransform((u32)clientId, pos, &yaw)) {
+    if (!EventSystem_Should(VB_REMOTE_CARRY_POSE, false, (u32)clientId, pos, &yaw)) {
         __remoteCarry_clearSlot(slot);
         return;
     }
@@ -210,7 +210,7 @@ s32 remoteCarry_displayUpdate(Actor *this) {
     if (this->state == 6 || slot >= 0) { // carried: glued to the owner's dummy
         f32 pos[3];
         f32 yaw = 0.0f;
-        if (slot < 0 || !CarryThrow_GetDummyTransform(sRemoteCarry[slot].clientId, pos, &yaw)) {
+        if (slot < 0 || !EventSystem_Should(VB_REMOTE_CARRY_POSE, false, sRemoteCarry[slot].clientId, pos, &yaw)) {
             if (slot >= 0) {
                 __remoteCarry_clearSlot(slot);
             }

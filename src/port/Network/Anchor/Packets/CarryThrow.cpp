@@ -1,6 +1,7 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
+#include "port/ShipInit.hpp"
 
 #include "port/Patches/Patches.h"
 
@@ -40,17 +41,20 @@ void Anchor::HandlePacket_CarryThrow(nlohmann::json& payload) {
     remoteCarry_throw(clientId, markerId, start.data(), target.data());
 }
 
-extern "C" s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw) {
-    Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected) {
-        return 0;
-    }
-    auto it = anchor->clients.find(clientId);
-    if (it == anchor->clients.end() || !it->second.online || it->second.dummy == nullptr ||
-        (s32)it->second.map != (s32)gsworld_getMap()) {
-        return 0;
-    }
-    it->second.dummy->dummy_getPosition(pos);
-    *yaw = it->second.dummy->dummy_getYaw();
-    return 1;
+static void RegisterCarryThrowSync_Init() {
+    COND_VB_SHOULD(VB_REMOTE_CARRY_POSE, EVENT_PRIORITY_NORMAL, Anchor::GetInstance()->isConnected, {
+        const u32 clientId = va_arg(args, u32);
+        f32* pos = va_arg(args, f32*);
+        f32* yaw = va_arg(args, f32*);
+        Anchor* anchor = Anchor::GetInstance();
+        auto it = anchor->clients.find(clientId);
+        if (it != anchor->clients.end() && it->second.online && it->second.dummy != nullptr &&
+            (s32)it->second.map == (s32)gsworld_getMap()) {
+            it->second.dummy->dummy_getPosition(pos);
+            *yaw = it->second.dummy->dummy_getYaw();
+            *should = true;
+        }
+    });
 }
+
+static RegisterShipInitFunc initCarryThrowSync(RegisterCarryThrowSync_Init, { ANCHOR_CONNECTED_PATH });

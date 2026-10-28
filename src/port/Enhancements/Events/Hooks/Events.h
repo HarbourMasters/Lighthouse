@@ -121,6 +121,7 @@ typedef enum VBehaviorID {
     VB_CARRIED_OBJECT_SPAWN,          // Carried collectible spawn: false if a teammate already picked it up.
     VB_CARRIED_OBJECT_REMOTE_DESPAWN, // A teammate picked up this carried collectible while it was live.
     VB_CARRIED_COLLECTED_COUNT,
+    VB_REMOTE_CARRY_POSE,
     VB_PUZZLE_STEP_SET,
     VB_PUZZLE_STEP_SET_ON_MAP,
     VB_PUZZLE_STEP_BITS,
