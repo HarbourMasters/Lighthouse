@@ -3,30 +3,11 @@
 #include "functions.h"
 #include "variables.h"
 
-typedef struct{
-    s16 waitingAnim;
-    u8 waitingAnimBehavior;
-    u8 isInit;
-    s16 growingAnim;
-    s16 grownAnim;
-    s16 completeFileProgress;
-    s16 completeSpawnsJiggy;
-}Struct_CCW_1B20_0;
-
-typedef struct{
-    Struct_CCW_1B20_0 *unk0;
-}ActorLocal_CCW_1B20;
+#include "beanstalk.h" // [port] the typedefs and states moved there
 
 void chCCWBeanstalk_setNextState(Actor *this, s32 next_state);
 Actor *chCCWBeanstalk_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chCCWBeanstalk_update(Actor *this);
-
-enum chCCWBeanstalk_State_e {
-    CH_CCW_BEANSTALK_STATE_0_NOT_INIT,
-    CH_CCW_BEANSTALK_STATE_1_WAITING,
-    CH_CCW_BEANSTALK_STATE_2_GROWING,
-    CH_CCW_BEANSTALK_STATE_3_GROWN
-};
 
 /* .data */
 Struct_CCW_1B20_0 D_8038EC40[4] ={
@@ -64,9 +45,6 @@ Struct_CCW_1B20_0 D_8038EC40[4] ={
     }
 };
 
-// Anchor: set during a remote-water replay; skips camera/fanfare/jiggy spawn.
-static s32 sFlowerRemoteGrow = 0;
-
 ActorInfo chCCWBeanstalk = {
     MARKER_1B0_CCW_BEANSTALK, ACTOR_29D_CCW_BEANSTALK, ASSET_447_MODEL_CCW_BEANSTALK,
     0x0, NULL,
@@ -97,33 +75,36 @@ void chCCWBeanstalk_setNextState(Actor *this, s32 next_state){
         skeletalAnim_setBehavior(this->unk148, local->unk0->waitingAnimBehavior);
     }
     if (next_state == CH_CCW_BEANSTALK_STATE_2_GROWING) {
-        if (gsworld_getMap() == MAP_43_CCW_SPRING && !sFlowerRemoteGrow) {
+//      if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, gsworld_getMap() == MAP_43_CCW_SPRING, this)) {
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         }
         fileProgressFlag_set(local->unk0->completeFileProgress, true);
         skeletalAnim_set(this->unk148, local->unk0->growingAnim, 0.0f, 6.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        if (gsworld_getMap() == MAP_43_CCW_SPRING && !sFlowerRemoteGrow) {
+//      if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, gsworld_getMap() == MAP_43_CCW_SPRING, this)) {
             func_80324E38(0.0f, 3);
         }
-        if (!sFlowerRemoteGrow) {
-            timed_setStaticCameraToNode(0.0f, 0);
-        }
+//      timed_setStaticCameraToNode(0.0f, 0);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(0.0f, 0);
         for( phi_f22 = 0.0f; phi_f22 <= 1.0f; phi_f22 += 0.1) {
-                timed_playSfx(phi_f22 * 5.7, 0x2C, phi_f22 * 0.3 + 0.7, (s32) (32000.0f - phi_f22 * 5000.0f));
+//              timed_playSfx(phi_f22 * 5.7, 0x2C, phi_f22 * 0.3 + 0.7, (s32) (32000.0f - phi_f22 * 5000.0f));
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) timed_playSfx(phi_f22 * 5.7, 0x2C, phi_f22 * 0.3 + 0.7, (s32) (32000.0f - phi_f22 * 5000.0f));
         }
         if (local->unk0->completeSpawnsJiggy != false) {
-            if (!sFlowerRemoteGrow) {
-                timed_setStaticCameraToNode(6.0f, 1);
-                timedFunc_set_0(6.1f, (GenFunction_0)chCCWBeanstalk_spawnJiggy);
-            }
+//          timed_setStaticCameraToNode(6.0f, 1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(6.0f, 1);
+//          timedFunc_set_0(6.1f, (GenFunction_0)chCCWBeanstalk_spawnJiggy);
+            if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, this)) timedFunc_set_0(6.1f, (GenFunction_0)chCCWBeanstalk_spawnJiggy);
             timedFunc_set_2(
                 8.0f,
                 (GenFunction_2)chCCWBeanstalk_setNextStateByMarker,
                 (uintptr_t)this->marker,
                 CH_CCW_BEANSTALK_STATE_3_GROWN);
         } else {
-            if (gsworld_getMap() == MAP_43_CCW_SPRING && !sFlowerRemoteGrow) {
+//          if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, gsworld_getMap() == MAP_43_CCW_SPRING, this)) {
                 timed_exitStaticCamera(7.0f);
                 func_80324E38(7.0f, 0);
             }
@@ -228,12 +209,5 @@ void chCCWBeanstalk_update(Actor *this) {
         else{
             chCCWBeanstalk_setNextState(this, CH_CCW_BEANSTALK_STATE_1_WAITING);
         }
-        return;
-    }
-
-    if ((this->state == CH_CCW_BEANSTALK_STATE_1_WAITING) && EventSystem_Should(VB_CCW_FLOWER_REMOTE_GROW, false, (s32)local->unk0->completeFileProgress)) {
-        sFlowerRemoteGrow = 1;
-        chCCWBeanstalk_setNextState(this, CH_CCW_BEANSTALK_STATE_2_GROWING);
-        sFlowerRemoteGrow = 0;
     }
 }

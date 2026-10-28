@@ -11,12 +11,7 @@ void chGnawtyBoulder_update(Actor *this);
 
 /* .data */
 
-enum chGnawtyBoulder_state_e {
-    GNAWTY_BOULDER_STATE_0_NOT_INIT,
-    GNAWTY_BOULDER_STATE_1_IDLE,
-    GNAWTY_BOULDER_STATE_2_BREAK,
-    GNAWTY_BOULDER_STATE_3_DESPAWN
-};
+#include "gnawtyboulder.h" // [port] the states moved there
 
 ActorInfo chGnawtyBoulder = {
     0x1BF, 0x2AC, 0x490,
@@ -78,18 +73,33 @@ void chGnawtyBoulder_setNextState(Actor *this, s32 next_state) {
     local->unk0 = 0.0f;
     if (next_state == GNAWTY_BOULDER_STATE_2_BREAK) {
         this->marker->propPtr->unk8_3 = false;
-        func_802BB3DC(0, 60.0f, 0.7f);
+//      func_802BB3DC(0, 60.0f, 0.7f);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) func_802BB3DC(0, 60.0f, 0.7f);
         chGnawtyBoulder_emitSmoke(this);
         chGnawtyBoulder_emitRock(this);
-        FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.3f, 15000);
-        FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.5f, 15000);
-        FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.7f, 15000);
-        FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.9f, 15000);
-        func_80324E38(0.0f, 3);
-        timed_setStaticCameraToNode(0.5f, 3);
+//      FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.3f, 15000);
+//      FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.5f, 15000);
+//      FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.7f, 15000);
+//      FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.9f, 15000);
+//      func_80324E38(0.0f, 3);
+//      timed_setStaticCameraToNode(0.5f, 3);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+            FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.3f, 15000);
+            FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.5f, 15000);
+            FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.7f, 15000);
+            FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.9f, 15000);
+        }
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
+            func_80324E38(0.0f, 3);
+            timed_setStaticCameraToNode(0.5f, 3);
+        }
         timedFunc_set_2(0.5f, (GenFunction_2)levelSpecificFlags_set, LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED, true);
-        timed_exitStaticCamera(4.0f);
-        func_80324E38(4.0f, 0);
+//      timed_exitStaticCamera(4.0f);
+//      func_80324E38(4.0f, 0);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
+            timed_exitStaticCamera(4.0f);
+            func_80324E38(4.0f, 0);
+        }
         local->unk0 = 0.5f;
         marker_despawn(this->marker);
     }
@@ -129,13 +139,6 @@ void chGnawtyBoulder_update(Actor *this) {
         {
             marker_despawn(this->marker);
         }
-        return;
-    }
-    // Anchor: teammate broke the boulder — despawn live (no break cutscene).
-    if (this->state == GNAWTY_BOULDER_STATE_1_IDLE
-        && levelSpecificFlags_get(LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED)
-        && gsworld_getMap() != MAP_43_CCW_SPRING) {
-        marker_despawn(this->marker);
         return;
     }
     if(this->state == GNAWTY_BOULDER_STATE_2_BREAK){

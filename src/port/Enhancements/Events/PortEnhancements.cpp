@@ -113,6 +113,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBottlesTutorialAnswer);
     REGISTER_EVENT(OnPuzzlePosMark);
     REGISTER_EVENT(OnPuzzleWin);
+    REGISTER_EVENT(OnPuzzleCountAdd);
     REGISTER_EVENT(OnClankerUpdate);
     REGISTER_EVENT(OnWaterRise);
 

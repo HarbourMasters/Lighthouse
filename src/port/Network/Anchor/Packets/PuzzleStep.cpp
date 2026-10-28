@@ -271,16 +271,13 @@ extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
     return it != sPuzzleCounts.end() ? it->second : 0;
 }
 
-// Returns the new count: the team's, or offline just the caller's own, as vanilla counted.
-extern "C" int32_t port_puzzleCount_add(int32_t counterId, int32_t localCount, int32_t delta) {
+extern "C" void port_puzzleCount_add(int32_t counterId, int32_t delta) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return localCount + delta;
+        return;
     }
     int32_t map = (int32_t)gsworld_getMap();
-    int32_t& count = sPuzzleCounts[{ map, counterId }];
-    count += delta;
+    sPuzzleCounts[{ map, counterId }] += delta;
     Anchor::GetInstance()->SendPacket_PuzzleCount(counterId, delta, map);
-    return count;
 }
 
 void Anchor::SendPacket_PuzzleCount(s32 counterId, s32 delta, s32 map) {
@@ -343,6 +340,10 @@ void RegisterPuzzleStep_Init() {
     REGISTER_LISTENER(OnPuzzlePosMark, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnPuzzlePosMark*)event;
         port_puzzlePos_mark(ev->puzzleId, ev->x, ev->y, ev->z);
+    });
+    REGISTER_LISTENER(OnPuzzleCountAdd, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnPuzzleCountAdd*)event;
+        port_puzzleCount_add(ev->counterId, ev->delta);
     });
 }
 

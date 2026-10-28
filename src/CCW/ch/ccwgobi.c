@@ -44,16 +44,7 @@ ActorInfo chCCWGobi = {
     0, 0, 1.0f, 0
 };
 
-enum chccwgobi_state_e {
-    CH_CCW_GOBI_STATE_0_NOT_INIT,
-    CH_CCW_GOBI_STATE_1_WAITING,
-    CH_CCW_GOBI_STATE_2_SPITTING,
-    CH_CCW_GOBI_STATE_3_GROW_BEANSTALK,
-    CH_CCW_GOBI_STATE_4_DONE_SPITTING,
-    CH_CCW_GOBI_STATE_5_GETTING_UP,
-    CH_CCW_GOBI_STATE_6_RUN_AWAY,
-    CH_CCW_GOBI_STATE_7_DESPAWN
-};
+#include "ccwgobi.h" // [port] the states moved there
 
 /* .code */
 void chCCWGobi_setStateByMarker(ActorMarker* marker, s32 arg1) {

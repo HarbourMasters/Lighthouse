@@ -155,10 +155,10 @@ void code_76C0_ccwWhipcrackRoomDoorUpdate(Actor *this){
     if(!this->initialized){
         func_802D3CE8(this);
         this->initialized = true;
-    }
-    // Anchor: checked live, not just at spawn.
-    if (levelSpecificFlags_get(LEVEL_FLAG_38_CCW_UNKNOWN)) {
-        marker_despawn(this->marker);
+
+        if (levelSpecificFlags_get(LEVEL_FLAG_38_CCW_UNKNOWN)) {
+            marker_despawn(this->marker);
+        }
     }
 }
 

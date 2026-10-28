@@ -52,5 +52,6 @@ DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;)        
 DEFINE_EVENT(OnPuzzlePosMark, int32_t puzzleId; int32_t x; int32_t y; int32_t z;)
 // FP's snowman-button and Sir Slush managers, just before their win calls the puzzle VBs with no actor.
 DEFINE_EVENT(OnPuzzleWin, int32_t puzzleId;)
-DEFINE_EVENT(OnClankerUpdate, int32_t state;) // maClankerState_e
+DEFINE_EVENT(OnPuzzleCountAdd, int32_t counterId; int32_t delta;) // enum AnchorPuzzleCount
+DEFINE_EVENT(OnClankerUpdate, int32_t state;)                     // maClankerState_e
 DEFINE_EVENT(OnWaterRise, int32_t map; int32_t waterId; int32_t targetDy; f32 duration;)

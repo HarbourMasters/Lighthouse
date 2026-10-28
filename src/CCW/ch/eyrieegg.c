@@ -14,26 +14,24 @@ ActorInfo chEyrieEgg = {
     0, 0, 0.0f, 0
 };
 
-enum chEyrieEgg_State_e {
-    CH_EYRIE_EGG_STATE_0_NOT_INIT,
-    CH_EYRIE_EGG_STATE_1_IDLE,
-    CH_EYRIE_EGG_STATE_2_BREAKING
-};
-
-// Anchor: set while replaying a teammate's hatch; skips the camera pan.
-static s32 sChEyrieEggRemote = 0;
+#include "eyrieegg.h" // [port] the states moved there
 
 /* .code */
 void chEyrieEgg_setNextState(Actor *this, s32 next_state) {
     void *temp_v0;
 
     if (next_state == CH_EYRIE_EGG_STATE_2_BREAKING) {
-        sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
+//      sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
         this->marker->propPtr->unk8_3 = false;
         fileProgressFlag_set(FILEPROG_E6_SPRING_EYRIE_HATCHED, true);
         skeletalAnim_set(this->unk148, 0x187, 0.0f, 2.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        if (!sChEyrieEggRemote) {
+//      func_80324E38(0.0f, 3);
+//      timed_setStaticCameraToNode(0.0f, 2);
+//      timed_exitStaticCamera(8.0f);
+//      func_80324E38(8.0f, 0);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
             func_80324E38(0.0f, 3);
             timed_setStaticCameraToNode(0.0f, 2);
             timed_exitStaticCamera(8.0f);
@@ -77,12 +75,6 @@ void chEyrieEgg_update(Actor *this) {
             marker_despawn(this->marker);
         }
         return;
-    }
-
-    if (this->state == CH_EYRIE_EGG_STATE_1_IDLE && fileProgressFlag_get(FILEPROG_E6_SPRING_EYRIE_HATCHED)) {
-        sChEyrieEggRemote = 1;
-        chEyrieEgg_setNextState(this, CH_EYRIE_EGG_STATE_2_BREAKING);
-        sChEyrieEggRemote = 0;
     }
 
     if (this->state == CH_EYRIE_EGG_STATE_2_BREAKING) {

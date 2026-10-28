@@ -187,6 +187,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN || index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
+    // Eyrie's flight ending starts the flyer's cutscene (cutsceneadulteyrie.c); the jiggy syncs via JIGGY_SPAWN.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_46_CCW_WINTER &&
+        index == CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT) {
+        return true;
+    }
     // SM map flags are entirely Bottles-tutorial choreography;
     // syncing any of them runs someone else's state machine.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
@@ -417,14 +422,6 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_VileHoleState((u8)hole, (u8)ev->state, (u8)ev->pieceType, VILE_EATER_MR_VILE);
     });
 
-    // Followers: suppress local random logic; network state drives these instead.
-    COND_VB_SHOULD(VB_CCW_FLOWER_REMOTE_GROW, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            s32 stageFlag = va_arg(args, s32);
-            *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
-        }
-    });
-
     // Our ride ended in a crash, so the sled's claim goes. After a teammate rescued Boggy the crash plays no scene, and
     // the scene is what releases the ride's camera. Always on, since the rescue can land before a disconnect.
     COND_ID_HOOK(OnActorDestroy, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
@@ -532,6 +529,7 @@ void Anchor::RegisterHooks() {
         }
     });
 
+    // Followers: suppress local random logic; network state drives these instead.
     COND_VB_SHOULD(VB_VILE_YUMBLIE_EMERGE, EVENT_PRIORITY_NORMAL, true, {
         if (Anchor_IsVileFollower()) {
             *should = false;

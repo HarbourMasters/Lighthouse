@@ -358,6 +358,11 @@ enum AnchorPuzzle {
     // SM intro Bottles: bit 0 = the tutorial choice has been made.
     ANCHOR_PUZZLE_SM_TUTORIAL = 15,
 };
+// Anchor puzzle counts: the team's total of a step anyone can repeat.
+enum AnchorPuzzleCount {
+    ANCHOR_COUNT_CCW_EYRIE_FED = 0,
+    ANCHOR_COUNT_CCW_NABNUT_ACORNS = 1,
+};
 
 // --- core2/dialog/progressDialog.c ---
 void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0);
