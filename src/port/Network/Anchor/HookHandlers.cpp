@@ -153,6 +153,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == 2 || index == 3)) {
         return true;
     }
+    // Rewritten every frame from the local Twinkly box's state (twinklybox.c); the game is claimed via authority.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK &&
+        index == FP_SPECIFIC_FLAG_D_UNKNOWN) {
+        return true;
+    }
     // FP bear cubs' presents-received flags: kept local; ANCHOR_PUZZLE_FP_PRESENTS syncs the result.
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
         (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_5_FREEZEEZY_PEAK &&
