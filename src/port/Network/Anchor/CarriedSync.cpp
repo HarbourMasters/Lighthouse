@@ -110,7 +110,7 @@ bool inDemoPlayback() {
 
 } // namespace
 
-extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId, int32_t id, int32_t sameMap) {
+extern "C" void CarriedSync_ApplyRemoteCollect(int32_t kind, int32_t mapId, int32_t id, int32_t sameMap) {
     (void)sameMap;
     int32_t slot = slotForKind(kind);
     if (slot < 0 || id < 0) {
@@ -120,7 +120,7 @@ extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId,
 }
 
 // Snapshot/restore as flat [slot, mapId, hash] tuples.
-std::vector<int32_t> port_carriedSync_snapshotCollected() {
+std::vector<int32_t> CarriedSync_SnapshotCollected() {
     std::vector<int32_t> flat;
     flat.reserve(sCollected.size() * 3);
     for (const auto& e : sCollected) {
@@ -129,7 +129,7 @@ std::vector<int32_t> port_carriedSync_snapshotCollected() {
     return flat;
 }
 
-void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat) {
+void CarriedSync_RestoreCollected(const std::vector<int32_t>& flat) {
     sCollected.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         sCollected.insert({ flat[i], flat[i + 1], flat[i + 2] });
@@ -150,7 +150,7 @@ static int32_t collectedCount(int32_t kind) {
     return count;
 }
 
-void port_carriedSync_clearForLevel(int32_t levelId) {
+void CarriedSync_ClearForLevel(int32_t levelId) {
     std::erase_if(sCollected, [levelId](const std::array<int32_t, 3>& e) {
         return (int32_t)map_getLevel((enum map_e)e[1]) == levelId;
     });

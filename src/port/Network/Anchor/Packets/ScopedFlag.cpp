@@ -10,7 +10,7 @@
 
 static uint32_t sMapFlagSetRemotely = 0;
 
-extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
+extern "C" int32_t ScopedFlag_WasMapFlagSetRemotely(int32_t index) {
     return (index >= 0 && index < 32 && (sMapFlagSetRemotely & (1u << index))) ? 1 : 0;
 }
 

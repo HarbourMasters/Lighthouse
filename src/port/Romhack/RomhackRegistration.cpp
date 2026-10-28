@@ -45,7 +45,7 @@ constexpr RomhackPort kRomhackPorts[] = {
 };
 
 void RegisterRomhackPatches_Init() {
-    const char* id = port_getRomhackIdentifier();
+    const char* id = RomhackConfig_GetIdentifier();
     if (id == nullptr) {
         return;
     }

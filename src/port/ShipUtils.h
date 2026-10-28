@@ -21,7 +21,7 @@ extern std::vector<std::string> abilityNameList;
 void TableCellCenteredSetCursorPosY(float size);
 void TableCellCenteredText(const char* text);
 uint32_t Ship_Hash(std::string str);
-std::string port_FormatTimeDisplay(uint64_t value);
+std::string Ship_FormatTimeDisplay(uint64_t value);
 
 template <typename T, typename Container> bool ContainerContains(const T& element, const Container& container) {
     return std::find(container.begin(), container.end(), element) != container.end();
@@ -32,12 +32,12 @@ extern "C" {
 
 uint64_t GetUnixTimestamp();
 bool Ship_IsCStringEmpty(const char* str);
-int port_checkHeap(const char* label);
+int Ship_CheckHeap(const char* label);
 
 // Raw reads of the jiggy/honeycomb score bitfields, bypassing
 // OnIsJiggyScoreCollected and OnIsHoneycombScoreCollected.
-u32 port_jiggyscore_isCollectedRaw(enum jiggy_e jiggy_id);
-bool port_honeycombscore_getRaw(enum honeycomb_e indx);
+u32 Ship_IsJiggyCollectedRaw(enum jiggy_e jiggy_id);
+bool Ship_GetHoneycombScoreRaw(enum honeycomb_e indx);
 
 // SPDLOG level wrappers callable from C
 void BK_LOG_DEBUG(const char* fmt, ...);
@@ -49,7 +49,7 @@ void BK_LOG_ERROR(const char* fmt, ...);
 extern int gPortResetPending;
 
 // Get the name of a map by its ID
-const char* port_mapName(int map_id);
+const char* Ship_GetMapName(int map_id);
 
 // Get the boot sequence setting (0=Default, 1=Authentic, 2=FileSelect)
 int Ship_GetBootSequence(void);

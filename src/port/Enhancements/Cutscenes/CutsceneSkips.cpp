@@ -29,17 +29,17 @@ void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
 
 void RegisterSkipBootLogos_Init() {
     COND_VB_SHOULD(VB_PLAY_BOOT_LOGOS, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !port_isRomhack(), { *should = false; });
+                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !RomhackConfig_IsActive(), { *should = false; });
 }
 
 void RegisterSkipIntroCutscene_Init() {
     COND_VB_SHOULD(VB_PLAY_INTRO_CUTSCENE, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !port_isRomhack(), { *should = false; });
+                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !RomhackConfig_IsActive(), { *should = false; });
 }
 
 void RegisterSkipMiscCutscenes_Init() {
     COND_HOOK(OnMiscCutscenesCheck, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !port_isRomhack(), [](IEvent* event) {
+              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !RomhackConfig_IsActive(), [](IEvent* event) {
                   auto* ev = reinterpret_cast<OnMiscCutscenesCheck*>(event);
                   *ev->skipMiscCutscenes = true;
               });

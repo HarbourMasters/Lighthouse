@@ -430,7 +430,7 @@ static void Gruntch_EnablePauseTotalsLayout() {
 static void Gruntch_EnableJiggyTally() {
     HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
     HackShared_SetJiggyLevelCap(10);
-    port_overrideRomhackJiggiesPerWorld(10);
+    RomhackConfig_OverrideJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
     REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {

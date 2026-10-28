@@ -14,7 +14,7 @@
 /*
     RomhackConfig loads and parses the aGameConfig blob from romhack
     o2r archives and exposes the relevant overrides to the decompilation
-    (via the port_getRomhack* accessors declared in RomhackConfig.h).
+    (via the RomhackConfig_Get* accessors declared in RomhackConfig.h).
     It is what makes romhacks function properly beyond simple asset swaps.
 */
 
@@ -257,17 +257,17 @@ static void LoadGameConfig() {
             return NULL;   \
     }
 
-extern "C" bool port_isRomhack(void) {
+extern "C" bool RomhackConfig_IsActive(void) {
     LoadGameConfig();
     return sIsRomhack;
 }
 
-extern "C" const char* port_getRomhackName(void) {
+extern "C" const char* RomhackConfig_GetName(void) {
     LoadGameConfig();
     return sRomName.empty() ? "" : sRomName.c_str();
 }
 
-extern "C" int port_getRomhackCustomCodeKind(void) {
+extern "C" int RomhackConfig_GetCustomCodeKind(void) {
     LoadGameConfig();
     if (!sIsRomhack || sCustomCodeHashHex.empty() || sCustomCodeKind < 0) {
         return 0; // none
@@ -275,7 +275,7 @@ extern "C" int port_getRomhackCustomCodeKind(void) {
     return sCustomCodeKind;
 }
 
-extern "C" bool port_getRomhackCustomCodeHash(char out_hex[41]) {
+extern "C" bool RomhackConfig_GetCustomCodeHash(char out_hex[41]) {
     LoadGameConfig();
     if (sCustomCodeHashHex.empty()) {
         return false;
@@ -285,7 +285,7 @@ extern "C" bool port_getRomhackCustomCodeHash(char out_hex[41]) {
     return true;
 }
 
-extern "C" bool port_getRomhackRomHash(char out_hex[41]) {
+extern "C" bool RomhackConfig_GetRomHash(char out_hex[41]) {
     LoadGameConfig();
     if (sRomHashHex.empty()) {
         return false;
@@ -295,7 +295,7 @@ extern "C" bool port_getRomhackRomHash(char out_hex[41]) {
     return true;
 }
 
-extern "C" const char* port_getRomhackIdentifier(void) {
+extern "C" const char* RomhackConfig_GetIdentifier(void) {
     LoadGameConfig();
     // Custom-code blob hash takes precedence — for hacks that ship MIPS code,
     // the blob hash is the most reliable signal of "what code is running" and
@@ -313,13 +313,13 @@ extern "C" const char* port_getRomhackIdentifier(void) {
     return nullptr;
 }
 
-extern "C" int port_getRomhackSceneRemap(int map_id) {
+extern "C" int RomhackConfig_GetSceneRemap(int map_id) {
     ROMHACK_GUARD_INT;
     auto it = sSceneRemaps.find(map_id);
     return (it != sSceneRemaps.end()) ? it->second : -1;
 }
 
-extern "C" int port_getRomhackReturnToLair(int level_index, int* out_map, int* out_exit) {
+extern "C" int RomhackConfig_GetReturnToLair(int level_index, int* out_map, int* out_exit) {
     ROMHACK_GUARD_ZERO;
     auto it = sReturnToLair.find(level_index);
     if (it != sReturnToLair.end()) {
@@ -330,7 +330,7 @@ extern "C" int port_getRomhackReturnToLair(int level_index, int* out_map, int* o
     return 0;
 }
 
-extern "C" int port_getRomhackMusic(int map_id, int* out_track1, int* out_track2) {
+extern "C" int RomhackConfig_GetMusic(int map_id, int* out_track1, int* out_track2) {
     ROMHACK_GUARD_ZERO;
     auto it = sMusicAssign.find(map_id);
     if (it != sMusicAssign.end()) {
@@ -341,13 +341,14 @@ extern "C" int port_getRomhackMusic(int map_id, int* out_track1, int* out_track2
     return 0;
 }
 
-extern "C" int port_getRomhackSkybox(int scene_id) {
+extern "C" int RomhackConfig_GetSkybox(int scene_id) {
     ROMHACK_GUARD_INT;
     auto it = sSkyboxAssign.find(scene_id);
     return (it != sSkyboxAssign.end()) ? it->second.models[0] : -1;
 }
 
-extern "C" int port_getRomhackSkyboxFull(int scene_id, int out_models[3], float out_scales[3], float out_rotations[3]) {
+extern "C" int RomhackConfig_GetSkyboxFull(int scene_id, int out_models[3], float out_scales[3],
+                                           float out_rotations[3]) {
     ROMHACK_GUARD_ZERO;
     auto it = sSkyboxAssign.find(scene_id);
     if (it != sSkyboxAssign.end()) {
@@ -361,7 +362,7 @@ extern "C" int port_getRomhackSkyboxFull(int scene_id, int out_models[3], float 
     return 0;
 }
 
-extern "C" int port_getRomhackSceneDef(int scene_id, int* out_opa, int* out_xlu) {
+extern "C" int RomhackConfig_GetSceneDef(int scene_id, int* out_opa, int* out_xlu) {
     ROMHACK_GUARD_ZERO;
     auto it = sSceneDefs.find(scene_id);
     if (it != sSceneDefs.end()) {
@@ -372,8 +373,8 @@ extern "C" int port_getRomhackSceneDef(int scene_id, int* out_opa, int* out_xlu)
     return 0;
 }
 
-extern "C" int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_xlu, short out_min[3], short out_max[3],
-                                           float* out_scale) {
+extern "C" int RomhackConfig_GetSceneDefFull(int scene_id, int* out_opa, int* out_xlu, short out_min[3],
+                                             short out_max[3], float* out_scale) {
     ROMHACK_GUARD_ZERO;
     auto it = sSceneDefs.find(scene_id);
     if (it != sSceneDefs.end()) {
@@ -389,90 +390,90 @@ extern "C" int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_
     return 0;
 }
 
-extern "C" int port_getRomhackNewGameMap(void) {
+extern "C" int RomhackConfig_GetNewGameMap(void) {
     ROMHACK_GUARD_INT;
     return sNewGameMap;
 }
-extern "C" int port_getRomhackStartLevel1(void) {
+extern "C" int RomhackConfig_GetStartLevel1(void) {
     ROMHACK_GUARD_INT;
     return sStartLevel1;
 }
-extern "C" int port_getRomhackStartLevel2(void) {
+extern "C" int RomhackConfig_GetStartLevel2(void) {
     ROMHACK_GUARD_INT;
     return sStartLevel2;
 }
-extern "C" int port_getRomhackMaxEggs(void) {
+extern "C" int RomhackConfig_GetMaxEggs(void) {
     ROMHACK_GUARD_INT;
     return sEggsNormalMax;
 }
-extern "C" int port_getRomhackMaxEggsCheato(void) {
+extern "C" int RomhackConfig_GetMaxEggsCheato(void) {
     ROMHACK_GUARD_INT;
     return sEggsCheatomax;
 }
-extern "C" int port_getRomhackMaxRedFeathers(void) {
+extern "C" int RomhackConfig_GetMaxRedFeathers(void) {
     ROMHACK_GUARD_INT;
     return sRedFeathersNormalMax;
 }
-extern "C" int port_getRomhackMaxRedFeathersCheato(void) {
+extern "C" int RomhackConfig_GetMaxRedFeathersCheato(void) {
     ROMHACK_GUARD_INT;
     return sRedFeathersCheatomax;
 }
-extern "C" int port_getRomhackMaxGoldFeathers(void) {
+extern "C" int RomhackConfig_GetMaxGoldFeathers(void) {
     ROMHACK_GUARD_INT;
     return sGoldFeathersNormalMax;
 }
-extern "C" int port_getRomhackMaxGoldFeathersCheato(void) {
+extern "C" int RomhackConfig_GetMaxGoldFeathersCheato(void) {
     ROMHACK_GUARD_INT;
     return sGoldFeathersCheatomax;
 }
-extern "C" int port_getRomhackNotesMax(void) {
+extern "C" int RomhackConfig_GetNotesMax(void) {
     ROMHACK_GUARD_INT;
     return sNotesMax;
 }
-extern "C" int port_getRomhackJiggiesPerWorld(void) {
+extern "C" int RomhackConfig_GetJiggiesPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sJiggiesPerWorld;
 }
-extern "C" void port_overrideRomhackJiggiesPerWorld(int value) {
+extern "C" void RomhackConfig_OverrideJiggiesPerWorld(int value) {
     sJiggiesPerWorld = value;
 }
-extern "C" int port_getRomhackHoneycombsPerWorld(void) {
+extern "C" int RomhackConfig_GetHoneycombsPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sHoneycombsPerWorld;
 }
-extern "C" void port_overrideRomhackHoneycombsPerWorld(int value) {
+extern "C" void RomhackConfig_OverrideHoneycombsPerWorld(int value) {
     sHoneycombsPerWorld = value;
 }
-extern "C" int port_getRomhackExtraHcStart(void) {
+extern "C" int RomhackConfig_GetExtraHcStart(void) {
     ROMHACK_GUARD_INT;
     return sExtraHcStart;
 }
-extern "C" int port_getRomhackKnowAllMoves(void) {
+extern "C" int RomhackConfig_GetKnowAllMoves(void) {
     ROMHACK_GUARD_INT;
     return sKnowAllMoves;
 }
-extern "C" int port_getRomhackWarpExitBanjosHouse(void) {
+extern "C" int RomhackConfig_GetWarpExitBanjosHouse(void) {
     ROMHACK_GUARD_INT;
     return sWarpExitBanjosHouse;
 }
-extern "C" int port_getRomhackWarpEnterLair(void) {
+extern "C" int RomhackConfig_GetWarpEnterLair(void) {
     ROMHACK_GUARD_INT;
     return sWarpEnterLair;
 }
-extern "C" int port_getRomhackSpecialLevel(void) {
+extern "C" int RomhackConfig_GetSpecialLevel(void) {
     ROMHACK_GUARD_INT;
     return sSpecialLevel;
 }
-extern "C" int port_getRomhackHideJiggiesLevel(void) {
+extern "C" int RomhackConfig_GetHideJiggiesLevel(void) {
     ROMHACK_GUARD_INT;
     return sHideJiggiesLevel;
 }
-extern "C" int port_getRomhackHideCollectiblesLevel(void) {
+extern "C" int RomhackConfig_GetHideCollectiblesLevel(void) {
     ROMHACK_GUARD_INT;
     return sHideCollectiblesLevel;
 }
 
-extern "C" int port_getRomhackMumboCost(int transform_id) {
+extern "C" int RomhackConfig_GetMumboCost(int transform_id) {
     ROMHACK_GUARD_INT;
     switch (transform_id) {
         case 2:
@@ -490,7 +491,7 @@ extern "C" int port_getRomhackMumboCost(int transform_id) {
     }
 }
 
-extern "C" int port_getRomhackNoteDoor(int door_index) {
+extern "C" int RomhackConfig_GetNoteDoor(int door_index) {
     ROMHACK_GUARD_INT;
     if (door_index >= 0 && door_index < 12) {
         return sNoteDoors[door_index];
@@ -498,7 +499,7 @@ extern "C" int port_getRomhackNoteDoor(int door_index) {
     return -1;
 }
 
-extern "C" int port_getRomhackJiggyPuzzleCost(int puzzle_index) {
+extern "C" int RomhackConfig_GetJiggyPuzzleCost(int puzzle_index) {
     ROMHACK_GUARD_INT;
     if (puzzle_index >= 0 && puzzle_index < 11) {
         return sJiggyCosts[puzzle_index];
@@ -506,7 +507,7 @@ extern "C" int port_getRomhackJiggyPuzzleCost(int puzzle_index) {
     return -1;
 }
 
-extern "C" int port_getRomhackJiggyPuzzleSize(int puzzle_index) {
+extern "C" int RomhackConfig_GetJiggyPuzzleSize(int puzzle_index) {
     ROMHACK_GUARD_INT;
     if (puzzle_index >= 0 && puzzle_index < 11) {
         return sJiggySizes[puzzle_index];
@@ -514,7 +515,7 @@ extern "C" int port_getRomhackJiggyPuzzleSize(int puzzle_index) {
     return -1;
 }
 
-extern "C" int port_getRomhackJiggyPuzzleFlag(int puzzle_index) {
+extern "C" int RomhackConfig_GetJiggyPuzzleFlag(int puzzle_index) {
     ROMHACK_GUARD_INT;
     if (puzzle_index >= 0 && puzzle_index < 11) {
         return sJiggyFlags[puzzle_index];
@@ -522,7 +523,7 @@ extern "C" int port_getRomhackJiggyPuzzleFlag(int puzzle_index) {
     return -1;
 }
 
-extern "C" const char* port_getRomhackLevelName(int level_index) {
+extern "C" const char* RomhackConfig_GetLevelName(int level_index) {
     ROMHACK_GUARD_NULL;
     if (level_index >= 0 && level_index < 13) {
         return sLevelNames[level_index];
@@ -530,13 +531,13 @@ extern "C" const char* port_getRomhackLevelName(int level_index) {
     return NULL;
 }
 
-extern "C" int port_getRomhackWarpDest(int warp_index) {
+extern "C" int RomhackConfig_GetWarpDest(int warp_index) {
     ROMHACK_GUARD_INT;
     auto it = sWarpDests.find(warp_index);
     return (it != sWarpDests.end()) ? it->second : -1;
 }
 
-extern "C" void port_clearRomhackWarpDest(int warp_index) {
+extern "C" void RomhackConfig_ClearWarpDest(int warp_index) {
     LoadGameConfig();
     sWarpDests.erase(warp_index);
 }

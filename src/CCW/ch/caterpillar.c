@@ -5,7 +5,7 @@
 
 extern ActorMarker *bacarry_getMarkerWithExtraSteps(void);
 extern void func_8028F7D4(f32, f32);
-extern s32 port_remoteCarry_displayUpdate(Actor *this);
+extern s32 remoteCarry_displayUpdate(Actor *this);
 
 typedef struct {
     f32 position[3];
@@ -98,7 +98,7 @@ void chcaterpillar_update(Actor *this){
     f32 sp54[3];
     int i;
 
-    if (port_remoteCarry_displayUpdate(this)) {
+    if (remoteCarry_displayUpdate(this)) {
         return;
     }
 

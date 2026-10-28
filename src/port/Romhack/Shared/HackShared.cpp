@@ -104,7 +104,7 @@ f32 MeasureBoldNameWidth(const char* s) {
 }
 
 void ApplyPauseNameCentering() {
-    COND_VB_SHOULD(VB_PAUSEMENU_LEVEL_NAME_X, EVENT_PRIORITY_NORMAL, port_getRomhackIdentifier() != nullptr, {
+    COND_VB_SHOULD(VB_PAUSEMENU_LEVEL_NAME_X, EVENT_PRIORITY_NORMAL, RomhackConfig_GetIdentifier() != nullptr, {
         s32* x = va_arg(args, s32*);
         va_arg(args, s32);
         const char* vanillaName = va_arg(args, const char*);

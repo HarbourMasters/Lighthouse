@@ -37,7 +37,7 @@ void Anchor::HandlePacket_CarryThrow(nlohmann::json& payload) {
         return;
     }
 
-    port_remoteCarry_throw(clientId, markerId, start.data(), target.data());
+    remoteCarry_throw(clientId, markerId, start.data(), target.data());
 }
 
 extern "C" s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw) {

@@ -1022,7 +1022,7 @@ void func_80387730(Actor *this) {
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
     }
-    // Anchor: unk1C[0] set by port_notedoor_remoteOpen = a teammate opened this door.
+    // Anchor: unk1C[0] set by notedoor_remoteOpen = a teammate opened this door.
     forceOpen = (this->unk1C[0] != 0.0f);
     if (forceOpen ||
         (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && player_isAbilityUnlocked(ABILITY_13_1ST_NOTEDOOR))) {
@@ -1117,12 +1117,12 @@ static Actor *__lair_findActor(s32 actorId, s32 typeField) {
 }
 
 // [port] Anchor: one-shot cues for a teammate's file-progress flag.
-void port_progressFlag_remoteCue(s32 progressFlag) {
+void progressFlag_remoteCue(s32 progressFlag) {
     Actor *actor;
 
-    port_notedoor_remoteOpen(progressFlag);
-    port_leveldoor_remoteOpen(progressFlag);
-    port_breakable_remoteBreak(progressFlag);
+    notedoor_remoteOpen(progressFlag);
+    leveldoor_remoteOpen(progressFlag);
+    breakable_remoteBreak(progressFlag);
 
     switch (progressFlag) {
         // Circular grate over the BGS puzzle: rise + slam (func_803875F0).
@@ -1167,7 +1167,7 @@ void port_progressFlag_remoteCue(s32 progressFlag) {
     }
 }
 
-void port_notedoor_remoteOpen(s32 progressFlag) {
+void notedoor_remoteOpen(s32 progressFlag) {
     Actor *actor;
 
     if (progressFlag < FILEPROG_3A_NOTE_DOOR_50_OPEN || progressFlag > FILEPROG_45_NOTE_DOOR_882_OPEN) {
@@ -1432,7 +1432,7 @@ static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
     }
 }
 
-void port_leveldoor_remoteOpen(s32 progressFlag) {
+void leveldoor_remoteOpen(s32 progressFlag) {
     switch (progressFlag) {
         case 0x28: sRemoteOpenDoorActor = ACTOR_20E_MM_ENTRANCE_DOOR; break;
         case 0x29: sRemoteOpenDoorActor = ACTOR_211_TTC_ENTRANCE_CHEST_LID; break;

@@ -4,7 +4,7 @@
 #include "variables.h"
 
 extern ActorMarker *bacarry_getMarkerWithExtraSteps(void);
-extern s32 port_remoteCarry_displayUpdate(Actor *this);
+extern s32 remoteCarry_displayUpdate(Actor *this);
 
 typedef struct {
     f32 position[3];
@@ -78,7 +78,7 @@ void chCarriedAcorn_update(Actor *this) {
     local = (ActorLocal_ChCarriedAcorn *)&this->local;
     time_delta = time_getDelta();
 
-    if (port_remoteCarry_displayUpdate(this)) {
+    if (remoteCarry_displayUpdate(this)) {
         return;
     }
 

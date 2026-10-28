@@ -405,7 +405,7 @@ void push_frame() {
     if (++sTitleCounter >= 30) {
         sTitleCounter = 0;
         sTitleMap = gsworld_getMap();
-        Graphics_RunOnRenderThread([](void*) { port_setWindowTitle(sTitleMap); }, nullptr);
+        Graphics_RunOnRenderThread([](void*) { GameStatus_SetWindowTitle(sTitleMap); }, nullptr);
     }
 
     if (!sFrameRendered) {

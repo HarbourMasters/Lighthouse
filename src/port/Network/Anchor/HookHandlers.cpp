@@ -18,9 +18,9 @@ extern "C" {
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
 s32 chMrVile_netGetAnimMode(Actor* actor);
-void port_jiggySpawn_remove(int32_t jiggyId);
-int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
-int32_t port_mapFlag_wasSetRemotely(int32_t index);
+void SpawnJiggy_Remove(int32_t jiggyId);
+int32_t SpawnJiggy_IsRecorded(int32_t jiggyId);
+int32_t ScopedFlag_WasMapFlagSetRemotely(int32_t index);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 }
 
@@ -232,7 +232,7 @@ void Anchor::RegisterHooks() {
     });
 
     COND_HOOK(OnActorArrayFree, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
-        port_remoteCarry_reset();
+        remoteCarry_reset();
         for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
             if (client.dummy != nullptr) {
                 client.dummy->dummy_detachActor();
@@ -377,28 +377,28 @@ void Anchor::RegisterHooks() {
             s32 doorId = va_arg(args, s32);
             switch (doorId) {
                 case GV_DOOR_CAM_SUN:
-                    *should = !port_mapFlag_wasSetRemotely(3);
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(3);
                     break;
                 case GV_DOOR_CAM_STAR:
-                    *should = !port_mapFlag_wasSetRemotely(5);
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(5);
                     break;
                 case GV_DOOR_CAM_KAZOOIE:
-                    *should = !port_mapFlag_wasSetRemotely(6);
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(6);
                     break;
                 case GV_DOOR_CAM_JINXY:
-                    *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                    *should = !(ScopedFlag_WasMapFlagSetRemotely(0) && ScopedFlag_WasMapFlagSetRemotely(1));
                     break;
                 case MMM_DOOR_CAM_CHURCH:
-                    *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
                     break;
                 case LAIR_DOOR_CAM_BGS_GRATE:
-                    *should = !port_mapFlag_wasSetRemotely(0);
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(0);
                     break;
                 case LAIR_DOOR_CAM_CC_PIPE:
-                    *should = !port_mapFlag_wasSetRemotely(1);
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(1);
                     break;
                 case LAIR_DOOR_CAM_CC_PIPE_3:
-                    *should = !port_mapFlag_wasSetRemotely(2);
+                    *should = !ScopedFlag_WasMapFlagSetRemotely(2);
                     break;
                 default:
                     break;
@@ -407,7 +407,7 @@ void Anchor::RegisterHooks() {
     });
 
     COND_VB_SHOULD(VB_LAIR_GRATE_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected,
-                   { *should = !port_mapFlag_wasSetRemotely(0); });
+                   { *should = !ScopedFlag_WasMapFlagSetRemotely(0); });
 
     COND_VB_SHOULD(VB_BGS_TANKTUP_CATCH_UP, EVENT_PRIORITY_NORMAL, isConnected,
                    { *should = Anchor_WorldSyncActive(); });
@@ -582,7 +582,7 @@ void Anchor::RegisterHooks() {
         if (!Anchor_WorldSyncActive() || !Anchor::GetInstance()->IsSaveLoaded()) {
             return;
         }
-        if (port_jiggySpawn_isRecorded(ev->jiggyId)) {
+        if (SpawnJiggy_IsRecorded(ev->jiggyId)) {
             event->Cancelled = true;
             ev->result = 1;
         }
@@ -623,7 +623,7 @@ void Anchor::RegisterHooks() {
             return;
         }
         auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);
-        port_jiggySpawn_remove(ev->jiggyId);
+        SpawnJiggy_Remove(ev->jiggyId);
     });
 
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected,

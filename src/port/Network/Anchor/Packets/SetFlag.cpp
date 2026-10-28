@@ -22,7 +22,7 @@ static const char* LevelOpenSeenFlagName(s16 flag) {
         LEVEL_A_MAD_MONSTER_MANSION, LEVEL_9_RUSTY_BUCKET_BAY,    LEVEL_8_CLICK_CLOCK_WOOD,
     };
     if (flag >= 0x28 && flag <= 0x30) {
-        return port_levelName(kSeenFlagLevels[flag - 0x28]);
+        return GameStatus_GetLevelName(kSeenFlagLevels[flag - 0x28]);
     }
     if (flag == FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) {
         return "the door to Gruntilda";
@@ -63,7 +63,7 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        port_progressFlag_remoteCue(flag);
+        progressFlag_remoteCue(flag);
         // Vanilla only; rando reports world access via SET_CHECK_STATUS instead.
         if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {
             if (const char* opened = LevelOpenSeenFlagName(flag)) {

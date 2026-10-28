@@ -134,7 +134,7 @@ bool TakeFootstepSlot(Actor* actor) {
 } // namespace
 
 void RegisterAlwaysUpdateActors_Init() {
-    const bool enabled = CVarGetInteger(CVAR_ALWAYS_UPDATE_ACTORS, 0) && !port_isRomhack();
+    const bool enabled = CVarGetInteger(CVAR_ALWAYS_UPDATE_ACTORS, 0) && !RomhackConfig_IsActive();
 
     // To make the game world feel more alive with added draw distance,
     // these actors can always run their updates.

@@ -19,7 +19,7 @@
 
 std::set<std::array<int32_t, 5>> sBrokenObjects;
 
-std::vector<int32_t> port_breakable_snapshotBroken() {
+std::vector<int32_t> BreakObject_SnapshotBroken() {
     std::vector<int32_t> flat;
     flat.reserve(sBrokenObjects.size() * 5);
     for (const auto& e : sBrokenObjects) {
@@ -28,14 +28,14 @@ std::vector<int32_t> port_breakable_snapshotBroken() {
     return flat;
 }
 
-void port_breakable_restoreBroken(const std::vector<int32_t>& flat) {
+void BreakObject_RestoreBroken(const std::vector<int32_t>& flat) {
     sBrokenObjects.clear();
     for (size_t i = 0; i + 5 <= flat.size(); i += 5) {
         sBrokenObjects.insert({ flat[i], flat[i + 1], flat[i + 2], flat[i + 3], flat[i + 4] });
     }
 }
 
-void port_breakable_clearForLevel(int32_t levelId) {
+void BreakObject_ClearForLevel(int32_t levelId) {
     std::erase_if(sBrokenObjects, [levelId](const std::array<int32_t, 5>& e) {
         return (int32_t)map_getLevel((enum map_e)e[0]) == levelId;
     });
@@ -74,11 +74,11 @@ void Anchor::HandlePacket_BreakObject(nlohmann::json& payload) {
 
     sBrokenObjects.insert({ map, markerId, x, y, z });
     if (replay && (s32)gsworld_getMap() == map) {
-        port_breakable_remoteBreakAt(markerId, x, y, z);
+        breakable_remoteBreakAt(markerId, x, y, z);
     }
 }
 
-extern "C" void port_breakable_despawnBrokenRestores(s32 map);
+extern "C" void breakable_despawnBrokenRestores(s32 map);
 
 void RegisterBreakObject_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBrokenObjects.clear(); });
@@ -88,7 +88,7 @@ void RegisterBreakObject_Init() {
         if (!Anchor::GetInstance()->IsWorldSyncActive()) {
             return;
         }
-        port_breakable_despawnBrokenRestores((s32)ev->nextMap);
+        breakable_despawnBrokenRestores((s32)ev->nextMap);
     });
 }
 

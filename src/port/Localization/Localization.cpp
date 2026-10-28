@@ -513,13 +513,13 @@ static constexpr uint32_t kMotzandParadeCreditId = 0x11CA;
 static constexpr int32_t kPresentMeetBlueDialogId = 0xC20; // then green, red
 static constexpr int32_t kJpPresentLinesDialogId = 0x1614;
 
-static bool port_useMotzandParade() {
+static bool Localization_UseMotzandParade() {
     return ResourceMgr_IsJapanese() || ResourceMgr_IsPal() || ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
 }
 
 // Swap the active parade table for the Motzand variant.
 static void LocalizeParadeTable(int paradeId, void** table, uint8_t* count) {
-    if (!port_useMotzandParade()) {
+    if (!Localization_UseMotzandParade()) {
         return;
     }
     if (!sPalJpParadesBuilt) {
@@ -705,7 +705,7 @@ static void RegisterLocalizedText() {
     // ids (0x11AF + index - 1) resolve directly from the base.
     REGISTER_LISTENER(ParadeCreditDialogId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ParadeCreditDialogId*)event;
-        if (!port_useMotzandParade() || ev->index <= 19 || ev->dialogId == nullptr) {
+        if (!Localization_UseMotzandParade() || ev->index <= 19 || ev->dialogId == nullptr) {
             return;
         }
         *ev->dialogId = (ev->index == 20) ? kMotzandParadeCreditId : (0x11AF + ev->index - 1);

@@ -331,7 +331,7 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
         // A reserved-but-empty ROM slot resolves to nothing by design (the game
         // tolerates it, as on N64); only a genuinely-missing asset is worth tracing.
         if (!IsKnownEmptyAssetSlot(assetId)) {
-            port_traceBadAssetId(assetId);
+            AssetTrace_TraceBadAssetId(assetId);
         }
         return nullptr;
     }

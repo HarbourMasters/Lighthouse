@@ -4593,9 +4593,9 @@ int ResourceMgr_OTRSigCheck(char* imgData);
 
 // If the address is registered in the sprite texture registry, substitute the
 // OTR resource path so LUS loads it natively (avoiding strncmp crash on raw data).
-void port_gDPSetTextureImage(Gfx* pkt, int fmt, int siz, int width, const void* img);
+void GfxBridge_SetTextureImage(Gfx* pkt, int fmt, int siz, int width, const void* img);
 #undef gDPSetTextureImage
-#define gDPSetTextureImage(pkt, f, s, w, i) port_gDPSetTextureImage(pkt, f, s, w, (const void*)(i))
+#define gDPSetTextureImage(pkt, f, s, w, i) GfxBridge_SetTextureImage(pkt, f, s, w, (const void*)(i))
 #endif
 
 #endif /* _GBI_H_ */

@@ -179,19 +179,19 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
 }
 
 void ApplyNoteDoorNumbers() {
-    COND_VB_SHOULD(VB_NOTE_DOOR_COST, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+    COND_VB_SHOULD(VB_NOTE_DOOR_COST, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), {
         const s32 doorIdx = va_arg(args, s32);
         s32* cost = va_arg(args, s32*);
-        const int override = port_getRomhackNoteDoor(doorIdx);
+        const int override = RomhackConfig_GetNoteDoor(doorIdx);
         if (override >= 0) {
             *cost = override;
         }
     });
 
     // Hide the baked number mesh on doors the hack retunes
-    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack() && !sComposeNoteDoors, {
+    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive() && !sComposeNoteDoors, {
         const s32 noteDoorIdx = va_arg(args, s32);
-        if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
+        if (noteDoorIdx >= 1 && RomhackConfig_GetNoteDoor(noteDoorIdx - 1) >= 0) {
             *should = false;
         }
     });
@@ -205,7 +205,7 @@ void ApplyNoteDoorNumbers() {
         assetcache_release(bin);
         if (composed != nullptr) {
             modelRender_setDisplayList(composed);
-        } else if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
+        } else if (noteDoorIdx >= 1 && RomhackConfig_GetNoteDoor(noteDoorIdx - 1) >= 0) {
             *should = false;
         }
     });
@@ -216,7 +216,7 @@ RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 } // namespace
 
 extern "C" int NoteDoorNumbers_GetCost(int doorIdx) {
-    const int cost = port_getRomhackNoteDoor(doorIdx);
+    const int cost = RomhackConfig_GetNoteDoor(doorIdx);
     return cost >= 0 ? cost : D_8039347C[doorIdx];
 }
 

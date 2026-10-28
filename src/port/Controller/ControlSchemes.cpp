@@ -136,7 +136,7 @@ void CollectCButtonSources(const std::shared_ptr<Controller>& controller, CONTRO
 
 } // namespace
 
-extern "C" int port_rightStickIsMapped(void) {
+extern "C" int ControlSchemes_IsRightStickMapped(void) {
     auto controller = GetPort0Controller();
     if (controller == nullptr) {
         return 0;

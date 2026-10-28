@@ -449,7 +449,7 @@ static const LairBreakable D_lairBreakables[] = {
     { FILEPROG_CE_GRATE_TO_MMM_PUZZLE_OPEN,             0x119,                            0 },
 };
 
-void port_breakable_remoteBreak(s32 progressFlag) {
+void breakable_remoteBreak(s32 progressFlag) {
     s32 i;
     s16 markerId = -1;
     s8 fieldSel = 0;
@@ -478,7 +478,7 @@ void port_breakable_remoteBreak(s32 progressFlag) {
     }
 }
 
-void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
+void breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     s32 i;
 
     if (suBaddieActorArray == NULL) {
@@ -497,7 +497,7 @@ void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     }
 }
 
-static bool port_breakable_survivesBreak(s32 markerId) {
+static bool __breakable_survivesBreak(s32 markerId) {
     switch (markerId) {
         case MARKER_34_CEMETARY_POT:            // flowers
         case MARKER_66_ORANGE_PAD:              // stays, marked hit
@@ -508,7 +508,7 @@ static bool port_breakable_survivesBreak(s32 markerId) {
 }
 
 // [port] Iterates backward: despawn swap-removes from the end.
-void port_breakable_despawnBrokenRestores(s32 map) {
+void breakable_despawnBrokenRestores(s32 map) {
     s32 i;
 
     if (suBaddieActorArray == NULL) {
@@ -519,7 +519,7 @@ void port_breakable_despawnBrokenRestores(s32 map) {
         if (actor->marker == NULL || actor->despawn_flag) {
             continue;
         }
-        if (port_breakable_survivesBreak(actor->marker->id)) {
+        if (__breakable_survivesBreak(actor->marker->id)) {
             continue;
         }
         if (EventSystem_Should(VB_BREAKABLE_BROKEN, false, map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
@@ -529,7 +529,7 @@ void port_breakable_despawnBrokenRestores(s32 map) {
     }
 }
 
-s32 port_cutsceneWarp_getReturnMap(void) {
+s32 cutsceneWarp_getReturnMap(void) {
     return D_80367694;
 }
 

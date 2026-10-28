@@ -26,7 +26,7 @@
 static constexpr int kWarpIdxSmExitBanjosHouse = 281;
 
 void RegisterDreamiePatches() {
-    port_clearRomhackWarpDest(kWarpIdxSmExitBanjosHouse);
+    RomhackConfig_ClearWarpDest(kWarpIdxSmExitBanjosHouse);
 
     REGISTER_LISTENER(OnWarpResolveDest, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnWarpResolveDest*>(event);

@@ -26,7 +26,7 @@ constexpr ability_e kSpiralMountainAbilities[] = {
 
 void RegisterSkipSMTutorial_Init() {
     COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent* event) {
-        if (port_isRomhack() || IS_RANDO) {
+        if (RomhackConfig_IsActive() || IS_RANDO) {
             return;
         }
         auto* ev = reinterpret_cast<OnNewGame*>(event);

@@ -129,7 +129,7 @@ static void __remoteCarry_spawnMethod(s32 markerId, s32 clientId) {
     }
 }
 
-void port_remoteCarry_setCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
+void remoteCarry_setCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
     s32 slot;
     if (clientId == 0) {
         return;
@@ -169,7 +169,7 @@ void port_remoteCarry_setCarried(u32 clientId, s32 markerId, f32 offset[3], f32 
     __spawnQueue_add_2((GenFunction_2)__remoteCarry_spawnMethod, markerId, clientId);
 }
 
-void port_remoteCarry_throw(u32 clientId, s32 markerId, f32 start[3], f32 target[3]) {
+void remoteCarry_throw(u32 clientId, s32 markerId, f32 start[3], f32 target[3]) {
     s32 slot;
     if (clientId == 0 || __remoteCarry_actorIdForMarker(markerId) == 0) {
         return;
@@ -199,14 +199,14 @@ void port_remoteCarry_throw(u32 clientId, s32 markerId, f32 start[3], f32 target
     sRemoteCarry[slot].throwTarget[2] = target[2];
 }
 
-void port_remoteCarry_reset(void) {
+void remoteCarry_reset(void) {
     s32 i;
     for (i = 0; i < REMOTE_CARRY_MAX; i++) {
         __remoteCarry_clearSlot(i);
     }
 }
 
-s32 port_remoteCarry_displayUpdate(Actor *this) {
+s32 remoteCarry_displayUpdate(Actor *this) {
     s32 slot = __remoteCarry_findByMarker(this->marker);
 
     if (this->state == 6 || slot >= 0) { // carried: glued to the owner's dummy
@@ -584,7 +584,7 @@ void chLevelCollectible_update(Actor *this){
     s32 marker_id;
     if(this->despawn_flag) return;
 
-    if (port_remoteCarry_displayUpdate(this)) {
+    if (remoteCarry_displayUpdate(this)) {
         return;
     }
 

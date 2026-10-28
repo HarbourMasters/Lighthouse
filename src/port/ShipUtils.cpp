@@ -65,7 +65,7 @@ extern uint32_t Ship_Hash(std::string str) {
     return hval;
 }
 
-extern std::string port_FormatTimeDisplay(uint64_t value) {
+extern std::string Ship_FormatTimeDisplay(uint64_t value) {
     uint32_t sec = value / 10;
     uint32_t hh = sec / 3600;
     uint32_t mm = (sec - hh * 3600) / 60;
@@ -98,7 +98,7 @@ bool Ship_IsCStringEmpty(const char* str) {
     return str == NULL || str[0] == '\0';
 }
 
-int port_checkHeap(const char* label) {
+int Ship_CheckHeap(const char* label) {
 #if defined(_DEBUG) && defined(_MSC_VER)
     if (!_CrtCheckMemory()) {
         SPDLOG_ERROR("[port] HEAP CORRUPT at: {}", label);
@@ -137,17 +137,17 @@ void BK_LOG_ERROR(const char* fmt, ...) {
     va_end(args);
 }
 
-const char* port_mapName(int map_id) {
+const char* Ship_GetMapName(int map_id) {
     if ((enum map_e)map_id == MAP_91_FILE_SELECT) {
         return "File Select";
     }
-    return port_levelName(map_getLevel((enum map_e)map_id));
+    return GameStatus_GetLevelName(map_getLevel((enum map_e)map_id));
 }
 
 int Ship_GetBootSequence(void) {
     // Romhacks always boot to file select; their intros aren't compatible with the
     // vanilla cutscene/demo path.
-    if (port_isRomhack())
+    if (RomhackConfig_IsActive())
         return BOOTSEQUENCE_FILESELECT;
     return CVarGetInteger(CVAR_SETTING("BootSequence"), BOOTSEQUENCE_DEFAULT);
 }
@@ -179,14 +179,14 @@ float Ship_GetRumbleScale(void) {
 u8* jiggyscore_getPtr(void);
 u8* honeycombscore_get_ptr(void);
 
-u32 port_jiggyscore_isCollectedRaw(enum jiggy_e jiggy_id) {
+u32 Ship_IsJiggyCollectedRaw(enum jiggy_e jiggy_id) {
     if (jiggy_id <= 0 || jiggy_id >= 0x65) {
         return 0;
     }
     return (jiggyscore_getPtr()[(jiggy_id - 1) / 8] & (1 << (jiggy_id & 7))) != 0;
 }
 
-bool port_honeycombscore_getRaw(enum honeycomb_e indx) {
+bool Ship_GetHoneycombScoreRaw(enum honeycomb_e indx) {
     if (indx <= 0 || indx >= 0x19) { // HONEYCOMB_COUNT
         return 0;
     }

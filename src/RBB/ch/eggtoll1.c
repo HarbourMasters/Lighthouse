@@ -191,7 +191,7 @@ void chRBBEggToll_update(Actor *this){
     }
 }
 
-void port_eggToll_remoteApply(s32 map, s32 secondaryId, s32 stage) {
+void eggToll_remoteApply(s32 map, s32 secondaryId, s32 stage) {
     s32 i;
     (void)map;
 

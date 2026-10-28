@@ -282,9 +282,9 @@ void mainLoop(void) {
 
     // [port] Only while a game is loaded, see GameEngine::RequestStop
     if (D_8027A130 != 0) {
-        port_actorDespawn_beginDefer();
+        actorDespawn_beginDefer();
         CALL_EVENT(GameFrameUpdate);
-        port_actorDespawn_endDefer();
+        actorDespawn_endDefer();
     }
 }
 

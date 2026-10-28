@@ -777,5 +777,5 @@ void RegisterSnowGlowVillagePatches() {
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
     // HackShared_EnablePodiumCheck(kSnowGlowPodiumFloors);
     NoteDoorNumbers_EnableComposer();
-    port_overrideRomhackHoneycombsPerWorld(6);
+    RomhackConfig_OverrideHoneycombsPerWorld(6);
 }

@@ -280,7 +280,7 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                 }
                 carryYaw = payload.value("carryYaw", 0.0f);
             }
-            port_remoteCarry_setCarried(clientId, payload.value("carry", 0), carryOff, carryYaw);
+            remoteCarry_setCarried(clientId, payload.value("carry", 0), carryOff, carryYaw);
         }
     }
 }

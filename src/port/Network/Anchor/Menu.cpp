@@ -201,7 +201,7 @@ void AnchorAdminMenu(WidgetInfo& info) {
         for (auto& team : teams) {
             anchor->SendPacket_ClearTeamState(team);
         }
-        anchor->roomState.isRomhack = port_isRomhack();
+        anchor->roomState.isRomhack = RomhackConfig_IsActive();
         anchor->roomState.romhackName = Lighthouse::CurrentRomhackLabel();
         anchor->roomState.isRando = IS_RANDO;
         anchor->roomState.seed = IS_RANDO ? (int32_t)RANDO_SEED : 0;

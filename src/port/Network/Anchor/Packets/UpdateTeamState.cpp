@@ -17,22 +17,22 @@
 
 // In-memory session sets that aren't part of the save but still ride team state. Flat int
 // tuples; defined in the respective port modules.
-extern std::vector<int32_t> port_breakable_snapshotBroken();
-extern void port_breakable_restoreBroken(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_carriedSync_snapshotCollected();
-extern void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_eggToll_snapshot();
-extern void port_eggToll_restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_puzzleStep_snapshot();
-extern void port_puzzleStep_restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_puzzleCount_snapshot();
-extern void port_puzzleCount_restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_puzzlePos_snapshot();
-extern void port_puzzlePos_restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_jiggySpawn_snapshot();
-extern void port_jiggySpawn_restore(const std::vector<int32_t>& flat);
-extern std::vector<int32_t> port_hutSmash_snapshot();
-extern void port_hutSmash_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> BreakObject_SnapshotBroken();
+extern void BreakObject_RestoreBroken(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> CarriedSync_SnapshotCollected();
+extern void CarriedSync_RestoreCollected(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> EggToll_Snapshot();
+extern void EggToll_Restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> PuzzleStep_Snapshot();
+extern void PuzzleStep_Restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> PuzzleStep_SnapshotCounts();
+extern void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> PuzzleStep_SnapshotPositions();
+extern void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> SpawnJiggy_Snapshot();
+extern void SpawnJiggy_Restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> HutSmash_Snapshot();
+extern void HutSmash_Restore(const std::vector<int32_t>& flat);
 
 /**
  * UPDATE_TEAM_STATE
@@ -99,17 +99,17 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
     payload["state"]["volatileFlags"] = ScoreBytes(volatileFlag_getSizeAndPtr);
     // Per-level retention bitfields; the receiver rebuilds its counters from these.
-    payload["state"]["noteRetention"] = ScoreBytes(port_noteRetention_getSizeAndPtr);
-    payload["state"]["jinjoRetention"] = ScoreBytes(port_jinjoRetention_getSizeAndPtr);
+    payload["state"]["noteRetention"] = ScoreBytes(NoteRetention_GetSizeAndPtr);
+    payload["state"]["jinjoRetention"] = ScoreBytes(JinjoRetention_GetSizeAndPtr);
     // In-memory session sets (never saved).
-    payload["state"]["brokenObjects"] = port_breakable_snapshotBroken();
-    payload["state"]["carriedCollected"] = port_carriedSync_snapshotCollected();
-    payload["state"]["eggTolls"] = port_eggToll_snapshot();
-    payload["state"]["puzzleSteps"] = port_puzzleStep_snapshot();
-    payload["state"]["puzzleCounts"] = port_puzzleCount_snapshot();
-    payload["state"]["puzzlePos"] = port_puzzlePos_snapshot();
-    payload["state"]["spawnedJiggies"] = port_jiggySpawn_snapshot();
-    payload["state"]["huts"] = port_hutSmash_snapshot();
+    payload["state"]["brokenObjects"] = BreakObject_SnapshotBroken();
+    payload["state"]["carriedCollected"] = CarriedSync_SnapshotCollected();
+    payload["state"]["eggTolls"] = EggToll_Snapshot();
+    payload["state"]["puzzleSteps"] = PuzzleStep_Snapshot();
+    payload["state"]["puzzleCounts"] = PuzzleStep_SnapshotCounts();
+    payload["state"]["puzzlePos"] = PuzzleStep_SnapshotPositions();
+    payload["state"]["spawnedJiggies"] = SpawnJiggy_Snapshot();
+    payload["state"]["huts"] = HutSmash_Snapshot();
 
     // Randomizer progress lives outside the vanilla score sections: obtained checks + RANDO_INF flags.
     if (IS_RANDO) {
@@ -239,40 +239,40 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         // Per-level retention sets. The live ITEM_C_NOTE / ITEM_12_JINJOS counters are derived from
         // these and only seeded on level entry, so reseed them or a mid-level sync shows stale counts.
         if (state.contains("noteRetention")) {
-            ApplyTeamBytes(state["noteRetention"], port_noteRetention_getSizeAndPtr);
-            port_noteRetention_requestReseed();
+            ApplyTeamBytes(state["noteRetention"], NoteRetention_GetSizeAndPtr);
+            NoteRetention_RequestReseed();
         }
         if (state.contains("jinjoRetention")) {
-            ApplyTeamBytes(state["jinjoRetention"], port_jinjoRetention_getSizeAndPtr);
-            port_jinjoRetention_requestReseed();
+            ApplyTeamBytes(state["jinjoRetention"], JinjoRetention_GetSizeAndPtr);
+            JinjoRetention_RequestReseed();
         }
         if (state.contains("abilities")) {
             ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);
         }
         // In-memory session sets; takes effect on next map load.
         if (state.contains("brokenObjects")) {
-            port_breakable_restoreBroken(state["brokenObjects"].get<std::vector<int32_t>>());
+            BreakObject_RestoreBroken(state["brokenObjects"].get<std::vector<int32_t>>());
         }
         if (state.contains("carriedCollected")) {
-            port_carriedSync_restoreCollected(state["carriedCollected"].get<std::vector<int32_t>>());
+            CarriedSync_RestoreCollected(state["carriedCollected"].get<std::vector<int32_t>>());
         }
         if (state.contains("eggTolls")) {
-            port_eggToll_restore(state["eggTolls"].get<std::vector<int32_t>>());
+            EggToll_Restore(state["eggTolls"].get<std::vector<int32_t>>());
         }
         if (state.contains("puzzleSteps")) {
-            port_puzzleStep_restore(state["puzzleSteps"].get<std::vector<int32_t>>());
+            PuzzleStep_Restore(state["puzzleSteps"].get<std::vector<int32_t>>());
         }
         if (state.contains("puzzlePos")) {
-            port_puzzlePos_restore(state["puzzlePos"].get<std::vector<int32_t>>());
+            PuzzleStep_RestorePositions(state["puzzlePos"].get<std::vector<int32_t>>());
         }
         if (state.contains("puzzleCounts")) {
-            port_puzzleCount_restore(state["puzzleCounts"].get<std::vector<int32_t>>());
+            PuzzleStep_RestoreCounts(state["puzzleCounts"].get<std::vector<int32_t>>());
         }
         if (state.contains("spawnedJiggies")) {
-            port_jiggySpawn_restore(state["spawnedJiggies"].get<std::vector<int32_t>>());
+            SpawnJiggy_Restore(state["spawnedJiggies"].get<std::vector<int32_t>>());
         }
         if (state.contains("huts")) {
-            port_hutSmash_restore(state["huts"].get<std::vector<int32_t>>());
+            HutSmash_Restore(state["huts"].get<std::vector<int32_t>>());
         }
 
         // Recompute cached HUD counts the overwrites above bypassed.

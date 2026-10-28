@@ -13,7 +13,7 @@ void ControlSchemes_Apply(int scheme);
 extern "C" {
 #endif
 
-int port_rightStickIsMapped(void);
+int ControlSchemes_IsRightStickMapped(void);
 
 #ifdef __cplusplus
 }

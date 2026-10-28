@@ -170,7 +170,7 @@ void Anchor::HandlePacket_PuzzleStep(nlohmann::json& payload) {
     sPuzzleBits[{ map, puzzleId }] |= payload.at("bits").get<s32>();
 }
 
-std::vector<int32_t> port_puzzleStep_snapshot() {
+std::vector<int32_t> PuzzleStep_Snapshot() {
     std::vector<int32_t> flat;
     flat.reserve(sPuzzleBits.size() * 3);
     for (const auto& [key, bits] : sPuzzleBits) {
@@ -181,7 +181,7 @@ std::vector<int32_t> port_puzzleStep_snapshot() {
     return flat;
 }
 
-void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
+void PuzzleStep_Restore(const std::vector<int32_t>& flat) {
     sPuzzleBits.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         if (!mirrorAllowedFor(flat[i + 1], flat[i])) {
@@ -191,7 +191,7 @@ void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
     }
 }
 
-void port_puzzleStep_clearForLevel(int32_t levelId) {
+void PuzzleStep_ClearForLevel(int32_t levelId) {
     std::erase_if(sPuzzleBits,
                   [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
     std::erase_if(sPuzzleCounts,
@@ -229,7 +229,7 @@ static void markPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
 }
 
 // Flat [map, puzzleId, count, hashes...] runs.
-std::vector<int32_t> port_puzzlePos_snapshot() {
+std::vector<int32_t> PuzzleStep_SnapshotPositions() {
     std::vector<int32_t> flat;
     for (const auto& [key, set] : sPuzzlePos) {
         flat.push_back(key[0]);
@@ -242,7 +242,7 @@ std::vector<int32_t> port_puzzlePos_snapshot() {
     return flat;
 }
 
-void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
+void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat) {
     sPuzzlePos.clear();
     size_t i = 0;
     while (i + 3 <= flat.size()) {
@@ -314,7 +314,7 @@ void Anchor::HandlePacket_PuzzleCount(nlohmann::json& payload) {
     sPuzzleCounts[{ map, counterId }] += delta;
 }
 
-std::vector<int32_t> port_puzzleCount_snapshot() {
+std::vector<int32_t> PuzzleStep_SnapshotCounts() {
     std::vector<int32_t> flat;
     flat.reserve(sPuzzleCounts.size() * 3);
     for (const auto& [key, count] : sPuzzleCounts) {
@@ -325,7 +325,7 @@ std::vector<int32_t> port_puzzleCount_snapshot() {
     return flat;
 }
 
-void port_puzzleCount_restore(const std::vector<int32_t>& flat) {
+void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat) {
     sPuzzleCounts.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         sPuzzleCounts[{ flat[i], flat[i + 1] }] = flat[i + 2];

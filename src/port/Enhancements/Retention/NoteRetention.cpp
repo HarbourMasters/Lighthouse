@@ -155,7 +155,7 @@ bool isInParade() {
 
 } // namespace
 
-extern "C" void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) {
+extern "C" void NoteRetention_GetSizeAndPtr(int32_t* size, uint8_t** addr) {
     NoteRetentionSaveData* s = store();
     if (s == nullptr) {
         *size = 0;
@@ -166,7 +166,7 @@ extern "C" void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) 
     *addr = (uint8_t*)s;
 }
 
-extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap) {
+extern "C" void NoteRetention_ApplyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap) {
     bool already = isCollected(mapId, noteIndex);
     setCollected(mapId, noteIndex);
     if (!already) {
@@ -194,14 +194,14 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
 
 // Queue the same deferred reseed a level entry uses; it waits for normal play, so it can't fire
 // mid-transition or in the pause menu.
-extern "C" void port_noteRetention_requestReseed(void) {
+extern "C" void NoteRetention_RequestReseed(void) {
     if (!systemActive() || !applyEnabled()) {
         return;
     }
     sPendingSeedLevel = (int32_t)level_get();
 }
 
-extern "C" void port_noteRetention_setForced(int32_t forced) {
+extern "C" void NoteRetention_SetForced(int32_t forced) {
     if (sForcedByAnchor == (forced != 0)) {
         return;
     }
@@ -209,7 +209,7 @@ extern "C" void port_noteRetention_setForced(int32_t forced) {
     ShipInit::Init(CVAR_NOTE_RETENTION);
 }
 
-extern "C" int32_t port_noteRetention_debugPickLive(int32_t mapId) {
+extern "C" int32_t NoteRetention_DebugPickLive(int32_t mapId) {
     for (auto& [key, marker] : activeNoteSet) {
         int32_t keyMap = (int32_t)(key >> 32);
         int32_t index = (int32_t)(uint32_t)(key & 0xFFFFFFFF);
@@ -301,7 +301,7 @@ void RegisterNoteRetention_Init() {
         // Bottles' 50-note-door line assumes vanilla note-door costs, which
         // romhacks retune, so it is wrong for them whether or not retention is
         // on. In vanilla it stays: it's an aide for new players.
-        if (textId == 0xF74 && port_isRomhack()) {
+        if (textId == 0xF74 && RomhackConfig_IsActive()) {
             *should = true;
         } else if (applyEnabled()) {
             switch (textId) {

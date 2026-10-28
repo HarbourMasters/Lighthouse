@@ -141,8 +141,8 @@ void AudioSync_NoteMainLoopAlive(void);
 int AudioSync_IsStallHeld(void);
 int32_t OS_AudioPumpShouldWait(void);
 
-void port_actorDespawn_beginDefer(void);
-void port_actorDespawn_endDefer(void);
+void actorDespawn_beginDefer(void);
+void actorDespawn_endDefer(void);
 
 // Anchor
 
@@ -169,17 +169,17 @@ enum AnchorCollectibleSpace {
 };
 
 // One-shot cues when a teammate's file-progress flag arrives
-void port_progressFlag_remoteCue(int32_t progressFlag);
-void port_notedoor_remoteOpen(int32_t progressFlag);
-void port_leveldoor_remoteOpen(int32_t progressFlag);
+void progressFlag_remoteCue(int32_t progressFlag);
+void notedoor_remoteOpen(int32_t progressFlag);
+void leveldoor_remoteOpen(int32_t progressFlag);
 
-void port_breakable_remoteBreak(int32_t progressFlag);
+void breakable_remoteBreak(int32_t progressFlag);
 
-void port_breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
+void breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
 
-int32_t port_cutsceneWarp_getReturnMap(void);
+int32_t cutsceneWarp_getReturnMap(void);
 
-void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
+void eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 
 #define ANCHOR_PUZZLE_BGS_TANKTUP 1
 #define ANCHOR_PUZZLE_BGS_CROCTUS 2
@@ -208,9 +208,9 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // SM intro Bottles: bit 0 = the tutorial choice has been made.
 #define ANCHOR_PUZZLE_SM_TUTORIAL 15
 
-void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
-void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
-void port_remoteCarry_reset(void);
+void remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
+void remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
+void remoteCarry_reset(void);
 
 // Connected, in a real room, syncing world state.
 int32_t Anchor_IsWorldSyncActive(void);
@@ -221,7 +221,7 @@ int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId);
 #define ANCHOR_COUNT_CCW_EYRIE_FED 0
 #define ANCHOR_COUNT_CCW_NABNUT_ACORNS 1
 
-void port_jiggyCrane_remoteApply(int32_t stage);
+void jiggyCrane_remoteApply(int32_t stage);
 
 // Rate-limited: a marker reached cube_removeProp with a propPtr outside its cube.
 void PerfPatches_WarnPropNotInCube(int32_t index, int32_t propCnt);

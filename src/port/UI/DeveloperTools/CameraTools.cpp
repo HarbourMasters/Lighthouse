@@ -190,7 +190,7 @@ void DrawCameraTools() {
     }
 
     ImGui::SeparatorText("Live Camera");
-    ImGui::Text("Map: %s (%d / 0x%X)   Camera: %s", port_mapName(map), map, map, CameraTypeName(cameraType));
+    ImGui::Text("Map: %s (%d / 0x%X)   Camera: %s", Ship_GetMapName(map), map, map, CameraTypeName(cameraType));
     ImGui::Text("Pos %9.2f %9.2f %9.2f   Pitch/Yaw/Roll %7.2f %7.2f %7.2f", livePosition[0], livePosition[1],
                 livePosition[2], liveRotation[0], liveRotation[1], liveRotation[2]);
 
@@ -235,7 +235,7 @@ void DrawCameraTools() {
     ImGui::SeparatorText("Camera Nodes");
 
     if (UIWidgets::Button("Dump To Log", { .color = THEME_COLOR })) {
-        BK_LOG_DEBUG("camera nodes for map %s (%d / 0x%X), camera type %s:", port_mapName(map), map, map,
+        BK_LOG_DEBUG("camera nodes for map %s (%d / 0x%X), camera type %s:", Ship_GetMapName(map), map, map,
                      CameraTypeName(cameraType));
         BK_LOG_DEBUG("  live viewport  pos %9.2f %9.2f %9.2f  pyr %7.2f %7.2f %7.2f", livePosition[0], livePosition[1],
                      livePosition[2], liveRotation[0], liveRotation[1], liveRotation[2]);

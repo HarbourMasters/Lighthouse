@@ -28,7 +28,7 @@ void Anchor::HandlePacket_JiggyCrane(nlohmann::json& payload) {
         return;
     }
 
-    port_jiggyCrane_remoteApply(payload.at("stage").get<s32>());
+    jiggyCrane_remoteApply(payload.at("stage").get<s32>());
 }
 
 static void RegisterJiggyCrane_Init() {

@@ -12,7 +12,7 @@
 
 void Anchor_DespawnCollectedCollectibles() {
     for (s32 id = 1; id < 0x65; id++) {
-        if (port_jiggyscore_isCollectedRaw((enum jiggy_e)id)) {
+        if (Ship_IsJiggyCollectedRaw((enum jiggy_e)id)) {
             ActorMarker* m = func_8032B16C((enum jiggy_e)id);
             if (m != nullptr) {
                 marker_despawn(m);
@@ -20,7 +20,7 @@ void Anchor_DespawnCollectedCollectibles() {
         }
     }
     for (s32 id = 1; id < 0x19; id++) { // HONEYCOMB_COUNT
-        if (port_honeycombscore_getRaw((enum honeycomb_e)id)) {
+        if (Ship_GetHoneycombScoreRaw((enum honeycomb_e)id)) {
             ActorMarker* m = actorArray_findHoneycombMarkerById((enum honeycomb_e)id);
             if (m != nullptr) {
                 marker_despawn(m);
@@ -69,7 +69,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
 
     switch (kind) {
         case ANCHOR_COLLECTIBLE_JIGGY:
-            if (!port_jiggyscore_isCollectedRaw((enum jiggy_e)id)) {
+            if (!Ship_IsJiggyCollectedRaw((enum jiggy_e)id)) {
                 jiggyscore_setCollected(id, true);
                 func_8034798C(); // recompute the current-level jiggy HUD count
                 if ((s32)map_getLevel((enum map_e)map) == (s32)level_get()) {
@@ -78,7 +78,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                     code_73640_printItemCount(ITEM_26_JIGGY_TOTAL);
                 }
                 if (!IS_RANDO && ShouldShowNotifications()) {
-                    const char* where = port_levelName((enum level_e)((id - 1) / 10 + 1));
+                    const char* where = GameStatus_GetLevelName((enum level_e)((id - 1) / 10 + 1));
                     Notification::Emit({
                         .prefix = GetClientName(payload.value("clientId", 0u)),
                         .message = "collected Jiggy #" + std::to_string(((id - 1) % 10) + 1) + " in " + where,
@@ -96,7 +96,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             }
             break;
         case ANCHOR_COLLECTIBLE_HONEYCOMB:
-            if (!port_honeycombscore_getRaw((enum honeycomb_e)id)) {
+            if (!Ship_GetHoneycombScoreRaw((enum honeycomb_e)id)) {
                 honeycombscore_set((enum honeycomb_e)id, 1);
                 item_inc(ITEM_13_EMPTY_HONEYCOMB);
                 if (!(item_getCount(ITEM_13_EMPTY_HONEYCOMB) < 6)) {
@@ -122,10 +122,10 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             }
             break;
         case ANCHOR_COLLECTIBLE_NOTE:
-            port_noteRetention_applyRemoteCollect(map, id, sameMap ? 1 : 0);
+            NoteRetention_ApplyRemoteCollect(map, id, sameMap ? 1 : 0);
             break;
         case ANCHOR_COLLECTIBLE_JINJO:
-            port_jinjoRetention_applyRemoteCollect(map, id, sameMap ? 1 : 0);
+            JinjoRetention_ApplyRemoteCollect(map, id, sameMap ? 1 : 0);
             break;
         case ANCHOR_COLLECTIBLE_WORM:
         case ANCHOR_COLLECTIBLE_ACORN:
@@ -166,7 +166,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                 item_adjustByDiffWithHud(item, delta);
             }
             if (id >= 0) {
-                port_carriedSync_applyRemoteCollect(kind, map, id, sameMap ? 1 : 0);
+                CarriedSync_ApplyRemoteCollect(kind, map, id, sameMap ? 1 : 0);
             }
             break;
         }

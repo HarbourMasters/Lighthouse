@@ -13,7 +13,7 @@ extern f32  vtxList_getGlobalNorm(BKVertexList *);
 
 // [port] A collision triangle indexing outside its own model's vertex pool means the
 // two lists disagree.
-static s32 port_collisionTriValid(BKCollisionTriangle *tri, BKVertexList *vtx_list) {
+static s32 __collisionList_triValid(BKCollisionTriangle *tri, BKVertexList *vtx_list) {
     static s32 reported = 0;
     u32 count = (u32)(u16)vtx_list->count;
     if ((u16)tri->unk0[0] < count && (u16)tri->unk0[1] < count && (u16)tri->unk0[2] < count) {
@@ -29,7 +29,7 @@ static s32 port_collisionTriValid(BKCollisionTriangle *tri, BKVertexList *vtx_li
 
 // [port] Fires per collision query when the geometry scratch list fills, so it is
 // rate-limited even at debug level.
-static void port_reportCollisionScratchFull(void) {
+static void __collisionList_reportScratchFull(void) {
     static s32 reported = 0;
     if (reported < 8) {
         reported++;
@@ -60,7 +60,7 @@ void collisionList_setStoredTriangle(BKCollisionTriangle *triangle, BKVertexList
         return;
     }
 
-    if (!port_collisionTriValid(triangle, bk_vtx_list)) {
+    if (!__collisionList_triValid(triangle, bk_vtx_list)) {
         return;
     }
 
@@ -112,7 +112,7 @@ void collisionList_getIntersecting_f32(BKCollisionList *this, f32 min[3], f32 ma
             for (y = min_scaled[1]; y <= max_scaled[1]; y++) {
                 for (x = min_scaled[0]; x <= max_scaled[0]; x++) {
                     if (sActiveCollisionLists.current >= &sActiveCollisionLists.list[COLLISION_GEO_SCRATCH_MAX]) {
-                        port_reportCollisionScratchFull();
+                        __collisionList_reportScratchFull();
                         goto scratch_full;
                     }
                     *sActiveCollisionLists.current++ = this->z_stride * z + (BKCollisionGeometry *) this->data + x + y * this->y_stride;
@@ -168,7 +168,7 @@ void collisionList_getIntersecting_s32(BKCollisionList *this, s32 min[3], s32 ma
             for (y = min_scaled[1]; y <= max_scaled[1]; y++) {
                 for (x = min_scaled[0]; x <= max_scaled[0]; x++) {
                     if (sActiveCollisionLists.current >= &sActiveCollisionLists.list[COLLISION_GEO_SCRATCH_MAX]) {
-                        port_reportCollisionScratchFull();
+                        __collisionList_reportScratchFull();
                         goto scratch_full;
                     }
                     *sActiveCollisionLists.current++ = this->z_stride * z + (BKCollisionGeometry *) this->data + x + y * this->y_stride;
@@ -317,7 +317,7 @@ BKCollisionTriangle *collisionList_intersectLine(BKCollisionList *this, BKVertex
                 continue;
             }
 
-            if (!port_collisionTriValid(i_tri, bk_vtx_list)) {
+            if (!__collisionList_triValid(i_tri, bk_vtx_list)) {
                 continue;
             }
 
@@ -497,7 +497,7 @@ bool collisionList_intersectMovingSphere_FastCheck(BKCollisionList *this, BKVert
 
         for (i_tri = start_tri; i_tri < end_tri; i_tri++) {
             if (!(i_tri->flags & flag_filter)) {
-                if (!port_collisionTriValid(i_tri, bk_vtx_list)) {
+                if (!__collisionList_triValid(i_tri, bk_vtx_list)) {
                     continue;
                 }
                 for (i = 0; i < 3; i++) {
@@ -819,7 +819,7 @@ BKCollisionTriangle *collisionList_intersectSphere(BKCollisionList *this, BKVert
         for (i_tri = start_tri; i_tri < end_tri; i_tri++) {
             // Filter triangle
             if (!(i_tri->flags & flag_filter)) {
-                if (!port_collisionTriValid(i_tri, bk_vtx_list)) {
+                if (!__collisionList_triValid(i_tri, bk_vtx_list)) {
                     continue;
                 }
                 // Get Triangle coords

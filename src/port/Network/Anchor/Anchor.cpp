@@ -65,8 +65,8 @@ void Anchor::OnConnected() {
     Lighthouse::RunOnGameThread([this]() {
         RegisterHooks();
 
-        port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
-        port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+        NoteRetention_SetForced(IsWorldSyncActive() ? 1 : 0);
+        JinjoRetention_SetForced(IsWorldSyncActive() ? 1 : 0);
 
         if (IsSaveLoaded()) {
             SendPacket_RequestTeamState();
@@ -81,8 +81,8 @@ void Anchor::OnDisconnected() {
         Authority_Reset();
         RegisterHooks();
 
-        port_noteRetention_setForced(0);
-        port_jinjoRetention_setForced(0);
+        NoteRetention_SetForced(0);
+        JinjoRetention_SetForced(0);
     });
 }
 
@@ -432,12 +432,12 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
-extern "C" s32 port_cutsceneWarp_getReturnMap(void);
-extern void port_breakable_clearForLevel(int32_t levelId);
-extern void port_hutSmash_clearForLevel(int32_t levelId);
-extern void port_eggToll_clearForLevel(int32_t levelId);
-extern void port_puzzleStep_clearForLevel(int32_t levelId);
-extern void port_carriedSync_clearForLevel(int32_t levelId);
+extern "C" s32 cutsceneWarp_getReturnMap(void);
+extern void BreakObject_ClearForLevel(int32_t levelId);
+extern void HutSmash_ClearForLevel(int32_t levelId);
+extern void EggToll_ClearForLevel(int32_t levelId);
+extern void PuzzleStep_ClearForLevel(int32_t levelId);
+extern void CarriedSync_ClearForLevel(int32_t levelId);
 
 s32 Anchor_LevelOfMap(s32 map) {
     if (map <= 0 || map >= MAP_NUM_MAPS) {
@@ -466,7 +466,7 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
         }
     };
     markOccupied((s32)selfMap);
-    markOccupied(port_cutsceneWarp_getReturnMap());
+    markOccupied(cutsceneWarp_getReturnMap());
     for (auto& [clientId, client] : clients) {
         if (!client.self && client.online && client.isSaveLoaded) {
             markOccupied((s32)client.map);
@@ -475,11 +475,11 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     }
     for (s32 level = 1; level < 0x20; level++) {
         if (!occupied[level]) {
-            port_breakable_clearForLevel(level);
-            port_hutSmash_clearForLevel(level);
-            port_eggToll_clearForLevel(level);
-            port_puzzleStep_clearForLevel(level);
-            port_carriedSync_clearForLevel(level);
+            BreakObject_ClearForLevel(level);
+            HutSmash_ClearForLevel(level);
+            EggToll_ClearForLevel(level);
+            PuzzleStep_ClearForLevel(level);
+            CarriedSync_ClearForLevel(level);
         }
     }
 }

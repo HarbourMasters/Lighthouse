@@ -31,7 +31,7 @@ static bool applyEnabled() {
     return CVAR_VALUE;
 }
 
-extern "C" void port_jinjoRetention_setForced(int32_t forced) {
+extern "C" void JinjoRetention_SetForced(int32_t forced) {
     if (sForcedByAnchor == (forced != 0)) {
         return;
     }
@@ -44,7 +44,7 @@ static JinjoRetentionSaveData* store() {
     return data != nullptr ? &data->jinjoRetention : nullptr;
 }
 
-extern "C" void port_jinjoRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) {
+extern "C" void JinjoRetention_GetSizeAndPtr(int32_t* size, uint8_t** addr) {
     JinjoRetentionSaveData* s = store();
     if (s == nullptr) {
         *size = 0;
@@ -122,7 +122,7 @@ static int32_t jinjoActorFromBit(u8 bit) {
     }
 }
 
-extern "C" int32_t port_jinjoRetention_debugPickLive(void) {
+extern "C" int32_t JinjoRetention_DebugPickLive(void) {
     static const enum actor_e kJinjoActors[] = { ACTOR_60_JINJO_BLUE, ACTOR_62_JINJO_GREEN, ACTOR_5F_JINJO_ORANGE,
                                                  ACTOR_61_JINJO_PINK, ACTOR_5E_JINJO_YELLOW };
     for (enum actor_e id : kJinjoActors) {
@@ -134,7 +134,7 @@ extern "C" int32_t port_jinjoRetention_debugPickLive(void) {
     return 0;
 }
 
-extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap) {
+extern "C" void JinjoRetention_ApplyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap) {
     int32_t level = map_getLevel((enum map_e)map);
     JinjoRetentionSaveData* s = store();
     if (s != nullptr && levelInRange(level)) {
@@ -169,7 +169,7 @@ static bool retentionActiveForLevel(int32_t level) {
 }
 
 // Unlike the entry seed this also corrects downward: after a sync the bitfield is the team's truth.
-extern "C" void port_jinjoRetention_requestReseed(void) {
+extern "C" void JinjoRetention_RequestReseed(void) {
     if (!systemActive() || !applyEnabled()) {
         return;
     }

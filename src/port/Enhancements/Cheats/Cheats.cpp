@@ -70,7 +70,7 @@ void RegisterInfiniteEggs_Init() {
         // Only refill during actual gameplay (not in file select or demo mode)
         if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
             s32 currentCount = item_getCount(ITEM_D_EGGS);
-            s32 maxCount = port_getRomhackMaxEggs();
+            s32 maxCount = RomhackConfig_GetMaxEggs();
             if (maxCount < 0)
                 maxCount = 100; // Default when romhack doesn't override
             if (currentCount < maxCount) {
@@ -86,7 +86,7 @@ void RegisterInfiniteRedFeathers_Init() {
         // Only refill during actual gameplay (not in file select or demo mode)
         if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
             s32 currentCount = item_getCount(ITEM_F_RED_FEATHER);
-            s32 maxCount = port_getRomhackMaxRedFeathers();
+            s32 maxCount = RomhackConfig_GetMaxRedFeathers();
             if (maxCount < 0)
                 maxCount = 50; // Default when romhack doesn't override
             if (currentCount < maxCount) {
@@ -103,7 +103,7 @@ void RegisterInfiniteGoldFeathers_Init() {
                   // Only refill during actual gameplay (not in file select or demo mode)
                   if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
                       s32 currentCount = item_getCount(ITEM_10_GOLD_FEATHER);
-                      s32 maxCount = port_getRomhackMaxGoldFeathers();
+                      s32 maxCount = RomhackConfig_GetMaxGoldFeathers();
                       if (maxCount < 0)
                           maxCount = 10; // Default when romhack doesn't override
                       if (currentCount < maxCount) {
@@ -281,7 +281,7 @@ void RegisterCycleTransform_Init() {
 }
 
 void RegisterFastTransform_Init() {
-    const bool enabled = CVarGetInteger(CVAR_FAST_TRANSFORM, 0) && !port_isRomhack();
+    const bool enabled = CVarGetInteger(CVAR_FAST_TRANSFORM, 0) && !RomhackConfig_IsActive();
     COND_HOOK(SetAnimSpeedMult, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         if (baflag_isTrue(BA_FLAG_1B_TRANSFORMING)) {
             SetAnimSpeedMult* ev = reinterpret_cast<SetAnimSpeedMult*>(event);
@@ -310,7 +310,7 @@ void RegisterFastTransform_Init() {
 // Disable Mumbo untransform when going too far
 void RegisterNoMumboUntransform_Init() {
     COND_VB_SHOULD(VB_MUMBO_DETRANSFORM, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_NO_MUMBO_UNTRANSFORM, 0) && !port_isRomhack(), { *should = false; });
+                   CVarGetInteger(CVAR_NO_MUMBO_UNTRANSFORM, 0) && !RomhackConfig_IsActive(), { *should = false; });
 }
 
 // ============================================================================

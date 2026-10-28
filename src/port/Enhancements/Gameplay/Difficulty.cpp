@@ -29,7 +29,7 @@ void RegisterDifficulty_Init() {
     // Permadeath, ignore lives and game over with file erase
     COND_HOOK(OnPlayerDeath, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.Permadeath"), 0),
               [](IEvent* event) {
-                  if (port_isRomhack()) {
+                  if (RomhackConfig_IsActive()) {
                       return;
                   }
                   item_adjustByDiffWithoutHud(ITEM_16_LIFE, -item_getCount(ITEM_16_LIFE));

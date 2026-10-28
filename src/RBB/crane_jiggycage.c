@@ -247,7 +247,7 @@ void chCageUpSwitch_update(Actor *this){
     }
 }
 
-void port_jiggyCrane_remoteApply(s32 stage) {
+void jiggyCrane_remoteApply(s32 stage) {
     s32 i;
 
     if (suBaddieActorArray == NULL) {

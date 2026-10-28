@@ -39,7 +39,7 @@ using namespace PortCamera;
 
 bool ModernSchemeActive() {
     return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN &&
-           !FreeLookCamera_IsEnabled() && port_rightStickIsMapped();
+           !FreeLookCamera_IsEnabled() && ControlSchemes_IsRightStickMapped();
 }
 
 constexpr int kClimbCamState = 0x10;
@@ -223,7 +223,7 @@ static int SuppressVanillaZoom(void) {
     }
     int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
     if (scheme == CONTROL_SCHEME_MODERN) {
-        return port_rightStickIsMapped();
+        return ControlSchemes_IsRightStickMapped();
     }
     if (scheme == CONTROL_SCHEME_POCKET && bs_getState() == BS_7_CROUCH) {
         return 1;

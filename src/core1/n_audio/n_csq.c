@@ -8,9 +8,9 @@ static u8  __getTrackByte(ALCSeq *s,u32 track);
 static u32 __n_alCSeqGetTrackEvent(ALCSeq *seq, u32 track, N_ALEvent *event);
 
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-static u32 port_read_u32_be(const void *addr) { u32 v; memcpy(&v, addr, 4); return v; }
+static u32 __readU32BE(const void *addr) { u32 v; memcpy(&v, addr, 4); return v; }
 #else
-static u32 port_read_u32_be(const void *addr) {
+static u32 __readU32BE(const void *addr) {
     const u8 *b = (const u8 *)addr;
     return ((u32)b[0] << 24) | ((u32)b[1] << 16) | ((u32)b[2] << 8) | b[3];
 }
@@ -32,7 +32,7 @@ void n_alCSeqNew(ALCSeq *seq, u8 *ptr)
         seq->lastStatus[i] = 0;
         seq->curBUPtr[i] = 0;
         seq->curBULen[i] = 0;
-        tmpOff = port_read_u32_be(&seq->base->trackOffset[i]); // [port] BE data
+        tmpOff = __readU32BE(&seq->base->trackOffset[i]); // [port] BE data
         if(tmpOff) /* if the track is valid */
         {
             flagTmp = 1 << i;
@@ -45,7 +45,7 @@ void n_alCSeqNew(ALCSeq *seq, u8 *ptr)
             seq->curLoc[i] = 0;
     }
 
-    seq->qnpt = 1.0/(f32)port_read_u32_be(&seq->base->division); // [port] BE data
+    seq->qnpt = 1.0/(f32)__readU32BE(&seq->base->division); // [port] BE data
 }
 
 void n_alCSeqNextEvent(ALCSeq *seq,N_ALEvent *evt)
