@@ -59,7 +59,7 @@ void Steer(f32 launch[3]) {
 
 } // namespace
 
-extern "C" void BeakBombAiming_UpdateCamera(void) {
+static void UpdateCamera() {
     // Hit mid-aim into a state that leaves the camera alone.
     if (bs_getState() != BS_2A_BOMB) {
         func_802914CC(kFlyCamera);
@@ -90,6 +90,12 @@ void RegisterBeakBombAiming_Init() {
         Crosshair::ShowThisFrame();
         anctrl_setAnimTimer(windup, kHoldPoint);
         *should = false;
+    });
+
+    COND_HOOK(OnDynamicCameraUpdate, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (((OnDynamicCameraUpdate*)event)->state == BEAK_BOMB_AIM_CAM_STATE) {
+            UpdateCamera();
+        }
     });
 }
 

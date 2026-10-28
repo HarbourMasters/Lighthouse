@@ -34,6 +34,10 @@ float func_802BD51C(void); // target camera height
 #include "enums.h" // BS_7_CROUCH
 #include "port/ShipUtils.h"
 
+#define CVAR_INVERT_X CVAR_ENHANCEMENT("Camera.InvertX")
+#define CVAR_INVERT_Y CVAR_ENHANCEMENT("Camera.InvertY")
+#define CVAR_FIRST_PERSON_INVERT_X CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX")
+
 namespace {
 using namespace PortCamera;
 
@@ -163,7 +167,7 @@ static int HandleYawInput(void) {
     return 0;
 }
 
-extern "C" void ModernCamera_Update(void) {
+static void UpdateOrbit() {
     float dt = time_getDelta();
 
     // Drive yaw from the stick. Freeze it during look-around so it doesn't drift
@@ -172,7 +176,8 @@ extern "C" void ModernCamera_Update(void) {
         float x;
         float y;
         ReadStickNorm(x, y);
-        D_8037DB70 = mlNormalizeAngle(D_8037DB70 + YawInput(x) * kYawSpeed * dt * ModernCamera_GetInvertXSign());
+        D_8037DB70 = mlNormalizeAngle(D_8037DB70 +
+                                      YawInput(x) * kYawSpeed * dt * (CVarGetInteger(CVAR_INVERT_X, 0) ? -1.0f : 1.0f));
     }
 
     // From here down this is ncDynamicCamB_update with our own yaw and height filter.
@@ -281,18 +286,6 @@ static void HandleZoomInput(void) {
     }
 }
 
-extern "C" float ModernCamera_GetInvertXSign(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertX"), 0) ? -1.0f : 1.0f;
-}
-
-extern "C" float ModernCamera_GetInvertYSign(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertY"), 0) ? -1.0f : 1.0f;
-}
-
-extern "C" float ModernCamera_GetFirstPersonInvertXSign(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0) ? -1.0f : 1.0f;
-}
-
 void RegisterModernCamera_Init() {
     COND_VB_SHOULD(VB_CAMERA_ZOOM_INPUT, EVENT_PRIORITY_NORMAL, true, {
         HandleZoomInput();
@@ -306,6 +299,22 @@ void RegisterModernCamera_Init() {
             *should = false;
         }
     });
+
+    COND_HOOK(OnDynamicCameraUpdate, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (((OnDynamicCameraUpdate*)event)->state == MODERN_ORBIT_CAM_STATE) {
+            UpdateOrbit();
+        }
+    });
 }
 
 static RegisterShipInitFunc initModernCamera(RegisterModernCamera_Init, {});
+
+static void RegisterCameraInvert_Init() {
+    COND_VB_SHOULD(VB_CAMERA_INVERT_X, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INVERT_X, 0), { *should = true; });
+    COND_VB_SHOULD(VB_CAMERA_INVERT_Y, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INVERT_Y, 0), { *should = true; });
+    COND_VB_SHOULD(VB_FIRST_PERSON_INVERT_X, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FIRST_PERSON_INVERT_X, 0),
+                   { *should = true; });
+}
+
+static RegisterShipInitFunc initCameraInvert(RegisterCameraInvert_Init,
+                                             { CVAR_INVERT_X, CVAR_INVERT_Y, CVAR_FIRST_PERSON_INVERT_X });

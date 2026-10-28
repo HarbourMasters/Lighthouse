@@ -22,6 +22,9 @@ typedef enum VBehaviorID {
     VB_CAMERA_APPLY_SHAKE,
     VB_CAMERA_ZOOM_INPUT,
     VB_CAMERA_ROTATE_INPUT,
+    VB_CAMERA_INVERT_X,
+    VB_CAMERA_INVERT_Y,
+    VB_FIRST_PERSON_INVERT_X,
 
     // Cutscene and celebration skips
     VB_PLAY_BOOT_LOGOS,

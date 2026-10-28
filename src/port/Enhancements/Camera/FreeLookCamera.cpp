@@ -140,7 +140,7 @@ static int HandleRotateInput(void) {
     return 0;
 }
 
-extern "C" void FreeLookCamera_Update(void) {
+static void UpdateOrbit() {
     float dt = time_getDelta();
 
     float stick[2];
@@ -188,6 +188,12 @@ void RegisterFreeLookCamera_Init() {
     COND_VB_SHOULD(VB_CAMERA_ROTATE_INPUT, EVENT_PRIORITY_HIGH, true, {
         if (HandleRotateInput()) {
             *should = false;
+        }
+    });
+
+    COND_HOOK(OnDynamicCameraUpdate, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (((OnDynamicCameraUpdate*)event)->state == FREELOOK_CAM_STATE) {
+            UpdateOrbit();
         }
     });
 }
