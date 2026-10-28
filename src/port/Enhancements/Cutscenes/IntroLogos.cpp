@@ -57,3 +57,10 @@ void RegisterIntroLogos_Init() {
 }
 
 static RegisterShipInitFunc introLogosInit(RegisterIntroLogos_Init, { CVAR_SETTING("BootSequence") });
+
+void RegisterBootSequence_Init() {
+    COND_VB_SHOULD(VB_BOOT_TO_FILE_SELECT, EVENT_PRIORITY_NORMAL, Ship_GetBootSequence() == BOOTSEQUENCE_FILESELECT,
+                   { *should = true; });
+}
+
+static RegisterShipInitFunc bootSequenceInit(RegisterBootSequence_Init, { CVAR_SETTING("BootSequence") });

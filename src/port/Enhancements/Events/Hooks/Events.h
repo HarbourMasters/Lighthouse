@@ -27,6 +27,7 @@ typedef enum VBehaviorID {
     VB_FIRST_PERSON_INVERT_X,
 
     // Cutscene and celebration skips
+    VB_BOOT_TO_FILE_SELECT,
     VB_PLAY_BOOT_LOGOS,
     VB_PLAY_INTRO_CUTSCENE,
     VB_PLAY_JIGGY_DANCE,
