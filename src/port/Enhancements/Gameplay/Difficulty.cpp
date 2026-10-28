@@ -11,16 +11,19 @@ extern "C" {
 
 static bool sSaveErased = false;
 
-extern "C" int port_scalePlayerDamage(int damage) {
-    if (damage <= 0) {
-        return damage;
-    }
-    int mode = CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.DamageScale"), 1);
-    if (mode >= 4) {
-        return 9999;
-    }
-    return damage * (mode < 1 ? 1 : mode);
+void RegisterDamageScale_Init() {
+    COND_HOOK(OnItemAdjust, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.DamageScale"), 1) > 1,
+              [](IEvent* event) {
+                  auto* ev = (OnItemAdjust*)event;
+                  if (ev->item != ITEM_14_HEALTH || *ev->diff >= 0) {
+                      return;
+                  }
+                  int mode = CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.DamageScale"), 1);
+                  *ev->diff = (mode >= 4) ? -9999 : *ev->diff * mode;
+              });
 }
+
+static RegisterShipInitFunc initDamageScale(RegisterDamageScale_Init, { CVAR_ENHANCEMENT("Gameplay.DamageScale") });
 
 void RegisterDifficulty_Init() {
     // Permadeath, ignore lives and game over with file erase

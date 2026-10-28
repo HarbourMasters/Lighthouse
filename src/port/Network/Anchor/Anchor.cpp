@@ -354,19 +354,6 @@ extern "C" s32 Anchor_IsWorldSyncActive(void) {
     return (anchor != nullptr && anchor->IsWorldSyncActive()) ? 1 : 0;
 }
 
-// actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all.
-extern "C" void port_anchorDummies_onActorsFreed(void) {
-    Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr) {
-        return;
-    }
-    for (auto& [clientId, client] : anchor->clients) {
-        if (client.dummy != nullptr) {
-            client.dummy->dummy_detachActor();
-        }
-    }
-}
-
 void Anchor::PopulateDummies(GameMap map) {
     for (const auto& [clientId, client] : clients) {
         if (client.map == map && !client.self && !dummies.contains(clientId) && client.online) {

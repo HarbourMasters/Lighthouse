@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Romhack/RomhackConfig.h"
-
 /* The map and exit the player arrives at when entering a level */
 typedef struct {
     s16 level_id;
@@ -188,8 +186,8 @@ MapInfo * gcsection_getMapInfo(enum map_e map_id){
 }
 
 enum level_e map_getLevel(enum map_e map){
-    int remap = port_getRomhackSceneRemap(map);
-    if (remap >= 0) {
+    int remap;
+    if (!EventSystem_Should(VB_MAP_LEVEL, true, map, &remap)) {
         return (enum level_e)remap;
     }
 //  return gcsection_getMapInfo(map)->level_id;

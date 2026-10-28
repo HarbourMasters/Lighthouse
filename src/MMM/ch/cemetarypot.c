@@ -6,9 +6,6 @@
 /* public functions */
 void chFlowerpot_update(Actor *this);
 
-extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
-extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
-
 /* .data */
 enum chFlowerpot_state_e {
     FLOWER_POT_STATE_1_IDLE = 1,
@@ -67,7 +64,7 @@ void chFlowerpot_update(Actor *this) {
 
     // Anchor: teammate flowered this pot - match visually without decrementing the count.
     if (this->state == FLOWER_POT_STATE_1_IDLE
-        && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+        && EventSystem_Should(VB_BREAKABLE_BROKEN, false, (s32)gsworld_getMap(), (s32)this->marker->id,
                                    (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {
         subaddie_set_state(this, FLOWER_POT_STATE_2_FLOWERED);
         anctrl_setPlaybackType(this->anctrl, ANIMCTRL_ONCE);
@@ -97,7 +94,7 @@ bool chFlowerpot_eggCollision(ActorMarker *marker) {
 
     subaddie_set_state(actor, FLOWER_POT_STATE_2_FLOWERED);
     anctrl_setPlaybackType(actor->anctrl, ANIMCTRL_ONCE);
-    port_breakable_recordBreak((s32)marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+    CALL_EVENT(OnBreakableBroken, (s32)marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], false);
     remaining = chFlowerpot_getRemaining();
 
     if (remaining != 0) {

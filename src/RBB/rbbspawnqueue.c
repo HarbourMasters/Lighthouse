@@ -6,8 +6,6 @@
 #include "prop.h"
 #include "actor.h"
 
-#include "port/Patches/Patches.h"
-
 
 extern ActorInfo chBellBuoy;
 extern ActorInfo chRBBEggToll;

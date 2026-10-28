@@ -9,7 +9,6 @@
 #include "functions.h"
 #include "port/DevTools/ThreadWatchdog.h"
 #include "port/OS/OS.h"
-#include "port/Patches/Patches.h"
 #include "libultraship/libultra/rcp.h"
 #include "libultraship/libultra/sptask.h"
 #include "libultraship/libultra/types.h"

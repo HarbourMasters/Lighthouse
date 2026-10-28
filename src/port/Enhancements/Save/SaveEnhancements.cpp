@@ -24,6 +24,7 @@ extern u8 D_8037DCC9;
 extern u8 D_8037DCCA;
 
 extern u8 gCompletedBottlesBonusGames[7];
+extern s32 chBottlesBonusPuzzleIndex;
 
 s32 jiggyscore_total(void);
 bool fileProgressFlag_get(enum file_progress_e flag);
@@ -40,17 +41,6 @@ namespace fs = std::filesystem;
 #define CVAR_EXTRA_LIVES CVarGetInteger(CVAR_NAME_EXTRA_LIVES, 0)
 #define CVAR_BOTTLES_BONUS CVarGetInteger(CVAR_NAME_BOTTLES_BONUS, 0)
 #define CVAR_STOPNSWOP CVarGetInteger(CVAR_NAME_STOPNSWOP, 0)
-
-// Called from gameSelect.c after gameFile_load() when starting a game.
-extern "C" void port_syncBottlesBonusIndex(void) {
-    extern s32 chBottlesBonusPuzzleIndex;
-
-    for (int i = 0; i < 7; i++) {
-        if (gCompletedBottlesBonusGames[i]) {
-            chBottlesBonusPuzzleIndex = i + 1;
-        }
-    }
-}
 
 void RegisterStopNSwop100_Init() {
     COND_HOOK(OnGameStart, EVENT_PRIORITY_NORMAL, CVAR_STOPNSWOP, [](IEvent* event) {
@@ -97,6 +87,14 @@ void RegisterRestoreBottlesBonus_Init() {
             D_8037DCC8 = 1;
             D_8037DCC9 = 1;
             D_8037DCCA = 1;
+        }
+    });
+
+    COND_HOOK(OnGameStart, EVENT_PRIORITY_HIGH, CVAR_BOTTLES_BONUS, [](IEvent* event) {
+        for (int i = 0; i < 7; i++) {
+            if (gCompletedBottlesBonusGames[i]) {
+                chBottlesBonusPuzzleIndex = i + 1;
+            }
         }
     });
 }

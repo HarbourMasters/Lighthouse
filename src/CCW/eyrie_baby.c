@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Patches/Patches.h"
 
 typedef struct {
     f32 unk0;
@@ -276,7 +275,10 @@ void chEyrieBaby_update(Actor *this) {
         chEyrieBabyThrowPosition[1] = this->position[1];
         chEyrieBabyThrowPosition[2] = this->position[2];
         if (this->state == CH_EYRIE_BABY_STATE_0_NOT_HATCHED) {
-            local->eatenCount = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
+            s32 sharedFed = 0;
+            EventSystem_Should(VB_PUZZLE_COUNT, true, ANCHOR_COUNT_CCW_EYRIE_FED, &sharedFed);
+//          local->eatenCount = 0;
+            local->eatenCount = sharedFed;
         }
         local->progression = &chEyrieBabyProgression[0];
         while(local->progression->map_id != NULL && gsworld_getMap() != local->progression->map_id){
@@ -340,8 +342,10 @@ void chEyrieBaby_update(Actor *this) {
                 {
                     gcdialog_showDialog(VER_SELECT(ASSET_CD8_DIALOG_BABY_EYRIE_CHECK_SUMMER, 0x09ED, 0, 0), 4, NULL, NULL, NULL, NULL);
                 }
+                s32 fed = local->eatenCount + 1;
+                EventSystem_Should(VB_PUZZLE_COUNT_ADD, true, ANCHOR_COUNT_CCW_EYRIE_FED, 1, &fed);
 //              local->eatenCount++;
-                local->eatenCount = (u32)port_puzzleCount_add(ANCHOR_COUNT_CCW_EYRIE_FED, (s32)local->eatenCount, 1);
+                local->eatenCount = fed;
                 if (local->eatenCount < local->progression->caterpillarRequirement) {
                     chEyrieBaby_setState(this, CH_EYRIE_BABY_STATE_5_EATING_CATERPILLARS);
                 } else {
@@ -351,7 +355,8 @@ void chEyrieBaby_update(Actor *this) {
         }
         // Anchor: teammate fed a worm — play the interim eat animation; final feed handled below.
         if (this->state == CH_EYRIE_BABY_STATE_1_IDLE) {
-            s32 sharedFed = port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
+            s32 sharedFed = 0;
+            EventSystem_Should(VB_PUZZLE_COUNT, true, ANCHOR_COUNT_CCW_EYRIE_FED, &sharedFed);
             if (sharedFed > (s32)local->eatenCount) {
                 local->eatenCount = (u32)sharedFed;
                 if ((s32)local->eatenCount < (s32)local->progression->caterpillarRequirement) {

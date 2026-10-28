@@ -11,7 +11,6 @@ void chCageUpSwitch_setState(Actor *this, s32 arg1);
 
 // Anchor: set while replaying a teammate's crane action; suppresses camera pans and auto-raise.
 static s32 sCraneRemote = 0;
-extern void port_jiggyCrane_broadcast(s32 stage);
 extern ActorArray *suBaddieActorArray;
 
 /* .data */
@@ -166,7 +165,7 @@ void chCageUpSwitch_setState(Actor *this, s32 next_state){
 
     if(next_state == CH_CAGE_UP_SWITCH_STATE_2_RAISING_CAGE){
         if (!sCraneRemote) {
-            port_jiggyCrane_broadcast(2);
+            CALL_EVENT(OnJiggyCageStateChange, next_state);
         }
         sp50[0] = sp50[1] = sp50[2] = 0.0f;
         sp44[0] =  0.0f;
@@ -198,7 +197,7 @@ void chCageUpSwitch_setState(Actor *this, s32 next_state){
 
     if(next_state == CH_CAGE_UP_SWITCH_STATE_4_LOWER_CAGE){
         if (!sCraneRemote) {
-            port_jiggyCrane_broadcast(4);
+            CALL_EVENT(OnJiggyCageStateChange, next_state);
         }
         sp3C = func_8034C528(0x19a);
         if(sp3C){

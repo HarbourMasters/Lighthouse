@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 
 #include "core2/modelRender.h"
 #include "core2/coords.h"
@@ -191,7 +190,7 @@ static MapModelDescription *_mapModel_mapIdToDescription(enum map_e map_id){
     int opa, xlu;
     short min[3], max[3];
     float scale;
-    if (port_getRomhackSceneDefFull(map_id, &opa, &xlu, min, max, &scale)) {
+    if (!EventSystem_Should(VB_MAP_SCENE_DEF, true, map_id, &opa, &xlu, min, max, &scale)) {
         sSceneDefOverride.map_id = (s16)map_id;
         sSceneDefOverride.opa_model_id = (s16)opa;
         sSceneDefOverride.xlu_model_id = (s16)xlu;

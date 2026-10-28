@@ -2,8 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void subaddie_turnToYaw(Actor *, f32);
@@ -189,7 +187,7 @@ void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
     __spawnQueue_add_1((GenFunction_1)__chSnowman_spawnHat, (uintptr_t)actor->marker);
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         maSnowy_decRemaining();
-        port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SLUSHES, (s32)actor->position[0], (s32)actor->position[1],
+        CALL_EVENT(OnPuzzlePosMark, ANCHOR_PUZZLE_FP_SLUSHES, (s32)actor->position[0], (s32)actor->position[1],
                             (s32)actor->position[2]);
     }
     __chSnowman_spawnSnowballParticles(actor->position, 0xC);
@@ -229,7 +227,7 @@ void chSnowman_update(Actor *this){
         if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
             local->unk0 = actorArray_findActorFromActorId(0x336)->marker;
             maSnowy_incTotal();
-            if(port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
+            if(EventSystem_Should(VB_PUZZLE_POS_MARKED, false, ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
                                        (s32)this->position[1], (s32)this->position[2])){
                 maSnowy_decRemaining();
                 marker_despawn(this->marker);
@@ -238,7 +236,7 @@ void chSnowman_update(Actor *this){
         }
     }//L802E21D8
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK && !this->despawn_flag
-       && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
+       && EventSystem_Should(VB_PUZZLE_POS_MARKED, false, ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
                                   (s32)this->position[1], (s32)this->position[2])){
         __chSnowman_deathCallback(this->marker, NULL);
         return;

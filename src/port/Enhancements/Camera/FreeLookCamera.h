@@ -8,7 +8,7 @@
 // snapping in fixed 45 degree increments.
 //
 // It runs as a new dynamic camera state (FREELOOK_CAM_STATE). ba_camera's
-// rotate handler calls port_freeLook_handle() to decide when to enter, hold, or
+// rotate handler asks VB_CAMERA_ROTATE_INPUT, which decides when to enter, hold, or
 // hand the frame back; dynamicCamera's update loop calls
 // FreeLookCamera_Update() to actually move the camera each frame.
 //
@@ -24,7 +24,6 @@ extern "C" {
 #endif
 
 int FreeLookCamera_IsEnabled(void);
-int port_freeLook_handle(void);
 void FreeLookCamera_Update(void);
 
 #ifdef __cplusplus

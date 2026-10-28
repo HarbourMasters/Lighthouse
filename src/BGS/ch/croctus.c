@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 // Anchor: set while replaying a teammate's feed; suppresses camera/dialog + rebroadcast.
 static s32 sCroctusRemote = 0;
 
@@ -165,7 +163,7 @@ void chCroctus_update(Actor *this){
     // Anchor: replay a teammate's feed of the active head (field 5 handled by the despawn above).
     if (this->actorTypeSpecificField < 5 && this->state != 5 && this->state != 6 && !this->unk38_31
         && this->marker->propPtr->isNotFeatherEggOrNote
-        && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_CROCTUS) & (1 << (this->actorTypeSpecificField - 1)))) {
+        && EventSystem_Should(VB_PUZZLE_STEP_SET, false, ANCHOR_PUZZLE_BGS_CROCTUS, 1 << (this->actorTypeSpecificField - 1))) {
         sCroctusRemote = 1;
         this->unk38_31 = 1;
     }
@@ -173,7 +171,7 @@ void chCroctus_update(Actor *this){
     if(this->unk38_31){
         if ((this->state != CHCROCTUS_STATE_5_FED) && (this->state != CHCROCTUS_STATE_6_DESPAWN)) {
             if (!sCroctusRemote) {
-                port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_CROCTUS, 1 << (this->actorTypeSpecificField - 1));
+                CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_CROCTUS, 1 << (this->actorTypeSpecificField - 1));
             }
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
             if (this->actorTypeSpecificField == 1) {

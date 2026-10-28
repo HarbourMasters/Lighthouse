@@ -3,7 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 
 extern void func_8034C6DC(BKModel *arg0);
 
@@ -65,7 +64,7 @@ static MapSkyInfo sSkyOverride;
 MapSkyInfo * sky_getMapSkyInfo(enum map_e map_id){
     int models[3];
     float scales[3], rotations[3];
-    if (port_getRomhackSkyboxFull(map_id, models, scales, rotations)) {
+    if (!EventSystem_Should(VB_MAP_SKYBOX, true, map_id, models, scales, rotations)) {
         sSkyOverride.map = map_id;
         for (int i = 0; i < 3; i++) {
             sSkyOverride.sky_list[i].model_id = (s16)models[i];

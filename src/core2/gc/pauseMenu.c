@@ -3,7 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
 #include "core2/gc/zoombox.h"
@@ -305,28 +304,21 @@ void gcpausemenu_80311B44(void) {
 }
 
 void gcpausemenu_getLevelNoteScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
-    s32 override;
     *valPtr = itemscore_noteScores_get(level);
-    override = port_getRomhackNotesMax();
-    *maxPtr = (override >= 0) ? override : 100;
+    *maxPtr = 100;
+    EventSystem_Should(VB_LEVEL_NOTE_MAX, true, maxPtr);
 }
 
 void gcpausemenu_getLevelJiggyScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
-    s32 override;
     *valPtr = jiggyscore_leveltotal(level);
-    override = port_getRomhackJiggiesPerWorld();
-    *maxPtr = (override >= 0) ? override : 10;
+    *maxPtr = 10;
+    EventSystem_Should(VB_LEVEL_JIGGY_MAX, true, maxPtr);
 }
 
 void gcpausemenu_getLevelHoneycombScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
-    s32 specialLevel = port_getRomhackSpecialLevel();
-    s32 hcMax = port_getRomhackHoneycombsPerWorld();
-    s32 hcSpecial = port_getRomhackExtraHcStart();
-    if (specialLevel < 0) { specialLevel = LEVEL_B_SPIRAL_MOUNTAIN; }
-    if (hcMax < 0) { hcMax = 2; }
-    if (hcSpecial < 0) { hcSpecial = 6; }
     *valPtr = honeycombscore_get_level_total(level);
-    *maxPtr = (level == specialLevel) ? hcSpecial : hcMax;
+    *maxPtr = (level == LEVEL_B_SPIRAL_MOUNTAIN) ? 6 : 2;
+    EventSystem_Should(VB_LEVEL_HONEYCOMB_MAX, true, level, maxPtr);
 }
 
 char *gcpausemenu_TimeToA(int time) {
@@ -547,11 +539,10 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
                 gcpausemenu_printTotals();
             }
 
-            hideCollLvl = port_getRomhackHideCollectiblesLevel();
-            hideJigLvl = port_getRomhackHideJiggiesLevel();
+            hideCollLvl = LEVEL_6_LAIR;
+            hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN;
+            EventSystem_Should(VB_PAUSEMENU_HIDDEN_ROW_LEVELS, true, &hideCollLvl, &hideJigLvl);
             selLvl = D_8036C58C[D_80383010.selection].level_id;
-            if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
-            if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
             for (i = 0; i < 4; i++) {
                 s32 rowVisible;
                 if (selLvl == hideCollLvl) {
@@ -633,11 +624,10 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
                 gcpausemenu_printTotals();
             }
 
-            hideCollLvl = port_getRomhackHideCollectiblesLevel();
-            hideJigLvl = port_getRomhackHideJiggiesLevel();
+            hideCollLvl = LEVEL_6_LAIR;
+            hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN;
+            EventSystem_Should(VB_PAUSEMENU_HIDDEN_ROW_LEVELS, true, &hideCollLvl, &hideJigLvl);
             selLvl = D_8036C58C[D_80383010.selection].level_id;
-            if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
-            if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
             for (i = 0; i < 4; i++) {
                 s32 rowVisible;
                 if (selLvl == hideCollLvl) {
@@ -786,7 +776,6 @@ s32 gcpausemenu_initLargestPageIndex(void) {
 }
 
 #include <stdio.h>
-#include "port/Patches/Patches.h"
 bool gcpausemenu_initReturnToLair(void) {
     return EventSystem_Should(VB_INIT_RETURN_TO_LAIR, false, &D_8036C4E0);
 }
@@ -885,7 +874,8 @@ void gcpausemenu_80312E80(struct1As *arg0, s32 arg1) {
 
 void gcpausemenu_printTotalsHeader(s32 page_id) {
     struct1Cs_1 *v0 = D_8036C58C + page_id;
-    const char *name = port_getRomhackLevelName(page_id);
+    const char *name = NULL;
+    EventSystem_Should(VB_PAUSEMENU_LEVEL_NAME, true, page_id, &name);
     // [port] If a pre-rendered world-name banner exists (JP, or a language pack that ships one),
     // draw it here instead of the bold-font name.
     if (SpritePatches_UpdatePauseBanner(page_id)) {

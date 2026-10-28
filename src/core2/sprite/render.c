@@ -5,7 +5,6 @@
 #include <ultra64.h>
 #include <PR/region.h>
 
-#include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
 

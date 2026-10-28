@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "port/Enhancements/Events/Hooks/Events.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,7 +38,7 @@ void Localization_SetPrintScale(float scale);
 
 // Dialog font (AltDialogFont.cpp, SpritePatches.cpp)
 
-void AltDialogFont_RebuildHd(void);        // rebuild the HD glyph textures for the current base
+void AltDialogFont_RebuildHd(void);                   // rebuild the HD glyph textures for the current base
 void SpritePatches_RefreshDialogFontGlyphCount(void); // re-read the reachable glyph count from the active font
 int SpritePatches_DialogFontUsesShiftedCodes(void);   // format codes shifted past the extended (PAL) glyph range
 
@@ -52,7 +54,7 @@ int Framebuffer_ConsumePauseRecapture(void);
 int TransitionPatches_ShouldCapture(void);
 
 void Framebuffer_PatchPictureModel(void* model_bin, int32_t min_xy, int32_t max_xy, int32_t min_z, int32_t max_z,
-                            uint32_t from);
+                                   uint32_t from);
 int32_t Framebuffer_GetTransitionGpuId(void);
 void Framebuffer_CaptureTransition(void* gfx_ptr);
 void Framebuffer_PatchTransitionModel(void* model_bin);
@@ -60,10 +62,6 @@ void Framebuffer_PatchTransitionModel(void* model_bin);
 // Sprite Display Cache (SpritePatches.cpp)
 
 void SpritePatches_ClearDisplayCache(void);
-
-// Save (SaveEnhancements.cpp)
-
-void port_syncBottlesBonusIndex(void);
 
 // Camera (CameraPatches.cpp)
 
@@ -73,10 +71,6 @@ float CameraPatches_GetWidescreenPitchScale(void);
 // Input
 
 float Ship_GetRumbleScale(void);
-
-// Gameplay
-
-int port_scalePlayerDamage(int damage);
 
 // Graphics (GraphicsPatches.cpp)
 
@@ -136,7 +130,6 @@ void NoteDoorNumbers_EnableComposer(void);
 
 // Romhacks
 
-void* port_getRomhackResumeWarpFunc(void);
 void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 
 // Attract-demo audio hold
@@ -148,6 +141,33 @@ void AudioSync_NoteMainLoopAlive(void);
 int AudioSync_IsStallHeld(void);
 int32_t OS_AudioPumpShouldWait(void);
 
+void port_actorDespawn_beginDefer(void);
+void port_actorDespawn_endDefer(void);
+
+// Anchor
+
+enum AnchorFlagSpace {
+    ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
+    ANCHOR_FLAGSPACE_VOLATILE = 1,
+    ANCHOR_FLAGSPACE_LEVEL_SPECIFIC = 2,
+    ANCHOR_FLAGSPACE_MAP_SPECIFIC = 3,
+    ANCHOR_FLAGSPACE_RANDO_INF = 4,
+};
+enum AnchorCollectibleSpace {
+    ANCHOR_COLLECTIBLE_JIGGY = 0,
+    ANCHOR_COLLECTIBLE_HONEYCOMB = 1,
+    ANCHOR_COLLECTIBLE_MUMBO = 2,
+    ANCHOR_COLLECTIBLE_NOTE = 3,
+    ANCHOR_COLLECTIBLE_JINJO = 4,
+    ANCHOR_COLLECTIBLE_WORM = 5,
+    ANCHOR_COLLECTIBLE_ACORN = 6,
+    ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,
+    ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8,
+    ANCHOR_COLLECTIBLE_PRESENT_RED = 9,
+    ANCHOR_COLLECTIBLE_GOLD = 10,
+    ANCHOR_COLLECTIBLE_ORANGE = 11,
+};
+
 // One-shot cues when a teammate's file-progress flag arrives
 void port_progressFlag_remoteCue(int32_t progressFlag);
 void port_notedoor_remoteOpen(int32_t progressFlag);
@@ -155,17 +175,10 @@ void port_leveldoor_remoteOpen(int32_t progressFlag);
 
 void port_breakable_remoteBreak(int32_t progressFlag);
 
-void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
 void port_breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
-
-void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
-
-int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
 
 int32_t port_cutsceneWarp_getReturnMap(void);
 
-void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
-int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
 void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 
 #define ANCHOR_PUZZLE_BGS_TANKTUP 1
@@ -183,7 +196,7 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // TTC treasure hunt: bits 0-5, count of beak-busted X steps (bit 5 = treasure dug up).
 #define ANCHOR_PUZZLE_TTC_XHUNT 9
 // FP xmas tree ice: 1 bit, set when the tree-top ice shatters. Recorded in the tree-interior
-// map; the FP hub tree reads it via getForMap.
+// map; the FP hub tree reads it via VB_PUZZLE_STEP_SET_ON_MAP.
 #define ANCHOR_PUZZLE_FP_TREE_ICE 10
 // FP bear cubs' presents: bit 0 = blue, bit 1 = green, bit 2 = red delivered.
 #define ANCHOR_PUZZLE_FP_PRESENTS 11
@@ -198,34 +211,16 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void port_remoteCarry_reset(void);
-void port_anchorDummies_onActorsFreed(void);
 
 // Connected, in a real room, syncing world state.
 int32_t Anchor_IsWorldSyncActive(void);
 
 // The puzzle mirrors below are home-scoped.
-void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
-int32_t port_puzzleStep_get(int32_t puzzleId);
-int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
 int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId);
-
-void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
-int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
-
-void port_fpTwinkly_release(void);
-
-int32_t port_mapFlag_wasSetRemotely(int32_t index);
 
 #define ANCHOR_COUNT_CCW_EYRIE_FED 0
 #define ANCHOR_COUNT_CCW_NABNUT_ACORNS 1
-int32_t port_puzzleCount_add(int32_t counterId, int32_t localCount, int32_t delta);
-int32_t port_puzzleCount_get(int32_t counterId);
 
-void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
-int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
-int32_t port_hutSmash_countForCurrentLevel(int32_t localCount);
-
-void port_jiggyCrane_broadcast(int32_t stage);
 void port_jiggyCrane_remoteApply(int32_t stage);
 
 // Rate-limited: a marker reached cube_removeProp with a propPtr outside its cube.

@@ -40,16 +40,6 @@ void Anchor::HandlePacket_CarryThrow(nlohmann::json& payload) {
     port_remoteCarry_throw(clientId, markerId, start.data(), target.data());
 }
 
-extern "C" void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]) {
-    CALL_EVENT(OnCarryThrow, markerId, start, target);
-
-    Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected) {
-        return;
-    }
-    anchor->SendPacket_CarryThrow(markerId, start, target);
-}
-
 extern "C" s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr || !anchor->isConnected) {

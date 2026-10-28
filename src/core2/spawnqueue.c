@@ -2,14 +2,12 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
-#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
+#include "port/ShipUtils.h" // BK_LOG_*
 #include "variables.h"
 #include "actor.h"
 #include "prop.h"
 #include "functions.h"
 #include "core2/ch/snacker.h"
-#include "port/Patches/Patches.h" // GraphicsPatches_GetDrawDistanceLevel
-#include "port/Romhack/RomhackConfig.h"
 
 void spawnQueue_unlock(void);
 void spawnQueue_lock(void);
@@ -424,7 +422,7 @@ void spawnQueue_reset(void){
 
     // Romhacks globalize all overlays so any actor can spawn on any map.
     // Register actors from every overlay that wasn't already handled above.
-    if (port_isRomhack()) {
+    if (EventSystem_Should(VB_SPAWNQUEUE_GLOBALIZE_OVERLAYS, false)) {
         if (loaded_asm_file != OVERLAY_D_WITCH)   { lair_func_8038A0C4(); }
         if (loaded_asm_file != OVERLAY_E_BATTLE)   { fight_addSpawnableActors(); }
         if (loaded_asm_file != OVERLAY_C_INTRO)    { cutscene_func_8038C4E0(); }

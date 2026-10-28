@@ -4,7 +4,6 @@
 #include "variables.h"
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
-extern s32 Anchor_IsWorldSyncActive(void);
 
 typedef struct {
     f32 unk0[3];
@@ -135,7 +134,7 @@ void chAncientOne_update(Actor *this){
         }
         // Anchor only. A statue that has not been drawn yet still has to run the
         // body below so it can catch up to flags another client set.
-        if(!Anchor_IsWorldSyncActive()){
+        if(!EventSystem_Should(VB_GV_ANCIENT_ONES_CATCH_UP, false)){
             return;
         }
         {
@@ -147,12 +146,12 @@ void chAncientOne_update(Actor *this){
         }
     }
     {//L803869B4
-        if(Anchor_IsWorldSyncActive() && jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
+        if(EventSystem_Should(VB_GV_ANCIENT_ONES_CATCH_UP, false) && jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
             marker_despawn(this->marker);
             return;
         }
         // Anchor: ring order is randomized per-client; advance by synced-flag count.
-        if(Anchor_IsWorldSyncActive()){
+        if(EventSystem_Should(VB_GV_ANCIENT_ONES_CATCH_UP, false)){
             s32 fc = 0, fi;
             for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
             if(this->state == 1 && this->actorTypeSpecificField <= fc){

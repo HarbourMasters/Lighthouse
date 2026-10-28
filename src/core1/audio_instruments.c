@@ -9,7 +9,6 @@
 #include "version.h"
 
 #include <libultra/exception.h>
-#include "port/Patches/Patches.h"
 
 #if VERSION == VERSION_USA_1_0
 #define MUSIC_TRACK_ASSET_BASE_ID   0x1516

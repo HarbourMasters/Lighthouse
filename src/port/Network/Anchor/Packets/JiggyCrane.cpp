@@ -1,6 +1,7 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
+#include "port/ShipInit.hpp"
 
 #include "functions.h"
 
@@ -30,6 +31,10 @@ void Anchor::HandlePacket_JiggyCrane(nlohmann::json& payload) {
     port_jiggyCrane_remoteApply(payload.at("stage").get<s32>());
 }
 
-extern "C" void port_jiggyCrane_broadcast(int32_t stage) {
-    Anchor::GetInstance()->SendPacket_JiggyCrane(stage);
+static void RegisterJiggyCrane_Init() {
+    COND_HOOK(OnJiggyCageStateChange, EVENT_PRIORITY_NORMAL, Anchor::GetInstance()->isConnected, [](IEvent* event) {
+        Anchor::GetInstance()->SendPacket_JiggyCrane(((OnJiggyCageStateChange*)event)->state);
+    });
 }
+
+static RegisterShipInitFunc initJiggyCrane(RegisterJiggyCrane_Init, { ANCHOR_CONNECTED_PATH });

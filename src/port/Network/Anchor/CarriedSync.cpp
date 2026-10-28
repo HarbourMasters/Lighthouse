@@ -1,4 +1,4 @@
-// CCW Carried-Collectible Live-Despawn Sync (worms for Eyrie, acorns for Nabnut).
+// Carried-Collectible Live-Despawn Sync (caterpillars, acorns, FP presents, TTC gold, MM oranges).
 //
 // Carried count is ITEM_22/23. Object identity is a hash of its fixed spawn position, keyed
 // with (kind, mapId, hash).
@@ -8,7 +8,8 @@
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "port/Enhancements/Retention/Retention.h"
+#include "port/Network/Anchor/CarriedSync.h"
+#include "port/Network/Anchor/Anchor.h"
 
 #include <array>
 #include <set>
@@ -55,6 +56,27 @@ int32_t slotForKind(int32_t kind) {
     }
 }
 
+int32_t kindForMarker(int32_t markerId) {
+    switch (markerId) {
+        case MARKER_1B5_CATERPILLAR:
+            return ANCHOR_COLLECTIBLE_WORM;
+        case MARKER_1BC_CARRIED_ACORN:
+            return ANCHOR_COLLECTIBLE_ACORN;
+        case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:
+            return ANCHOR_COLLECTIBLE_PRESENT_BLUE;
+        case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE:
+            return ANCHOR_COLLECTIBLE_PRESENT_GREEN;
+        case MARKER_1FF_RED_PRESENT_COLLECTIBLE:
+            return ANCHOR_COLLECTIBLE_PRESENT_RED;
+        case MARKER_37_GOLD_BULLION:
+            return ANCHOR_COLLECTIBLE_GOLD;
+        case MARKER_36_ORANGE_COLLECTIBLE:
+            return ANCHOR_COLLECTIBLE_ORANGE;
+        default:
+            return -1;
+    }
+}
+
 // Identity from spawn position; masked non-negative to avoid the -1 spend sentinel.
 int32_t spawnHash(int32_t x, int32_t y, int32_t z) {
     uint32_t h = (uint32_t)x * 73856093u ^ (uint32_t)y * 19349663u ^ (uint32_t)z * 83492791u;
@@ -88,47 +110,6 @@ bool inDemoPlayback() {
 
 } // namespace
 
-extern "C" void port_carriedSync_beginMapLoad(int32_t mapId) {
-    (void)mapId;
-}
-
-extern "C" void port_carriedSync_register(int32_t kind, void* marker, int32_t x, int32_t y, int32_t z,
-                                          int32_t* suppress) {
-    *suppress = 0;
-    int32_t slot = slotForKind(kind);
-    if (slot < 0 || marker == nullptr) {
-        return;
-    }
-    int32_t mapId = (int32_t)gsworld_getMap();
-    int32_t hash = spawnHash(x, y, z);
-    ObjectExtension::GetInstance().Set<CarriedSpawnData>(marker, CarriedSpawnData(mapId, hash));
-    if (Anchor_IsWorldSyncActive() && !inDemoPlayback() && kindAllowedFor(kind, mapId) &&
-        isCollected(slot, mapId, hash)) {
-        *suppress = 1;
-    }
-}
-
-extern "C" void port_carriedSync_onLocalCollect(int32_t kind, void* marker) {
-    int32_t slot = slotForKind(kind);
-    if (slot < 0 || inDemoPlayback() || !Anchor_IsWorldSyncActive()) {
-        return;
-    }
-    CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
-    if (d == nullptr) {
-        return;
-    }
-    sCollected.insert({ slot, d->mapId, d->hash });
-    CALL_EVENT(OnCollectibleCollected, kind, d->hash);
-}
-
-extern "C" void port_carriedSync_onLocalSpend(int32_t kind) {
-    if (slotForKind(kind) < 0 || inDemoPlayback() || !Anchor_IsWorldSyncActive()) {
-        return;
-    }
-    // A spend (feeding Eyrie/Nabnut) is -1 to the shared pool.
-    CALL_EVENT(OnCollectibleCollected, kind, -1);
-}
-
 extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId, int32_t id, int32_t sameMap) {
     (void)sameMap;
     int32_t slot = slotForKind(kind);
@@ -155,7 +136,7 @@ void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat) {
     }
 }
 
-extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
+static int32_t collectedCount(int32_t kind) {
     int32_t slot = slotForKind(kind);
     if (slot < 0 || !Anchor_IsWorldSyncActive()) {
         return 0;
@@ -175,20 +156,16 @@ void port_carriedSync_clearForLevel(int32_t levelId) {
     });
 }
 
-extern "C" int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker) {
-    int32_t slot = slotForKind(kind);
-    if (slot < 0 || !Anchor_IsWorldSyncActive()) {
-        return 0;
-    }
-    CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
-    if (d == nullptr) {
-        return 0;
-    }
-    return isCollected(slot, d->mapId, d->hash) ? 1 : 0;
-}
-
-void RegisterWormSync_Init() {
+void RegisterCarriedSync_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sCollected.clear(); });
+
+    COND_HOOK(OnCarriedObjectSpawn, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnCarriedObjectSpawn*)event;
+        if (slotForKind(kindForMarker(ev->marker->id)) >= 0) {
+            ObjectExtension::GetInstance().Set<CarriedSpawnData>(
+                ev->marker, CarriedSpawnData((int32_t)gsworld_getMap(), spawnHash(ev->x, ev->y, ev->z)));
+        }
+    });
 
     REGISTER_LISTENER(OnActorDestroy, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnActorDestroy* ev = (OnActorDestroy*)event;
@@ -196,6 +173,62 @@ void RegisterWormSync_Init() {
             ObjectExtension::GetInstance().Remove<CarriedSpawnData>(ev->actor->marker);
         }
     });
+
+    COND_HOOK(OnCarriedObjectCollected, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        ActorMarker* marker = ((OnCarriedObjectCollected*)event)->marker;
+        int32_t kind = kindForMarker(marker->id);
+        int32_t slot = slotForKind(kind);
+        if (slot < 0 || inDemoPlayback() || !Anchor_IsWorldSyncActive()) {
+            return;
+        }
+        CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
+        if (d == nullptr) {
+            return;
+        }
+        sCollected.insert({ slot, d->mapId, d->hash });
+        CALL_EVENT(OnCollectibleCollected, kind, d->hash);
+    });
+
+    // A spend (feeding Eyrie/Nabnut) is -1 to the shared pool.
+    COND_HOOK(OnCarriedObjectSpent, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        int32_t kind = kindForMarker(((OnCarriedObjectSpent*)event)->marker->id);
+        if (slotForKind(kind) < 0 || inDemoPlayback() || !Anchor_IsWorldSyncActive()) {
+            return;
+        }
+        CALL_EVENT(OnCollectibleCollected, kind, -1);
+    });
 }
 
-static RegisterShipInitFunc initWormSync(RegisterWormSync_Init, {});
+static RegisterShipInitFunc initCarriedSync(RegisterCarriedSync_Init, {});
+
+static void RegisterCarriedSyncGates_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_CARRIED_OBJECT_SPAWN, EVENT_PRIORITY_NORMAL, connected, {
+        ActorMarker* marker = va_arg(args, ActorMarker*);
+        const int32_t kind = kindForMarker(marker->id);
+        const int32_t slot = slotForKind(kind);
+        CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
+        if (slot >= 0 && d != nullptr && Anchor_IsWorldSyncActive() && !inDemoPlayback() &&
+            kindAllowedFor(kind, d->mapId) && isCollected(slot, d->mapId, d->hash)) {
+            *should = false;
+        }
+    });
+
+    COND_VB_SHOULD(VB_CARRIED_COLLECTED_COUNT, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 kind = va_arg(args, s32);
+        s32* count = va_arg(args, s32*);
+        *count = collectedCount(kind);
+    });
+
+    COND_VB_SHOULD(VB_CARRIED_OBJECT_REMOTE_DESPAWN, EVENT_PRIORITY_NORMAL, connected, {
+        ActorMarker* marker = va_arg(args, ActorMarker*);
+        const int32_t slot = slotForKind(kindForMarker(marker->id));
+        CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
+        if (slot >= 0 && d != nullptr && Anchor_IsWorldSyncActive() && isCollected(slot, d->mapId, d->hash)) {
+            *should = true;
+        }
+    });
+}
+
+static RegisterShipInitFunc initCarriedSyncGates(RegisterCarriedSyncGates_Init, { ANCHOR_CONNECTED_PATH });

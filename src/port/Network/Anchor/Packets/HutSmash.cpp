@@ -18,39 +18,6 @@
 
 std::map<std::array<int32_t, 4>, int32_t> sHuts;
 
-extern "C" int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z) {
-    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return -1;
-    }
-    auto it = sHuts.find({ (int32_t)gsworld_getMap(), x, y, z });
-    return it != sHuts.end() ? it->second : -1;
-}
-
-// The team's smash count for the level, or offline the caller's own, as vanilla counted.
-extern "C" int32_t port_hutSmash_countForCurrentLevel(int32_t localCount) {
-    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return localCount;
-    }
-    int32_t level = (int32_t)map_getLevel(gsworld_getMap());
-    int32_t count = 0;
-    for (const auto& [key, loot] : sHuts) {
-        if ((int32_t)map_getLevel((enum map_e)key[0]) == level) {
-            count++;
-        }
-    }
-    return count;
-}
-
-extern "C" void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot) {
-    int32_t map = (int32_t)gsworld_getMap();
-    std::array<int32_t, 4> key = { map, x, y, z };
-    if (!Anchor::GetInstance()->IsWorldSyncActive() || sHuts.find(key) != sHuts.end()) {
-        return;
-    }
-    sHuts[key] = loot;
-    Anchor::GetInstance()->SendPacket_HutSmash(x, y, z, loot, map);
-}
-
 void Anchor::SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
@@ -113,3 +80,51 @@ void RegisterHutSmash_Init() {
 }
 
 static RegisterShipInitFunc initHutSmash(RegisterHutSmash_Init, {});
+
+static void recordSmash(const OnHutSmash* ev) {
+    int32_t map = (int32_t)gsworld_getMap();
+    std::array<int32_t, 4> key = { map, ev->x, ev->y, ev->z };
+    if (!Anchor::GetInstance()->IsWorldSyncActive() || sHuts.find(key) != sHuts.end()) {
+        return;
+    }
+    sHuts[key] = ev->loot;
+    Anchor::GetInstance()->SendPacket_HutSmash(ev->x, ev->y, ev->z, ev->loot, map);
+}
+
+static void RegisterHutSmashSync_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_HUT_SMASH_LOOT, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 x = va_arg(args, s32);
+        const s32 y = va_arg(args, s32);
+        const s32 z = va_arg(args, s32);
+        s32* loot = va_arg(args, s32*);
+        if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+            return;
+        }
+        auto it = sHuts.find({ (int32_t)gsworld_getMap(), x, y, z });
+        if (it != sHuts.end()) {
+            *loot = it->second;
+        }
+    });
+
+    // The team's smash count for the level replaces the local one.
+    COND_VB_SHOULD(VB_HUT_SMASH_INDEX, EVENT_PRIORITY_NORMAL, connected, {
+        s32* index = va_arg(args, s32*);
+        if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+            return;
+        }
+        int32_t level = (int32_t)map_getLevel(gsworld_getMap());
+        int32_t count = 0;
+        for (const auto& [key, loot] : sHuts) {
+            if ((int32_t)map_getLevel((enum map_e)key[0]) == level) {
+                count++;
+            }
+        }
+        *index = count;
+    });
+
+    COND_HOOK(OnHutSmash, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) { recordSmash((OnHutSmash*)event); });
+}
+
+static RegisterShipInitFunc initHutSmashSync(RegisterHutSmashSync_Init, { ANCHOR_CONNECTED_PATH });

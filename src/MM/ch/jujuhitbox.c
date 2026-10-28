@@ -4,15 +4,15 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 /* extern functions */
 void __chjujuhitbox_initialize_all(ActorMarker *, s32);
 s32 subaddie_getYawToPlayer(Actor *);
 void func_80353580(ActorMarker *);
 
 static s32 mm_juju_sharedKnocked(void) {
-    s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_MM_JUJU) & 0xF;
+    s32 bits = 0;
+    EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_MM_JUJU, &bits);
+    bits &= 0xF;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1) + ((bits >> 3) & 1);
 }
 
@@ -82,7 +82,7 @@ void func_80388BEC(NodeProp *node, ActorMarker *marker) {
             if (func_80388B30(temp_v0, 90.0f)) {
                 closest_actor->state = 1;
                 ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4++;
-                port_puzzleStep_orBits(ANCHOR_PUZZLE_MM_JUJU, (1 << ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4) - 1);
+                CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_MM_JUJU, (1 << ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4) - 1);
                 func_803892A8(((ActorLocal_JujuHitbox *) &closest_actor->local)->jujus);
                 func_80353580(marker);
                 __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x58, *(s32 *)&position[0], *(s32 *)&position[1], *(s32 *)&position[2]);
@@ -141,7 +141,7 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        if (Anchor_IsWorldSyncActive()) {
+        if (EventSystem_Should(VB_MM_JUJU_CATCH_UP, false)) {
             jujuCtlPtr->unk4 = mm_juju_sharedKnocked();
             if (jujuCtlPtr->unk4 >= 4) {
                 marker_despawn(this->marker);

@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 extern void func_80324CD8(f32);
 extern Actor *actor_spawnWithYaw_f32(enum actor_e, f32[3], s32);
 
@@ -242,7 +240,7 @@ void chTwinklyBox_spawnTwinkly(ActorMarker *marker){
 void chTwinklyBox_completeMinigame(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
 
-    port_fpTwinkly_release();
+    CALL_EVENT(OnTwinklyMinigameEnd);
     item_set(ITEM_6_HOURGLASS, false);
     fileProgressFlag_set(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME, true);
     FUNC_8030E624(SFX_416_ELECTRIC_ZAP, 0.8f, 32000);
@@ -401,7 +399,7 @@ void chTwinklyBox_update(Actor *this){
         }
 
         if(item_empty(ITEM_6_HOURGLASS)){
-            port_fpTwinkly_release();
+            CALL_EVENT(OnTwinklyMinigameEnd);
             subaddie_set_state_with_direction(this, 1, 0.001f, 0);
             actor_playAnimationOnce(this);
             this->unk38_31 = 0;

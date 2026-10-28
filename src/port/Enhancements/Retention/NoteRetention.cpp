@@ -166,38 +166,6 @@ extern "C" void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) 
     *addr = (uint8_t*)s;
 }
 
-// Called from the actual pickup (MARKER_5F_MUSIC_NOTE), not broad-phase collision.
-extern "C" void port_noteRetention_onLocalNoteCollected(void* markerPtr) {
-    if (!systemActive()) {
-        return;
-    }
-    ActorMarker* marker = (ActorMarker*)markerPtr;
-    if (marker == nullptr || marker->id != MARKER_5F_MUSIC_NOTE) {
-        return;
-    }
-    int32_t mapId;
-    int32_t noteIndex;
-    NoteRetentionData* data = ObjectExtension::GetInstance().Get<NoteRetentionData>(marker);
-    if (data != nullptr) {
-        mapId = data->mapId;
-        noteIndex = data->noteIndex;
-        ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
-    } else if (NoteLocal* nl = bundleNoteLocal(marker_getActor(marker))) {
-        mapId = nl->mapId;
-        noteIndex = nl->noteIndex;
-        nl->magic = 0; // consumed
-    } else {
-        return; // not one of ours
-    }
-    bool wasCollected = isCollected(mapId, noteIndex);
-    setCollected(mapId, noteIndex);
-    collectedThisVisit.insert(noteKey(mapId, noteIndex));
-    activeNoteSet.erase(noteKey(mapId, noteIndex));
-    if (!wasCollected) {
-        CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_NOTE, noteIndex);
-    }
-}
-
 extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap) {
     bool already = isCollected(mapId, noteIndex);
     setCollected(mapId, noteIndex);
@@ -222,22 +190,6 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
             }
         }
     }
-}
-
-// Called from gsworld_load before cube parsing; fires on every re-parse (map load, intra-
-// level warps). Resets the index counter.
-extern "C" void port_noteRetention_beginMapLoad(int32_t mapId) {
-    (void)mapId;
-    noteCounter = 0;
-    noteActorQueue.clear();
-}
-
-extern "C" void port_noteRetention_onActorsFreed(void) {
-    for (auto& [key, marker] : activeNoteSet) {
-        ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
-    }
-    activeNoteSet.clear();
-    noteActorQueue.clear();
 }
 
 // Queue the same deferred reseed a level entry uses; it waits for normal play, so it can't fire
@@ -372,6 +324,51 @@ static RegisterShipInitFunc initNoteRetention(RegisterNoteRetention_Init, { CVAR
 // be actors even when the enhancement isn't applying. Only the suppression below is gated.
 static void RegisterRetentionSaving_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { collectedThisVisit.clear(); });
+
+    // Every cube re-parse restarts the note index.
+    COND_HOOK(OnMapFileLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent*) {
+        noteCounter = 0;
+        noteActorQueue.clear();
+    });
+
+    COND_HOOK(OnActorArrayFree, EVENT_PRIORITY_NORMAL, true, [](IEvent*) {
+        for (auto& [key, marker] : activeNoteSet) {
+            ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
+        }
+        activeNoteSet.clear();
+        noteActorQueue.clear();
+    });
+
+    COND_HOOK(OnNoteCollected, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (!systemActive()) {
+            return;
+        }
+        ActorMarker* marker = ((OnNoteCollected*)event)->marker;
+        if (marker == nullptr || marker->id != MARKER_5F_MUSIC_NOTE) {
+            return;
+        }
+        int32_t mapId;
+        int32_t noteIndex;
+        NoteRetentionData* data = ObjectExtension::GetInstance().Get<NoteRetentionData>(marker);
+        if (data != nullptr) {
+            mapId = data->mapId;
+            noteIndex = data->noteIndex;
+            ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
+        } else if (NoteLocal* nl = bundleNoteLocal(marker_getActor(marker))) {
+            mapId = nl->mapId;
+            noteIndex = nl->noteIndex;
+            nl->magic = 0; // consumed
+        } else {
+            return; // not one of ours
+        }
+        bool wasCollected = isCollected(mapId, noteIndex);
+        setCollected(mapId, noteIndex);
+        collectedThisVisit.insert(noteKey(mapId, noteIndex));
+        activeNoteSet.erase(noteKey(mapId, noteIndex));
+        if (!wasCollected) {
+            CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_NOTE, noteIndex);
+        }
+    });
 
     // The visit's taken notes have to die with the note counter.
     REGISTER_LISTENER(OnLevelReset, EVENT_PRIORITY_NORMAL, [](IEvent*) { collectedThisVisit.clear(); });

@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 extern f32 mapModel_getFloorY(f32[3]);
 // func_8028F45C declared in port_prototypes.h (returns bool)
 
@@ -126,7 +124,7 @@ static void __chTreasurehunt_checkStepProgress(s32 currentStep){
         }
 
         chtreasureHunt_puzzleCurrentStep++;
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, (1 << chtreasureHunt_puzzleCurrentStep) - 1);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_XHUNT, (1 << chtreasureHunt_puzzleCurrentStep) - 1);
         __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
         __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
     }
@@ -176,7 +174,7 @@ void chTreasurehunt_checkStepProgress5(NodeProp *this, ActorMarker *arg1){
         timedFunc_set_1(0.1f, (GenFunction_1) gcpausemenu_80314AC8, 1);
         gcdialog_showDialog(VER_SELECT(ASSET_A17_DIALOG_BURIED_TREASURE_SPAWNED, 0x917, 0, 0), 4, NULL, NULL, NULL, NULL);
         chtreasureHunt_puzzleCurrentStep++;
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, 0x3F);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_XHUNT, 0x3F);
     }
 }
 
@@ -187,8 +185,11 @@ void chTreasurehunt_resetProgress(void){
 // Anchor: replay teammates' hunt steps, one per frame; called each frame in TTC (PuzzleStep.cpp).
 void chTreasurehunt_netTick(void){
     static f32 sNetTreasurePosition[3];
-    s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_XHUNT) & 0x3F;
+    s32 bits = 0;
     s32 sharedStep = 0;
+
+    EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_TTC_XHUNT, &bits);
+    bits &= 0x3F;
 
     while(bits & 1){
         sharedStep++;

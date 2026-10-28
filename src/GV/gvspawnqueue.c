@@ -7,8 +7,6 @@
 
 #include <libultra/r4300.h>
 
-#include "port/Patches/Patches.h"
-
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void chMMMBreakableWooden_update(Actor *this);
 extern void func_802D3D74(Actor *this);
@@ -179,10 +177,10 @@ void func_8038E460(Actor *this){//banjo_door
     func_802D3D74(this);
     // Anchor: flag 0x10 is transient, doesn't survive reload.
     if(mapSpecificFlags_get(0x10)){
-        if(!(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1)){
-            port_puzzleStep_orBits(ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
+        if(!EventSystem_Should(VB_PUZZLE_STEP_SET, false, ANCHOR_PUZZLE_GV_JINXY_DOOR, 1)){
+            CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
         }
-    } else if(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1){
+    } else if(EventSystem_Should(VB_PUZZLE_STEP_SET, false, ANCHOR_PUZZLE_GV_JINXY_DOOR, 1)){
         mapSpecificFlags_set(0x10, true);
         mapSpecificFlags_set(2, true);
     }

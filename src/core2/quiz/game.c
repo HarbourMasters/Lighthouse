@@ -14,10 +14,6 @@ extern void func_802F9D38(s32);
 extern void func_802EE2E8(Actor *arg0, s32 arg1, s32 cnt, s32 arg3, f32 arg4, f32 arg5, f32 arg6);
 extern void gcquiz_func_80319EA4(void);
 
-extern void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag);
-extern int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel);
-extern s32 Anchor_IsWorldSyncActive(void);
-
 void chMMMBreakableWooden_update(Actor *this);
 void gWorldExitPad_update(Actor *this);
 Actor *gWorldExitPad_draw(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3);
@@ -211,9 +207,6 @@ void code_4C020_breakableObjectSetFlag(ActorMarker *marker, enum file_progress_e
     marker_despawn(marker);
 }
 
-extern void port_breakable_broadcastBreak(s32 markerId, s32 x, s32 y, s32 z);
-extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
-
 // collision die function for several objects in Lair
 void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *actor;
@@ -226,7 +219,7 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
         case MARKER_FF_HEDGE_GATE_RIGHT_LOCK_2:
             gcsfx_play(SFX_82_METAL_BREAK);
             subaddie_set_state(actor, 4);
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); }
             break;
 
         case MARKER_17D_IRON_GATE_NO_LOCK:
@@ -247,7 +240,7 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
         case MARKER_107_ENGINE_ROOM_DOOR:
             gcsfx_play(SFX_82_METAL_BREAK);
             func_802EE278(actor, 0xE, 0xF, 0x46, 0.8f, 0.7f);
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); }
             marker_despawn(marker);
             break;
 
@@ -323,7 +316,7 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
                     func_802EE278(actor, 7, 0x19, 0x82, 0.17f, 0.8f);
                     break;
             }
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); }
             marker_despawn(marker);
             break;
 
@@ -361,7 +354,7 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
             gcsfx_play(SFX_82_METAL_BREAK);
             gcsfx_play(SFX_B6_GLASS_BREAKING_1);
             func_802EE278(actor, 4, 0x23, 0x1E, 0.7f, 0.6f);
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); }
             marker_despawn(marker);
             break;
 
@@ -378,7 +371,7 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
             if (marker->id == MARKER_1F3_TALL_WINDOW) {
                 func_802EE278(actor, 4, 0x2D, 0x104, 1.0f, 1.0f);
             }
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); }
             marker_despawn(marker);
             break;
 
@@ -425,7 +418,7 @@ void func_802D3CE8(Actor *this){
         marker_setCollisionScripts(this->marker, NULL, func_802D3138, code_4C020_breakableObjectSfx);
         this->marker->propPtr->unk8_3 = TRUE;
         this->initialized = TRUE;
-        if (port_breakable_isBroken((s32)gsworld_getMap(), this->marker->id, (s32)this->position[0],
+        if (EventSystem_Should(VB_BREAKABLE_BROKEN, false, (s32)gsworld_getMap(), this->marker->id, (s32)this->position[0],
                                     (s32)this->position[1], (s32)this->position[2])) {
             marker_despawn(this->marker);
         }
@@ -529,7 +522,7 @@ void port_breakable_despawnBrokenRestores(s32 map) {
         if (port_breakable_survivesBreak(actor->marker->id)) {
             continue;
         }
-        if (port_breakable_isBroken(map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
+        if (EventSystem_Should(VB_BREAKABLE_BROKEN, false, map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
                                     (s32)actor->position[2])) {
             marker_despawn(actor->marker);
         }
@@ -684,7 +677,6 @@ void chIceKey_update(Actor *this){
         this->yaw -= 360.0f;
     }
 }
-
 
 
 bool func_802D42F8(Actor *this) {
@@ -1007,9 +999,6 @@ void func_802D520C(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
-// [port] Map the lair water was last levelled for, so re-entry snaps instead of ramping.
-static s32 sLairWaterMap = -1;
-
 void func_802D5260(void) {
     s32 sp3C;
     Struct70s *sp38;
@@ -1022,7 +1011,6 @@ void func_802D5260(void) {
          : -1;
 
     if (sp3C == -1) {
-        sLairWaterMap = -1; // [port] see above
         levelSpecificFlags_set(LEVEL_FLAG_3C_LAIR_UNKNOWN, false);
         fileProgressFlag_set(FILEPROG_26_WATER_SWITCH_3_PRESSED, false);
         fileProgressFlag_set(FILEPROG_27_LAIR_WATER_LEVEL_3,     false);
@@ -1069,24 +1057,12 @@ void func_802D5260(void) {
         if (levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) != false) {
             sp34 = D_803679C8[sp3C].unk6 + D_803676A4;
         } else {
-            s32 lvl = (fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) ? 3
-                    : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
-                    : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
-                    : 0;
-            lvl = port_lairWater_targetLevel(gsworld_getMap(), lvl);
-            sp34 = ((s16 *)&D_803679C8[sp3C])[lvl];
+            sp34 = ((s16 *)&D_803679C8[sp3C])[(fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) ? 3 
+                     : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
+                     : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
+                     : 0];
         }
-        s32 curMap = gsworld_getMap();
-        if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) || !Anchor_IsWorldSyncActive()) {
-            sLairWaterMap = curMap;
-        } else {
-            f32 curY = sp38->type_6D.unk8;
-            f32 step = 240.0f * time_getDelta();
-            f32 diff = sp34 - curY;
-            if (diff > step)       sp34 = curY + step;
-            else if (diff < -step) sp34 = curY - step;
-            // within a step of the target: let sp34 stand.
-        }
+        EventSystem_Should(VB_LAIR_WATER_HEIGHT, true, (s16 *)&D_803679C8[sp3C], &sp34, sp38->type_6D.unk8);
         func_8034DEB4(&sp38->type_6D, sp34);
         player_getPosition(sp28);
 
@@ -1375,7 +1351,7 @@ void func_802D6264(f32 delay, enum map_e map_id, s32 arg2, s32 arg3, s32 arg4, e
     D_8036769C = arg5;
     D_803676A0 = 0;
 
-    port_lairWater_onRiseTrigger(map_id, arg5);
+    CALL_EVENT(OnSwitchCutscene, map_id, arg5);
 
     if(map_id != D_80367694){
         timedFunc_set_1(delay, (GenFunction_1) func_802D61FC, map_id);

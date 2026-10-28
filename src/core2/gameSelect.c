@@ -9,9 +9,6 @@
 #include "core2/gc/zoombox.h"
 #include "core2/quiz/storage.h"
 
-#include "port/Romhack/RomhackConfig.h"
-#include "port/Patches/Patches.h"
-
 
 s32 gSelectedGameNum = -1;
 
@@ -467,7 +464,6 @@ void gameSelect_update(Actor *this){
                             actor_loopAnimation(this);
                             break;
                         }
-                        port_syncBottlesBonusIndex();
                         CALL_EVENT(OnGameStart);
                         if(EventSystem_Should(VB_GAMESELECT_START_NEW_GAME, !gameFile_isNotEmpty(game_number), game_number)){
                             s32 skipIntro = 0;
@@ -476,15 +472,10 @@ void gameSelect_update(Actor *this){
                                 timedFunc_set_2(0.0f, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
                                 timedFunc_set_1(0.0f, (GenFunction_1)gsworld_setEnableUpdate, 1);
                             } else {
-                                // [port] Romhacks can override the new-game boot map
-                                s32 newGameMap = port_getRomhackNewGameMap();
-                                if (newGameMap < 0) {
-                                    newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
-                                }
+                                s32 newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
+                                EventSystem_Should(VB_GAMESELECT_NEW_GAME_MAP, true, &newGameMap);
+//                              timedFunc_set_3(0.0f, (GenFunction_3) transitionToMap, MAP_85_CS_SPIRAL_MOUNTAIN_3, 0, 1);
                                 timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
-                                if (port_getRomhackKnowAllMoves() >= 0) {
-                                    ability_setAllLearned(-1);
-                                }
                             }
                         }
                         else{//L802C511C
@@ -492,8 +483,10 @@ void gameSelect_update(Actor *this){
                             if(this->state == 4 &&  (game_number == CH_GAME_SELECT_SAVEFILE_0_BED || game_number == CH_GAME_SELECT_SAVEFILE_1_GAMING_CHAIR))
                                 function_time = 0.25f;
                             // [port] Romhacks can replace the resume transition outright
-                            if(port_getRomhackResumeWarpFunc() != NULL){
-                                timedFunc_set_2(function_time, (GenFunction_2)port_getRomhackResumeWarpFunc(), 0, 0);
+                            GenFunction_2 resumeWarp = NULL;
+                            EventSystem_Should(VB_GAMESELECT_RESUME_WARP, true, &resumeWarp);
+                            if(resumeWarp != NULL){
+                                timedFunc_set_2(function_time, resumeWarp, 0, 0);
                             }
                             else if(chmole_learnedAllSpiralMountainAbilities() && fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE)){
                                 timedFunc_set_2(function_time, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);

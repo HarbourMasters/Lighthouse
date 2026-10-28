@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
-#include "port/Patches/Patches.h"
 #include "variables.h"
 #include "port/Engine.h"
 

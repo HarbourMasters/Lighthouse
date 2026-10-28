@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "structs.h"
-#include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
 
 /* .bss */

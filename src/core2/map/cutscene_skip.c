@@ -14,8 +14,6 @@ bool cutscene_skipGameOverCutsceneCheck(void);
 bool cutscene_skipIntroCutsceneCheck(void);
 bool cutscene_skipBeachCutsceneCheck(void);
 
-#include "port/Romhack/RomhackConfig.h"
-
 extern u8 D_8037DCCE[];
 
 /* .data */
@@ -1367,24 +1365,14 @@ void warp_smEnterBanjosHouse(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void warp_smExitBanjosHouse(NodeProp *arg0, ActorMarker *arg1) {
-    // [port] BB romhacks can override this warp destination via BKCF; port
-    // listeners can refine further by responding to OnWarpResolveDest.
     s32 dest = (MAP_1_SM_SPIRAL_MOUNTAIN << 8) + WARP_SM_12_FROM_HOUSE;
-    s32 bkcf = port_getRomhackWarpExitBanjosHouse();
-    if (bkcf >= 0) {
-        dest = bkcf;
-    }
-    s32 mapOverride = port_getRomhackStartLevel1();
-    if (mapOverride >= 0) {
-        dest = (mapOverride << 8) | (dest & 0xFF);
-    }
-    CALL_EVENT(OnWarpResolveDest, WARP_ID_SM_EXIT_BANJOS_HOUSE, (MAP_1_SM_SPIRAL_MOUNTAIN << 8) + WARP_SM_12_FROM_HOUSE, bkcf, &dest);
+    CALL_EVENT(OnWarpResolveDest, WARP_ID_SM_EXIT_BANJOS_HOUSE, (MAP_1_SM_SPIRAL_MOUNTAIN << 8) + WARP_SM_12_FROM_HOUSE, &dest);
     func_8031CC8C(arg0, dest);
 }
 
 void warp_lairEnterMMLobbyFromSMLevel(NodeProp *arg0, ActorMarker *arg1) {
     s32 dest = (MAP_69_GL_MM_LOBBY << 8) + WARP_GL_MM_LOBBY_12_ENTRANCE;
-    CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL, (MAP_69_GL_MM_LOBBY << 8) + WARP_GL_MM_LOBBY_12_ENTRANCE, -1, &dest);
+    CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL, (MAP_69_GL_MM_LOBBY << 8) + WARP_GL_MM_LOBBY_12_ENTRANCE, &dest);
     func_8031CC8C(arg0, dest);
 }
 
@@ -1517,14 +1505,8 @@ void func_8031FAB4(NodeProp *arg0, ActorMarker *arg1) {
 void warp_lairEnterLairFromSMLevel(NodeProp *arg0, ActorMarker *arg1) {
     if (fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE) != 0) {
         // MM Lobby
-        // [port] BB romhacks can override this warp destination via BKCF; port
-        // listeners can refine further by responding to OnWarpResolveDest.
         s32 dest = (MAP_69_GL_MM_LOBBY << 8) + WARP_GL_MM_LOBBY_12_ENTRANCE;
-        s32 bkcf = port_getRomhackWarpEnterLair();
-        if (bkcf >= 0) {
-            dest = bkcf;
-        }
-        CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL, (MAP_69_GL_MM_LOBBY << 8) + WARP_GL_MM_LOBBY_12_ENTRANCE, bkcf, &dest);
+        CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL, (MAP_69_GL_MM_LOBBY << 8) + WARP_GL_MM_LOBBY_12_ENTRANCE, &dest);
         func_8031CC8C(arg0, dest);
     } else {
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);

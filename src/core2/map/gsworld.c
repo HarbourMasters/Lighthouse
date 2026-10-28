@@ -8,7 +8,6 @@
 #include <core2/file.h>
 #include "core2/particle.h"
 #include "port/Interpolation/FrameInterpolation.h"
-#include "port/Enhancements/Retention/Retention.h"
 
 struct gsworld_data_s {
     s32 unk0; // probably game_mode_e
@@ -450,8 +449,7 @@ Opens the setup file and reads the contents.
 void gsworld_load(enum map_e map_id) {
     File *f;
 
-    port_noteRetention_beginMapLoad((int32_t)map_id);
-    port_carriedSync_beginMapLoad((int32_t)map_id);
+    CALL_EVENT(OnMapFileLoad, map_id);
 
     core1_15B30_sendMesg3ToRenderThread();
 

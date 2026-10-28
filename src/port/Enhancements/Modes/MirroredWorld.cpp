@@ -13,6 +13,13 @@ void RegisterMirroredWorld_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_MIRRORED_WORLD_MODE, 0),
               [](IEvent* event) { CVarSetInteger(CVAR_MIRRORED_WORLD_STATE, 1); });
 
+    COND_HOOK(OnControllerRead, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_MIRRORED_WORLD_MODE, 0), [](IEvent* event) {
+        if (MirrorPatches_IsActive()) {
+            auto* pad = (OSContPad*)((OnControllerRead*)event)->pad;
+            pad->stick_x = -pad->stick_x;
+        }
+    });
+
     if (!CVarGetInteger(CVAR_MIRRORED_WORLD_MODE, 0)) {
         CVarClear(CVAR_MIRRORED_WORLD_STATE);
     }

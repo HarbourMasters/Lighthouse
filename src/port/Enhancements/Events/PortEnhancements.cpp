@@ -20,10 +20,12 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(OnControllerUpdate);
+    REGISTER_EVENT(OnControllerRead);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnMapLoaded);
     REGISTER_EVENT(OnMapLoadStub);
+    REGISTER_EVENT(OnMapFileLoad);
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnDialogUpdate);
     REGISTER_EVENT(OnModelLoad);
@@ -81,6 +83,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnTooieJiggyCollect);
     REGISTER_EVENT(OnJigsawPodiumInput);
+    REGISTER_EVENT(OnJigsawPedestalLeave);
     REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
     REGISTER_EVENT(OnNametagDraw);
@@ -89,14 +92,29 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnPlayerAnimSubRangeChange);
     REGISTER_EVENT(OnPlayerTransformChange);
     REGISTER_EVENT(OnWaterPyramidTimer);
+    REGISTER_EVENT(OnJiggyCageStateChange);
+    REGISTER_EVENT(OnEggTollAdvance);
+    REGISTER_EVENT(OnSwitchCutscene);
+    REGISTER_EVENT(OnWaterRise);
+    REGISTER_EVENT(OnTwinklyMinigameEnd);
+    REGISTER_EVENT(OnHutSmash);
+    REGISTER_EVENT(OnBreakableBroken);
+    REGISTER_EVENT(OnPuzzleStep);
+    REGISTER_EVENT(OnPuzzlePosMark);
     REGISTER_EVENT(OnVileHoleStateChange);
     REGISTER_EVENT(OnVileGameStateChange);
 
     // Register game events
     REGISTER_EVENT(OnGameFlagSet);
     REGISTER_EVENT(OnItemCountChanged);
+    REGISTER_EVENT(OnItemAdjust);
     REGISTER_EVENT(OnCollectibleCollected);
     REGISTER_EVENT(OnConsumableCollected);
+    REGISTER_EVENT(OnNoteCollected);
+    REGISTER_EVENT(OnJinjoCollected);
+    REGISTER_EVENT(OnCarriedObjectSpawn);
+    REGISTER_EVENT(OnCarriedObjectCollected);
+    REGISTER_EVENT(OnCarriedObjectSpent);
     REGISTER_EVENT(OnCarryThrow);
     REGISTER_EVENT(OnAbilityLearned);
     REGISTER_EVENT(OnJiggySpawned);
@@ -117,6 +135,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnGameStart);
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);
+    REGISTER_EVENT(OnActorArrayFree);
     REGISTER_EVENT(OnLevelReset);
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
     REGISTER_EVENT(OnReset);

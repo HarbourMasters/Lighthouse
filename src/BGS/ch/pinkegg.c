@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 typedef struct chpinkegg_s{
     u32 actorId;
     u32 shellsLeft;
@@ -111,7 +109,7 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     this->collidable = false;
     thisActor->unk124_6 = 0;
     tmp = (ActorLocal_PinkEgg *) &thisActor->local;
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->actorId);
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->actorId);
     if(D_803906C4[tmp->actorId] != 0){
         __spawnQueue_add_2((GenFunction_2)chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->actorId);
     } else if(!jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)){
@@ -134,7 +132,7 @@ void chPinkEgg_update(Actor *this){
     }
 
     // Anchor: replay teammates' layer breaks.
-    if((port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg *)&this->local)->actorId))
+    if(EventSystem_Should(VB_PUZZLE_STEP_SET, false, ANCHOR_PUZZLE_BGS_PINKEGG, 1 << ((ActorLocal_PinkEgg *)&this->local)->actorId)
         && this->state != 3){
         chPinkEgg_collision(this->marker, NULL);
         return;

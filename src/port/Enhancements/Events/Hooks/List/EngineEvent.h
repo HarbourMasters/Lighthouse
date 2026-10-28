@@ -15,10 +15,12 @@ extern "C" {
 DEFINE_EVENT(GameFrameUpdate);
 DEFINE_EVENT(FrameDrawEnd);
 DEFINE_EVENT(OnControllerUpdate);
+DEFINE_EVENT(OnControllerRead, void* pad;);
 
 DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 DEFINE_EVENT(OnMapLoaded, GameMap prevMap; GameMap nextMap; s32 exit;);
 DEFINE_EVENT(OnMapLoadStub);
+DEFINE_EVENT(OnMapFileLoad, s32 map;);
 
 DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
 DEFINE_EVENT(OnDialogUpdate, s32 textId; s32 state; s32 activeZoombox; BKDialog * *dialogs; u8 * stringCounts;

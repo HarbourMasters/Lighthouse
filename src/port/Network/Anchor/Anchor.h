@@ -17,6 +17,8 @@ extern "C" {
 #include "variables.h"
 }
 
+#define ANCHOR_CONNECTED_PATH "ANCHOR_CONNECTED"
+
 typedef struct {
     uint32_t clientId;
     std::string name;

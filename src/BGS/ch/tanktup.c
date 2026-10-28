@@ -5,8 +5,6 @@
 
 #include "prop.h"
 
-#include "port/Patches/Patches.h"
-
 void timed_exitStaticCamera(f32);
 
 void func_8028E668(f32[3], f32, f32, f32);
@@ -133,7 +131,8 @@ void chTanktup_update(Actor *this)
         sTanktupCameraPushed = 0;
         // Anchor: adopt the team's already-retracted legs.
         {
-            s32 legBits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
+            s32 legBits = 0;
+            EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_BGS_TANKTUP, &legBits);
             for (sp44 = 0; sp44 < 4; sp44++)
             {
                 if (legBits & (1 << sp44))
@@ -156,7 +155,7 @@ void chTanktup_update(Actor *this)
         }
     }
     // Anchor: team completed Tanktup but our body is still idle (state 1) — raise the head to match.
-    if (Anchor_IsWorldSyncActive() && this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
+    if (EventSystem_Should(VB_BGS_TANKTUP_CATCH_UP, false) && this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
     {
         sTanktupPoseCatchUp = 1; // [port] pose only, no presentation
         subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);

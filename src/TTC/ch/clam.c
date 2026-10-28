@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "bk_math.h"
-#include "port/Patches/Patches.h"
 
 extern Actor *spawnQueue_bundle_f32(s32, s32, s32, s32);
 extern ActorProp * func_80320EB0(ActorMarker *, f32, s32);

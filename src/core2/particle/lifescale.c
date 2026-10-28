@@ -4,8 +4,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 
 
 typedef struct Struct_Core2_6A4B0_2{

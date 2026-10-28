@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 //these funtions include references to overlay functions
 extern void func_802DC528(NodeProp*, ActorMarker*);
 extern void func_802DC560(NodeProp*, ActorMarker*);
@@ -561,7 +560,8 @@ void func_80334448(NodeProp *arg0, ActorMarker *arg1) {
             if ((codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time) {
                 // [port] Romhacks remap warp destinations via BKCF config
                 warpIdx = codeA5BC0_getNodePropActorId(arg0);
-                warpDest = port_getRomhackWarpDest(warpIdx);
+                warpDest = -1;
+                EventSystem_Should(VB_WARP_DEST, true, warpIdx, &warpDest);
                 CALL_EVENT(OnWarpDispatch, warpIdx, warpDest);
                 // [port] Romhacks can hold a warp shut behind progress
                 if (EventSystem_Should(VB_WARP_DISPATCH, true, warpIdx)) {

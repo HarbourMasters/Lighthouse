@@ -88,7 +88,7 @@ static bool mirrorLive(int32_t puzzleId) {
     return Anchor::GetInstance()->IsWorldSyncActive() && mirrorAllowedFor(puzzleId, (int32_t)gsworld_getMap());
 }
 
-extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
+static int32_t getBits(int32_t puzzleId) {
     if (!mirrorLive(puzzleId)) {
         return 0;
     }
@@ -96,7 +96,7 @@ extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
     return it != sPuzzleBits.end() ? it->second : 0;
 }
 
-extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
+static int32_t getBitsForMap(int32_t map, int32_t puzzleId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive() || !mirrorAllowedFor(puzzleId, map)) {
         return 0;
     }
@@ -117,7 +117,7 @@ extern "C" int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId)
     return bits;
 }
 
-extern "C" void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits) {
+static void orBits(int32_t puzzleId, int32_t bits) {
     if (!mirrorLive(puzzleId)) {
         return;
     }
@@ -207,7 +207,7 @@ void port_puzzleStep_clearForLevel(int32_t levelId) {
  * (FP's Sir Slushes). Rides the same PUZZLE_STEP packet via the phash field.
  */
 
-extern "C" int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+static int32_t isPosMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
     if (!mirrorLive(puzzleId)) {
         return 0;
     }
@@ -215,7 +215,7 @@ extern "C" int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t 
     return (it != sPuzzlePos.end() && it->second.count(puzzlePosHash(x, y, z))) ? 1 : 0;
 }
 
-extern "C" void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+static void markPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
     if (!mirrorLive(puzzleId)) {
         return;
     }
@@ -266,7 +266,7 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
  * to actor state), and scoping them would brick a relocated Eyrie/Nabnut.
  */
 
-extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
+static int32_t getCount(int32_t counterId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return 0;
     }
@@ -274,16 +274,16 @@ extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
     return it != sPuzzleCounts.end() ? it->second : 0;
 }
 
-// Returns the new count: the team's, or offline just the caller's own, as vanilla counted.
-extern "C" int32_t port_puzzleCount_add(int32_t counterId, int32_t localCount, int32_t delta) {
+// Replaces the caller's already-incremented count with the team's.
+static void addCount(int32_t counterId, int32_t delta, int32_t* localCount) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return localCount + delta;
+        return;
     }
     int32_t map = (int32_t)gsworld_getMap();
     int32_t& count = sPuzzleCounts[{ map, counterId }];
     count += delta;
     Anchor::GetInstance()->SendPacket_PuzzleCount(counterId, delta, map);
-    return count;
+    *localCount = count;
 }
 
 void Anchor::SendPacket_PuzzleCount(s32 counterId, s32 delta, s32 map) {
@@ -347,3 +347,65 @@ void RegisterPuzzleStep_Init() {
 }
 
 static RegisterShipInitFunc initPuzzleStep(RegisterPuzzleStep_Init, {});
+
+static void RegisterPuzzleStepSync_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_PUZZLE_STEP_SET, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 puzzleId = va_arg(args, s32);
+        const s32 mask = va_arg(args, s32);
+        if (getBits(puzzleId) & mask) {
+            *should = true;
+        }
+    });
+
+    COND_VB_SHOULD(VB_PUZZLE_STEP_SET_ON_MAP, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 map = va_arg(args, s32);
+        const s32 puzzleId = va_arg(args, s32);
+        const s32 mask = va_arg(args, s32);
+        if (getBitsForMap(map, puzzleId) & mask) {
+            *should = true;
+        }
+    });
+
+    COND_VB_SHOULD(VB_PUZZLE_STEP_BITS, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 puzzleId = va_arg(args, s32);
+        s32* bits = va_arg(args, s32*);
+        *bits = getBits(puzzleId);
+    });
+
+    COND_HOOK(OnPuzzleStep, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnPuzzleStep*)event;
+        orBits(ev->puzzleId, ev->bits);
+    });
+
+    COND_VB_SHOULD(VB_PUZZLE_POS_MARKED, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 puzzleId = va_arg(args, s32);
+        const s32 x = va_arg(args, s32);
+        const s32 y = va_arg(args, s32);
+        const s32 z = va_arg(args, s32);
+        if (isPosMarked(puzzleId, x, y, z)) {
+            *should = true;
+        }
+    });
+
+    COND_HOOK(OnPuzzlePosMark, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnPuzzlePosMark*)event;
+        markPos(ev->puzzleId, ev->x, ev->y, ev->z);
+    });
+
+    COND_VB_SHOULD(VB_PUZZLE_COUNT, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 counterId = va_arg(args, s32);
+        s32* count = va_arg(args, s32*);
+        *count = getCount(counterId);
+    });
+
+    COND_VB_SHOULD(VB_PUZZLE_COUNT_ADD, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 counterId = va_arg(args, s32);
+        const s32 delta = va_arg(args, s32);
+        s32* count = va_arg(args, s32*);
+        addCount(counterId, delta, count);
+    });
+}
+
+static RegisterShipInitFunc initPuzzleStepSync(RegisterPuzzleStepSync_Init, { ANCHOR_CONNECTED_PATH });

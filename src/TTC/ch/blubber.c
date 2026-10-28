@@ -3,9 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-#include "port/Enhancements/Retention/Retention.h"
-
 extern void func_8028E668(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3);
 extern  s32 func_802E0970(s32, f32, f32, f32, s32, s32, f32[3]);
 
@@ -148,12 +145,13 @@ static void __chBlubber_updateFunc(Actor *this){
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
 
-    netBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+    netBits = 0;
+    EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_TTC_BLUBBER, &netBits);
     if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
     }
     if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
     }
     if (!this->volatile_initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         marker_despawn(this->marker);
@@ -181,9 +179,12 @@ static void __chBlubber_updateFunc(Actor *this){
     
     if(!this->volatile_initialized){
         // Anchor: rebuild local gold count as collected - delivered (carried gold is transient).
-        s32 goldBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+        s32 goldBits = 0;
+        s32 collected = 0;
+        EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_TTC_BLUBBER, &goldBits);
+        EventSystem_Should(VB_CARRIED_COLLECTED_COUNT, true, ANCHOR_COLLECTIBLE_GOLD, &collected);
         s32 delivered = ((goldBits & 0x1) ? 1 : 0) + ((goldBits & 0x2) ? 1 : 0);
-        s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;
+        s32 pool = collected - delivered;
         if (pool > item_getCount(ITEM_18_GOLD_BULLIONS)) {
             item_adjustByDiffWithoutHud(ITEM_18_GOLD_BULLIONS, pool - item_getCount(ITEM_18_GOLD_BULLIONS));
         }

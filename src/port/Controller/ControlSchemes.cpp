@@ -243,13 +243,20 @@ void ControlSchemes_Apply(int scheme) {
 // Frames of C-Down passthrough left for a jigsaw podium.
 static int32_t sJigsawPodiumTTL = 0;
 
+static void ShapeControllerInput(void* contPad);
+
 void RegisterControlSchemes_Init() {
     COND_HOOK(OnJigsawPodiumInput, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { sJigsawPodiumTTL = 4; });
+
+    // Right stick -> C-button conversion, Free Look right-stick handling, and the Modern-scheme
+    // Talon Trot combo.
+    COND_HOOK(OnControllerRead, EVENT_PRIORITY_HIGH, true,
+              [](IEvent* event) { ShapeControllerInput(((OnControllerRead*)event)->pad); });
 }
 
 static RegisterShipInitFunc initControlSchemes(RegisterControlSchemes_Init);
 
-extern "C" void port_shapeControllerInput(void* contPad) {
+static void ShapeControllerInput(void* contPad) {
     auto* pad = static_cast<OSContPad*>(contPad);
     if (pad == nullptr) {
         return;

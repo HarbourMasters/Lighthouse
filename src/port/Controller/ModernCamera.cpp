@@ -9,6 +9,8 @@
 #include "ModernCamera.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
 #include "port/Enhancements/Camera/CameraShared.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
 
 extern "C" {
 extern unsigned char D_8037C061; // current zoom level
@@ -120,7 +122,7 @@ void ExitOrbit() {
 
 } // namespace
 
-extern "C" int port_modernCamera_handleYaw(void) {
+static int HandleYawInput(void) {
     bool schemeOk = ModernSchemeActive() && bs_getState() != BS_7_CROUCH && !IsDemoMode();
     if (!schemeOk) {
         if (sActive) {
@@ -215,7 +217,7 @@ extern "C" void ModernCamera_Update(void) {
     ncDynamicCamera_setRotation(rot);
 }
 
-extern "C" int port_camera_suppressVanillaZoom(void) {
+static int SuppressVanillaZoom(void) {
     if (IsDemoMode() || FreeLookCamera_IsEnabled()) {
         return 0;
     }
@@ -229,7 +231,7 @@ extern "C" int port_camera_suppressVanillaZoom(void) {
     return 0;
 }
 
-extern "C" void port_modernCamera_handleZoom(void) {
+static void HandleZoomInput(void) {
     if (!ModernSchemeActive() || bs_getState() == BS_7_CROUCH || IsDemoMode()) {
         return;
     }
@@ -290,3 +292,20 @@ extern "C" float ModernCamera_GetInvertYSign(void) {
 extern "C" float ModernCamera_GetFirstPersonInvertXSign(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0) ? -1.0f : 1.0f;
 }
+
+void RegisterModernCamera_Init() {
+    COND_VB_SHOULD(VB_CAMERA_ZOOM_INPUT, EVENT_PRIORITY_NORMAL, true, {
+        HandleZoomInput();
+        if (SuppressVanillaZoom()) {
+            *should = false;
+        }
+    });
+
+    COND_VB_SHOULD(VB_CAMERA_ROTATE_INPUT, EVENT_PRIORITY_NORMAL, true, {
+        if (*should && HandleYawInput()) {
+            *should = false;
+        }
+    });
+}
+
+static RegisterShipInitFunc initModernCamera(RegisterModernCamera_Init, {});

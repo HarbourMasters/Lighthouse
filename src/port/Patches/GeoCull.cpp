@@ -17,7 +17,7 @@ extern "C" void GeoCull_SetConsumer(int consumerBit, int active) {
 }
 
 extern "C" int GeoCull_ShouldDraw(int type, const void* cmd, const void* modelBin, int drawnVanilla,
-                                const unsigned char* areaIds, int areaCount, int detail0, int detail1) {
+                                  const unsigned char* areaIds, int areaCount, int detail0, int detail1) {
     // Nothing listening: leave the vanilla decision untouched and skip the event entirely
     // (CallEvent does a string-keyed map lookup per call, which we don't want per geo command
     // in normal play).

@@ -20,6 +20,8 @@ typedef enum VBehaviorID {
     VB_CAMERA_LIVE_ASPECT,
     VB_CAMERA_FOLLOW,
     VB_CAMERA_APPLY_SHAKE,
+    VB_CAMERA_ZOOM_INPUT,
+    VB_CAMERA_ROTATE_INPUT,
 
     // Cutscene and celebration skips
     VB_PLAY_BOOT_LOGOS,
@@ -105,13 +107,39 @@ typedef enum VBehaviorID {
     VB_CCW_PODIUM_DESPAWN,    // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
                               // reveal it live.
     VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
+    VB_JIGSAW_PEDESTAL_CLAIM,
+    VB_JIGSAW_PEDESTAL_OWNED, // Keep driving a lair podium: false once a teammate's claim wins.
+    VB_LAIR_GRATE_DESPAWN,
+    VB_LAIR_WATER_HEIGHT,
+    VB_EGG_TOLL_STAGE,
+    VB_HUT_SMASH_LOOT,
+    VB_HUT_SMASH_INDEX,
+    VB_BREAKABLE_BROKEN,
+    VB_CARRIED_OBJECT_SPAWN,          // Carried collectible spawn: false if a teammate already picked it up.
+    VB_CARRIED_OBJECT_REMOTE_DESPAWN, // A teammate picked up this carried collectible while it was live.
+    VB_CARRIED_COLLECTED_COUNT,
+    VB_PUZZLE_STEP_SET,
+    VB_PUZZLE_STEP_SET_ON_MAP,
+    VB_PUZZLE_STEP_BITS,
+    VB_PUZZLE_POS_MARKED,
+    VB_PUZZLE_COUNT,
+    VB_PUZZLE_COUNT_ADD,
+    VB_BGS_TANKTUP_CATCH_UP,
+    VB_GV_ANCIENT_ONES_CATCH_UP,
+    VB_MM_JUJU_CATCH_UP,
 
     // Romhack port gates
     VB_JIGGYSCORE_LEVEL_TOTAL,
     VB_HONEYCOMBSCORE_LEVEL_TOTAL,
+    VB_ITEM_MAX,
+    VB_LEVEL_NOTE_MAX,
+    VB_LEVEL_JIGGY_MAX,
+    VB_LEVEL_HONEYCOMB_MAX,
     VB_MUMBO_HUT_INTERACT,
+    VB_MUMBO_TRANSFORM_COST,
     VB_LEVEL_LOAD_RESET_SCORES,
     VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
+    VB_SPAWNQUEUE_GLOBALIZE_OVERLAYS,
     VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,
     VB_GAME_OVER_RETURN_MAP,
     VB_GAME_OVER_MACHINE_ROOM,
@@ -129,18 +157,29 @@ typedef enum VBehaviorID {
     VB_PAUSEMENU_DRAW_JOYSTICKS,
     VB_PAUSEMENU_BOLD_FONT_TEXTURE,
     VB_PAUSEMENU_LEVEL_NAME_X,
+    VB_PAUSEMENU_LEVEL_NAME,
     VB_PAUSEMENU_ROW_VISIBLE,
+    VB_PAUSEMENU_HIDDEN_ROW_LEVELS,
     VB_MAP_CHANGE_REQUEST,
     VB_MAP_TRANSITION_IN_INDEX,
     VB_MAP_TRANSITION_OUT_INDEX,
+    VB_MAP_LEVEL,
+    VB_MAP_SCENE_DEF,
+    VB_MAP_SKYBOX,
+    VB_MAP_MUSIC,
     VB_VOID_OUT_RESPAWN_TRANSITION,
     VB_EGG_FIRE_SFX,
     VB_WARP_KEEPS_MUSIC,
     VB_BUMP_REBOUNDS_PLAYER,
     VB_WARP_DISPATCH,
+    VB_WARP_DEST,
     VB_GAMESELECT_START_NEW_GAME,
     VB_GAMESELECT_START_GAME,
+    VB_GAMESELECT_NEW_GAME_MAP,
+    VB_GAMESELECT_RESUME_WARP,
+    VB_ABILITY_CLEAR_ALL,
     VB_NOTEDOOR_DRAW_NUMBER,
+    VB_NOTE_DOOR_COST,
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
     VB_BRENTILDA_HEAL_DIALOG,
@@ -152,6 +191,9 @@ typedef enum VBehaviorID {
     VB_LAST_JIGGY_COUNT,
     VB_LAST_JIGGY_FANFARE,
     VB_JIGSAW_PODIUM_COLLIDE,
+    VB_JIGSAW_PUZZLE_COST,
+    VB_JIGSAW_PUZZLE_SIZE,
+    VB_JIGSAW_PUZZLE_FLAG,
     VB_HEALTH_HUD_SHOW,
     VB_MIDI_SET_CHAN_MASK,
     VB_ITEM_ADJUST_BY_DIFF,
@@ -169,6 +211,9 @@ typedef enum DoorCameraId {
     GV_DOOR_CAM_KAZOOIE, // beak-bomb door (flag 6)
     GV_DOOR_CAM_JINXY,   // Jinxy sneeze (flags 0, 1)
     MMM_DOOR_CAM_CHURCH, // church door, Tumblar challenge (flag 0)
+    LAIR_DOOR_CAM_BGS_GRATE,
+    LAIR_DOOR_CAM_CC_PIPE,
+    LAIR_DOOR_CAM_CC_PIPE_3,
 } DoorCameraId;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);
@@ -203,16 +248,16 @@ extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
         }                                                            \
     })
 
-#define COND_HOOK(eventId, priority, condition, body)                \
-    {                                                                \
-        static ListenerID listenerId = -1;                           \
-        if (listenerId != -1) {                                      \
-            UNREGISTER_LISTENER(eventId, listenerId);                \
-            listenerId = -1;                                         \
-        }                                                            \
-        if (condition) {                                             \
-            listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                            \
+#define COND_HOOK(eventId, priority, condition, ...)                                                          \
+    {                                                                                                         \
+        static ListenerID listenerId = -1;                                                                    \
+        if (listenerId != -1) {                                                                               \
+            UNREGISTER_LISTENER(eventId, listenerId);                                                         \
+            listenerId = -1;                                                                                  \
+        }                                                                                                     \
+        if (condition) {                                                                                      \
+            listenerId = EventSystemRegisterListener(eventId##ID, __VA_ARGS__, priority, __FILE__, __LINE__); \
+        }                                                                                                     \
     }
 #define COND_ID_HOOK(eventId, id, priority, condition, body)         \
     {                                                                \

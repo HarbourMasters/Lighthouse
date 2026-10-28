@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "jigsawpicture.h"
-#include "port/Romhack/RomhackConfig.h"
-#include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 extern void func_80324CFC(f32, enum comusic_e, s32);
@@ -57,18 +55,21 @@ ParticleScaleAndLifetimeRanges D_80394830 = {
 
 /* .code */
 s32 _puzzleCost(s32 index) {
-    s32 override = port_getRomhackJiggyPuzzleCost(index);
-    return (override >= 0) ? override : PICTURE_INFO[index].cost;
+    s32 cost = PICTURE_INFO[index].cost;
+    EventSystem_Should(VB_JIGSAW_PUZZLE_COST, true, index, &cost);
+    return cost;
 }
 
 s32 _puzzleSize(s32 index) {
-    s32 override = port_getRomhackJiggyPuzzleSize(index);
-    return (override >= 0) ? override : PICTURE_INFO[index].size_bits;
+    s32 size = PICTURE_INFO[index].size_bits;
+    EventSystem_Should(VB_JIGSAW_PUZZLE_SIZE, true, index, &size);
+    return size;
 }
 
 s32 _puzzleFlag(s32 index) {
-    s32 override = port_getRomhackJiggyPuzzleFlag(index);
-    return (override >= 0) ? override : PICTURE_INFO[index].progress_flag;
+    s32 flag = PICTURE_INFO[index].progress_flag;
+    EventSystem_Should(VB_JIGSAW_PUZZLE_FLAG, true, index, &flag);
+    return flag;
 }
 
 bool jigsawPicture_isJigsawPictureComplete(s32 arg0) {
@@ -321,7 +322,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
     vec3fArray_get_vec3f(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
-            port_jigsawPedestal_release(this->actorTypeSpecificField);
+            CALL_EVENT(OnJigsawPedestalLeave, this->actorTypeSpecificField);
             func_8028F918(0);
             break;
 
@@ -557,7 +558,7 @@ void updateJigsawPictureActor(Actor *this) {
     if (local->unk4 != jigsawPicture_placedFromFlags(this) && EventSystem_Should(VB_JIGSAW_PICTURE_RESYNC, false, this)) {
         jigsawPicture_resyncFromFlags(this);
     }
-    if (this->state != JIGSAW_PICTURE_LEAVE_PODIUM && !port_jigsawPedestal_isSelf(this->actorTypeSpecificField)) {
+    if (this->state != JIGSAW_PICTURE_LEAVE_PODIUM && !EventSystem_Should(VB_JIGSAW_PEDESTAL_OWNED, true, this->actorTypeSpecificField)) {
         jigsawPicture_setState(this, JIGSAW_PICTURE_LEAVE_PODIUM);
         return;
     }
@@ -578,7 +579,7 @@ void updateJigsawPictureActor(Actor *this) {
                 }
             }
             if (isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
-                if (port_jigsawPedestal_tryClaim(this->actorTypeSpecificField)) {
+                if (EventSystem_Should(VB_JIGSAW_PEDESTAL_CLAIM, true, this->actorTypeSpecificField)) {
                     jigsawPicture_setState(this, 2);
                 } else if (sBuzzedPedestalField != this->actorTypeSpecificField) {
                     comusic_playTrack(COMUSIC_2C_BUZZER);

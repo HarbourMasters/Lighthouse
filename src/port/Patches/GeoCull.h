@@ -23,7 +23,7 @@ extern "C" {
 #define GEOCULL_CONSUMER_ENHANCEMENT 2
 
 int GeoCull_ShouldDraw(int type, const void* cmd, const void* modelBin, int drawnVanilla, const unsigned char* areaIds,
-                     int areaCount, int detail0, int detail1);
+                       int areaCount, int detail0, int detail1);
 
 // Listeners enable/disable themselves as consumers so the per-command event firing can be
 // skipped entirely when nothing is listening.

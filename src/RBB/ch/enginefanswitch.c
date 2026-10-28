@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 void chEngineFanSwitch_update(Actor *this);
 
 /* .data */
@@ -63,8 +61,8 @@ void chEngineFanSwitch_update(Actor *this){
     // [port] Anchor temp-persist: the fan slowdown is transient map flag 0, set by pressing this
     // switch (RBB_func_803898A0). It syncs live but resets on reload, so persist it
     if(mapSpecificFlags_get(0)){
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1);
-    } else if((this->state == 1) && (port_puzzleStep_get(ANCHOR_PUZZLE_RBB_ENGINE_FANS) & 1)){
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1);
+    } else if((this->state == 1) && EventSystem_Should(VB_PUZZLE_STEP_SET, false, ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1)){
         this->position_y -= 35.0f;
         this->state = 2;
         mapSpecificFlags_set(0, 1);

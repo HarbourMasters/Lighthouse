@@ -76,9 +76,9 @@ void chmumbo_func_802D1724(void){
 }
 
 s32 __transformation_getCost(enum transformation_e trans_id){
-    s32 override = port_getRomhackMumboCost(trans_id);
-    if (override >= 0) {
-        return override;
+    s32 cost;
+    if (!EventSystem_Should(VB_MUMBO_TRANSFORM_COST, true, trans_id, &cost)) {
+        return cost;
     }
     switch(trans_id){
         case TRANSFORM_2_TERMITE:

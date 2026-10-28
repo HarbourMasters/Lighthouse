@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 void timed_exitStaticCamera(f32);
 void func_8028E668(f32[3], f32, f32, f32);
 
@@ -78,7 +76,7 @@ void chTanktupLeg_despawn(ActorMarker *this, ActorMarker *other_marker){
     timedFunc_set_2(0.65f, (GenFunction_2) chTanktupLeg_retractLeg, (uintptr_t) this, (uintptr_t) other_marker);
     func_8038F51C(thisActor);
     this->collidable = false;
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12);
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12);
 }
 
 void chTanktupLeg_update(Actor *this){
@@ -89,7 +87,7 @@ void chTanktupLeg_update(Actor *this){
     }
     // Anchor: teammate hit this leg remotely — replay the pull-in.
     if(this->state == 1 && this->marker->collidable
-        && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << this->unk10_12))){
+        && EventSystem_Should(VB_PUZZLE_STEP_SET, false, ANCHOR_PUZZLE_BGS_TANKTUP, 1 << this->unk10_12)){
         chTanktupLeg_despawn(this->marker, NULL);
     }
     if(this->state == 2){

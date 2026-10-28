@@ -29,7 +29,6 @@ int port_getRomhackMaxRedFeathersCheato(void);
 int port_getRomhackMaxGoldFeathers(void);
 int port_getRomhackMaxGoldFeathersCheato(void);
 int port_getRomhackNotesMax(void);
-int port_getNotesPerLevel(void);
 int port_getRomhackKnowAllMoves(void);
 int port_getRomhackSpecialLevel(void);
 int port_getRomhackHideJiggiesLevel(void);

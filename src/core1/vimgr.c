@@ -7,7 +7,6 @@
 #include "libultraship/libultra/rcp.h"
 
 #include "port/DevTools/ThreadWatchdog.h"
-#include "port/Patches/Patches.h"
 #include "port/OS/OS.h"
 
 #define VIMANAGER_THREAD_STACK_SIZE 1024

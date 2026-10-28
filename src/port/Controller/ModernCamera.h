@@ -7,10 +7,7 @@
 extern "C" {
 #endif
 
-int port_modernCamera_handleYaw(void);
 void ModernCamera_Update(void);
-void port_modernCamera_handleZoom(void);
-int port_camera_suppressVanillaZoom(void);
 float ModernCamera_GetInvertXSign(void);
 float ModernCamera_GetInvertYSign(void);
 float ModernCamera_GetFirstPersonInvertXSign(void);

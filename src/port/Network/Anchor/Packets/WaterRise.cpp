@@ -45,32 +45,11 @@ static int32_t lairLevelForFlag(int32_t levelFlag) {
     }
 }
 
-// Called from func_802D6264 (the lair switch/cutscene trigger). If the flag the cutscene will set is
-// a water-level flag, broadcast the rise now.
-extern "C" void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag) {
-    int32_t level = lairLevelForFlag(levelFlag);
-    if (level == 0) {
-        return; // not a water switch (doors, witch switches, etc. use this same trigger)
-    }
-    Anchor::GetInstance()->SendPacket_WaterRise(waterMap, WATERRISE_KIND_LAIR, level, 0, 0.0f);
-}
+// Map the lair water was last leveled for, so re-entry snaps instead of ramping.
+static int32_t sLairWaterMap = -1;
 
-// func_802D5260 asks for the effective target level: max(flag-derived level, pending level from a
-// teammate's in-flight rise). Clears the pending once the real flag catches up.
-extern "C" int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel) {
-    auto it = sLairPendingLevel.find(map);
-    if (it == sLairPendingLevel.end() || !Anchor::GetInstance()->IsWorldSyncActive()) {
-        return flagLevel;
-    }
-    if (flagLevel >= it->second) {
-        sLairPendingLevel.erase(it);
-        return flagLevel;
-    }
-    return it->second;
-}
-
-extern "C" void port_ccWater_broadcastRise(int32_t map, int32_t waterId, int32_t targetDy, f32 duration) {
-    Anchor::GetInstance()->SendPacket_WaterRise(map, WATERRISE_KIND_CC, waterId, targetDy, duration);
+static bool isLairWaterMap(int32_t map) {
+    return map == MAP_76_GL_640_NOTE_DOOR || map == MAP_77_GL_RBB_LOBBY || map == MAP_78_GL_RBB_AND_MMM_PUZZLE;
 }
 
 void Anchor::SendPacket_WaterRise(s32 map, s32 kind, s32 p1, s32 p2, f32 duration) {
@@ -116,6 +95,72 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
 
 void RegisterWaterRise_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sLairPendingLevel.clear(); });
+
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (!isLairWaterMap((int32_t)((OnMapLoad*)event)->nextMap)) {
+            sLairWaterMap = -1;
+        }
+    });
 }
 
 static RegisterShipInitFunc initWaterRise(RegisterWaterRise_Init, {});
+
+static void RegisterWaterRiseSync_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    // Doors and witch switches share this trigger; only water-level flags broadcast.
+    COND_HOOK(OnSwitchCutscene, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnSwitchCutscene*)event;
+        int32_t level = lairLevelForFlag(ev->progressFlag);
+        if (level != 0) {
+            Anchor::GetInstance()->SendPacket_WaterRise(ev->map, WATERRISE_KIND_LAIR, level, 0, 0.0f);
+        }
+    });
+
+    COND_HOOK(OnWaterRise, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnWaterRise*)event;
+        Anchor::GetInstance()->SendPacket_WaterRise(ev->map, WATERRISE_KIND_CC, ev->waterId, ev->targetDy,
+                                                    ev->duration);
+    });
+
+    // Raise to a teammate's in-flight level until the real flag catches up, and ramp toward the target
+    // rather than snapping.
+    COND_VB_SHOULD(VB_LAIR_WATER_HEIGHT, EVENT_PRIORITY_NORMAL, connected, {
+        const s16* heights = va_arg(args, const s16*);
+        f32* height = va_arg(args, f32*);
+        const f32 curY = (f32)va_arg(args, double);
+        const int32_t map = (int32_t)gsworld_getMap();
+
+        if (levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) || !Anchor::GetInstance()->IsWorldSyncActive()) {
+            sLairWaterMap = map;
+            return;
+        }
+
+        const int32_t flagLevel = fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)   ? 3
+                                  : fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2) ? 2
+                                  : fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1) ? 1
+                                                                                         : 0;
+        auto it = sLairPendingLevel.find(map);
+        if (it != sLairPendingLevel.end()) {
+            if (flagLevel >= it->second) {
+                sLairPendingLevel.erase(it);
+            } else {
+                *height = heights[it->second];
+            }
+        }
+
+        if (sLairWaterMap != map) {
+            sLairWaterMap = map;
+            return;
+        }
+        const f32 step = 240.0f * time_getDelta();
+        const f32 diff = *height - curY;
+        if (diff > step) {
+            *height = curY + step;
+        } else if (diff < -step) {
+            *height = curY - step;
+        }
+    });
+}
+
+static RegisterShipInitFunc initWaterRiseSync(RegisterWaterRiseSync_Init, { ANCHOR_CONNECTED_PATH });

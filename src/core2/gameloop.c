@@ -9,7 +9,6 @@ extern void Framebuffer_ReadbackGPU(int bufferIndex);
 
 #include "core2/gc/transition.h"
 #include "bk_time.h"
-#include "port/Patches/Patches.h"
 
 extern void print_updateBoldLetterFontDelayedFreeing(void);
 extern void func_802FA0F8(void);

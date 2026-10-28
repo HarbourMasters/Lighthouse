@@ -28,22 +28,6 @@ void recordStage(int32_t map, int32_t secondaryId, int32_t stage) {
     }
 }
 
-extern "C" int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId) {
-    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return 0;
-    }
-    auto it = sStages.find({ map, secondaryId });
-    return it != sStages.end() ? it->second : 0;
-}
-
-extern "C" void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage) {
-    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return;
-    }
-    recordStage(map, secondaryId, stage);
-    Anchor::GetInstance()->SendPacket_EggToll((s16)secondaryId, stage, map);
-}
-
 void Anchor::SendPacket_EggToll(s16 secondaryId, s32 stage, s32 map) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
@@ -115,3 +99,31 @@ void RegisterEggToll_Init() {
 }
 
 static RegisterShipInitFunc initEggToll(RegisterEggToll_Init, {});
+
+static void RegisterEggTollSync_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_EGG_TOLL_STAGE, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 map = va_arg(args, s32);
+        const s32 secondaryId = va_arg(args, s32);
+        s32* tollNum = va_arg(args, s32*);
+        if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+            return;
+        }
+        auto it = sStages.find({ map, secondaryId });
+        if (it != sStages.end()) {
+            *tollNum = it->second;
+        }
+    });
+
+    COND_HOOK(OnEggTollAdvance, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnEggTollAdvance*)event;
+        if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+            return;
+        }
+        recordStage(ev->map, ev->secondaryId, ev->tollNum);
+        Anchor::GetInstance()->SendPacket_EggToll((s16)ev->secondaryId, ev->tollNum, ev->map);
+    });
+}
+
+static RegisterShipInitFunc initEggTollSync(RegisterEggTollSync_Init, { ANCHOR_CONNECTED_PATH });

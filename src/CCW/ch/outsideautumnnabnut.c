@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Patches/Patches.h"
 
 // Anchor: set during a remote completion replay; skips the finisher's camera/dialog.
 static s32 sNabnutRemote = 0;
@@ -144,7 +143,8 @@ void chAutumnOutsideNabnut_update(Actor *this) {
         chAutumnOutdoorNabnutPosition[2] = this->position[2];
         if (this->state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_0_NOT_INIT) {
             this->has_met_before = false;
-            local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+            local->returned_acorn_count = 0;
+            EventSystem_Should(VB_PUZZLE_COUNT, true, ANCHOR_COUNT_CCW_NABNUT_ACORNS, &local->returned_acorn_count);
             sNabnutRemote = 0;
         }
         chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_1_SAD);
@@ -182,8 +182,8 @@ void chAutumnOutsideNabnut_update(Actor *this) {
                 && player_throwCarriedObject())
             {
                 player_setThrowTargetPosition(chAutumnOutdoorNabnutPosition);
-//              local->returned_acorn_count++;
-                local->returned_acorn_count = port_puzzleCount_add(ANCHOR_COUNT_CCW_NABNUT_ACORNS, local->returned_acorn_count, 1);
+                local->returned_acorn_count++;
+                EventSystem_Should(VB_PUZZLE_COUNT_ADD, true, ANCHOR_COUNT_CCW_NABNUT_ACORNS, 1, &local->returned_acorn_count);
                 if (local->returned_acorn_count >= AUTUMN_NABNUT_ACORN_COUNT) {
                     chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_2_WAIT);
                 } else if (item_getCount(ITEM_23_ACORNS) == 1) {
@@ -195,7 +195,8 @@ void chAutumnOutsideNabnut_update(Actor *this) {
             }
         }
         if (this->state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_1_SAD) {
-            s32 sharedReturned = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+            s32 sharedReturned = 0;
+            EventSystem_Should(VB_PUZZLE_COUNT, true, ANCHOR_COUNT_CCW_NABNUT_ACORNS, &sharedReturned);
             if (sharedReturned > local->returned_acorn_count) {
                 local->returned_acorn_count = sharedReturned;
                 if (sharedReturned >= AUTUMN_NABNUT_ACORN_COUNT) {

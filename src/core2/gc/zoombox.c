@@ -7,7 +7,6 @@
 #include "core2/gc/zoombox.h"
 #include "port/Engine.h"
 #include "port/Interpolation/FrameInterpolation.h"
-#include "port/Patches/Patches.h"
 
 #include "bk_time.h"
 

@@ -3,11 +3,10 @@
 #include "core2/core2.h"
 #include <ultra64.h>
 #include "functions.h"
-#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
+#include "port/ShipUtils.h" // BK_LOG_*
 #include "port/Engine.h"
 
 #include <libultra/convert.h>
-#include "port/Patches/Patches.h"
 
 static Gfx *sGfxStack[2] = { NULL, NULL };
 s32 gFramebufferWidth = DEFAULT_FRAMEBUFFER_WIDTH;

@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 Actor *func_80386B80(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void FP_func_80386CF8(Actor *this);
 
@@ -97,13 +95,13 @@ void FP_func_80386CF8(Actor *this){
         s32 y = (s32)this->position[1];
         s32 z = (s32)this->position[2];
 
-        if(this->state == 1 && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)){
+        if(this->state == 1 && EventSystem_Should(VB_PUZZLE_POS_MARKED, false, ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)){
             subaddie_set_state_with_direction(this, 2, 0.01f, 1);
             actor_collisionOff(this);
             maSnowButton_decRemaining();
         }
         if(this->state != 1){
-            port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
+            CALL_EVENT(OnPuzzlePosMark, ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
         }
     }
 

@@ -6,8 +6,6 @@
 
 #include <bk_math.h>
 
-#include "port/Patches/Patches.h"
-
 /* TODO move declarations to respective headers*/
 extern void player_stateTimer_set(enum state_timer_e, f32);
 extern f32 player_stateTimer_get(enum state_timer_e);
@@ -128,7 +126,8 @@ void chMudHut_update(Actor *this){
             this->marker->collidable = false;
             this->initialized = true;
             // Anchor: already smashed this session — restore broken, re-drop non-tracked loot.
-            hut_id = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+            hut_id = -1;
+            EventSystem_Should(VB_HUT_SMASH_LOOT, true, (s32)this->position_x, (s32)this->position_y, (s32)this->position_z, &hut_id);
             if(hut_id >= 0){
                 this->state = 3;
                 this->marker->propPtr->unk8_3 = 0;
@@ -170,10 +169,11 @@ void chMudHut_update(Actor *this){
                     else {
                         jiggy_spawn(JIGGY_23_BGS_HUTS, diffPos);
                     }
-                    port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, hut_id);
+                    CALL_EVENT(OnHutSmash, (s32)this->position_x, (s32)this->position_y, (s32)this->position_z, hut_id);
                 }
                 else {
-                    hut_id = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+                    hut_id = -1;
+                    EventSystem_Should(VB_HUT_SMASH_LOOT, true, (s32)this->position_x, (s32)this->position_y, (s32)this->position_z, &hut_id);
                     if(hut_id >= 0){
                         chMudHut_replaySmash(this, hut_id);
                     }

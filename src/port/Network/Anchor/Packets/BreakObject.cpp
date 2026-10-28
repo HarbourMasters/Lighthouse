@@ -19,13 +19,6 @@
 
 std::set<std::array<int32_t, 5>> sBrokenObjects;
 
-extern "C" int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z) {
-    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
-        return 0;
-    }
-    return sBrokenObjects.count({ map, markerId, x, y, z }) != 0 ? 1 : 0;
-}
-
 std::vector<int32_t> port_breakable_snapshotBroken() {
     std::vector<int32_t> flat;
     flat.reserve(sBrokenObjects.size() * 5);
@@ -85,24 +78,6 @@ void Anchor::HandlePacket_BreakObject(nlohmann::json& payload) {
     }
 }
 
-extern "C" void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z) {
-    s32 map = (s32)gsworld_getMap();
-    if (!Anchor::GetInstance()->IsWorldSyncActive() || sBrokenObjects.count({ map, markerId, x, y, z }) != 0) {
-        return;
-    }
-    sBrokenObjects.insert({ map, markerId, x, y, z });
-    Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map);
-}
-
-extern "C" void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z) {
-    s32 map = (s32)gsworld_getMap();
-    if (!Anchor::GetInstance()->IsWorldSyncActive() || sBrokenObjects.count({ map, markerId, x, y, z }) != 0) {
-        return;
-    }
-    sBrokenObjects.insert({ map, markerId, x, y, z });
-    Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map, false);
-}
-
 extern "C" void port_breakable_despawnBrokenRestores(s32 map);
 
 void RegisterBreakObject_Init() {
@@ -118,3 +93,31 @@ void RegisterBreakObject_Init() {
 }
 
 static RegisterShipInitFunc initBreakObject(RegisterBreakObject_Init, {});
+
+static void RegisterBreakObjectSync_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_BREAKABLE_BROKEN, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 map = va_arg(args, s32);
+        const s32 markerId = va_arg(args, s32);
+        const s32 x = va_arg(args, s32);
+        const s32 y = va_arg(args, s32);
+        const s32 z = va_arg(args, s32);
+        if (Anchor::GetInstance()->IsWorldSyncActive() && sBrokenObjects.count({ map, markerId, x, y, z }) != 0) {
+            *should = true;
+        }
+    });
+
+    COND_HOOK(OnBreakableBroken, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (OnBreakableBroken*)event;
+        s32 map = (s32)gsworld_getMap();
+        if (!Anchor::GetInstance()->IsWorldSyncActive() ||
+            sBrokenObjects.count({ map, ev->markerId, ev->x, ev->y, ev->z }) != 0) {
+            return;
+        }
+        sBrokenObjects.insert({ map, ev->markerId, ev->x, ev->y, ev->z });
+        Anchor::GetInstance()->SendPacket_BreakObject((s16)ev->markerId, ev->x, ev->y, ev->z, map, ev->replay);
+    });
+}
+
+static RegisterShipInitFunc initBreakObjectSync(RegisterBreakObjectSync_Init, { ANCHOR_CONNECTED_PATH });

@@ -2,11 +2,9 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Retention/Retention.h"
 
 extern ActorMarker *bacarry_getMarkerWithExtraSteps(void);
 extern s32 port_remoteCarry_displayUpdate(Actor *this);
-extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
 typedef struct {
     f32 position[3];
@@ -94,10 +92,8 @@ void chCarriedAcorn_update(Actor *this) {
         if (player_is_carrying_acorn) {
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_2_HOLDING);
         } else {
-            s32 acornSuppress;
-            port_carriedSync_register(ANCHOR_COLLECTIBLE_ACORN, this->marker, (s32)this->position[0],
-                                      (s32)this->position[1], (s32)this->position[2], &acornSuppress);
-            if (acornSuppress) {
+            CALL_EVENT(OnCarriedObjectSpawn, this->marker, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2]);
+            if (!EventSystem_Should(VB_CARRIED_OBJECT_SPAWN, true, this->marker)) {
                 chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_5_DESPAWN);
                 return;
             }
@@ -106,7 +102,7 @@ void chCarriedAcorn_update(Actor *this) {
     }
 
     if (this->state == CH_CARRIED_ACORN_STATE_1_PULL_OUT) {
-        if (port_carriedSync_consumeRemoteDespawn(ANCHOR_COLLECTIBLE_ACORN, this->marker)) {
+        if (EventSystem_Should(VB_CARRIED_OBJECT_REMOTE_DESPAWN, false, this->marker)) {
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_5_DESPAWN);
             return;
         }
@@ -114,7 +110,7 @@ void chCarriedAcorn_update(Actor *this) {
         if (ml_vec3f_distance(this->position, player_position) < 50.0f) {
             bacarriedobj_incWithExtraSteps(ACTOR_2A9_ACORN);
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 500, 2500);
-            port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_ACORN, this->marker);
+            CALL_EVENT(OnCarriedObjectCollected, this->marker);
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_5_DESPAWN);
         }
     }
@@ -122,9 +118,9 @@ void chCarriedAcorn_update(Actor *this) {
         if (this->unk138_21) {
             f32 throwTarget[3];
             chAutumnOutsideNabnut_getPosition(throwTarget);
-            port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
+            CALL_EVENT(OnCarryThrow, this->marker->id, this->position, throwTarget);
             bacarriedobj_decWithExtraSteps(ACTOR_2A9_ACORN);
-            port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_ACORN);
+            CALL_EVENT(OnCarriedObjectSpent, this->marker);
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_3_TOSS);
         } else if (!player_is_carrying_acorn) {
             bacarriedobj_displayOnHudWithExtraSteps(ACTOR_2A9_ACORN);

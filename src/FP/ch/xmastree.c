@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 Actor *chXmasTree_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chXmasTree_update(Actor *this);
 
@@ -113,7 +111,7 @@ void chXmasTree_update(Actor *this){
 
     // Anchor: teammate finished the star minigame — light the tree locally and stop our countdown if running.
     if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)
-        && (port_puzzleStep_getForMap(MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
+        && EventSystem_Should(VB_PUZZLE_STEP_SET_ON_MAP, false, MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE, 0x1)) {
         levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
         if (this->state == 4) {
             item_set(ITEM_6_HOURGLASS, false);

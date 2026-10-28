@@ -4,7 +4,6 @@
 #include "variables.h"
 
 #include "core2/snackerctl.h"
-#include "port/Patches/Patches.h"
 
 
 extern void func_8028F918(s32);

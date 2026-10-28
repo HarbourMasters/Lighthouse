@@ -7,7 +7,6 @@
 #include <ultra64.h>
 
 #include <libultra/exception.h>
-#include "port/Patches/Patches.h"
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 

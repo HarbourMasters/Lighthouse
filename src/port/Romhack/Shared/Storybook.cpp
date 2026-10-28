@@ -15,6 +15,7 @@ extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
 extern struct CachedInputs sCachedInputs[MAXCONTROLLERS];
 extern f32 D_8037C5B0[3];
 extern f32 sPlayerPosition[3];
+void Storybook_ResumeWarp(NodeProp* node, ActorMarker* marker);
 }
 
 namespace {
@@ -104,6 +105,11 @@ void ApplyStorybookIntroHooks() {
         *should = !seen;
     });
 
+    COND_VB_SHOULD(VB_GAMESELECT_RESUME_WARP, EVENT_PRIORITY_NORMAL, sStorybookEnabled, {
+        GenFunction_2* warp = va_arg(args, GenFunction_2*);
+        *warp = (GenFunction_2)Storybook_ResumeWarp;
+    });
+
     // Storybook mode freezes all input except the left stick's right movement
     COND_HOOK(OnControllerUpdate, EVENT_PRIORITY_NORMAL, sStorybookEnabled, [](IEvent*) { StorybookInputCapture(); });
 
@@ -118,10 +124,6 @@ void ApplyStorybookIntroHooks() {
 extern "C" void Storybook_ResumeWarp(NodeProp* node, ActorMarker* marker) {
     (void)marker;
     func_8031CC8C(node, sResumeDest);
-}
-
-extern "C" void* port_getRomhackResumeWarpFunc(void) {
-    return sStorybookEnabled ? (void*)&Storybook_ResumeWarp : nullptr;
 }
 
 void Storybook_Enable(const StorybookConfig& cfg) {

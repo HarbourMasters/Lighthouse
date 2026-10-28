@@ -7,6 +7,7 @@
 #include "port/Engine.h"
 #include "port/UI/Notification.h"
 #include "port/Patches/Patches.h"
+#include "port/ShipInit.hpp"
 #include <cstring>
 #include <unordered_set>
 
@@ -21,10 +22,6 @@ void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
-}
-
-extern "C" void port_fpTwinkly_release(void) {
-    NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
 }
 
 s32 Anchor_LevelOfMap(s32 map);
@@ -234,6 +231,20 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)getDefaultBootMap(), gsworld_getExit());
     });
 
+    COND_HOOK(OnActorArrayFree, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        port_remoteCarry_reset();
+        for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
+            if (client.dummy != nullptr) {
+                client.dummy->dummy_detachActor();
+            }
+        }
+    });
+
+    COND_HOOK(OnCarryThrow, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = (OnCarryThrow*)event;
+        Anchor::GetInstance()->SendPacket_CarryThrow(ev->markerId, ev->start, ev->target);
+    });
+
     COND_HOOK(OnGameStart, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         anchor->hasCheckedRandoCompat = false;
@@ -358,6 +369,9 @@ void Anchor::RegisterHooks() {
         }
     });
 
+    COND_HOOK(OnTwinklyMinigameEnd, EVENT_PRIORITY_NORMAL, isConnected,
+              [](IEvent* event) { NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY); });
+
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, isConnected, {
         if (Anchor_WorldSyncActive()) {
             s32 doorId = va_arg(args, s32);
@@ -377,11 +391,29 @@ void Anchor::RegisterHooks() {
                 case MMM_DOOR_CAM_CHURCH:
                     *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
                     break;
+                case LAIR_DOOR_CAM_BGS_GRATE:
+                    *should = !port_mapFlag_wasSetRemotely(0);
+                    break;
+                case LAIR_DOOR_CAM_CC_PIPE:
+                    *should = !port_mapFlag_wasSetRemotely(1);
+                    break;
+                case LAIR_DOOR_CAM_CC_PIPE_3:
+                    *should = !port_mapFlag_wasSetRemotely(2);
+                    break;
                 default:
                     break;
             }
         }
     });
+
+    COND_VB_SHOULD(VB_LAIR_GRATE_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected,
+                   { *should = !port_mapFlag_wasSetRemotely(0); });
+
+    COND_VB_SHOULD(VB_BGS_TANKTUP_CATCH_UP, EVENT_PRIORITY_NORMAL, isConnected,
+                   { *should = Anchor_WorldSyncActive(); });
+    COND_VB_SHOULD(VB_GV_ANCIENT_ONES_CATCH_UP, EVENT_PRIORITY_NORMAL, isConnected,
+                   { *should = Anchor_WorldSyncActive(); });
+    COND_VB_SHOULD(VB_MM_JUJU_CATCH_UP, EVENT_PRIORITY_NORMAL, isConnected, { *should = Anchor_WorldSyncActive(); });
 
     COND_VB_SHOULD(VB_VILE_YUMBLIE_EMERGE, EVENT_PRIORITY_NORMAL, true, {
         if (Anchor_IsVileFollower()) {
@@ -598,4 +630,6 @@ void Anchor::RegisterHooks() {
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
 
     // #endregion
+
+    ShipInit::Init(ANCHOR_CONNECTED_PATH);
 }

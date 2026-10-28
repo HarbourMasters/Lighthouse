@@ -7,7 +7,6 @@
 #include "actor.h"
 
 #include <core2/file.h>
-#include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);

@@ -5,7 +5,6 @@
 
 extern void actor_postdrawMethod(ActorMarker *);
 extern void chBottlesBonus_func_802DD080(Gfx **, Mtx **);
-#include "port/Patches/Patches.h"
 
 Actor *chMumbosHandWithPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chMumbosHandWithPicture_update(Actor *this);

@@ -7,6 +7,8 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
 #include "port/Enhancements/Camera/CameraShared.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
 
 namespace {
 using namespace PortCamera;
@@ -99,7 +101,7 @@ extern "C" int FreeLookCamera_IsEnabled(void) {
     return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0;
 }
 
-extern "C" int port_freeLook_handle(void) {
+static int HandleRotateInput(void) {
     if (!FreeLookCamera_IsEnabled()) {
         if (sActive) {
             ExitOrbit();
@@ -178,3 +180,16 @@ extern "C" void FreeLookCamera_Update(void) {
     func_802BE6FC(rot, focus);
     ncDynamicCamera_setRotation(rot);
 }
+
+void RegisterFreeLookCamera_Init() {
+    // Owning the frame (entering or held) consumes it so the follow camera isn't reset; a C-button
+    // camera control hands it back so the vanilla swivel/zoom runs. The ba camera mode is left
+    // untouched so we keep coming back through this handler.
+    COND_VB_SHOULD(VB_CAMERA_ROTATE_INPUT, EVENT_PRIORITY_HIGH, true, {
+        if (HandleRotateInput()) {
+            *should = false;
+        }
+    });
+}
+
+static RegisterShipInitFunc initFreeLookCamera(RegisterFreeLookCamera_Init, {});

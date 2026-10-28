@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 /* extern functions */
 void chAttackTutorial_onTutorialSkipped(void);
 Actor *func_802D94B4(ActorMarker *, Gfx **, Mtx **, Vtx **);
@@ -665,7 +663,7 @@ void chSmBottles_update(Actor *this) {
                     }
                     // Record the answer team-wide the moment it lands, so a second pending
                     // offer folds even before any move is learned.
-                    port_puzzleStep_orBits(ANCHOR_PUZZLE_SM_TUTORIAL, 1);
+                    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_SM_TUTORIAL, 1);
                     fileProgressFlag_set(FILEPROG_DB_SKIPPED_TUTORIAL, bakey_pressed ? 0 : 1);
                     gcdialog_showDialog(bakey_pressed ? ASSET_E07_DIALOG_BOTTLES_UNKNOWN : ASSET_E09_DIALOG_BOTTLES_SKIPPED_TUTORIAL, 0xe, this->position, this->marker, __chSmBottles_textCallback,__chSmBottles_textActions);
 

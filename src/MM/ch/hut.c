@@ -8,8 +8,6 @@
 
 #include <bk_math.h>
 
-#include "port/Patches/Patches.h"
-
 /* extern function declarations */
 
 void bundle_setYaw(f32);
@@ -101,7 +99,8 @@ void chhut_update(Actor *this) {
     if (!this->initialized) {
         this->marker->collidable = false;
         this->initialized = true;
-        loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+        loot = -1;
+        EventSystem_Should(VB_HUT_SMASH_LOOT, true, (s32)this->position_x, (s32)this->position_y, (s32)this->position_z, &loot);
         if (loot >= 0) {
             chhut_dropRecordedBundle(this, loot, 0);
             if (EventSystem_Should(VB_MM_HUT_DESPAWN_ON_SMASH, false, this)) {
@@ -140,7 +139,8 @@ void chhut_update(Actor *this) {
                 bundle_setYaw(this->yaw);
 
 //              if (mmhut_smashCount < 5) {
-                smashIndex = port_hutSmash_countForCurrentLevel(mm_hut_smash_count);
+                smashIndex = mm_hut_smash_count;
+                EventSystem_Should(VB_HUT_SMASH_INDEX, true, &smashIndex);
                 if (smashIndex < 5) {
                     __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
@@ -149,10 +149,11 @@ void chhut_update(Actor *this) {
                 }
 
                 mm_hut_smash_count = (mm_hut_smash_count + 1) % 6;
-                port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
+                CALL_EVENT(OnHutSmash, (s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
             }
             else {
-                loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+                loot = -1;
+                EventSystem_Should(VB_HUT_SMASH_LOOT, true, (s32)this->position_x, (s32)this->position_y, (s32)this->position_z, &loot);
                 if (loot >= 0) {
                     chhut_replaySmash(this, loot);
                 }

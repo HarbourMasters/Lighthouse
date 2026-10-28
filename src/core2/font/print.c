@@ -4,7 +4,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
 #include "port/Interpolation/FrameInterpolation.h"
 

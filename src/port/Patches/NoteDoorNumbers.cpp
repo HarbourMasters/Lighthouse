@@ -179,6 +179,15 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
 }
 
 void ApplyNoteDoorNumbers() {
+    COND_VB_SHOULD(VB_NOTE_DOOR_COST, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+        const s32 doorIdx = va_arg(args, s32);
+        s32* cost = va_arg(args, s32*);
+        const int override = port_getRomhackNoteDoor(doorIdx);
+        if (override >= 0) {
+            *cost = override;
+        }
+    });
+
     // Hide the baked number mesh on doors the hack retunes
     COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack() && !sComposeNoteDoors, {
         const s32 noteDoorIdx = va_arg(args, s32);

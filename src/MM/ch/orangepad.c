@@ -9,9 +9,6 @@
 #include "conga.h"
 #include "orangepad.h"
 
-extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
-extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
-
 void chOrangePad_update(Actor *);
 
 ActorInfo chOrangePadInfo = {
@@ -46,7 +43,7 @@ void handleOrangeCollision(ActorMarker *marker) {
     }
 
     closest_orange_pad->state = ORANGE_PAD_STATE_HIT;
-    port_breakable_recordBreak((s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2]);
+    CALL_EVENT(OnBreakableBroken, (s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2], false);
 
     if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, ORANGE_PAD_STATE_HIT, &distance_to_orange_pad)) {
         // There are still other pads on the ground, play progress ding
@@ -109,7 +106,7 @@ void chOrangePad_update(Actor *this) {
 
     // Anchor: a teammate already broke this pad — adopt the hit state.
     if (this->state != ORANGE_PAD_STATE_HIT
-        && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+        && EventSystem_Should(VB_BREAKABLE_BROKEN, false, (s32)gsworld_getMap(), (s32)this->marker->id,
                                    (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {
         this->state = ORANGE_PAD_STATE_HIT;
     }

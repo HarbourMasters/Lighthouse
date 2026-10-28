@@ -3,9 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
-extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
-
 typedef struct {
     u8 *unk0;
     f32 unk4;
@@ -75,8 +72,8 @@ void chCCGrate_die(ActorMarker *marker, ActorMarker *other_marker){
 
     if(actor->state == CC_GRATES_STATE_1_IDLE){
         chCCGrate_setNextState(actor, *local->unk0);
-    port_breakable_recordBreak((s32)actor->marker->id, (s32)actor->position[0],
-                                   (s32)actor->position[1], (s32)actor->position[2]);
+    CALL_EVENT(OnBreakableBroken, (s32)actor->marker->id, (s32)actor->position[0],
+                                   (s32)actor->position[1], (s32)actor->position[2], false);
     }
 }
 
@@ -94,7 +91,7 @@ void chCCGrate_update(Actor * this){
         if(this->modelCacheIndex == 0x28E && jiggyscore_isSpawned(JIGGY_18_CC_BOLT)){
             marker_despawn(this->marker);
         }
-        else if(port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+        else if(EventSystem_Should(VB_BREAKABLE_BROKEN, false, (s32)gsworld_getMap(), (s32)this->marker->id,
         (s32)this->position[0], (s32)this->position[1],
         (s32)this->position[2])){
             marker_despawn(this->marker);
@@ -103,7 +100,7 @@ void chCCGrate_update(Actor * this){
     }//L803899D4
 
     if(this->state == CC_GRATES_STATE_1_IDLE){
-        if(local->unk8|| port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+        if(local->unk8|| EventSystem_Should(VB_BREAKABLE_BROKEN, false, (s32)gsworld_getMap(), (s32)this->marker->id,
         (s32)this->position[0], (s32)this->position[1],
         (s32)this->position[2])){
             chCCGrate_setNextState(this, *local->unk0);

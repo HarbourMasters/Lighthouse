@@ -9,7 +9,6 @@
 #include "libultraship/libultra/gbi.h"
 #include "bk_math.h"
 
-#include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/Patches/GeoCull.h"
 

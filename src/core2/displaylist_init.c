@@ -7,7 +7,6 @@
 
 #include <libultra/convert.h>
 #include "port/Engine.h"
-#include "port/Patches/Patches.h"
 
 Gfx D_8036C630[] =
 {

@@ -155,26 +155,6 @@ extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit,
     }
 }
 
-// Called from the actual pickup (__chJinjo_802CDBA8), not broad-phase collision.
-extern "C" void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId) {
-    if (!systemActive()) {
-        return;
-    }
-    u8 bit = jinjoBitFromMarker(markerId);
-    if (bit == 0) {
-        return;
-    }
-    int32_t level = level_get();
-    JinjoRetentionSaveData* s = store();
-    bool wasSet = (s != nullptr) && levelInRange(level) && ((s->collected[level] & bit) != 0);
-    if (s != nullptr && levelInRange(level)) {
-        s->collected[level] |= bit;
-    }
-    if (!wasSet) {
-        CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_JINJO, bit);
-    }
-}
-
 // False when retention is off, or when the jiggy is stranded (all 5 recorded but not
 // collected/spawned).
 static bool retentionActiveForLevel(int32_t level) {
@@ -267,3 +247,26 @@ void RegisterJinjoRetention_Init() {
 }
 
 static RegisterShipInitFunc initJinjoRetention(RegisterJinjoRetention_Init, { CVAR_JINJO_RETENTION });
+
+static void RegisterJinjoRetentionSaving_Init() {
+    COND_HOOK(OnJinjoCollected, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (!systemActive()) {
+            return;
+        }
+        u8 bit = jinjoBitFromMarker(((OnJinjoCollected*)event)->marker->id);
+        if (bit == 0) {
+            return;
+        }
+        int32_t level = level_get();
+        JinjoRetentionSaveData* s = store();
+        bool wasSet = (s != nullptr) && levelInRange(level) && ((s->collected[level] & bit) != 0);
+        if (s != nullptr && levelInRange(level)) {
+            s->collected[level] |= bit;
+        }
+        if (!wasSet) {
+            CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_JINJO, bit);
+        }
+    });
+}
+
+static RegisterShipInitFunc initJinjoRetentionSaving(RegisterJinjoRetentionSaving_Init);

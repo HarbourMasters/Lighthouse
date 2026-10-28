@@ -5,8 +5,7 @@
 #include "string.h"
 #include "math.h"
 
-#include "port/UI/cvar_prefixes.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -311,29 +310,6 @@ void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
 void item_setEx(s32 item, s32 val, s32 triggerEvent);
-
-// --- core2/game_complete.c ---
-enum AnchorFlagSpace {
-    ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
-    ANCHOR_FLAGSPACE_VOLATILE = 1,
-    ANCHOR_FLAGSPACE_LEVEL_SPECIFIC = 2,
-    ANCHOR_FLAGSPACE_MAP_SPECIFIC = 3,
-    ANCHOR_FLAGSPACE_RANDO_INF = 4,
-};
-enum AnchorCollectibleSpace {
-    ANCHOR_COLLECTIBLE_JIGGY = 0,
-    ANCHOR_COLLECTIBLE_HONEYCOMB = 1,
-    ANCHOR_COLLECTIBLE_MUMBO = 2,
-    ANCHOR_COLLECTIBLE_NOTE = 3,
-    ANCHOR_COLLECTIBLE_JINJO = 4,
-    ANCHOR_COLLECTIBLE_WORM = 5,
-    ANCHOR_COLLECTIBLE_ACORN = 6,
-    ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,
-    ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8,
-    ANCHOR_COLLECTIBLE_PRESENT_RED = 9,
-    ANCHOR_COLLECTIBLE_GOLD = 10,
-    ANCHOR_COLLECTIBLE_ORANGE = 11,
-};
 
 // --- core2/flags_bitfield.c ---
 void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
@@ -1034,8 +1010,6 @@ void func_803268B4(void);
 void func_80326C24(s32 arg0);
 void func_803283BC(void);
 void func_803283D4(void);
-void port_actorDespawn_beginDefer(void);
-void port_actorDespawn_endDefer(void);
 void func_80328CA8(Actor *self, s32 angle);
 void func_803297FC(Actor *arg0, f32 *o1, f32 *o2);
 s32 func_80329904(ActorMarker *arg0, s32 arg1, f32 *arg2);

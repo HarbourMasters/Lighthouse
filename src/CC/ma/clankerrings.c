@@ -4,8 +4,6 @@
 #include "variables.h"
 #include "../CC.h"
 
-extern void port_ccWater_broadcastRise(int32_t map, int32_t waterId, int32_t targetDy, f32 duration);
-
 /* .data */
 f32 maClankerRingsJiggyPosition[3] = {0.0f, 1300.0f, -2800.0f};
 
@@ -109,7 +107,7 @@ void maClankerRings_update(void){
             if(tmp_v0){
                 func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f); // [port] cast matches decomp behavior
             }
-            port_ccWater_broadcastRise(MAP_22_CC_INSIDE_CLANKER, 0x131, 0x190, 12.0f);
+            CALL_EVENT(OnWaterRise, MAP_22_CC_INSIDE_CLANKER, 0x131, 0x190, 12.0f);
             maClankerRings.timer1 = 0.0f;
         }//L80388264
         if(!(maClankerRings.currentActiveRing < 2) && maClankerRings.isMinigameActive != 0){

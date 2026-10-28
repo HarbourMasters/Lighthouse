@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 static void __chNipper_updateFunc(Actor *this);
 static Actor *__chNipper_animFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
@@ -19,7 +17,9 @@ enum ch_nipper_states_e {
 };
 
 static s32 __chNipper_sharedHits(void) {
-    s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
+    s32 bits = 0;
+    EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_TTC_NIPPER, &bits);
+    bits &= 0x7;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
 }
 
@@ -157,7 +157,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     func_8032B4DC(this, other_marker, 7);
 
     if (this->lifetime_value == 40.0f) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x7);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x7);
         subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
         actor_playAnimationOnce(this);
         for(i = 0; i < 3; i++){
@@ -171,13 +171,13 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     }
 
     if (this->lifetime_value == 80.0f) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x3);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x3);
         __chNipper_playDeathAnimation(this);
         this->lifetime_value = 40.0f;
         return;
     }
 
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x1);
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x1);
     __chNipper_playDeathAnimation(this);
     this->lifetime_value = 80.0f;
     gcdialog_showDialog(VER_SELECT(ASSET_A10_DIALOG_NIPPER_HURT, 0x910, 0, 0), 4, NULL, NULL, NULL, NULL);

@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
-#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
 #include "variables.h"
 #include "core1/joy.h"
 
@@ -11,7 +10,6 @@
 
 #include "port/DevTools/ThreadWatchdog.h"
 #include "port/OS/OS.h"
-#include "port/Patches/Patches.h"
 
 #define JOY_THREAD_STACK_SIZE 0x200
 
@@ -216,12 +214,7 @@ void joy_update(void)
     // below rewrites this buffer in place.
     osContGetReadData(sInputs);
 
-    // [port] Control-scheme input shaping: right stick -> C-button conversion,
-    // Free Look right-stick handling, and the Modern-scheme Talon Trot combo.
-    // Implemented in Enhancements/ControlSchemes.cpp.
-    port_shapeControllerInput(&sInputs[0]);
-
-    if (MirrorPatches_IsActive()) sInputs[0].stick_x = -sInputs[0].stick_x;
+    CALL_EVENT(OnControllerRead, &sInputs[0]);
 
     sInputsPrimary.stick_x = sInputs[0].stick_x;
     sInputsPrimary.stick_y = sInputs[0].stick_y;

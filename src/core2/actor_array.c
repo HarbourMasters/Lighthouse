@@ -3,12 +3,9 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Patches/Patches.h"
 #include "actor.h"
 
 #include "prop.h"
-#include "port/Enhancements/Retention/Retention.h"
-#include "port/Patches/Patches.h"
 
 extern bool D_80370990;
 extern f32 GameEngine_GetAspectRatio(void);
@@ -443,11 +440,7 @@ void func_80325FE8(Actor *this) {
 void actorArray_free(void) {
     Actor *var_s0;
 
-    // [port] Note retention: every note actor is about to be freed, so drop our
-    // live-actor tracking (markers are being released here).
-    port_noteRetention_onActorsFreed();
-    port_remoteCarry_reset();
-    port_anchorDummies_onActorsFreed();
+    CALL_EVENT(OnActorArrayFree);
 
     if (suBaddieActorArray != NULL) {
         for(var_s0 = suBaddieActorArray->data; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){

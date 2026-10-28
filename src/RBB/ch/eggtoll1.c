@@ -6,8 +6,6 @@
 extern void timed_exitStaticCamera(f32);
 
 // Anchor: toll extension stage is actor-local (unk8), no flag; keyed by secondaryId.
-extern void port_eggToll_onAdvance(s32 map, s32 secondaryId, s32 stage);
-extern s32 port_eggToll_getStage(s32 map, s32 secondaryId);
 extern ActorArray *suBaddieActorArray;
 
 /* typedefs and declarations */
@@ -132,7 +130,7 @@ void chRBBEggToll_setState(Actor *this, s32 next_state){
     }
     if(next_state == CH_RBB_EGG_TOLL_STATE_3_TOLL_COMPLETE){
         local->tollNum++;
-        port_eggToll_onAdvance((s32)gsworld_getMap(), this->secondaryId, local->tollNum);
+        CALL_EVENT(OnEggTollAdvance, (s32)gsworld_getMap(), this->secondaryId, local->tollNum);
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         func_80324E38(0.0f, 3);
         timedFunc_set_2(0.5f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
@@ -179,7 +177,7 @@ void chRBBEggToll_update(Actor *this){
             local->tollId = (this->secondaryId == 0x13)? 1: local->tollId;
             local->tollId = (this->secondaryId == 0x14)? 2: local->tollId;
             local->tollId = (this->secondaryId == 0x0B)? 3: local->tollId;
-            local->tollNum = port_eggToll_getStage((s32)gsworld_getMap(), this->secondaryId);
+            EventSystem_Should(VB_EGG_TOLL_STAGE, true, (s32)gsworld_getMap(), this->secondaryId, &local->tollNum);
             local->eggsPaid = eggToll_countForStage(local->tollId, local->tollNum);
             chRBBEggToll_setState(this, CH_RBB_EGG_TOLL_STATE_1_AWAITING_TOLL);
         }

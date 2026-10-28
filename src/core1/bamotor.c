@@ -7,7 +7,6 @@
 #include "version.h"
 #include "port/DevTools/ThreadWatchdog.h"
 #include "port/OS/OS.h"
-#include "port/Patches/Patches.h"
 
 #define BAMOTOR_THREAD_STACK_SIZE 0x200
 

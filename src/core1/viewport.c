@@ -8,7 +8,6 @@
 #include <libultra/convert.h>
 #include <libultra/gu.h>
 
-#include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
 #define VIEWPORT_FOVY_DEFAULT (40.0f)

@@ -5,6 +5,7 @@
 DEFINE_EVENT(SetAnimSpeedMult, int32_t* mult; int32_t id;)
 DEFINE_EVENT(OnActorUpdate, Actor* actor;)
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
+DEFINE_EVENT(OnActorArrayFree)
 DEFINE_EVENT(OnPlayerDeath)
 DEFINE_EVENT(OnGameFileErase, int32_t gamenum;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
@@ -14,10 +15,16 @@ DEFINE_EVENT(OnGameErase, int32_t gameNum;)
 DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int32_t length;)
 // count is the resulting absolute value.
 DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
+DEFINE_EVENT(OnItemAdjust, int32_t item; int32_t * diff;)
 // kind = AnchorCollectibleSpace.
 DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
 // prop = Prop*, an egg, feather or extra life picked up.
 DEFINE_EVENT(OnConsumableCollected, void* prop;)
+DEFINE_EVENT(OnNoteCollected, ActorMarker* marker;)
+DEFINE_EVENT(OnJinjoCollected, ActorMarker* marker;)
+DEFINE_EVENT(OnCarriedObjectSpawn, ActorMarker* marker; s32 x; s32 y; s32 z;)
+DEFINE_EVENT(OnCarriedObjectCollected, ActorMarker* marker;)
+DEFINE_EVENT(OnCarriedObjectSpent, ActorMarker* marker;)
 // A carried actor leaving the player's hands; markerId = marker_e, start/target are f32[3].
 DEFINE_EVENT(OnCarryThrow, int32_t markerId; float* start; float* target;)
 // move = ability_e; value = 1 learned, 0 cleared.
@@ -39,7 +46,7 @@ typedef enum WarpId {
     WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL = 3,
 } WarpId;
 
-DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;)
+DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t * dest;)
 DEFINE_EVENT(OnNewGame, int32_t* skipIntro;)
 // The file-select commit, for both new game and continue. Unlike OnGameLoad this
 // does not fire for the zoombox preview.

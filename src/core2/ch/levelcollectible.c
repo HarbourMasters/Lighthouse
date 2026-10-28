@@ -2,25 +2,12 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Retention/Retention.h"
 
 extern void func_8028F7D4(f32, f32);
 void chLevelCollectible_update(Actor *this);
 extern ActorMarker *bacarry_getMarkerWithExtraSteps(void);
 
-static s32 levelCollectible_syncKind(s32 markerId) {
-    switch (markerId) {
-        case MARKER_36_ORANGE_COLLECTIBLE:         return ANCHOR_COLLECTIBLE_ORANGE;
-        case MARKER_37_GOLD_BULLION:               return ANCHOR_COLLECTIBLE_GOLD;
-        case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:  return ANCHOR_COLLECTIBLE_PRESENT_BLUE;
-        case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE: return ANCHOR_COLLECTIBLE_PRESENT_GREEN;
-        case MARKER_1FF_RED_PRESENT_COLLECTIBLE:   return ANCHOR_COLLECTIBLE_PRESENT_RED;
-        default:                                   return -1;
-    }
-}
-
 extern s32 CarryThrow_GetDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
-extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
 void __chLevelCollectible_presentReturnEmitSparkles(f32 position[3], enum asset_e sprite_id);
 
@@ -427,12 +414,7 @@ void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker
             timedFunc_set_1(0.5f, (GenFunction_1)__chLevelCollectible_callDialog, dialog_id);
         }
         bacarriedobj_incWithExtraSteps(this->modelCacheIndex);
-        {
-            s32 kind = levelCollectible_syncKind(marker->id);
-            if (kind >= 0) {
-                port_carriedSync_onLocalCollect(kind, marker);
-            }
-        }
+        CALL_EVENT(OnCarriedObjectCollected, marker);
         marker_despawn(marker);
     }
 }
@@ -456,12 +438,7 @@ void func_802D7DE8(ActorMarker *marker, f32 arg1[3]) {
         }
     }
     bacarriedobj_decWithExtraSteps(this->modelCacheIndex);
-    {
-        s32 kind = levelCollectible_syncKind(marker->id);
-        if (kind >= 0) {
-            port_carriedSync_onLocalSpend(kind);
-        }
-    }
+    CALL_EVENT(OnCarriedObjectSpent, marker);
     subaddie_set_state(this, 4);
     var_f12 = this->position[1];
     var_f14 = 28.0f;
@@ -574,7 +551,7 @@ void func_802D8374(Actor *this){
         if(this->unk138_21){
             func_8028EF28(sp20);
             // [port] Anchor: replay this throw on teammates; sent before func_802D7DE8 moves the actor.
-            port_anchor_onCarryThrow(this->marker->id, this->position, sp20);
+            CALL_EVENT(OnCarryThrow, this->marker->id, this->position, sp20);
             func_802D7DE8(this->marker, sp20);
         }
     }
@@ -626,25 +603,17 @@ void chLevelCollectible_update(Actor *this){
             func_8028F7D4(0.0f, 0.0f);
             subaddie_set_state(this, 3);
         } else {
-            s32 kind = levelCollectible_syncKind(this->marker->id);
-            if (kind >= 0) {
-                s32 suppress;
-                port_carriedSync_register(kind, this->marker, (s32)this->position[0],
-                                          (s32)this->position[1], (s32)this->position[2], &suppress);
-                if (suppress) {
-                    marker_despawn(this->marker);
-                    return;
-                }
+            CALL_EVENT(OnCarriedObjectSpawn, this->marker, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2]);
+            if (!EventSystem_Should(VB_CARRIED_OBJECT_SPAWN, true, this->marker)) {
+                marker_despawn(this->marker);
+                return;
             }
         }
     }//L802D85DC
 
-    if (!this->unk138_22) {
-        s32 kind = levelCollectible_syncKind(this->marker->id);
-        if (kind >= 0 && port_carriedSync_consumeRemoteDespawn(kind, this->marker)) {
-            marker_despawn(this->marker);
-            return;
-        }
+    if (!this->unk138_22 && EventSystem_Should(VB_CARRIED_OBJECT_REMOTE_DESPAWN, false, this->marker)) {
+        marker_despawn(this->marker);
+        return;
     }
 
     switch(this->state){

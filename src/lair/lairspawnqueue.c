@@ -4,8 +4,6 @@
 #include "variables.h"
 #include "prop.h"
 #include "actor.h"
-#include "port/Romhack/RomhackConfig.h"
-#include "port/Patches/Patches.h"
 
 extern void func_8028F918(s32);
 extern void func_802D2FB0(Actor *, s32, s32, s32, f32, s32, s32, s32);
@@ -941,7 +939,7 @@ void func_803875F0(Actor * this)
         // [port] Anchor: a teammate's press delivers map flag 0 and FILEPROG_1E in the same
         // packet drain; while we're here to watch, the rise wins over the despawn.
 //      if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN))
-        if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN) && !port_mapFlag_wasSetRemotely(0))
+        if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN) && EventSystem_Should(VB_LAIR_GRATE_DESPAWN, true))
         {
             marker_despawn(this->marker);
             return;
@@ -951,7 +949,7 @@ void func_803875F0(Actor * this)
         {
             this->unk1C_y = this->position_y;
             // A remote press shouldn't steal our camera.
-            if (!port_mapFlag_wasSetRemotely(0)) {
+            if (EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, LAIR_DOOR_CAM_BGS_GRATE)) {
                 gcStaticCamera_activate(0x2A);
             }
             fileProgressFlag_set(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN, true);
@@ -1033,7 +1031,8 @@ void func_80387730(Actor *this) {
             code_73640_printItemCount(0xC);
         }
         doorIdx = this->actorTypeSpecificField - 1;
-        noteThreshold = NoteDoorNumbers_GetCost(doorIdx);
+        noteThreshold = D_8039347C[doorIdx];
+        EventSystem_Should(VB_NOTE_DOOR_COST, true, doorIdx, &noteThreshold);
         if (forceOpen || itemscore_noteScores_getTotal() >= noteThreshold) {
             if (this->marker->unk14_21) {
                 func_8032BC60(this, 5, sp90);
@@ -1807,7 +1806,8 @@ void func_80388FC8(Actor *this)
         if (mapSpecificFlags_get(1))
         {
             // [port] Anchor: a remote press shouldn't steal our camera.
-            if (this->modelCacheIndex == 0x215 && !port_mapFlag_wasSetRemotely(1))
+//          if (this->modelCacheIndex == 0x215)
+            if (this->modelCacheIndex == 0x215 && EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, LAIR_DOOR_CAM_CC_PIPE))
             {
                 gcStaticCamera_activate(0x2B);
                 if (1);  // oof
@@ -1885,7 +1885,7 @@ void lair_func_80389204(Actor *this)
         if (mapSpecificFlags_get(2))
         {
             // [port] Anchor: a remote press shouldn't steal our camera.
-            if (!port_mapFlag_wasSetRemotely(2)) {
+            if (EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, LAIR_DOOR_CAM_CC_PIPE_3)) {
                 gcStaticCamera_activate(0x2C);
             }
             fileProgressFlag_set(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED, true);

@@ -1,5 +1,6 @@
 #include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "port/ShipInit.hpp"
 #include "functions.h"
 #include <unordered_map>
 #include <vector>
@@ -11,7 +12,7 @@ static bool JigsawPedestal_SyncActive() {
     return anchor != nullptr && anchor->IsWorldSyncActive();
 }
 
-int32_t port_jigsawPedestal_tryClaim(int32_t id) {
+static int32_t JigsawPedestal_TryClaim(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
         return 1;
@@ -25,7 +26,7 @@ int32_t port_jigsawPedestal_tryClaim(int32_t id) {
     return 1;
 }
 
-int32_t port_jigsawPedestal_isSelf(int32_t id) {
+static int32_t JigsawPedestal_IsSelf(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
         return 1;
@@ -34,7 +35,7 @@ int32_t port_jigsawPedestal_isSelf(int32_t id) {
     return (it == sPedestalOwner.end() || it->second == anchor->ownClientId) ? 1 : 0;
 }
 
-void port_jigsawPedestal_release(int32_t id) {
+static void JigsawPedestal_Release(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
         return;
@@ -91,3 +92,18 @@ void JigsawPedestal_ReleaseAllSelf() {
 void JigsawPedestal_Reset() {
     sPedestalOwner.clear();
 }
+
+static void RegisterJigsawPedestal_Init() {
+    const bool connected = Anchor::GetInstance()->isConnected;
+
+    COND_VB_SHOULD(VB_JIGSAW_PEDESTAL_CLAIM, EVENT_PRIORITY_NORMAL, connected,
+                   { *should = JigsawPedestal_TryClaim(va_arg(args, s32)) != 0; });
+
+    COND_VB_SHOULD(VB_JIGSAW_PEDESTAL_OWNED, EVENT_PRIORITY_NORMAL, connected,
+                   { *should = JigsawPedestal_IsSelf(va_arg(args, s32)) != 0; });
+
+    COND_HOOK(OnJigsawPedestalLeave, EVENT_PRIORITY_NORMAL, connected,
+              [](IEvent* event) { JigsawPedestal_Release(((OnJigsawPedestalLeave*)event)->id); });
+}
+
+static RegisterShipInitFunc initJigsawPedestal(RegisterJigsawPedestal_Init, { ANCHOR_CONNECTED_PATH });

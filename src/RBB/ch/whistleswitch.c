@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 void vtxList_tintColorsFrom(BKVertexList *dst, s32 target_color[3], f32 amount, BKVertexList *src);
 BKVertexList *vtxList_clone(BKVertexList *);
 

@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Network/Anchor/CarriedSync.h"
 #include "port/Rando/Rando.h"
 #include "port/UI/Notification.h"
 

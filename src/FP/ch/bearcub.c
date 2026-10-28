@@ -3,9 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-#include "port/Enhancements/Retention/Retention.h"
-
 extern void func_8028E668(f32[3], f32, f32, f32);
 extern bool player_setCarryObjectPoseInHorizontalRadius(f32[3], f32, s32, Actor **);
 
@@ -150,10 +147,12 @@ void func_8038A384(Actor *this){
         {
             s32 cubIdx = __chBearcub_cubIndex(this);
             if (cubIdx >= 0) {
-                s32 netBits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
+                s32 netBits = 0;
+                s32 collected = 0;
+                EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_FP_PRESENTS, &netBits);
+                EventSystem_Should(VB_CARRIED_COLLECTED_COUNT, true, sCubPresentSync[cubIdx].kind, &collected);
                 s32 have = item_getCount(sCubPresentSync[cubIdx].item);
-                s32 pool = port_carriedSync_collectedCount(sCubPresentSync[cubIdx].kind) -
-                           ((netBits & sCubPresentSync[cubIdx].bit) ? 1 : 0);
+                s32 pool = collected - ((netBits & sCubPresentSync[cubIdx].bit) ? 1 : 0);
                 if (pool > have) {
                     item_adjustByDiffWithoutHud(sCubPresentSync[cubIdx].item, pool - have);
                 }
@@ -166,9 +165,10 @@ void func_8038A384(Actor *this){
         if (cubIdx >= 0) {
             s32 netBits;
             if (levelSpecificFlags_get(D_80391E80[cubIdx].unk0)) {
-                port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_PRESENTS, sCubPresentSync[cubIdx].bit);
+                CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_FP_PRESENTS, sCubPresentSync[cubIdx].bit);
             }
-            netBits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
+            netBits = 0;
+            EventSystem_Should(VB_PUZZLE_STEP_BITS, true, ANCHOR_PUZZLE_FP_PRESENTS, &netBits);
             if ((netBits & sCubPresentSync[cubIdx].bit) && !levelSpecificFlags_get(D_80391E80[cubIdx].unk0)) {
                 levelSpecificFlags_setEx(D_80391E80[cubIdx].unk0, 1, 0);
                 subaddie_set_state_with_direction(this, 2, 0.001f, 1);
