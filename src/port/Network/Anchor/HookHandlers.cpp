@@ -133,6 +133,12 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED || index == MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT)) {
         return true;
     }
+    // Holds every mutie in its greeting while one player reads it (crab.c); each client sets its own.
+    if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
+        (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_3_CLANKERS_CAVERN &&
+        index == LEVEL_FLAG_E_CC_MUTIE_SNIPPETS) {
+        return true;
+    }
     // BGS jiggy-switch timers (walkway=3, maze=0xC): kept local.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
         (index == 3 || index == 0xC)) {
