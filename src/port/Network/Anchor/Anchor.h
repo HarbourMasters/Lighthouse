@@ -54,6 +54,7 @@ struct RoomState {
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
 void Anchor_MarkMapFlagsRemote(uint32_t mask);
 bool Anchor_InEarshot(f32 pos[3], f32 range = 1800.0f);
+bool Anchor_WasLevelFlagSetRemotely(int32_t index);
 bool Anchor_JiggyListHasObject(int16_t jiggyId);
 
 class Anchor : public Network {
