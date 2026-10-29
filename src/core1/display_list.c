@@ -41,6 +41,11 @@ void core1_15B30_requestReleaseForTaskDataID(void) {
     osSendMesgPtr(&sTaskDataListLockMesgQueue, NULL, OS_MESG_BLOCK);
 }
 
+// [port] Watchdog diagnostics and blocking opt-in
+OSMesgQueue *core1_15B30_getTaskDataListLockQueue(void) {
+    return &sTaskDataListLockMesgQueue;
+}
+
 void core1_15B30_addAudioTaskData(Acmd *arg0, Acmd *arg1, OSMesgQueue *arg2, OSMesg arg3) {
     struct ucode_task_data_s *task_data;
 

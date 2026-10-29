@@ -48,6 +48,7 @@ void audioManagerThread_entry(void* arg);
 void core1_15B30_sendMesg3ToRenderThread(void);
 OSMesgQueue* thread5_getTaskQueue(void);
 OSMesgQueue* thread5_getSyncQueue(void);
+OSMesgQueue* core1_15B30_getTaskDataListLockQueue(void);
 u32 osDpGetStatus(void);
 }
 
@@ -282,6 +283,7 @@ void EnableThread5() {
     OS_EnableThreadEntry((void*)audioManagerThread_entry);
     OS_SetQueueBlocking(audioManager_getFrameMesgQueue(), 1);
     OS_SetQueueBlocking(audioManager_getReplyMesgQueue(), 1);
+    OS_SetQueueBlocking(core1_15B30_getTaskDataListLockQueue(), 1);
 }
 } // namespace
 
