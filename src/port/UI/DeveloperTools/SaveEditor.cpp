@@ -360,6 +360,10 @@ void SaveEditor_DrawProgressTab() {
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount - 1));
                                 } else {
                                     jiggyscore_setCollected(i, true);
+                                    ActorMarker* m = func_8032B16C((enum jiggy_e)i);
+                                    if (m != nullptr) {
+                                        marker_despawn(m);
+                                    }
                                     func_8034798C();
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount + 1));
                                 }
