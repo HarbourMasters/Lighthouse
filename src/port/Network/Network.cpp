@@ -51,7 +51,7 @@ void Network::ProcessOutgoingPackets() {
 
 void Network::SendDataToRemote(const char* payload) {
 #ifdef USE_NETWORKING
-    SPDLOG_DEBUG("[Network] Sending data: {}", payload);
+    SPDLOG_TRACE("[Network] Sending data: {}", payload);
     SDLNet_TCP_Send(networkSocket, payload, strlen(payload) + 1);
 #endif
 }
@@ -149,7 +149,7 @@ void Network::HandleRemoteData(char payload[512]) {
 }
 
 void Network::HandleRemoteJson(std::string payload) {
-    SPDLOG_DEBUG("[Network] Received json: {}", payload);
+    SPDLOG_TRACE("[Network] Received json: {}", payload);
     nlohmann::json jsonPayload;
     try {
         jsonPayload = nlohmann::json::parse(payload);
