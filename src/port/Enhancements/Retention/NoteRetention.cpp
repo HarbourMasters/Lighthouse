@@ -30,6 +30,7 @@ extern "C" {
 
 extern f32 gBundle_yaw;
 extern ActorInfo sumusicNote;
+extern f32 itemPrintValues[0x2C];
 }
 
 namespace {
@@ -341,6 +342,7 @@ void RegisterNoteRetention_Init() {
             return;
         }
         item_adjustByDiffWithoutHud(ITEM_C_NOTE, countCollectedForLevel(level) - item_getCount(ITEM_C_NOTE));
+        itemPrintValues[ITEM_C_NOTE] = (f32)item_getCount(ITEM_C_NOTE);
     });
 
     // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress them.
