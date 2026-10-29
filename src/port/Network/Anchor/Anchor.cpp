@@ -31,6 +31,7 @@ void Anchor::Enable() {
                     CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383));
     ownClientId = CVarGetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), 0);
     roomState = RoomState{};
+    gameMismatchWithTeam = false;
 }
 
 bool Anchor::IsGlobalRoom() {
@@ -121,7 +122,7 @@ void Anchor::SendJsonToRemote(nlohmann::json payload) {
         return;
     }
 
-    if ((!roomState.syncItemsAndFlags || isHoldingTeamState) &&
+    if ((!roomState.syncItemsAndFlags || isHoldingTeamState || gameMismatchWithTeam) &&
         !AllowedWithoutGameSync(payload.value("type", std::string()))) {
         return;
     }
@@ -156,7 +157,7 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
 
     // Same rule inbound: a peer on an older build must not push world state into a room
     // that isn't syncing it.
-    if (!roomState.syncItemsAndFlags && !AllowedWithoutGameSync(packetType)) {
+    if ((!roomState.syncItemsAndFlags || gameMismatchWithTeam) && !AllowedWithoutGameSync(packetType)) {
         return;
     }
 

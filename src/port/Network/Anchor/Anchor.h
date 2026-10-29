@@ -199,7 +199,7 @@ public:
     std::string lastWarnedRomhackLabel;
     std::string lastWarnedRandoState;
     std::string lastClearedTeamStateSig;
-    bool gameMismatchWithTeam = false;
+    std::atomic<bool> gameMismatchWithTeam{ false };
     bool hasCheckedRandoCompat = false;
 
     void Enable();

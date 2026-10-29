@@ -238,6 +238,7 @@ void Anchor::RegisterHooks() {
         auto* anchor = Anchor::GetInstance();
         anchor->hasCheckedRandoCompat = false;
         anchor->reloadMapOnTeamState = false;
+        anchor->gameMismatchWithTeam = false;
         anchor->SendPacket_RequestTeamState(true);
     });
 

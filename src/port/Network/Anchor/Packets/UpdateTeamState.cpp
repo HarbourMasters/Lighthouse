@@ -142,6 +142,7 @@ void Anchor::SendPacket_ClearTeamState(std::string teamId) {
 // Drops the room's stored team save and reseeds it from our own file, so the room carries the game
 // we're actually playing. Only ever called for the room owner with nobody playing from the old one.
 void Anchor::ClearMismatchedTeamState(std::string teamId) {
+    gameMismatchWithTeam = false;
     SendPacket_ClearTeamState(teamId);
     SendPacket_UpdateTeamState();
     Notification::Emit({
@@ -252,6 +253,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         const std::string incoming = payload["state"]["gameSig"].get<std::string>();
         const std::string local = TeamStateSignature();
         if (incoming != local) {
+            // Sync stays off both ways until it's resolved, so neither save touches the other.
+            gameMismatchWithTeam = true;
             const std::string ownTeam = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
             bool teammatePlaying = false;
             for (auto& [clientId, client] : clients) {
