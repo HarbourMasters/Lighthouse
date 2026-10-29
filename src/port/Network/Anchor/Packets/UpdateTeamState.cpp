@@ -306,7 +306,13 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
                 "Use the team save to replace this file's progress,\n"
                 "or keep the file and leave the room.",
                 "Use Team Save", "Keep My File",
-                [this]() { Lighthouse::RunOnGameThread([this]() { UseHeldTeamState(); }); }, [this]() { Disable(); });
+                [this]() { Lighthouse::RunOnGameThread([this]() { UseHeldTeamState(); }); },
+                [this]() {
+                    Disable();
+                    Notification::Emit({
+                        .message = "Disconnected, your file is unchanged",
+                    });
+                });
         }
         return;
     }
