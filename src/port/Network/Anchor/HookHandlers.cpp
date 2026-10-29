@@ -123,6 +123,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     if (excluded.contains((space << 16) | index)) {
         return true;
     }
+    // MM Juju's half-turn flag: animation state, kept local.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN &&
+        index == MM_SPECIFIC_FLAG_9_JUJU_HAS_HALF_TURNED) {
+        return true;
+    }
     // BGS jiggy-switch timers (walkway=3, maze=0xC): kept local.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
         (index == 3 || index == 0xC)) {
