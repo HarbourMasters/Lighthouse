@@ -183,7 +183,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
             D_80385F30[ITEM_2B_UNKNOWN] += diff;
             break;
     }
-    if (triggerEvent) {
+    if (triggerEvent && D_80385F30[item] != oldVal) {
         CALL_EVENT(OnItemCountChanged, item, D_80385F30[item]);
     }
     return D_80385F30[item];
