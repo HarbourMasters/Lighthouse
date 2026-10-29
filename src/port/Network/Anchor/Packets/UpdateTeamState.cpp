@@ -164,6 +164,12 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         return;
     }
 
+    // Our own save, handed back by the server to close a request of ours nobody answered.
+    if (payload.contains("clientId") && payload["clientId"].get<uint32_t>() == ownClientId) {
+        reloadMapOnTeamState = false;
+        return;
+    }
+
     if (payload.contains("state") && payload["state"].contains("gameSig")) {
         if (selectedFileNum == DEFAULT_FILE_NUM) {
             return;
