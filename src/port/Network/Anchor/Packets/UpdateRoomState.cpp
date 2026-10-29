@@ -112,6 +112,7 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.pvpMode = payload["state"]["pvpMode"].get<u8>();
     roomState.showLocationsMode = payload["state"]["showLocationsMode"].get<u8>();
     roomState.teleportMode = payload["state"]["teleportMode"].get<u8>();
+    const bool wasSyncing = roomState.syncItemsAndFlags != 0;
     roomState.syncItemsAndFlags = payload["state"]["syncItemsAndFlags"].get<u8>();
     // Retention holds the team's notes and jinjos, so it's only forced while syncing them.
     Lighthouse::RunOnGameThread([this]() {
@@ -123,6 +124,12 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.seed = payload["state"].value("seed", (int32_t)0);
 
     CheckRandoRoomCompatibility();
+
+    // Enable clears the room state, so OnConnected couldn't tell yet that this room syncs.
+    if (!wasSyncing && roomState.syncItemsAndFlags && IsSaveLoaded()) {
+        SendPacket_RequestTeamState();
+        reloadMapOnTeamState = true;
+    }
 }
 
 void Anchor::CheckRandoRoomCompatibility() {
