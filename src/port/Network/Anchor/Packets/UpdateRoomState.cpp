@@ -1,5 +1,6 @@
 #include "port/Network/Anchor/Anchor.h"
 #include "port/Network/Anchor/JsonConversions.hpp"
+#include "port/FrameHost.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
@@ -73,8 +74,10 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
         roomState.shareConsumables = 0;
         roomState.isRomhack = false;
         roomState.romhackName.clear();
-        port_noteRetention_setForced(0);
-        port_jinjoRetention_setForced(0);
+        Lighthouse::RunOnGameThread([]() {
+            port_noteRetention_setForced(0);
+            port_jinjoRetention_setForced(0);
+        });
         return;
     }
 
@@ -111,8 +114,10 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.teleportMode = payload["state"]["teleportMode"].get<u8>();
     roomState.syncItemsAndFlags = payload["state"]["syncItemsAndFlags"].get<u8>();
     // Retention holds the team's notes and jinjos, so it's only forced while syncing them.
-    port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
-    port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+    Lighthouse::RunOnGameThread([this]() {
+        port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+        port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+    });
     roomState.shareConsumables = payload["state"].value("shareConsumables", (u8)0);
     roomState.isRando = payload["state"].value("isRando", false);
     roomState.seed = payload["state"].value("seed", (int32_t)0);

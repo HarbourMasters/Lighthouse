@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <chrono>
+#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -84,6 +85,9 @@ void (*sSvcFn)(void*) = nullptr;
 void* sSvcArg = nullptr;
 std::atomic<bool> sShutdownRequested{ false };
 
+std::mutex sGameTaskMutex;
+std::vector<std::function<void()>> sGameTasks;
+
 int sTitleMap = 0;
 
 std::unique_ptr<Lighthouse::FrameHost> sHost;
@@ -106,6 +110,17 @@ void DrainRenderService() {
         lock.lock();
         sSvcFn = nullptr;
         sSvcCv.notify_all();
+    }
+}
+
+void DrainGameTasks() {
+    std::vector<std::function<void()>> tasks;
+    {
+        std::lock_guard<std::mutex> lock(sGameTaskMutex);
+        tasks.swap(sGameTasks);
+    }
+    for (auto& task : tasks) {
+        task();
     }
 }
 
@@ -136,6 +151,15 @@ Lighthouse::FrameHost* Lighthouse::GetFrameHost() {
 void Lighthouse::WakeGame() {
     std::lock_guard<std::mutex> lock(sParkMutex);
     sParkCv.notify_all();
+}
+
+void Lighthouse::RunOnGameThread(std::function<void()> fn) {
+    if (sGameThreadDone.load()) {
+        fn();
+        return;
+    }
+    std::lock_guard<std::mutex> lock(sGameTaskMutex);
+    sGameTasks.push_back(std::move(fn));
 }
 
 // A list is submitted while its tick is still recording, so the pair is
@@ -353,6 +377,8 @@ void push_frame() {
     static int sTitleCounter = 0;
     sFrameRendered = false;
 
+    DrainGameTasks();
+
     // The window thread keeps the progress modal alive while an inline mod
     // extraction runs; the tick just idles so the extractor gets the machine.
     if (IsInlineModExtractionBusy()) {
@@ -531,6 +557,7 @@ int SDL_main(int argc, char* argv[]) {
     if (sGameThread.joinable()) {
         sGameThread.join();
     }
+    DrainGameTasks();
     // Before Destroy: these threads draw and play audio through the engine.
     OS_JoinDecompThreads();
     ThreadWatchdog_Stop();

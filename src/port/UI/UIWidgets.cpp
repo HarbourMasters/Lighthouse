@@ -10,6 +10,8 @@
 #include <libultraship/libultra/types.h>
 #include <spdlog/fmt/fmt.h>
 
+#include "port/FrameHost.h"
+
 namespace UIWidgets {
 
 // Automatically adds newlines to break up text longer than a specified number of characters
@@ -67,7 +69,7 @@ void WidgetTooltip(const char* tooltip, bool disabled, const char* disabledToolt
 // Persist a cvar the user just changed and let anything keyed on it re-init.
 void CommitCVar(const char* cvarName) {
     Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-    ShipInit::Init(cvarName);
+    Lighthouse::RunOnGameThread([path = std::string(cvarName)] { ShipInit::Init(path); });
 }
 
 void Tooltip(const char* text) {
@@ -889,8 +891,7 @@ bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaul
             color.b = static_cast<uint8_t>(fmin(fmax(colorVec.z * 255, 0), 255));
             CVarSetColor(valueCVar.c_str(), color);
             CVarSetInteger(rainbowCVar.c_str(), 0); // On click disable rainbow mode.
-            ShipInit::Init(rainbowCVar.c_str());
-            Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            CommitCVar(rainbowCVar.c_str());
         }
     }
     if (showRainbow) {
@@ -918,8 +919,7 @@ bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaul
         color.b = (uint8_t)(colorVec.z * 255.0f);
         color.a = (uint8_t)(colorVec.w * 255.0f);
         CVarSetColor(valueCVar.c_str(), color);
-        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        ShipInit::Init(valueCVar.c_str());
+        CommitCVar(valueCVar.c_str());
         changed = true;
     }
 

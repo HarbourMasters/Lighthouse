@@ -1,6 +1,7 @@
 #include "LighthouseMenu.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "port/FrameHost.h"
 
 #include "functions.h"
 extern "C" {
@@ -138,7 +139,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     for (int i = 0; i < 7; i++) {
         AddWidget(path, kBottlesBonusNames[i], WIDGET_CHECKBOX)
             .ValuePointer(&sBottlesBonusState[i])
-            .Callback([](WidgetInfo& info) { ApplyBottlesBonusState(); })
+            .Callback([](WidgetInfo& info) { Lighthouse::RunOnGameThread(ApplyBottlesBonusState); })
             .PreFunc([i](WidgetInfo& info) {
                 if (!IsBottlesBonusUnlocked(i)) {
                     info.options->disabled = true;
