@@ -356,9 +356,11 @@ void SaveEditor_DrawProgressTab() {
                                 int32_t curJiggyCount = item_getCount(ITEM_26_JIGGY_TOTAL);
                                 if (SaveEditor_IsJiggyCollected((jiggy_e)i)) {
                                     jiggyscore_setCollected(i, false);
+                                    func_8034798C();
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount - 1));
                                 } else {
                                     jiggyscore_setCollected(i, true);
+                                    func_8034798C();
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount + 1));
                                 }
                             });
