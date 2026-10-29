@@ -93,11 +93,11 @@ A base game language pack in `mods/~lang/` does not appear in the dropdown while
 Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place them in the `mods` folder.
 
 If you're interested in creating and/or packing your own custom asset `.o2r`/`.otr` files, check out the following tools:
-* [**retro - OTR and O2R generator**](https://github.com/HarbourMasters/retro)
+* [**neoretro - OTR and O2R generator**](https://github.com/HarbourMasters/neoretro)
 * [**fast64 - Blender plugin, with BK64 model and animation support**](https://github.com/HarbourMasters/fast64)
 
 Step-by-step guides for each kind of mod are in [`docs/modding/`](docs/modding/):
-* [**Texture packs**](docs/modding/TEXTURE%20PACKS.md) - replace any of the game's textures, same-size or HD, with retro
+* [**Texture packs**](docs/modding/TEXTURE%20PACKS.md) - replace any of the game's textures, same-size or HD, with neoretro
 * [**Custom animations**](docs/modding/CUSTOM%20ANIMATIONS.md) - edit the game's animations as YAML through Torch's modding mode
 * [**Custom dialog**](docs/modding/CUSTOM%20DIALOG.md) - dialog box codes: portraits, choices, substitution, and gameplay triggers
 * [**Custom models**](docs/modding/CUSTOM%20MODELS.md) - the model format, and building one in Blender with fast64

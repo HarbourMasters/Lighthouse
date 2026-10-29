@@ -245,7 +245,7 @@ Each repainted glyph is just a base letter with an accent added - `Á` is the `A
 
 The swap is live: your glyphs show up whether the pack is picked at boot or switched to from the options menu, and switching back to a built-in language restores the originals.
 
-Everything you replace here is **SD**. High-resolution versions are a separate, optional layer built with Retro - see the [texture pack guide](TEXTURE%20PACKS.md); an HD sheet ships at `alt/assets/lang/<region>/...` and composes on top of your SD pack automatically.
+Everything you replace here is **SD**. High-resolution versions are a separate, optional layer built with neoretro - see the [texture pack guide](TEXTURE%20PACKS.md); an HD sheet ships at `alt/assets/lang/<region>/...` and composes on top of your SD pack automatically.
 
 ---
 
