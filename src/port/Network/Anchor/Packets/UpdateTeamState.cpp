@@ -286,8 +286,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
                 return;
             }
 
-            msg += "\nClear it and start this room fresh on your game?";
-            LighthouseGui::RegisterPopup("Team State Mismatch", msg, "Clear It", "Keep It",
+            msg += "\nReplace the team save with this file?";
+            LighthouseGui::RegisterPopup("Team State Mismatch", msg, "Use My File", "Keep Team Save",
                                          [this, ownTeam]() { ClearMismatchedTeamState(ownTeam); });
             return;
         }
