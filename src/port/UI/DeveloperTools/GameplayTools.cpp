@@ -356,7 +356,9 @@ void GameplayTools_ObjectSpawner() {
 void DrawGrantUnlocks() {
     if (UIWidgets::Button("Unlock Moves", { .color = THEME_COLOR })) {
         Lighthouse::RunOnGameThread([] {
-            ability_setAllLearned(-1);
+            for (int i = ABILITY_0_BARGE; i <= ABILITY_12_WONDERWING; i++) {
+                ability_setLearned((ability_e)i, true);
+            }
             ability_setAllUsed(-1);
         });
     }
