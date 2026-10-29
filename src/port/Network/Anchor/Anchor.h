@@ -246,7 +246,7 @@ public:
     // client (used to hand a late arrival our current state directly).
     void SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId = 0);
     void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
-    void SendPacket_RequestTeamState(bool force = false);
+    bool SendPacket_RequestTeamState(bool force = false);
     void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);

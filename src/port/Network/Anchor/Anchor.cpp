@@ -68,8 +68,7 @@ void Anchor::OnConnected() {
         port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
         port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
 
-        if (IsSaveLoaded()) {
-            SendPacket_RequestTeamState();
+        if (SendPacket_RequestTeamState()) {
             hasRequestedTeamState = true;
             reloadMapOnTeamState = true;
         }

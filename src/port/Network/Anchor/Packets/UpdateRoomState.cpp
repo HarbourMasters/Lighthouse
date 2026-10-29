@@ -126,8 +126,7 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     CheckRandoRoomCompatibility();
 
     // Enable clears the room state, so OnConnected couldn't tell yet that this room syncs.
-    if (!wasSyncing && roomState.syncItemsAndFlags && IsSaveLoaded()) {
-        SendPacket_RequestTeamState();
+    if (!wasSyncing && SendPacket_RequestTeamState()) {
         reloadMapOnTeamState = true;
     }
 }
