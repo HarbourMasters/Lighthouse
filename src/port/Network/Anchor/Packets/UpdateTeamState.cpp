@@ -1,5 +1,6 @@
 #include "port/Network/Anchor/Anchor.h"
 #include "port/Network/Anchor/JsonConversions.hpp"
+#include "port/FrameHost.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/UI/Notification.h"
@@ -159,6 +160,80 @@ static void ApplyTeamBytes(nlohmann::json& bytes, void (*getSizeAndPtr)(s32*, u8
     }
 }
 
+// Progress flags are left out: some are counters (jigsaw podiums), so a newer save can hold less.
+static bool TeamStateDropsProgress(nlohmann::json& state) {
+    const struct {
+        const char* key;
+        void (*getSizeAndPtr)(s32*, u8**);
+        size_t bytes;
+    } bitSections[] = {
+        { "jiggies", jiggyscore_getSizeAndPtr, SIZE_MAX },
+        { "honeycombs", honeycombscore_getSizeAndPtr, SIZE_MAX },
+        { "mumboTokens", mumboscore_getSizeAndPtr, SIZE_MAX },
+        { "abilities", ability_getSizeAndPtr, 4 }, // learned only; the used half isn't progress
+    };
+    for (const auto& section : bitSections) {
+        if (!state.contains(section.key)) {
+            continue;
+        }
+        std::vector<u8> local = ScoreBytes(section.getSizeAndPtr);
+        auto& team = state[section.key];
+        for (size_t i = 0; i < local.size() && i < team.size() && i < section.bytes; i++) {
+            if (local[i] & ~team[i].get<u8>()) {
+                return true;
+            }
+        }
+    }
+    // Notes are a count per level, not bits.
+    if (state.contains("noteScores")) {
+        std::vector<u8> local = ScoreBytes(itemscore_noteScores_getSizeAndPtr);
+        for (size_t i = 0; i < local.size() && i < state["noteScores"].size(); i++) {
+            if (local[i] > state["noteScores"][i].get<u8>()) {
+                return true;
+            }
+        }
+    }
+    // Obtained checks merge in, but RANDO_INF flags are overwritten.
+    if (IS_RANDO && state.contains("randoFlags")) {
+        auto& flags = state["randoFlags"];
+        for (s32 i = RANDO_INF_UNKNOWN + 1; i < RANDO_INF_MAX && i < (s32)flags.size(); i++) {
+            if (RANDO_SAVE_FLAGS[i].flagState && !flags[i].get<int32_t>()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void Anchor::UseHeldTeamState() {
+    if (!heldTeamState) {
+        return;
+    }
+    nlohmann::json payload = std::move(*heldTeamState);
+    heldTeamState.reset();
+    isHoldingTeamState = false;
+
+    payload["confirmed"] = true;
+    // By now the player is usually in a level, so reload it under the new save.
+    reloadMapOnTeamState = IsSaveLoaded();
+    isProcessingIncomingPacket = true;
+    HandlePacket_UpdateTeamState(payload);
+    isProcessingIncomingPacket = false;
+
+    // Held packets go ahead of anything queued since.
+    std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
+    std::queue<nlohmann::json> ordered;
+    for (auto& packet : heldIncomingPackets) {
+        ordered.push(std::move(packet));
+    }
+    heldIncomingPackets.clear();
+    while (!incomingPacketQueue.empty()) {
+        ordered.push(std::move(incomingPacketQueue.front()));
+        incomingPacketQueue.pop();
+    }
+    incomingPacketQueue.swap(ordered);
+}
+
 void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     if (!roomState.syncItemsAndFlags) {
         return;
@@ -217,6 +292,20 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             return;
         }
         lastClearedTeamStateSig.clear();
+    }
+
+    if (!payload.contains("confirmed") && payload.contains("state") && TeamStateDropsProgress(payload["state"])) {
+        heldTeamState = payload;
+        if (!isHoldingTeamState.exchange(true)) {
+            LighthouseGui::RegisterPopup(
+                "Team Save Differs",
+                "This file has progress the room's team save doesn't.\n\n"
+                "Use the team save to replace this file's progress,\n"
+                "or keep the file and leave the room.",
+                "Use Team Save", "Keep My File",
+                [this]() { Lighthouse::RunOnGameThread([this]() { UseHeldTeamState(); }); }, [this]() { Disable(); });
+        }
+        return;
     }
 
     isHandlingUpdateTeamState = true;

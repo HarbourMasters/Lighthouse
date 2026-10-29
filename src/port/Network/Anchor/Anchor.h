@@ -1,7 +1,9 @@
 #pragma once
 #ifdef __cplusplus
 
+#include <atomic>
 #include <mutex>
+#include <optional>
 #include <queue>
 #include <map>
 #include <unordered_map>
@@ -64,9 +66,13 @@ private:
     std::mutex incomingPacketQueueMutex;
     std::queue<nlohmann::json> outgoingPacketQueue;
     std::mutex outgoingPacketQueueMutex;
+    std::optional<nlohmann::json> heldTeamState;
+    std::vector<nlohmann::json> heldIncomingPackets;
+    std::atomic<bool> isHoldingTeamState{ false };
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
     void FlushPendingJiggySpawns();
+    void UseHeldTeamState();
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();

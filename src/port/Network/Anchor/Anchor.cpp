@@ -82,6 +82,10 @@ void Anchor::OnDisconnected() {
 
         port_noteRetention_setForced(0);
         port_jinjoRetention_setForced(0);
+
+        heldTeamState.reset();
+        heldIncomingPackets.clear();
+        isHoldingTeamState = false;
     });
 }
 
@@ -117,7 +121,8 @@ void Anchor::SendJsonToRemote(nlohmann::json payload) {
         return;
     }
 
-    if (!roomState.syncItemsAndFlags && !AllowedWithoutGameSync(payload.value("type", std::string()))) {
+    if ((!roomState.syncItemsAndFlags || isHoldingTeamState) &&
+        !AllowedWithoutGameSync(payload.value("type", std::string()))) {
         return;
     }
 
@@ -187,6 +192,12 @@ void Anchor::ProcessIncomingPacketQueue() {
         packetsToProcess.pop();
 
         std::string packetType = payload["type"].get<std::string>();
+
+        // Kept back until the player picks between their file and the team save.
+        if (isHoldingTeamState && !AllowedWithoutGameSync(packetType)) {
+            heldIncomingPackets.push_back(std::move(payload));
+            continue;
+        }
 
         isProcessingIncomingPacket = true;
 
