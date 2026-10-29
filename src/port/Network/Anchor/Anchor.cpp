@@ -9,6 +9,7 @@
 #include "port/ObjectExtension/ObjectExtension.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/FrameHost.h"
+#include "port/UI/Notification.h"
 
 #include "variables.h"
 #include "functions.h"
@@ -62,6 +63,12 @@ void Anchor::Disable() {
 
 void Anchor::OnConnected() {
     SendPacket_Handshake();
+    if (isReconnecting) {
+        isReconnecting = false;
+        Notification::Emit({
+            .message = "Reconnected to Anchor",
+        });
+    }
 
     Lighthouse::RunOnGameThread([this]() {
         RegisterHooks();
@@ -77,6 +84,13 @@ void Anchor::OnConnected() {
 }
 
 void Anchor::OnDisconnected() {
+    // Still enabled means the server dropped us, not the player turning Anchor off.
+    if (isEnabled) {
+        isReconnecting = true;
+        Notification::Emit({
+            .message = "Lost connection to Anchor, reconnecting",
+        });
+    }
     Lighthouse::RunOnGameThread([this]() {
         Authority_Reset();
         RegisterHooks();

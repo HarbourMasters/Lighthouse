@@ -61,6 +61,7 @@ private:
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
     bool hasRequestedTeamState = false;
+    bool isReconnecting = false;
     BKPlayerColorSet sentColors = {};
     std::queue<nlohmann::json> incomingPacketQueue;
     std::mutex incomingPacketQueueMutex;
