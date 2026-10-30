@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -187,6 +188,13 @@ extern "C++" {
 ListenerID VanillaBehavior_RegisterListener(VBehaviorID id, const char* name, EventPriority priority,
                                             EventCallback callback, const char* file, int line);
 void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId);
+ListenerID ActorEvent_RegisterListener(EventID* event, EventCallback forward, const char* name, int32_t actorId,
+                                       EventCallback callback, EventPriority priority, const char* file, int line);
+void ActorEvent_UnregisterListener(EventID* event, int32_t actorId, ListenerID listenerId);
+void ActorEvent_Forward(EventID* event, IEvent* payload);
+template <EventID* Event> void ActorEvent_ForwardTo(IEvent* payload) {
+    ActorEvent_Forward(Event, payload);
+}
 }
 #endif
 
@@ -224,16 +232,20 @@ void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId);
             listenerId = EventSystemRegisterListener(eventId##ID, __VA_ARGS__, priority, __FILE__, __LINE__); \
         }                                                                                                     \
     }
-#define COND_ID_HOOK(eventId, id, priority, condition, body)         \
-    {                                                                \
-        static ListenerID listenerId = -1;                           \
-        if (listenerId != -1) {                                      \
-            UNREGISTER_LISTENER(eventId, listenerId);                \
-            listenerId = -1;                                         \
-        }                                                            \
-        if (condition) {                                             \
-            listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                            \
+// Its priority orders it only against other COND_ID_HOOKs on the same actor id; they all run inside one
+// NORMAL-priority listener on the event.
+#define COND_ID_HOOK(eventId, actorId, priority, condition, ...)                                                   \
+    {                                                                                                              \
+        static_assert(offsetof(eventId, actor) == offsetof(ActorEventPayload, actor), "needs Actor* actor first"); \
+        static ListenerID listenerId = -1;                                                                         \
+        if (listenerId != -1) {                                                                                    \
+            ActorEvent_UnregisterListener(&eventId##ID, actorId, listenerId);                                      \
+            listenerId = -1;                                                                                       \
+        }                                                                                                          \
+        if (condition) {                                                                                           \
+            listenerId = ActorEvent_RegisterListener(&eventId##ID, ActorEvent_ForwardTo<&eventId##ID>, #eventId,   \
+                                                     actorId, __VA_ARGS__, priority, __FILE__, __LINE__);          \
+        }                                                                                                          \
     }
 #define COND_VB_SHOULD(id, priority, condition, ...)                    \
     {                                                                   \
@@ -251,3 +263,8 @@ void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId);
 #include "List/BehaviorEvent.h"
 #include "List/GameEvent.h"
 #include "List/RandoEvent.h"
+
+typedef struct {
+    IEvent Event;
+    Actor* actor;
+} ActorEventPayload;

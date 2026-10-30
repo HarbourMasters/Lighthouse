@@ -4,6 +4,7 @@
 #include "port/ShipUtils.h"
 
 #include <stdarg.h>
+#include <unordered_map>
 
 #define INIT_EVENT_IDS
 
@@ -160,6 +161,14 @@ struct HookEvent {
 };
 
 HookEvent sBehaviorHooks[VB_COUNT];
+
+struct ActorEventHooks {
+    ListenerID forwarder = -1;
+    int32_t listeners = 0;
+    std::unordered_map<int32_t, HookEvent> byActor;
+};
+
+std::unordered_map<EventID*, ActorEventHooks> sActorEventHooks;
 } // namespace
 
 ListenerID VanillaBehavior_RegisterListener(VBehaviorID id, const char* name, EventPriority priority,
@@ -176,6 +185,43 @@ void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId) {
     HookEvent& hook = sBehaviorHooks[id];
     EventSystemUnregisterListener(hook.event, listenerId);
     hook.listeners--;
+}
+
+ListenerID ActorEvent_RegisterListener(EventID* event, EventCallback forward, const char* name, int32_t actorId,
+                                       EventCallback callback, EventPriority priority, const char* file, int line) {
+    ActorEventHooks& hooks = sActorEventHooks[event];
+    if (hooks.listeners++ == 0) {
+        hooks.forwarder = EventSystemRegisterListener(*event, forward, EVENT_PRIORITY_NORMAL, __FILE__, __LINE__);
+    }
+    HookEvent& hook = hooks.byActor[actorId];
+    if (hook.event == -1) {
+        hook.event = EventSystemRegisterEvent(name);
+    }
+    hook.listeners++;
+    return EventSystemRegisterListener(hook.event, callback, priority, file, line);
+}
+
+void ActorEvent_UnregisterListener(EventID* event, int32_t actorId, ListenerID listenerId) {
+    ActorEventHooks& hooks = sActorEventHooks[event];
+    HookEvent& hook = hooks.byActor[actorId];
+    EventSystemUnregisterListener(hook.event, listenerId);
+    hook.listeners--;
+    if (--hooks.listeners == 0) {
+        EventSystemUnregisterListener(*event, hooks.forwarder);
+        hooks.forwarder = -1;
+    }
+}
+
+void ActorEvent_Forward(EventID* event, IEvent* payload) {
+    Actor* actor = reinterpret_cast<ActorEventPayload*>(payload)->actor;
+    if (actor == nullptr) {
+        return;
+    }
+    const ActorEventHooks& hooks = sActorEventHooks.at(event);
+    auto it = hooks.byActor.find(actor->modelCacheIndex); // the ACTOR_* id
+    if (it != hooks.byActor.end() && it->second.listeners > 0) {
+        EventSystemCallEvent(it->second.event, payload, __FILE__, __LINE__, FILE_AND_LINE);
+    }
 }
 
 extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
