@@ -253,9 +253,6 @@ void RegisterWidescreenCamera() {
 }
 
 void RegisterCameraPatches_Init() {
-
-    COND_VB_SHOULD(VB_CAMERA_LIVE_ASPECT, EVENT_PRIORITY_NORMAL, true, { *should = false; });
-
     // Bigger frustum for wider aspect ratios, no-op for deterministic scenes
     REGISTER_LISTENER(ViewportFrustumUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         if (IsDemoMode()) {

@@ -18,7 +18,6 @@ typedef enum VBehaviorID {
 
     // Camera behavior
     VB_CUTSCENE_ACTOR_DRAW,
-    VB_CAMERA_LIVE_ASPECT,
     VB_CAMERA_FOLLOW,
     VB_CAMERA_APPLY_SHAKE,
 
