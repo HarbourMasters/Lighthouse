@@ -57,9 +57,7 @@ void Steer(f32 launch[3]) {
     baphysics_set_velocity(launch);
 }
 
-} // namespace
-
-extern "C" void port_beakBombAimCamera_update(void) {
+void UpdateCamera() {
     // Hit mid-aim into a state that leaves the camera alone.
     if (bs_getState() != BS_2A_BOMB) {
         func_802914CC(kFlyCamera);
@@ -76,6 +74,8 @@ extern "C" void port_beakBombAimCamera_update(void) {
     ncDynamicCamera_setRotation(rotation);
 }
 
+} // namespace
+
 void RegisterBeakBombAiming_Init() {
     COND_VB_SHOULD(VB_BEAK_BOMB_WINDUP, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), {
         AnimCtrl* windup = va_arg(args, AnimCtrl*);
@@ -90,6 +90,12 @@ void RegisterBeakBombAiming_Init() {
         Crosshair::ShowThisFrame();
         anctrl_setAnimTimer(windup, kHoldPoint);
         *should = false;
+    });
+    // Registered whatever the setting, so turning it off mid-aim still hands the camera back.
+    COND_HOOK(OnDynamicCameraUpdate, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (((OnDynamicCameraUpdate*)event)->state == BEAK_BOMB_AIM_CAM_STATE) {
+            UpdateCamera();
+        }
     });
 }
 

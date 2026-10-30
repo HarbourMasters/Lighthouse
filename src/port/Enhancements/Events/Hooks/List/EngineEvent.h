@@ -14,6 +14,7 @@ extern "C" {
 
 DEFINE_EVENT(GameFrameUpdate);
 DEFINE_EVENT(FrameDrawEnd);
+DEFINE_EVENT(OnControllerRead, void* pad;);
 DEFINE_EVENT(OnControllerUpdate);
 
 DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
@@ -38,6 +39,7 @@ DEFINE_EVENT(OnModelBinBuilt, const char* path; void* bin;);
 DEFINE_EVENT(OnModelDraw, s32 modelId; void* modelBin;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 DEFINE_EVENT(CameraRotationAuthored, s32 source; s32 id; const f32* position; f32 * rotation;);
+DEFINE_EVENT(OnDynamicCameraUpdate, s32 state;);
 DEFINE_EVENT(MapModelXluScale, s32 map; f32 * scale;);
 DEFINE_EVENT(OnTransitionModelScale, Gfx** gfx; Mtx * *mtx; s32 uid; f32 * scale;);
 DEFINE_EVENT(OnTransitionStateUpdate, s32 modelId; s32 uid; s32 substate;);

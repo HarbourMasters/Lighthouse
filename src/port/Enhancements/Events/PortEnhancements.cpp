@@ -3,6 +3,7 @@
 #include "port/Rando/Rando.h"
 #include "port/ShipUtils.h"
 
+#include <libultraship/bridge/consolevariablebridge.h>
 #include <stdarg.h>
 #include <unordered_map>
 
@@ -20,6 +21,7 @@ void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(FrameDrawEnd);
+    REGISTER_EVENT(OnControllerRead);
     REGISTER_EVENT(OnControllerUpdate);
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnMapLoaded);
@@ -32,6 +34,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnModelDraw);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(CameraRotationAuthored);
+    REGISTER_EVENT(OnDynamicCameraUpdate);
     REGISTER_EVENT(MapModelXluScale);
     REGISTER_EVENT(OnTransitionModelScale);
     REGISTER_EVENT(OnTransitionStateUpdate);
@@ -247,4 +250,17 @@ extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
 
     va_end(args);
     return boolResult;
+}
+
+// 1, or -1 when the player inverted the control.
+extern "C" int EventSystem_InvertControl(InvertControlType type) {
+    switch (type) {
+        case INVERT_CAMERA_X:
+            return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertX"), 0) ? -1 : 1;
+        case INVERT_CAMERA_Y:
+            return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertY"), 0) ? -1 : 1;
+        case INVERT_FIRST_PERSON_X:
+            return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0) ? -1 : 1;
+    }
+    return 1;
 }

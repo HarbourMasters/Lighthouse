@@ -22,6 +22,23 @@ typedef enum VBehaviorID {
     VB_CAMERA_FOLLOW,
     VB_CAMERA_APPLY_SHAKE,
 
+    // #### `result`
+    // ```c
+    // !balookat_getState() && player_movementGroup() != BSGROUP_4_LOOK && batimer_get(7) == 0.0f &&
+    //     bainput_should_zoom_out_camera()
+    // ```
+    // #### `args`
+    // - None
+    VB_CAMERA_CYCLE_ZOOM,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CAMERA_SWIVEL,
+
     // Cutscene and celebration skips
     VB_PLAY_BOOT_LOGOS,
     VB_PLAY_INTRO_CUTSCENE,
@@ -174,12 +191,19 @@ typedef enum DoorCameraId {
     MMM_DOOR_CAM_CHURCH, // church door, Tumblar challenge (flag 0)
 } DoorCameraId;
 
+typedef enum InvertControlType {
+    INVERT_CAMERA_X,
+    INVERT_CAMERA_Y,
+    INVERT_FIRST_PERSON_X,
+} InvertControlType;
+
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
+extern int EventSystem_InvertControl(InvertControlType type);
 #ifdef __cplusplus
 }
 

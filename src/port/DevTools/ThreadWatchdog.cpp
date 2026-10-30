@@ -74,7 +74,7 @@ constexpr const char* kThreadNonQueueWaits[WATCHDOG_NUM_THREADS] = {
     "map-load I/O",
     "sMesgMutex; a handler blocking in osSendMesg on a full queue",
     "sMesgMutex",
-    "func_8024F450 -> D_802816E8 wait; port_shapeControllerInput; CALL_EVENT(OnControllerUpdate)",
+    "func_8024F450 -> D_802816E8 wait; CALL_EVENT(OnControllerRead); CALL_EVENT(OnControllerUpdate)",
     "port_lockAudio (gAudioLock) in audioManager_handleFrameMsg",
     "func_8024F450 -> D_802816E8 wait via baMotor_startMotor/stopMotor/reinitialize; __osMotorAccess -> "
     "ControlDeck rumble",

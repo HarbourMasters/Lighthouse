@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "core2/ba/physics.h"
-#include "port/Controller/ModernCamera.h"
 #include "core2/yaw.h"
 
 extern f32 bastick_getX(void);
@@ -48,9 +47,10 @@ void bsDroneLook_update(void) {
     if (ncba1p_getState() == FIRSTPERSON_STATE_2_IDLE) {
         //camera is in "idle" state
         ncba1p_getZoomedInRotation(eye_rotation);
-        eye_rotation[0] -= bastick_getY() * 90.0f * dt * port_cameraInvertYSign();
+//      eye_rotation[0] -= bastick_getY() * 90.0f * dt;
+        eye_rotation[0] -= bastick_getY() * 90.0f * dt * EventSystem_InvertControl(INVERT_CAMERA_Y);
 //      eye_rotation[1] -= bastick_getX() * 90.0f * dt;
-        eye_rotation[1] -= bastick_getX() * 90.0f * dt * port_firstPersonInvertXSign();
+        eye_rotation[1] -= bastick_getX() * 90.0f * dt * EventSystem_InvertControl(INVERT_FIRST_PERSON_X);
         eye_rotation[2] = 0.0f;
         eye_rotation[0] = (eye_rotation[0] > 180.0f) ? ml_max_f(305.0f, eye_rotation[0]) : ml_min_f(70.0f, eye_rotation[0]);
         ncba1p_setZoomedOutRotation(eye_rotation);

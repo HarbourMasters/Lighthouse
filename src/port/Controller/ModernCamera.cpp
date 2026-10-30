@@ -9,6 +9,8 @@
 #include "ModernCamera.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
 #include "port/Enhancements/Camera/CameraShared.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
 
 extern "C" {
 extern unsigned char D_8037C061; // current zoom level
@@ -61,7 +63,7 @@ float sAimY = 0.0f;
 
 void ReadStickNorm(float& x, float& y) {
     float out[2] = { 0.0f, 0.0f };
-    controller_getRightStick(0, out);
+    ControlSchemes_GetRightStick(out);
     x = clampf(out[0], -1.0f, 1.0f);
     y = clampf(out[1], -1.0f, 1.0f);
 }
@@ -118,15 +120,13 @@ void ExitOrbit() {
     ReleaseSwivelMode();
 }
 
-} // namespace
-
-extern "C" int port_modernCamera_handleYaw(void) {
+bool HandleYaw() {
     bool schemeOk = ModernSchemeActive() && bs_getState() != BS_7_CROUCH && !IsDemoMode();
     if (!schemeOk) {
         if (sActive) {
             ExitOrbit();
         }
-        return 0;
+        return false;
     }
 
     int state = ncDynamicCamera_getState();
@@ -136,16 +136,16 @@ extern "C" int port_modernCamera_handleYaw(void) {
         // orbit and let that camera run.
         if (state != MODERN_ORBIT_CAM_STATE) {
             sActive = false;
-            return 0;
+            return false;
         }
         if (ManualCameraControl()) {
             ExitOrbit();
-            return 0;
+            return false;
         }
         if (!Climbing()) {
             ReleaseSwivelMode();
         }
-        return 1;
+        return true;
     }
 
     float x;
@@ -156,12 +156,12 @@ extern "C" int port_modernCamera_handleYaw(void) {
         if (state == kClimbCamState) {
             func_80291488(kSwivelCamMode);
         }
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
-extern "C" void port_modernCamera_update(void) {
+void UpdateOrbit() {
     float dt = time_getDelta();
 
     // Drive yaw from the stick. Freeze it during look-around so it doesn't drift
@@ -170,7 +170,8 @@ extern "C" void port_modernCamera_update(void) {
         float x;
         float y;
         ReadStickNorm(x, y);
-        D_8037DB70 = mlNormalizeAngle(D_8037DB70 + YawInput(x) * kYawSpeed * dt * port_cameraInvertXSign());
+        D_8037DB70 =
+            mlNormalizeAngle(D_8037DB70 + YawInput(x) * kYawSpeed * dt * EventSystem_InvertControl(INVERT_CAMERA_X));
     }
 
     // From here down this is ncDynamicCamB_update with our own yaw and height filter.
@@ -215,21 +216,21 @@ extern "C" void port_modernCamera_update(void) {
     ncDynamicCamera_setRotation(rot);
 }
 
-extern "C" int port_camera_suppressVanillaZoom(void) {
+bool SuppressVanillaZoom() {
     if (IsDemoMode() || port_freeLook_isEnabled()) {
-        return 0;
+        return false;
     }
     int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
     if (scheme == CONTROL_SCHEME_MODERN) {
         return port_rightStickIsMapped();
     }
     if (scheme == CONTROL_SCHEME_POCKET && bs_getState() == BS_7_CROUCH) {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
-extern "C" void port_modernCamera_handleZoom(void) {
+void HandleZoom() {
     if (!ModernSchemeActive() || bs_getState() == BS_7_CROUCH || IsDemoMode()) {
         return;
     }
@@ -279,14 +280,26 @@ extern "C" void port_modernCamera_handleZoom(void) {
     }
 }
 
-extern "C" float port_cameraInvertXSign(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertX"), 0) ? -1.0f : 1.0f;
+} // namespace
+
+void RegisterModernCamera_Init() {
+    // Each checks the scheme per frame; Cancel on the scheme prompt resets it without ShipInit.
+    COND_VB_SHOULD(VB_CAMERA_SWIVEL, EVENT_PRIORITY_NORMAL, true, {
+        if (*should && HandleYaw()) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_CAMERA_CYCLE_ZOOM, EVENT_PRIORITY_NORMAL, true, {
+        HandleZoom();
+        if (SuppressVanillaZoom()) {
+            *should = false;
+        }
+    });
+    COND_HOOK(OnDynamicCameraUpdate, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (((OnDynamicCameraUpdate*)event)->state == MODERN_ORBIT_CAM_STATE) {
+            UpdateOrbit();
+        }
+    });
 }
 
-extern "C" float port_cameraInvertYSign(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertY"), 0) ? -1.0f : 1.0f;
-}
-
-extern "C" float port_firstPersonInvertXSign(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0) ? -1.0f : 1.0f;
-}
+static RegisterShipInitFunc initModernCamera(RegisterModernCamera_Init, {});

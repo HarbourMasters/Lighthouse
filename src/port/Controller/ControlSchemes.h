@@ -9,6 +9,7 @@ enum ControlScheme {
 
 #ifdef __cplusplus
 void ControlSchemes_Apply(int scheme);
+void ControlSchemes_GetRightStick(float dst[2]);
 
 extern "C" {
 #endif

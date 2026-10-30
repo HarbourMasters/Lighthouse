@@ -3,9 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Camera/FreeLookCamera.h"
-#include "port/Controller/ModernCamera.h"
-#include "port/Enhancements/Gameplay/BeakBombAiming.h"
 
 
 extern BKCollisionTriangle *func_80245314(f32[3], f32[3], f32, f32, s32);
@@ -383,16 +380,8 @@ void ncDynamicCamera_update(void){
             ncDynamicCam13_update();
             break;
 
-        case FREELOOK_CAM_STATE: // [port] right-stick free look
-            port_freeLookCamera_update();
-            break;
-
-        case MODERN_ORBIT_CAM_STATE: // [port] modern scheme right-stick yaw orbit
-            port_modernCamera_update();
-            break;
-
-        case BEAK_BOMB_AIM_CAM_STATE: // [port] Beak Bomb Aiming's view
-            port_beakBombAimCamera_update();
+        default: // [port] the port's own camera states
+            { CALL_EVENT(OnDynamicCameraUpdate, dynamicCameraState); }
             break;
     }//// L802BD064
     ml_vec3f_copy(position, cameraPosition);
