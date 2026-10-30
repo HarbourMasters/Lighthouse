@@ -37,7 +37,10 @@ DEFINE_EVENT(OnModelDisplayListLoad, const char* path; u32 * dlWords; u32 dlWord
              u16 texCount;);
 DEFINE_EVENT(OnModelBinBuilt, const char* path; void* bin;);
 DEFINE_EVENT(OnModelDraw, s32 modelId; void* modelBin;);
+DEFINE_EVENT(OnModelRenderBegin, Gfx** gfx;);
+DEFINE_EVENT(OnModelRenderEnd, Gfx** gfx;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
+DEFINE_EVENT(OnViewportProjection, Gfx** gfx; Mtx * *mtx;);
 DEFINE_EVENT(CameraRotationAuthored, s32 source; s32 id; const f32* position; f32 * rotation;);
 DEFINE_EVENT(OnDynamicCameraUpdate, s32 state;);
 DEFINE_EVENT(MapModelXluScale, s32 map; f32 * scale;);
@@ -48,6 +51,8 @@ DEFINE_EVENT(CubeDrawRange, const int32_t* mapWidth; int32_t * min; int32_t * ma
 DEFINE_EVENT(MapUnderwaterTint, s32 map; s32 * tintMap;);
 
 DEFINE_EVENT(OnActorTick, Actor* actor;);
+DEFINE_EVENT(OnActorDrawBegin, Actor* actor;);
+DEFINE_EVENT(OnActorDrawEnd, Actor* actor;);
 DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);
 DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
 DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
@@ -67,6 +72,7 @@ DEFINE_EVENT(LocalizeParade, int32_t paradeId; void** table; uint8_t * count;);
 DEFINE_EVENT(ParadeCreditDialogId, int32_t index; int32_t * dialogId;);
 DEFINE_EVENT(PresentDialogId, int32_t* dialogId;);
 DEFINE_EVENT(ResolveBoldFontSlot, int32_t* slot; int32_t * letterId;);
+DEFINE_EVENT(OnWorldDrawBegin);
 DEFINE_EVENT(OnWorldDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnHudDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);

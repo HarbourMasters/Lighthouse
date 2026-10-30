@@ -1193,8 +1193,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     if(D_803837B0.unk0){
         mlMtxRotatePYR(D_803837B0.unk4[0], D_803837B0.unk4[1], D_803837B0.unk4[2]);
     }
-    // [port] Mirror mode: bake counter-mirror into modelview for text-bearing models
-    int _mirror_excluded = port_mirror_bakeCounterScale();
+    CALL_EVENT(OnModelRenderBegin, gfx); // [port]
     mlMtxGet(&D_80383BF8);
 
     mlMtxApply(*mtx);
@@ -1210,11 +1209,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         modelRenderRotation[0] = modelRenderRotation[1] = modelRenderRotation[2] = 0.0f;
     }
 
-    // [port] Mirror mode: counter-mirror text-bearing models so text reads correctly
-    if (_mirror_excluded) gSPClearExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     modelRender_executeGeoCmds(gfx, mtx, modelbin_getGeoCmdList_MACRO(model_bin));
-    // [port] Mirror mode: restore culling inversion
-    if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
+    CALL_EVENT(OnModelRenderEnd, gfx); // [port]
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     // [port] Romhack model DLs can leave a palette (TLUT) mode enabled and leak it
     // into the next model's draw; reset it after every model for romhacks.

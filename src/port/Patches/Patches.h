@@ -99,19 +99,8 @@ void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t co
 
 // Mirror (MirrorPatches.cpp)
 
-int port_mirror_active(void);
-void port_mirror_beginScene(void);
-void port_mirror_endScene(void);
-void port_mirror_undoProjection(Gfx** gfx, Mtx** mtx);
-void port_viewport_applyMirror(Gfx** gfx, Mtx** mtx);
 void port_mirror_markCapture(void);
 int port_mirror_shouldFlipPauseBg(void);
-
-// Mirror per-model exclusion (counter-mirror text-bearing objects)
-void port_mirror_setExclude(void);
-void port_mirror_clearExclude(void);
-int port_mirror_bakeCounterScale(void);
-void port_mirror_patchTextActors(void);
 
 // Volatile flag checks
 

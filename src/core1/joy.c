@@ -207,8 +207,6 @@ void joy_update(void)
 
     CALL_EVENT(OnControllerRead, &sInputs[0]); // [port]
 
-    if (port_mirror_active()) sInputs[0].stick_x = -sInputs[0].stick_x;
-
     sInputsPrimary.stick_x = sInputs[0].stick_x;
     sInputsPrimary.stick_y = sInputs[0].stick_y;
     sInputsPrimary.button  = sInputs[0].button;
