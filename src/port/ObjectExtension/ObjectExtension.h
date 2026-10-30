@@ -25,6 +25,9 @@
  * and set with
  * ObjectExtension::GetInstance().Set<MyData>(ptr, MyData{});
  * (or with the returned pointer from Get()).
+ *
+ * Key an actor's data on its marker. Freeing an actor moves the last one in the array into its slot, so an Actor
+ * pointer changes hands, and releasing the marker frees the data.
  */
 class ObjectExtension {
 public:
@@ -109,6 +112,11 @@ private:
 // Static template globals
 template <typename T> ObjectExtension::Id ObjectExtension::Register<T>::Id = ObjectExtension::InvalidId;
 
-#else // __cplusplus
+extern "C" {
+#endif // __cplusplus
 
+void ObjectExtension_Free(const void* object);
+
+#ifdef __cplusplus
+}
 #endif // __cplusplus

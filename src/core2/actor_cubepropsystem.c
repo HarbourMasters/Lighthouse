@@ -9,6 +9,7 @@
 #include <core2/file.h>
 #include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
+#include "port/ObjectExtension/ObjectExtension.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 
@@ -2523,6 +2524,7 @@ void func_80332B2C(ActorMarker * arg0){
     static s32 D_8036E804[8] = {0x7F, 0xBF, 0xDF, 0xEF, 0xF7, 0xFB, 0xFD, 0xFE};
 
     s32 index = (arg0 - D_8036E7C8);
+    ObjectExtension_Free(arg0); // [port]
     arg0->unk5C = 0;
     D_80383428[index >> 3] =  D_80383428[index >> 3] & D_8036E804[index & 7];
 }

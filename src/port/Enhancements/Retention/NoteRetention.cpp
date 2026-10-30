@@ -234,9 +234,6 @@ extern "C" void port_noteRetention_beginMapLoad(int32_t mapId) {
 }
 
 extern "C" void port_noteRetention_onActorsFreed(void) {
-    for (auto& [key, marker] : activeNoteSet) {
-        ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
-    }
     activeNoteSet.clear();
     noteActorQueue.clear();
 }
