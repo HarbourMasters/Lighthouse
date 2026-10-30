@@ -20,7 +20,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(OnControllerUpdate);
-    REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnMapLoaded);
     REGISTER_EVENT(OnMapLoadStub);
@@ -153,7 +152,43 @@ void PortEnhancements_Exit() {
     // @port TODO
 }
 
+// Registration runs at boot or on the game thread, which also dispatches, so nothing here is locked.
+namespace {
+struct HookEvent {
+    EventID event = -1;
+    int32_t listeners = 0;
+};
+
+HookEvent sBehaviorHooks[VB_COUNT];
+} // namespace
+
+ListenerID VanillaBehavior_RegisterListener(VBehaviorID id, const char* name, EventPriority priority,
+                                            EventCallback callback, const char* file, int line) {
+    HookEvent& hook = sBehaviorHooks[id];
+    if (hook.event == -1) {
+        hook.event = EventSystemRegisterEvent(name);
+    }
+    hook.listeners++;
+    return EventSystemRegisterListener(hook.event, callback, priority, file, line);
+}
+
+void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId) {
+    HookEvent& hook = sBehaviorHooks[id];
+    EventSystemUnregisterListener(hook.event, listenerId);
+    hook.listeners--;
+}
+
 extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
+    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
+    // an int to be permitted to be used in va_start, otherwise it is undefined behavior.
+    // Here we downcast back to a bool for our actual hook handlers.
+    bool boolResult = static_cast<bool>(result);
+
+    const HookEvent& hook = sBehaviorHooks[id];
+    if (hook.listeners == 0) {
+        return boolResult;
+    }
+
     // Only the external function can use the Variadic Function syntax.
     // To pass the va args to the next caller must be done using va_list and reading the args into it.
     // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
@@ -161,12 +196,8 @@ extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
     va_list args;
     va_start(args, result);
 
-    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
-    // an int to be permitted to be used in va_start, otherwise it is undefined behavior.
-    // Here we downcast back to a bool for our actual hook handlers.
-    bool boolResult = static_cast<bool>(result);
-
-    CALL_EVENT(VanillaBehavior, id, &boolResult, &args);
+    VanillaBehavior event = { { false }, id, &boolResult, &args };
+    EventSystemCallEvent(hook.event, &event, __FILE__, __LINE__, FILE_AND_LINE);
 
     va_end(args);
     return boolResult;
