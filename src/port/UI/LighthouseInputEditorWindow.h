@@ -45,6 +45,7 @@ private:
     void DrawMappingCapturePopup(const char* popupId, const char* verb, const std::function<bool()>& capture);
     static const char* MappingTypeIcon(int8_t mappingType);
     void PushMappingButtonColors(Ship::PhysicalDeviceType deviceType);
+    void WrapMappingRow(float width);
 
     void DrawStickDirectionLine(const char* axisDirectionName, uint8_t port, uint8_t stick, Ship::Direction direction,
                                 ImVec4 color);
@@ -98,6 +99,7 @@ private:
     std::set<N64ButtonMask> mButtonsBitmasks;
     std::set<N64ButtonMask> mDpadBitmasks;
     bool mInputEditorPopupOpen;
+    float mMappingRowStartX;
     void DrawSetDefaultsButton(uint8_t portIndex);
     void DrawClearAllButton(uint8_t portIndex);
     void OffsetMappingPopup();

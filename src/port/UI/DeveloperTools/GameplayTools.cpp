@@ -5,6 +5,7 @@
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/FrameHost.h"
 
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
@@ -354,14 +355,18 @@ void GameplayTools_ObjectSpawner() {
 
 void DrawGrantUnlocks() {
     if (UIWidgets::Button("Unlock Moves", { .color = THEME_COLOR })) {
-        ability_setAllLearned(-1);
-        ability_setAllUsed(-1);
+        Lighthouse::RunOnGameThread([] {
+            ability_setAllLearned(-1);
+            ability_setAllUsed(-1);
+        });
     }
     if (UIWidgets::Button("Add All Consumables", { .color = THEME_COLOR })) {
-        item_set(ITEM_D_EGGS, 100);
-        item_set(ITEM_F_RED_FEATHER, 50);
-        item_set(ITEM_10_GOLD_FEATHER, 10);
-        item_set(ITEM_1C_MUMBO_TOKEN, 25);
+        Lighthouse::RunOnGameThread([] {
+            item_set(ITEM_D_EGGS, 100);
+            item_set(ITEM_F_RED_FEATHER, 50);
+            item_set(ITEM_10_GOLD_FEATHER, 10);
+            item_set(ITEM_1C_MUMBO_TOKEN, 25);
+        });
     }
 }
 
@@ -412,7 +417,8 @@ void DrawMonitoringTools() {
                     if (UIWidgets::Checkbox(
                             "state", &flagState,
                             UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
-                        mapSpecificFlags_set(flagData.flagId, !mapSpecificFlags_get(flagData.flagId));
+                        Lighthouse::RunOnGameThread(
+                            [flag = flagData.flagId] { mapSpecificFlags_set(flag, !mapSpecificFlags_get(flag)); });
                     }
 
                     ImGui::TableNextColumn();

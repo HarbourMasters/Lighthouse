@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -25,5 +26,6 @@ struct RegisterFrameHost {
 bool IsFrameHostFlag(const std::string& arg);
 FrameHost* GetFrameHost();
 void WakeGame();
+void RunOnGameThread(std::function<void()> fn);
 
 } // namespace Lighthouse

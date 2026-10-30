@@ -261,7 +261,15 @@ void LighthouseInputEditorWindow::DrawMappingCapturePopup(const char* popupId, c
     ImGui::EndPopup();
 }
 
+void LighthouseInputEditorWindow::WrapMappingRow(float width) {
+    if (ImGui::GetCursorPosX() > mMappingRowStartX && width > ImGui::GetContentRegionAvail().x) {
+        ImGui::NewLine();
+        ImGui::SetCursorPosX(mMappingRowStartX);
+    }
+}
+
 void LighthouseInputEditorWindow::DrawButtonLineAddMappingButton(uint8_t port, N64ButtonMask bitmask) {
+    WrapMappingRow(SCALE_IMGUI_SIZE(20.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     auto popupId = StringHelper::Sprintf("addButtonMappingPopup##%d-%d", port, bitmask);
     if (ImGui::Button(StringHelper::Sprintf("%s###addButtonMappingButton%d-%d", ICON_FA_PLUS, port, bitmask).c_str(),
@@ -291,15 +299,22 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
         return;
     }
 
+    auto sdlAxisDirectionToButtonMapping = std::dynamic_pointer_cast<Ship::SDLAxisDirectionToButtonMapping>(mapping);
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
     auto physicalInputDisplayName = StringHelper::Sprintf("%s %s", MappingTypeIcon(mapping->GetMappingType()),
                                                           mapping->GetPhysicalInputName().c_str());
+    float nameWidth = ImGui::CalcTextSize(physicalInputDisplayName.c_str()).x + SCALE_IMGUI_SIZE(12.0f);
+    float thresholdWidth = sdlAxisDirectionToButtonMapping != nullptr
+                               ? ImGui::CalcTextSize(ICON_FA_COG).x + SCALE_IMGUI_SIZE(10.0f)
+                               : 0.0f;
+    float removeWidth = ImGui::CalcTextSize(ICON_FA_TIMES).x + SCALE_IMGUI_SIZE(10.0f);
+    WrapMappingRow(nameWidth + thresholdWidth + removeWidth);
     PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     auto popupId = StringHelper::Sprintf("editButtonMappingPopup##%s", id.c_str());
     if (ImGui::Button(
             StringHelper::Sprintf("%s###editButtonMappingButton%s", physicalInputDisplayName.c_str(), id.c_str())
                 .c_str(),
-            ImVec2(ImGui::CalcTextSize(physicalInputDisplayName.c_str()).x + SCALE_IMGUI_SIZE(12.0f), 0.0f))) {
+            ImVec2(nameWidth, 0.0f))) {
         ImGui::OpenPopup(popupId.c_str());
         OffsetMappingPopup();
     }
@@ -320,7 +335,6 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
     ImGui::PopStyleVar();
     ImGui::SameLine(0, 0);
 
-    auto sdlAxisDirectionToButtonMapping = std::dynamic_pointer_cast<Ship::SDLAxisDirectionToButtonMapping>(mapping);
     if (sdlAxisDirectionToButtonMapping != nullptr) {
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
         auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
@@ -331,7 +345,7 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
         auto popupId = StringHelper::Sprintf("editAxisThresholdPopup##%s", id.c_str());
         if (ImGui::Button(StringHelper::Sprintf("%s###editAxisThresholdButton%s", ICON_FA_COG, id.c_str()).c_str(),
-                          ImVec2(ImGui::CalcTextSize(ICON_FA_COG).x + SCALE_IMGUI_SIZE(10.0f), 0.0f))) {
+                          ImVec2(thresholdWidth, 0.0f))) {
             ImGui::OpenPopup(popupId.c_str());
             OffsetMappingPopup();
         }
@@ -440,7 +454,7 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
     PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     if (ImGui::Button(StringHelper::Sprintf("%s###removeButtonMappingButton%s", ICON_FA_TIMES, id.c_str()).c_str(),
-                      ImVec2(ImGui::CalcTextSize(ICON_FA_TIMES).x + SCALE_IMGUI_SIZE(10.0f), 0.0f))) {
+                      ImVec2(removeWidth, 0.0f))) {
         Ship::Context::GetRawInstance()
             ->GetControlDeck()
             ->GetControllerByPort(port)
@@ -460,6 +474,7 @@ void LighthouseInputEditorWindow::DrawButtonLine(const char* buttonName, uint8_t
     ImGui::SameLine(SCALE_IMGUI_SIZE(32.0f));
     DrawInputChip(buttonName, color);
     ImGui::SameLine(SCALE_IMGUI_SIZE(86.0f));
+    mMappingRowStartX = ImGui::GetCursorPosX();
     for (auto id : mBitmaskToMappingIds[port][bitmask]) {
         DrawButtonLineEditMappingButton(port, bitmask, id);
     }
@@ -468,6 +483,7 @@ void LighthouseInputEditorWindow::DrawButtonLine(const char* buttonName, uint8_t
 
 void LighthouseInputEditorWindow::DrawStickDirectionLineAddMappingButton(uint8_t port, uint8_t stick,
                                                                          Ship::Direction direction) {
+    WrapMappingRow(SCALE_IMGUI_SIZE(20.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     auto popupId = StringHelper::Sprintf("addStickDirectionMappingPopup##%d-%d-%d", port, stick, direction);
     if (ImGui::Button(
@@ -499,13 +515,15 @@ void LighthouseInputEditorWindow::DrawStickDirectionLineEditMappingButton(uint8_
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
     auto physicalInputDisplayName = StringHelper::Sprintf("%s %s", MappingTypeIcon(mapping->GetMappingType()),
                                                           mapping->GetPhysicalInputName().c_str());
+    float nameWidth = ImGui::CalcTextSize(physicalInputDisplayName.c_str()).x + SCALE_IMGUI_SIZE(12.0f);
+    float removeWidth = ImGui::CalcTextSize(ICON_FA_TIMES).x + SCALE_IMGUI_SIZE(10.0f);
+    WrapMappingRow(nameWidth + removeWidth);
     PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     auto popupId = StringHelper::Sprintf("editStickDirectionMappingPopup##%s", id.c_str());
-    if (ImGui::Button(
-            StringHelper::Sprintf("%s###editStickDirectionMappingButton%s", physicalInputDisplayName.c_str(),
-                                  id.c_str())
-                .c_str(),
-            ImVec2(ImGui::CalcTextSize(physicalInputDisplayName.c_str()).x + SCALE_IMGUI_SIZE(12.0f), 0.0f))) {
+    if (ImGui::Button(StringHelper::Sprintf("%s###editStickDirectionMappingButton%s", physicalInputDisplayName.c_str(),
+                                            id.c_str())
+                          .c_str(),
+                      ImVec2(nameWidth, 0.0f))) {
         ImGui::OpenPopup(popupId.c_str());
         OffsetMappingPopup();
     }
@@ -527,7 +545,7 @@ void LighthouseInputEditorWindow::DrawStickDirectionLineEditMappingButton(uint8_
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     if (ImGui::Button(
             StringHelper::Sprintf("%s###removeStickDirectionMappingButton%s", ICON_FA_TIMES, id.c_str()).c_str(),
-            ImVec2(ImGui::CalcTextSize(ICON_FA_TIMES).x + SCALE_IMGUI_SIZE(10.0f), 0.0f))) {
+            ImVec2(removeWidth, 0.0f))) {
         if (stick == Ship::LEFT) {
             Ship::Context::GetRawInstance()
                 ->GetControlDeck()
@@ -559,6 +577,7 @@ void LighthouseInputEditorWindow::DrawStickDirectionLine(const char* axisDirecti
     ImGui::PopStyleColor();
     ImGui::EndDisabled();
     ImGui::SameLine(0.0f, SCALE_IMGUI_SIZE(4.0f));
+    mMappingRowStartX = ImGui::GetCursorPosX();
     for (auto id : mStickDirectionToMappingIds[port][stick][direction]) {
         DrawStickDirectionLineEditMappingButton(port, stick, direction, id);
     }

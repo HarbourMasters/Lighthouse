@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <chrono>
+#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -48,6 +49,7 @@ void audioManagerThread_entry(void* arg);
 void core1_15B30_sendMesg3ToRenderThread(void);
 OSMesgQueue* thread5_getTaskQueue(void);
 OSMesgQueue* thread5_getSyncQueue(void);
+OSMesgQueue* core1_15B30_getTaskDataListLockQueue(void);
 u32 osDpGetStatus(void);
 }
 
@@ -83,6 +85,9 @@ void (*sSvcFn)(void*) = nullptr;
 void* sSvcArg = nullptr;
 std::atomic<bool> sShutdownRequested{ false };
 
+std::mutex sGameTaskMutex;
+std::vector<std::function<void()>> sGameTasks;
+
 int sTitleMap = 0;
 
 std::unique_ptr<Lighthouse::FrameHost> sHost;
@@ -105,6 +110,17 @@ void DrainRenderService() {
         lock.lock();
         sSvcFn = nullptr;
         sSvcCv.notify_all();
+    }
+}
+
+void DrainGameTasks() {
+    std::vector<std::function<void()>> tasks;
+    {
+        std::lock_guard<std::mutex> lock(sGameTaskMutex);
+        tasks.swap(sGameTasks);
+    }
+    for (auto& task : tasks) {
+        task();
     }
 }
 
@@ -135,6 +151,15 @@ Lighthouse::FrameHost* Lighthouse::GetFrameHost() {
 void Lighthouse::WakeGame() {
     std::lock_guard<std::mutex> lock(sParkMutex);
     sParkCv.notify_all();
+}
+
+void Lighthouse::RunOnGameThread(std::function<void()> fn) {
+    if (sGameThreadDone.load()) {
+        fn();
+        return;
+    }
+    std::lock_guard<std::mutex> lock(sGameTaskMutex);
+    sGameTasks.push_back(std::move(fn));
 }
 
 // A list is submitted while its tick is still recording, so the pair is
@@ -282,6 +307,7 @@ void EnableThread5() {
     OS_EnableThreadEntry((void*)audioManagerThread_entry);
     OS_SetQueueBlocking(audioManager_getFrameMesgQueue(), 1);
     OS_SetQueueBlocking(audioManager_getReplyMesgQueue(), 1);
+    OS_SetQueueBlocking(core1_15B30_getTaskDataListLockQueue(), 1);
 }
 } // namespace
 
@@ -350,6 +376,8 @@ extern "C" void Graphics_PushFrame(Gfx* data) {
 void push_frame() {
     static int sTitleCounter = 0;
     sFrameRendered = false;
+
+    DrainGameTasks();
 
     // The window thread keeps the progress modal alive while an inline mod
     // extraction runs; the tick just idles so the extractor gets the machine.
@@ -529,6 +557,7 @@ int SDL_main(int argc, char* argv[]) {
     if (sGameThread.joinable()) {
         sGameThread.join();
     }
+    DrainGameTasks();
     // Before Destroy: these threads draw and play audio through the engine.
     OS_JoinDecompThreads();
     ThreadWatchdog_Stop();

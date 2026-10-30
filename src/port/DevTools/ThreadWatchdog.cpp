@@ -43,6 +43,7 @@ OSMesgQueue* baMotor_getRetraceQueue(void);
 OSMesgQueue* viMgr_getRetraceQueue(void);
 OSMesgQueue* viMgr_getFrameTokenQueue(void);
 OSMesgQueue* viMgr_getTickRetraceQueue(void);
+OSMesgQueue* core1_15B30_getTaskDataListLockQueue(void);
 int port_audioHeld(void);
 int port_renderServicePending(void);
 // Repro context
@@ -192,6 +193,11 @@ QueueInfo DescribeQueue(OSMesgQueue* mq) {
     if (mq == audioManager_getReplyMesgQueue()) {
         return { true, "audioReplyMsgQ (audio_manager.c)",
                  "thread5_handleSPEvent when sUnkFlag1==UNKFLAG1_AUDIO_TASK" };
+    }
+    if (mq == core1_15B30_getTaskDataListLockQueue()) {
+        return { true, "sTaskDataListLockMesgQueue (display_list.c)",
+                 "core1_15B30_requestReleaseForTaskDataID: game tick (add F3DEX/L3DEX/Task7) and "
+                 "audio-mgr (addAudioTaskData, under gAudioLock)" };
     }
     return { false, "unmapped queue", "unknown" };
 }
