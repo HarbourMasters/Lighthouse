@@ -6,6 +6,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/FrameHost.h"
 #include "port/GameStatus.h"
+#include "port/Network/Anchor/Anchor.h"
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
 #include "port/Save/Types.h"
@@ -367,6 +368,7 @@ void SaveEditor_DrawProgressTab() {
                                     if (m != nullptr) {
                                         marker_despawn(m);
                                     }
+                                    Anchor::GetInstance()->SendPacket_CollectItem(ANCHOR_COLLECTIBLE_JIGGY, i);
                                     func_8034798C();
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount + 1));
                                 }
