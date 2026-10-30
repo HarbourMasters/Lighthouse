@@ -84,11 +84,11 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                     });
                 }
             }
+            // The Save Editor sends from whatever map it's on, so look for the jiggy here regardless.
+            if (ActorMarker* m = func_8032B16C((enum jiggy_e)id)) {
+                marker_despawn(m);
+            }
             if (sameMap) {
-                ActorMarker* m = func_8032B16C((enum jiggy_e)id);
-                if (m != nullptr) {
-                    marker_despawn(m);
-                }
                 if (id == JIGGY_20_BGS_ELEVATED_WALKWAY || id == JIGGY_25_BGS_MAZE) {
                     func_802D6924();
                 }

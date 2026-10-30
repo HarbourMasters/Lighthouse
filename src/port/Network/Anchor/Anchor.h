@@ -1,7 +1,9 @@
 #pragma once
 #ifdef __cplusplus
 
+#include <atomic>
 #include <mutex>
+#include <optional>
 #include <queue>
 #include <map>
 #include <unordered_map>
@@ -59,14 +61,19 @@ private:
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
     bool hasRequestedTeamState = false;
+    bool isReconnecting = false;
     BKPlayerColorSet sentColors = {};
     std::queue<nlohmann::json> incomingPacketQueue;
     std::mutex incomingPacketQueueMutex;
     std::queue<nlohmann::json> outgoingPacketQueue;
     std::mutex outgoingPacketQueueMutex;
+    std::optional<nlohmann::json> heldTeamState;
+    std::vector<nlohmann::json> heldIncomingPackets;
+    std::atomic<bool> isHoldingTeamState{ false };
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
     void FlushPendingJiggySpawns();
+    void UseHeldTeamState();
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();
@@ -193,7 +200,7 @@ public:
     std::string lastWarnedRomhackLabel;
     std::string lastWarnedRandoState;
     std::string lastClearedTeamStateSig;
-    bool gameMismatchWithTeam = false;
+    std::atomic<bool> gameMismatchWithTeam{ false };
     bool hasCheckedRandoCompat = false;
 
     void Enable();
@@ -246,7 +253,7 @@ public:
     // client (used to hand a late arrival our current state directly).
     void SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId = 0);
     void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
-    void SendPacket_RequestTeamState(bool force = false);
+    bool SendPacket_RequestTeamState(bool force = false);
     void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);

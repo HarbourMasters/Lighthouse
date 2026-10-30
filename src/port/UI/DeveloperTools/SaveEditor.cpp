@@ -6,6 +6,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/FrameHost.h"
 #include "port/GameStatus.h"
+#include "port/Network/Anchor/Anchor.h"
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
 #include "port/Save/Types.h"
@@ -352,13 +353,23 @@ void SaveEditor_DrawProgressTab() {
                                                 UIWidgets::CheckboxOptions()
                                                     .LabelPosition(UIWidgets::LabelPositions::None)
                                                     .Tooltip(SaveEditor_GetJiggyTooltip((jiggy_e)i)))) {
-                            Lighthouse::RunOnGameThread([i] {
+                            Lighthouse::RunOnGameThread([i, level] {
                                 int32_t curJiggyCount = item_getCount(ITEM_26_JIGGY_TOTAL);
                                 if (SaveEditor_IsJiggyCollected((jiggy_e)i)) {
                                     jiggyscore_setCollected(i, false);
+                                    func_8034798C();
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount - 1));
+                                    if (level == (int)level_get()) {
+                                        game_transitionToMapResettingLevel(gsworld_getMap(), gsworld_getExit(), 1);
+                                    }
                                 } else {
                                     jiggyscore_setCollected(i, true);
+                                    ActorMarker* m = func_8032B16C((enum jiggy_e)i);
+                                    if (m != nullptr) {
+                                        marker_despawn(m);
+                                    }
+                                    Anchor::GetInstance()->SendPacket_CollectItem(ANCHOR_COLLECTIBLE_JIGGY, i);
+                                    func_8034798C();
                                     item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount + 1));
                                 }
                             });

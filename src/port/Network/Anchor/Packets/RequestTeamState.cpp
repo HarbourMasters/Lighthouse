@@ -15,11 +15,11 @@
  * state
  */
 
-void Anchor::SendPacket_RequestTeamState(bool force) {
+bool Anchor::SendPacket_RequestTeamState(bool force) {
     // `force` bypasses the IsSaveLoaded check: OnGameStart fires from the file-select state machine
     // while the map is still FILE_SELECT, so the save is loaded but IsSaveLoaded() is still false.
     if ((!force && !IsSaveLoaded()) || !roomState.syncItemsAndFlags) {
-        return;
+        return false;
     }
 
     nlohmann::json payload;
@@ -27,6 +27,7 @@ void Anchor::SendPacket_RequestTeamState(bool force) {
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
 
     SendJsonToRemote(payload);
+    return true;
 }
 
 void Anchor::HandlePacket_RequestTeamState(nlohmann::json& payload) {

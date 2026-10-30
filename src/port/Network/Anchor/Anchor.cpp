@@ -9,6 +9,7 @@
 #include "port/ObjectExtension/ObjectExtension.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/FrameHost.h"
+#include "port/UI/Notification.h"
 
 #include "variables.h"
 #include "functions.h"
@@ -31,6 +32,7 @@ void Anchor::Enable() {
                     CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383));
     ownClientId = CVarGetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), 0);
     roomState = RoomState{};
+    gameMismatchWithTeam = false;
 }
 
 bool Anchor::IsGlobalRoom() {
@@ -61,6 +63,12 @@ void Anchor::Disable() {
 
 void Anchor::OnConnected() {
     SendPacket_Handshake();
+    if (isReconnecting) {
+        isReconnecting = false;
+        Notification::Emit({
+            .message = "Reconnected to Anchor",
+        });
+    }
 
     Lighthouse::RunOnGameThread([this]() {
         RegisterHooks();
@@ -68,8 +76,7 @@ void Anchor::OnConnected() {
         port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
         port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
 
-        if (IsSaveLoaded()) {
-            SendPacket_RequestTeamState();
+        if (SendPacket_RequestTeamState()) {
             hasRequestedTeamState = true;
             reloadMapOnTeamState = true;
         }
@@ -77,12 +84,23 @@ void Anchor::OnConnected() {
 }
 
 void Anchor::OnDisconnected() {
+    // Still enabled means the server dropped us, not the player turning Anchor off.
+    if (isEnabled) {
+        isReconnecting = true;
+        Notification::Emit({
+            .message = "Lost connection to Anchor, reconnecting",
+        });
+    }
     Lighthouse::RunOnGameThread([this]() {
         Authority_Reset();
         RegisterHooks();
 
         port_noteRetention_setForced(0);
         port_jinjoRetention_setForced(0);
+
+        heldTeamState.reset();
+        heldIncomingPackets.clear();
+        isHoldingTeamState = false;
     });
 }
 
@@ -118,7 +136,8 @@ void Anchor::SendJsonToRemote(nlohmann::json payload) {
         return;
     }
 
-    if (!roomState.syncItemsAndFlags && !AllowedWithoutGameSync(payload.value("type", std::string()))) {
+    if ((!roomState.syncItemsAndFlags || isHoldingTeamState || gameMismatchWithTeam) &&
+        !AllowedWithoutGameSync(payload.value("type", std::string()))) {
         return;
     }
 
@@ -148,27 +167,6 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
         SPDLOG_DEBUG("[Anchor] Received payload:\n{}", payload.dump());
     }
 
-    std::string packetType = payload["type"].get<std::string>();
-
-    // Same rule inbound: a peer on an older build must not push world state into a room
-    // that isn't syncing it.
-    if (!roomState.syncItemsAndFlags && !AllowedWithoutGameSync(packetType)) {
-        return;
-    }
-
-    // Ignore packets from mismatched clients, except for ALL_CLIENT_STATE, UPDATE_CLIENT_STATE, and
-    // player updates
-    if (packetType != ALL_CLIENT_STATE && packetType != UPDATE_CLIENT_STATE && packetType != PLAYER_UPDATE &&
-        packetType != PLAYER_UPDATE_FULL && packetType != PLAYER_ANIM && packetType != PLAYER_SUBRANGE &&
-        packetType != PLAYER_TRANSFORM) {
-        if (payload.contains("clientId")) {
-            uint32_t clientId = payload["clientId"].get<uint32_t>();
-            if (clients.contains(clientId) && clients[clientId].clientVersion != clientVersion) {
-                return;
-            }
-        }
-    }
-
     // Queue all packets to be processed on the game thread
     std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
     incomingPacketQueue.push(payload);
@@ -188,6 +186,29 @@ void Anchor::ProcessIncomingPacketQueue() {
         packetsToProcess.pop();
 
         std::string packetType = payload["type"].get<std::string>();
+
+        // Checked on this thread, once any room state queued ahead of the packet has applied.
+        if ((!roomState.syncItemsAndFlags || gameMismatchWithTeam) && !AllowedWithoutGameSync(packetType)) {
+            continue;
+        }
+
+        // A client on another build only gets its state and movement through.
+        if (packetType != ALL_CLIENT_STATE && packetType != UPDATE_CLIENT_STATE && packetType != PLAYER_UPDATE &&
+            packetType != PLAYER_UPDATE_FULL && packetType != PLAYER_ANIM && packetType != PLAYER_SUBRANGE &&
+            packetType != PLAYER_TRANSFORM) {
+            if (payload.contains("clientId")) {
+                uint32_t clientId = payload["clientId"].get<uint32_t>();
+                if (clients.contains(clientId) && clients[clientId].clientVersion != clientVersion) {
+                    continue;
+                }
+            }
+        }
+
+        // Kept back until the player picks between their file and the team save.
+        if (isHoldingTeamState && !AllowedWithoutGameSync(packetType)) {
+            heldIncomingPackets.push_back(std::move(payload));
+            continue;
+        }
 
         isProcessingIncomingPacket = true;
 

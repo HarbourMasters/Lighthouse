@@ -123,6 +123,22 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     if (excluded.contains((space << 16) | index)) {
         return true;
     }
+    // MM Juju's half-turn flag: animation state, kept local.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN &&
+        index == MM_SPECIFIC_FLAG_9_JUJU_HAS_HALF_TURNED) {
+        return true;
+    }
+    // Chimpy's walk-off sets these as it plays, and each client plays its own.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN &&
+        (index == MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED || index == MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT)) {
+        return true;
+    }
+    // Holds every mutie in its greeting while one player reads it (crab.c); each client sets its own.
+    if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
+        (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_3_CLANKERS_CAVERN &&
+        index == LEVEL_FLAG_E_CC_MUTIE_SNIPPETS) {
+        return true;
+    }
     // BGS jiggy-switch timers (walkway=3, maze=0xC): kept local.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
         (index == 3 || index == 0xC)) {
@@ -135,6 +151,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     // FP xmas tree star minigame (flags 2/3): per-player, kept local; result syncs via ANCHOR_PUZZLE_FP_TREE_ICE.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK &&
         (index == 2 || index == 3)) {
+        return true;
+    }
+    // Rewritten every frame from the local Twinkly box's state (twinklybox.c); the game is claimed via authority.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK &&
+        index == FP_SPECIFIC_FLAG_D_UNKNOWN) {
         return true;
     }
     // FP bear cubs' presents-received flags: kept local; ANCHOR_PUZZLE_FP_PRESENTS syncs the result.
@@ -172,8 +193,8 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnMapLoaded, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         auto ev = reinterpret_cast<OnMapLoaded*>(event);
-        if (ev->prevMap == MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
-            ev->nextMap != MAP_1F_CS_START_RAREWARE) {
+        // Peers take our map from the server's copy of our state, resent to all on every join or leave.
+        if (ev->nextMap != MAP_1E_CS_START_NINTENDO && ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             Anchor::GetInstance()->SendPacket_UpdateClientState();
         }
         Anchor::GetInstance()->ClearDummies();
@@ -238,6 +259,7 @@ void Anchor::RegisterHooks() {
         auto* anchor = Anchor::GetInstance();
         anchor->hasCheckedRandoCompat = false;
         anchor->reloadMapOnTeamState = false;
+        anchor->gameMismatchWithTeam = false;
         anchor->SendPacket_RequestTeamState(true);
     });
 
