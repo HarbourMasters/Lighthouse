@@ -73,7 +73,14 @@ typedef enum VBehaviorID {
     VB_CAMERA_SWIVEL,
 
     // Cutscene and celebration skips
-    VB_PLAY_BOOT_LOGOS,
+
+    // #### `result`
+    // ```c
+    // i_ptr->unk4 != 0 && i_ptr->unkC != NULL
+    // ```
+    // #### `args`
+    // - `s32` (i_ptr->unk0, promoted from `s16`)
+    VB_CUTSCENE_TRIGGER_UPDATE,
     VB_PLAY_INTRO_CUTSCENE,
 
     // #### `result`
