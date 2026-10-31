@@ -54,6 +54,7 @@ DEFINE_EVENT(OnItemMax, int32_t item; int32_t * max;)
 // A level's total of notes (ITEM_C_NOTE), jiggies (ITEM_E_JIGGY) or honeycombs (ITEM_13_EMPTY_HONEYCOMB).
 DEFINE_EVENT(OnLevelItemMax, int32_t item; int32_t level; int32_t * max;)
 DEFINE_EVENT(OnTransformationCost, int32_t transformation; int32_t result;)
+DEFINE_EVENT(OnMumboWishwashyId, int32_t* id;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
 // result = MapSkyInfo* or MapModelDescription* for the first two.

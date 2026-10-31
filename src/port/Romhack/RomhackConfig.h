@@ -36,11 +36,6 @@ int port_getRomhackCustomCodeKind(void);
 bool port_getRomhackRomHash(char out_hex[41]);
 const char* port_getRomhackIdentifier(void);
 
-// Hack specific functions
-int romhack_mumboTransform(int transformId);
-int romhack_mumboWishwashyId(void);
-int romhack_mumboRandomEventsAllowed(void);
-
 #ifdef __cplusplus
 }
 #endif

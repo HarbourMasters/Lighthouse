@@ -322,6 +322,24 @@ typedef enum VBehaviorID {
     VB_JIGGYSCORE_LEVEL_TOTAL,
     VB_HONEYCOMBSCORE_LEVEL_TOTAL,
     VB_MUMBO_HUT_INTERACT,
+
+    // A listener that returns false skips player_transform, and Mumbo carries on as if the cast worked.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (the transformation)
+    VB_MUMBO_CAST,
+
+    // #### `result`
+    // ```c
+    // randf() < 0.01 // the T. rex
+    // randf() < 0.05 // the mistake
+    // ```
+    // #### `args`
+    // - None
+    VB_MUMBO_RANDOM_EVENT,
     VB_LEVEL_LOAD_RESET_SCORES,
     VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
     VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,

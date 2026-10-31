@@ -33,7 +33,6 @@ constexpr s32 kAlreadyRewardedFlags = 0x02;
 
 f32 sJiggyPos[3] = { 0.0f, 500.0f, -95.0f };
 f32 sMumboState = 0.0f;
-bool sMumboRewardEnabled = false;
 bool sLeaveHutPending = false;
 
 void MumboReward_spawnJiggy() {
@@ -46,24 +45,6 @@ void MumboReward_setState() {
     sMumboState = kStateValue;
 }
 } // namespace
-
-extern "C" s32 romhack_mumboTransform(s32 transformId) {
-    if (!sMumboRewardEnabled || gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
-        return player_transform((enum transformation_e)transformId);
-    }
-    timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
-    timedFunc_set_0(kStateDelay, MumboReward_setState);
-    sLeaveHutPending = true;
-    return 1;
-}
-
-extern "C" s32 romhack_mumboWishwashyId(void) {
-    return sMumboRewardEnabled ? 9 : TRANSFORM_7_WISHWASHY;
-}
-
-extern "C" s32 romhack_mumboRandomEventsAllowed(void) {
-    return sMumboRewardEnabled ? 0 : 1;
-}
 
 // Mumbo's reward shows a static camera
 namespace {
@@ -87,9 +68,6 @@ void MumboReward_updatePendingDialog() {
 }
 
 void MumboReward_updateCamera() {
-    if (!sMumboRewardEnabled) {
-        return;
-    }
     MumboReward_updatePendingDialog();
     if (sMumboState > 0.0f) {
         if (!sPanSaved) {
@@ -127,8 +105,22 @@ void MumboReward_updateCamera() {
 } // namespace
 
 void HackShared_EnableMumboReward() {
-    sMumboRewardEnabled = true;
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) { MumboReward_updateCamera(); });
+
+    // A cast in FP's skull hands over the Jiggy instead.
+    REGISTER_VB_SHOULD(VB_MUMBO_CAST, EVENT_PRIORITY_NORMAL, {
+        if (gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
+            return;
+        }
+        timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
+        timedFunc_set_0(kStateDelay, MumboReward_setState);
+        sLeaveHutPending = true;
+        *should = false;
+    });
+    // The Jiggy takes Wishy-washy's place as transformation 9.
+    REGISTER_LISTENER(OnMumboWishwashyId, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnMumboWishwashyId*)event)->id = 9; });
+    REGISTER_VB_SHOULD(VB_MUMBO_RANDOM_EVENT, EVENT_PRIORITY_NORMAL, { *should = false; });
 
     // Pressing B once the Jiggy is already collected
     REGISTER_VB_SHOULD(VB_MUMBO_HUT_INTERACT, EVENT_PRIORITY_NORMAL, {
