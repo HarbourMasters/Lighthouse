@@ -63,11 +63,11 @@ static void UndoProjection(Gfx** gfx, Mtx** mtx) {
 
 // --- Pause menu capture state tracking ---
 
-extern "C" void port_mirror_markCapture(void) {
+extern "C" void MirrorPatches_MarkCapture(void) {
     sMirrorAtCapture = MirrorActive();
 }
 
-extern "C" int port_mirror_shouldFlipPauseBg(void) {
+extern "C" int MirrorPatches_ShouldFlipPauseBg(void) {
     return MirrorActive() != sMirrorAtCapture ? 1 : 0;
 }
 

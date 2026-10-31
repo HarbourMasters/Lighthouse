@@ -43,9 +43,7 @@ int port_dialogFontUsesShiftedCodes(void);   // format codes shifted past the ex
 void port_freezeReadback(int freeze);
 void port_requestReadback(void);
 int port_consumeReadbackRequest(void);
-int port_getPauseFramebufferId(void);
-int port_capturePauseFramebuffer(void);
-void port_getPauseFramebufferSize(int* w, int* h);
+void Framebuffer_DrawPauseBackground(Gfx** gfx, int capture);
 int port_pauseConsumeRecaptureRequest(void);
 int port_shouldCaptureTransition(void);
 
@@ -90,11 +88,6 @@ void port_animVtx_beginTick(void);
 // Copies the just-posed vertices somewhere only this draw points at, and repoints
 // segment 0x01 at the copy.
 void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t count);
-
-// Mirror (MirrorPatches.cpp)
-
-void port_mirror_markCapture(void);
-int port_mirror_shouldFlipPauseBg(void);
 
 // Volatile flag checks
 
