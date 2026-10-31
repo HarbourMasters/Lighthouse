@@ -16,9 +16,6 @@ extern "C" {
 
 // --- Note retention ---
 
-void port_noteRetention_beginMapLoad(int32_t mapId);
-void port_noteRetention_onActorsFreed(void);
-
 // Live slot's note-retention bytes for Anchor team-state sync (size 0 / null if no slot).
 void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr);
 

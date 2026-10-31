@@ -130,6 +130,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnGameStart);
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);
+    REGISTER_EVENT(OnActorArrayFree);
+    REGISTER_EVENT(OnMapFileLoad);
     REGISTER_EVENT(OnLevelReset);
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
     REGISTER_EVENT(OnReset);

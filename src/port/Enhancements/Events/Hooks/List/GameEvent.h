@@ -5,6 +5,8 @@
 DEFINE_EVENT(SetAnimSpeedMult, int32_t* mult; int32_t id;)
 DEFINE_EVENT(OnActorUpdate, Actor* actor;)
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
+DEFINE_EVENT(OnActorArrayFree)
+DEFINE_EVENT(OnMapFileLoad, int32_t map;)
 DEFINE_EVENT(OnPlayerDeath)
 DEFINE_EVENT(OnGameFileErase, int32_t gamenum;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
