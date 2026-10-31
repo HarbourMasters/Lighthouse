@@ -168,6 +168,14 @@ typedef enum VBehaviorID {
     VB_MM_CHIMPY_STUMP_RUMBLE,
     VB_MM_CHIMPY_NOISE,
     VB_SPLINE_PATH_SFX,
+
+    // #### `result`
+    // ```c
+    // !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE) // mapSavestate_save
+    // true                                                    // mapSavestate_apply
+    // ```
+    // #### `args`
+    // - `s32` (outgoing_mode, or mode for the apply)
     VB_MAP_SAVESTATE_USE,
 
     // Gameplay options and cheats

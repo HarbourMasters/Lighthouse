@@ -304,8 +304,8 @@ void game_changeMap(enum game_mode_e mode){
     prev_mode = sGameState.unk0;
     game_setMode(GAME_MODE_2_UNKNOWN, 0);
     if(!volatileFlag_getAndSet(VOLATILE_FLAG_21, 0) || map_getLevel(gsworld_getMap()) == map_getLevel(sGameState.map)){
-        if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)
-            && EventSystem_Should(VB_MAP_SAVESTATE_USE, true, outgoing_mode))
+//      if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE))
+        if(EventSystem_Should(VB_MAP_SAVESTATE_USE, !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE), outgoing_mode))
             mapSavestate_save(gsworld_getMap());
     }
     func_802E398C(1);
