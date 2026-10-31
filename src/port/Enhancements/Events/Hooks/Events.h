@@ -98,7 +98,22 @@ typedef enum VBehaviorID {
     VB_ACTOR_UPDATE_DISTANCE,
     VB_ACTOR_FOOTSTEP_SLOT,
     VB_ACTOR_AMBIENT_PARTICLES,
+
+    // #### `result`
+    // ```c
+    // anctrl_isAt(sp58, 0.6905f)
+    // ```
+    // #### `args`
+    // - `*AnimCtrl` (sp58)
+    // - `*f32` (D_8037D338)
     VB_BEAK_BOMB_WINDUP,
+
+    // #### `result`
+    // ```c
+    // sp48[0] * sp48[0] + sp48[1] * sp48[1] + sp48[2] * sp48[2] > 16000000.0f
+    // ```
+    // #### `args`
+    // - None
     VB_BEAK_BOMB_RANGE_END,
     VB_DISABLE_SNACKER,
 

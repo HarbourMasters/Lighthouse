@@ -28,7 +28,7 @@ f32 sFeatherTimer;
 
 void RegisterTooieBeakBomb_Init() {
     COND_VB_SHOULD(VB_BEAK_BOMB_RANGE_END, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), {
-        if (IsDemoMode() || !bakey_held(BUTTON_B)) {
+        if (!*should || IsDemoMode() || !bakey_held(BUTTON_B)) {
             return;
         }
         const s32 frame = globalTimer_getTime();
