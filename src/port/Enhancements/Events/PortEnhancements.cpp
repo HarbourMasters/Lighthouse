@@ -130,6 +130,10 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnWarpResolveDest);
     REGISTER_EVENT(OnNewGame);
     REGISTER_EVENT(OnDefaultBootMap);
+    REGISTER_EVENT(OnGetMapSkyInfo);
+    REGISTER_EVENT(OnGetMapModelDescription);
+    REGISTER_EVENT(OnGetMapMusicTrack);
+    REGISTER_EVENT(OnGetMapLevel);
     REGISTER_EVENT(OnGameStart);
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);

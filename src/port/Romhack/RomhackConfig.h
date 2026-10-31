@@ -8,14 +8,7 @@ extern "C" {
 bool port_isRomhack(void);
 const char* port_getRomhackName(void);
 
-int port_getRomhackSceneRemap(int map_id);
 int port_getRomhackReturnToLair(int level_index, int* out_map, int* out_exit);
-int port_getRomhackMusic(int map_id, int* out_track1, int* out_track2);
-int port_getRomhackSkybox(int scene_id);
-int port_getRomhackSkyboxFull(int scene_id, int out_models[3], float out_scales[3], float out_rotations[3]);
-int port_getRomhackSceneDef(int scene_id, int* out_opa, int* out_xlu);
-int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_xlu, short out_min[3], short out_max[3],
-                                float* out_scale);
 int port_getRomhackNewGameMap(void);
 int port_getRomhackStartLevel1(void);
 int port_getRomhackStartLevel2(void);

@@ -47,6 +47,11 @@ typedef enum WarpId {
 DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
+// result = MapSkyInfo* or MapModelDescription* for the first two.
+DEFINE_EVENT(OnGetMapSkyInfo, int32_t map; void* result;)
+DEFINE_EVENT(OnGetMapModelDescription, int32_t map; void* result;)
+DEFINE_EVENT(OnGetMapMusicTrack, int32_t map; bool secondary; int32_t result;)
+DEFINE_EVENT(OnGetMapLevel, int32_t map; int32_t result;)
 // The file-select commit, for both new game and continue. Unlike OnGameLoad this
 // does not fire for the zoombox preview.
 DEFINE_EVENT(OnGameStart)

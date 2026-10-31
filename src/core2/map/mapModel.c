@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 
 #include "core2/modelRender.h"
 #include "core2/coords.h"
@@ -17,15 +16,7 @@ extern void func_8034C6DC(BKModel *arg0);
 
 BKCollisionTriangle *mapModel_intersectLine(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3) ;
 
-typedef struct {
-    s16 map_id; //enum map_e
-    s16 opa_model_id; //enum asset_e level_model_id
-    s16 xlu_model_id; //enum asset_e level2_model_id
-    s16 cube_min_offset[3]; // added to the cube bounds computed from the opaque model (see mapModel_getCubeBounds)
-    s16 cube_max_offset[3];
-    // u8 pad12[0x2];
-    f32 scale;
-}MapModelDescription;
+#include "mapModel.h" // [port] the typedef moved there
 
 /* .data */
 /* The opaque and translucent level models of every map with geometry.
@@ -185,29 +176,12 @@ enum asset_e mapModel_getOpaModelId(void);
 bool mapModel_has_xlu_bin(void);
 
 /* .code */
-static MapModelDescription sSceneDefOverride;
-
 static MapModelDescription *_mapModel_mapIdToDescription(enum map_e map_id){
-    int opa, xlu;
-    short min[3], max[3];
-    float scale;
-    if (port_getRomhackSceneDefFull(map_id, &opa, &xlu, min, max, &scale)) {
-        sSceneDefOverride.map_id = (s16)map_id;
-        sSceneDefOverride.opa_model_id = (s16)opa;
-        sSceneDefOverride.xlu_model_id = (s16)xlu;
-        sSceneDefOverride.cube_min_offset[0] = min[0];
-        sSceneDefOverride.cube_min_offset[1] = min[1];
-        sSceneDefOverride.cube_min_offset[2] = min[2];
-        sSceneDefOverride.cube_max_offset[0] = max[0];
-        sSceneDefOverride.cube_max_offset[1] = max[1];
-        sSceneDefOverride.cube_max_offset[2] = max[2];
-        sSceneDefOverride.scale = scale;
-        return &sSceneDefOverride;
-    }
-
     MapModelDescription *i_ptr;
-    for (i_ptr = sMapModelDescriptions; i_ptr->map_id != 0; i_ptr++) {
-        if (map_id == i_ptr->map_id) {
+
+    CALL_CANCELLABLE_RETURN_EVENT(OnGetMapModelDescription, map_id); // [port]
+    for(i_ptr = sMapModelDescriptions; i_ptr->map_id != 0; i_ptr++){
+        if(map_id == i_ptr->map_id){
             return i_ptr;
         }
     }

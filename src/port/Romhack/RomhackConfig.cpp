@@ -11,10 +11,19 @@
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
 
+#include "functions.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
+extern "C" {
+#include "core2/gc/sky.h"
+#include "core2/map/mapModel.h"
+}
+
 /*
     RomhackConfig loads and parses the aGameConfig blob from romhack
     o2r archives and exposes the relevant overrides to the decompilation
-    (via the port_getRomhack* accessors declared in RomhackConfig.h).
+    (through its listeners and the port_getRomhack* accessors declared
+    in RomhackConfig.h).
     It is what makes romhacks function properly beyond simple asset swaps.
 */
 
@@ -313,77 +322,12 @@ extern "C" const char* port_getRomhackIdentifier(void) {
     return nullptr;
 }
 
-extern "C" int port_getRomhackSceneRemap(int map_id) {
-    ROMHACK_GUARD_INT;
-    auto it = sSceneRemaps.find(map_id);
-    return (it != sSceneRemaps.end()) ? it->second : -1;
-}
-
 extern "C" int port_getRomhackReturnToLair(int level_index, int* out_map, int* out_exit) {
     ROMHACK_GUARD_ZERO;
     auto it = sReturnToLair.find(level_index);
     if (it != sReturnToLair.end()) {
         *out_map = it->second.first;
         *out_exit = it->second.second;
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackMusic(int map_id, int* out_track1, int* out_track2) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sMusicAssign.find(map_id);
-    if (it != sMusicAssign.end()) {
-        *out_track1 = it->second.first;
-        *out_track2 = it->second.second;
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackSkybox(int scene_id) {
-    ROMHACK_GUARD_INT;
-    auto it = sSkyboxAssign.find(scene_id);
-    return (it != sSkyboxAssign.end()) ? it->second.models[0] : -1;
-}
-
-extern "C" int port_getRomhackSkyboxFull(int scene_id, int out_models[3], float out_scales[3], float out_rotations[3]) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sSkyboxAssign.find(scene_id);
-    if (it != sSkyboxAssign.end()) {
-        for (int i = 0; i < 3; i++) {
-            out_models[i] = it->second.models[i];
-            out_scales[i] = it->second.scales[i];
-            out_rotations[i] = it->second.rotations[i];
-        }
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackSceneDef(int scene_id, int* out_opa, int* out_xlu) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sSceneDefs.find(scene_id);
-    if (it != sSceneDefs.end()) {
-        *out_opa = it->second.opa;
-        *out_xlu = it->second.xlu;
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_xlu, short out_min[3], short out_max[3],
-                                           float* out_scale) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sSceneDefs.find(scene_id);
-    if (it != sSceneDefs.end()) {
-        *out_opa = it->second.opa;
-        *out_xlu = it->second.xlu;
-        for (int i = 0; i < 3; i++) {
-            out_min[i] = it->second.min[i];
-            out_max[i] = it->second.max[i];
-        }
-        *out_scale = it->second.scale;
         return 1;
     }
     return 0;
@@ -544,3 +488,62 @@ extern "C" void port_clearRomhackWarpDest(int warp_index) {
     LoadGameConfig();
     sWarpDests.erase(warp_index);
 }
+
+static MapSkyInfo sSkyOverride;
+static MapModelDescription sSceneDefOverride;
+
+static void RegisterRomhackConfig_Init() {
+    const bool romhack = port_isRomhack();
+    COND_HOOK(OnGetMapSkyInfo, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapSkyInfo*)event;
+        auto it = sSkyboxAssign.find(ev->map);
+        if (it == sSkyboxAssign.end()) {
+            return;
+        }
+        sSkyOverride.map = (s16)ev->map;
+        for (int i = 0; i < 3; i++) {
+            sSkyOverride.sky_list[i].model_id = (s16)it->second.models[i];
+            sSkyOverride.sky_list[i].scale = it->second.scales[i];
+            sSkyOverride.sky_list[i].rotation_speed = it->second.rotations[i];
+        }
+        ev->result = &sSkyOverride;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnGetMapModelDescription, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapModelDescription*)event;
+        auto it = sSceneDefs.find(ev->map);
+        if (it == sSceneDefs.end()) {
+            return;
+        }
+        sSceneDefOverride.map_id = (s16)ev->map;
+        sSceneDefOverride.opa_model_id = (s16)it->second.opa;
+        sSceneDefOverride.xlu_model_id = (s16)it->second.xlu;
+        for (int i = 0; i < 3; i++) {
+            sSceneDefOverride.cube_min_offset[i] = it->second.min[i];
+            sSceneDefOverride.cube_max_offset[i] = it->second.max[i];
+        }
+        sSceneDefOverride.scale = it->second.scale;
+        ev->result = &sSceneDefOverride;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnGetMapMusicTrack, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapMusicTrack*)event;
+        auto it = sMusicAssign.find(ev->map);
+        if (it == sMusicAssign.end()) {
+            return;
+        }
+        ev->result = ev->secondary ? it->second.second : it->second.first;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnGetMapLevel, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapLevel*)event;
+        auto it = sSceneRemaps.find(ev->map);
+        if (it == sSceneRemaps.end() || it->second < 0) {
+            return;
+        }
+        ev->result = it->second;
+        event->Cancelled = true;
+    });
+}
+
+static RegisterShipInitFunc romhackConfigInitFunc(RegisterRomhackConfig_Init, { "BOOT" });

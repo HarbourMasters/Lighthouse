@@ -3,22 +3,10 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 
 extern void func_8034C6DC(BKModel *arg0);
 
-typedef struct {
-    s16 model_id;
-    // u8 pad2[0x2];
-    f32 scale;
-    f32 rotation_speed;
-}SkyInfo;
-
-typedef struct {
-    s16 map;
-    // u8 pad2[2];
-    SkyInfo sky_list[3];
-}MapSkyInfo;
+#include "sky.h" // [port] the typedefs moved there
 
 /* .data */
 MapSkyInfo D_8036BD40[] = {
@@ -60,21 +48,8 @@ struct
 }gcSky;
 
 /* .code */
-static MapSkyInfo sSkyOverride;
-
 MapSkyInfo * sky_getMapSkyInfo(enum map_e map_id){
-    int models[3];
-    float scales[3], rotations[3];
-    if (port_getRomhackSkyboxFull(map_id, models, scales, rotations)) {
-        sSkyOverride.map = map_id;
-        for (int i = 0; i < 3; i++) {
-            sSkyOverride.sky_list[i].model_id = (s16)models[i];
-            sSkyOverride.sky_list[i].scale = scales[i];
-            sSkyOverride.sky_list[i].rotation_speed = rotations[i];
-        }
-        return &sSkyOverride;
-    }
-
+    CALL_CANCELLABLE_RETURN_EVENT(OnGetMapSkyInfo, map_id); // [port]
     MapSkyInfo * v1 = D_8036BD40;
     while(v1->map){
         if(map_id == v1->map){

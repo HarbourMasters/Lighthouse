@@ -3,7 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 
 /* Music for one map. Negative map ids are the pseudo maps used by
  * sCore2_9B650SnsMusicOverrides. */
@@ -203,18 +202,12 @@ s32 core2_9B650_getMusicFlagsFromMap(enum map_e map_id){
 }
 
 s32 core2_9B650_getMusicTrackFromMap(enum map_e map_id){
-    int t1, t2;
-    if (port_getRomhackMusic(map_id, &t1, &t2)) {
-        return t1;
-    }
+    CALL_CANCELLABLE_RETURN_EVENT(OnGetMapMusicTrack, map_id, false); // [port]
     return sCore2_9B650MapMusicList[core2_9B650_getMapMusicIndex(map_id)].track_id;
 }
 
 s32 core2_9B650_getSecondaryMusicTrackFromMap(enum map_e map_id){
-    int t1, t2;
-    if (port_getRomhackMusic(map_id, &t1, &t2)) {
-        return t2;
-    }
+    CALL_CANCELLABLE_RETURN_EVENT(OnGetMapMusicTrack, map_id, true); // [port]
     return sCore2_9B650MapMusicList[core2_9B650_getMapMusicIndex(map_id)].secondary_track_id;
 }
 
