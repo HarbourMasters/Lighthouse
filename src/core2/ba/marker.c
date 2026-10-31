@@ -4,7 +4,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Romhack/RomhackConfig.h"
-#include "port/Enhancements/Retention/Retention.h"
 #include "core2/ba/physics.h"
 #include "version.h"
 #include "prop.h"
@@ -724,7 +723,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     return;
 
                 __baMarker_resolveMusicNoteCollision(other_prop);
-                port_noteRetention_onLocalNoteCollected(marker);
+                CALL_EVENT(OnNoteCollected, marker); // [port]
                 marker_despawn(marker);
                 break;
 

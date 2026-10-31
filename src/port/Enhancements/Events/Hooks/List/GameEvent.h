@@ -20,6 +20,9 @@ DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
 DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
 // prop = Prop*, an egg, feather or extra life picked up.
 DEFINE_EVENT(OnConsumableCollected, void* prop;)
+DEFINE_EVENT(OnNoteCollected, ActorMarker* marker;)
+// markerId = marker_e.
+DEFINE_EVENT(OnJinjoCollected, int32_t markerId;)
 // A carried actor leaving the player's hands; markerId = marker_e, start/target are f32[3].
 DEFINE_EVENT(OnCarryThrow, int32_t markerId; float* start; float* target;)
 // move = ability_e; value = 1 learned, 0 cleared.
