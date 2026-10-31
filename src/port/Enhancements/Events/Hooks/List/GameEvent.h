@@ -55,6 +55,8 @@ DEFINE_EVENT(OnItemMax, int32_t item; int32_t * max;)
 DEFINE_EVENT(OnLevelItemMax, int32_t item; int32_t level; int32_t * max;)
 DEFINE_EVENT(OnTransformationCost, int32_t transformation; int32_t result;)
 DEFINE_EVENT(OnMumboWishwashyId, int32_t* id;)
+// Before actor_new builds the actor, while its info and flags can still change.
+DEFINE_EVENT(OnActorNew, ActorInfo* info; uint32_t * flags;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
 // result = MapSkyInfo* or MapModelDescription* for the first two.

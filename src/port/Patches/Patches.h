@@ -110,10 +110,6 @@ float port_getSfxVolume(void);
 int port_getNoteDoorCost(int doorIdx);
 void port_enableNoteDoorComposer(void);
 
-// Romhacks
-
-void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
-
 // Attract-demo audio hold
 
 void port_beginDemoAudioHold(void);
