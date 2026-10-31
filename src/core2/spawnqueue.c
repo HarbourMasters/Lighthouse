@@ -9,7 +9,6 @@
 #include "functions.h"
 #include "core2/ch/snacker.h"
 #include "port/Patches/Patches.h" // port_getDrawDistanceLevel
-#include "port/Romhack/RomhackConfig.h"
 
 void spawnQueue_unlock(void);
 void spawnQueue_lock(void);
@@ -422,28 +421,7 @@ void spawnQueue_reset(void){
             break;
     }
 
-    // Romhacks globalize all overlays so any actor can spawn on any map.
-    // Register actors from every overlay that wasn't already handled above.
-    if (port_isRomhack()) {
-        if (loaded_asm_file != OVERLAY_D_WITCH)   { lair_func_8038A0C4(); }
-        if (loaded_asm_file != OVERLAY_E_BATTLE)   { fight_addSpawnableActors(); }
-        if (loaded_asm_file != OVERLAY_C_INTRO)    { cutscene_func_8038C4E0(); }
-        if (loaded_asm_file != OVERLAY_B_TRAINING) { SM_resetSpawnableActors(); }
-        if (loaded_asm_file != OVERLAY_3_HAUNTED)  { MMM_func_803890E0(); }
-        if (loaded_asm_file != OVERLAY_2_WHALE)    { CC_func_80387DA0(); }
-        if (loaded_asm_file != OVERLAY_4_DESERT)   { GV_func_8038F154(); }
-        if (loaded_asm_file != OVERLAY_5_BEACH)    { code26D0_resetSpawnableActorsForTTC(); }
-        if (loaded_asm_file != OVERLAY_6_JUNGLE)   { MM_func_803888B0(); }
-        if (loaded_asm_file != OVERLAY_7_SWAMP)    { bgs_updateSpawnableActors(); }
-        if (loaded_asm_file != OVERLAY_8_SHIP)     { RBB_func_80386C48(); }
-        if (loaded_asm_file != OVERLAY_9_SNOW)     {
-            FP_func_80391324();
-            spawnableActorList_add(&chBluePresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
-            spawnableActorList_add(&chGreenPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
-            spawnableActorList_add(&chRedPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
-        }
-        if (loaded_asm_file != OVERLAY_A_TREE)     { CCW_func_8038DB6C(); }
-    }
+    CALL_EVENT(OnSpawnableActorsReset, loaded_asm_file); // [port]
 
     if(ucode_stub3() == 0 || loaded_asm_file == 0 ){
         cubeList_spawnActors();

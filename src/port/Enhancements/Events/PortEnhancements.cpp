@@ -133,6 +133,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnMapChangeRequest);
     REGISTER_EVENT(OnMapTransitionIn);
     REGISTER_EVENT(OnMapTransitionOut);
+    REGISTER_EVENT(OnSpawnableActorsReset);
     REGISTER_EVENT(OnNewGame);
     REGISTER_EVENT(OnDefaultBootMap);
     REGISTER_EVENT(OnGetMapSkyInfo);

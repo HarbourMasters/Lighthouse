@@ -47,6 +47,8 @@ DEFINE_EVENT(OnWarpMusic, int32_t dest;)
 DEFINE_EVENT(OnMapChangeRequest, int32_t* map; int32_t * exit;)
 DEFINE_EVENT(OnMapTransitionIn, int32_t map; int32_t * index;)
 DEFINE_EVENT(OnMapTransitionOut, int32_t from; int32_t to; int32_t * index;)
+// overlay = enum overlay_e, the one spawnQueue_reset just registered actors for.
+DEFINE_EVENT(OnSpawnableActorsReset, int32_t overlay;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
 // result = MapSkyInfo* or MapModelDescription* for the first two.
