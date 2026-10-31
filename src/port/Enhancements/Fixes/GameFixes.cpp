@@ -107,10 +107,7 @@ void RegisterBoggyRaceGameOver_Init() {
     COND_VB_SHOULD(VB_HANDLE_PLAYER_DEATH, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_BOGGY_RACE, 1), {
         if (item_empty(ITEM_16_LIFE) && maSlalom_isActive()) {
             *should = false;
-            // Some hacks want a full map transition here instead.
-            if (EventSystem_Should(VB_RACE_VOID_OUT_FULL_TRANSITION, false)) {
-                transitionToMap((enum map_e)gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
-            } else {
+            CALL_CANCELLABLE_EVENT(OnBoggyRaceReload, gVoidOutReturnLocation[0], gVoidOutReturnLocation[1]) {
                 game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
             }
         }

@@ -121,6 +121,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnHoneycombDropSpawn);
     REGISTER_EVENT(OnTimedJiggyExpired);
     REGISTER_EVENT(OnPlayerDeath);
+    REGISTER_EVENT(OnBoggyRaceReload);
     REGISTER_EVENT(OnGameFileErase);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);

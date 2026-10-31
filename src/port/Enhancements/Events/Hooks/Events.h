@@ -345,7 +345,6 @@ typedef enum VBehaviorID {
     VB_LEVEL_ENTERED_FROM_LAIR,
     VB_MAP_SAVESTATE_CLEAR_ALL,
     VB_LEVEL_LOAD_SAVESTATE_INIT,
-    VB_RACE_VOID_OUT_FULL_TRANSITION,
 
     // A listener that returns false keeps the dialog from showing, and its flag stays unset.
     // #### `result`

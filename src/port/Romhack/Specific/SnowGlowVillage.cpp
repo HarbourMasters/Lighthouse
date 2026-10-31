@@ -131,7 +131,12 @@ void SnowGlow_DisableLevelLoadResets() {
     REGISTER_VB_SHOULD(VB_MAP_SAVESTATE_CLEAR_ALL, EVENT_PRIORITY_NORMAL,
                        { *should = gsworld_getMap() == MAP_91_FILE_SELECT; });
 
-    REGISTER_VB_SHOULD(VB_RACE_VOID_OUT_FULL_TRANSITION, EVENT_PRIORITY_NORMAL, { *should = true; });
+    // The Boggy race reloads at 0 lives with a full map transition.
+    REGISTER_LISTENER(OnBoggyRaceReload, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnBoggyRaceReload*)event;
+        transitionToMap((enum map_e)ev->map, ev->exit, 1);
+        event->Cancelled = true;
+    });
 }
 
 // Pause-menu totals rows

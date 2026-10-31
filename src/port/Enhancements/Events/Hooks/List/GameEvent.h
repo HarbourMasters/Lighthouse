@@ -8,6 +8,8 @@ DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnActorArrayFree)
 DEFINE_EVENT(OnMapFileLoad, int32_t map;)
 DEFINE_EVENT(OnPlayerDeath)
+// GameFixes' Boggy race reload at 0 lives. Cancelling it skips game_transitionToMapResettingLevel.
+DEFINE_EVENT(OnBoggyRaceReload, int32_t map; int32_t exit;)
 DEFINE_EVENT(OnGameFileErase, int32_t gamenum;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
 DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
