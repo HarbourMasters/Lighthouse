@@ -319,8 +319,6 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_ABILITY_CLEAR_ALL,
-    VB_JIGGYSCORE_LEVEL_TOTAL,
-    VB_HONEYCOMBSCORE_LEVEL_TOTAL,
     VB_MUMBO_HUT_INTERACT,
 
     // A listener that returns false skips player_transform, and Mumbo carries on as if the cast worked.

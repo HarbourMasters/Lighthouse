@@ -53,6 +53,9 @@ DEFINE_EVENT(OnSpawnableActorsReset, int32_t overlay;)
 DEFINE_EVENT(OnItemMax, int32_t item; int32_t * max;)
 // A level's total of notes (ITEM_C_NOTE), jiggies (ITEM_E_JIGGY) or honeycombs (ITEM_13_EMPTY_HONEYCOMB).
 DEFINE_EVENT(OnLevelItemMax, int32_t item; int32_t level; int32_t * max;)
+// A level's collected jiggies or honeycombs.
+DEFINE_EVENT(OnJiggyScoreLevelTotal, int32_t level; int32_t result;)
+DEFINE_EVENT(OnHoneycombScoreLevelTotal, int32_t level; int32_t result;)
 DEFINE_EVENT(OnTransformationCost, int32_t transformation; int32_t result;)
 DEFINE_EVENT(OnMumboWishwashyId, int32_t* id;)
 // Before actor_new builds the actor, while its info and flags can still change.

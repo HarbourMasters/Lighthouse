@@ -233,9 +233,9 @@ bool JiggyRelocated(s32 id) {
 }
 
 void ApplyJiggyRelocation() {
-    COND_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, sJiggyRelocationCount > 0, {
-        const s32 level = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    COND_HOOK(OnJiggyScoreLevelTotal, EVENT_PRIORITY_NORMAL, sJiggyRelocationCount > 0, [](IEvent* event) {
+        auto* ev = (OnJiggyScoreLevelTotal*)event;
+        const s32 level = ev->level;
         s32 total = 0;
 
         // Vanilla groups jiggies into ten-id blocks, one block per level.
@@ -258,8 +258,8 @@ void ApplyJiggyRelocation() {
         if (sJiggyLevelCap > 0 && total > sJiggyLevelCap) {
             total = sJiggyLevelCap;
         }
-        *result = total;
-        *should = false;
+        ev->result = total;
+        event->Cancelled = true;
     });
 }
 

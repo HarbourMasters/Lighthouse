@@ -164,11 +164,10 @@ void RegisterCutThroatCoastPatches() {
     });
 
     // Pause menu pins below
-    REGISTER_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {
-        s32 lvl = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    REGISTER_LISTENER(OnJiggyScoreLevelTotal, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnJiggyScoreLevelTotal*)event;
         s32 cnt = 0;
-        if (lvl == 0xA) {
+        if (ev->level == 0xA) {
             for (s32 i = 1; i < 0x65; i++) {
                 if (jiggyscore_isCollected((enum jiggy_e)i)) {
                     cnt++;
@@ -178,8 +177,8 @@ void RegisterCutThroatCoastPatches() {
                 cnt = 0xA;
             }
         }
-        *result = cnt;
-        *should = false;
+        ev->result = cnt;
+        event->Cancelled = true;
     });
 
     // Every level's totals are on page 8, with no paging.

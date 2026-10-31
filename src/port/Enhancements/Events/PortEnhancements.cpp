@@ -139,6 +139,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSpawnableActorsReset);
     REGISTER_EVENT(OnItemMax);
     REGISTER_EVENT(OnLevelItemMax);
+    REGISTER_EVENT(OnJiggyScoreLevelTotal);
+    REGISTER_EVENT(OnHoneycombScoreLevelTotal);
     REGISTER_EVENT(OnTransformationCost);
     REGISTER_EVENT(OnMumboWishwashyId);
     REGISTER_EVENT(OnActorNew);

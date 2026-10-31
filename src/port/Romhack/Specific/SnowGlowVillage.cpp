@@ -307,12 +307,11 @@ bool SnowGlow_HoneycombRelocated(s32 index) {
 }
 
 void SnowGlow_EnableHoneycombTotals() {
-    REGISTER_VB_SHOULD(VB_HONEYCOMBSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {
-        const s32 level = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    REGISTER_LISTENER(OnHoneycombScoreLevelTotal, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnHoneycombScoreLevelTotal*)event;
+        const s32 level = ev->level;
 
-        *should = false;
-        *result = 0;
+        event->Cancelled = true;
 
         if (level <= 0 || level == LEVEL_6_LAIR || level >= LEVEL_C_BOSS) {
             return;
@@ -339,7 +338,7 @@ void SnowGlow_EnableHoneycombTotals() {
             }
         }
 
-        *result = total;
+        ev->result = total;
     });
 }
 
