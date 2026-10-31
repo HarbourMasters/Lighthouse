@@ -347,7 +347,8 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         }
         modelRender_func_8033A280(percentage);
         CALL_EVENT(OnActorDrawBegin, actor); // [port]
-        this->drawFunc(this, gfx, mtx, vtx);
+//      this->drawFunc(this, gfx, mtx, vtx);
+        if (EventSystem_ShouldActorDraw(actor)) this->drawFunc(this, gfx, mtx, vtx);
         CALL_EVENT(OnActorDrawEnd, actor); // [port]
     }//L8032D300
     modelRender_func_8033A244(30000.0f);

@@ -53,6 +53,7 @@ DEFINE_EVENT(MapUnderwaterTint, s32 map; s32 * tintMap;);
 DEFINE_EVENT(OnActorTick, Actor* actor;);
 DEFINE_EVENT(OnActorDrawBegin, Actor* actor;);
 DEFINE_EVENT(OnActorDrawEnd, Actor* actor;);
+DEFINE_EVENT(ShouldActorDraw, Actor* actor; bool* should;);
 DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);
 DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
 DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);

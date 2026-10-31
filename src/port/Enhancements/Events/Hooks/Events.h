@@ -51,7 +51,6 @@ typedef enum VBehaviorID {
     VB_PAUSEMENU_PRINT_LEVEL_NAME,
 
     // Camera behavior
-    VB_CUTSCENE_ACTOR_DRAW,
     VB_CAMERA_FOLLOW,
     VB_CAMERA_APPLY_SHAKE,
 
@@ -502,3 +501,11 @@ typedef struct {
     IEvent Event;
     Actor* actor;
 } ActorEventPayload;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+bool EventSystem_ShouldActorDraw(Actor* actor);
+#ifdef __cplusplus
+}
+#endif

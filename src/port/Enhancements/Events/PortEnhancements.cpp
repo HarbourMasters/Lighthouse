@@ -47,6 +47,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnActorDrawBegin);
     REGISTER_EVENT(OnActorDrawEnd);
+    REGISTER_EVENT(ShouldActorDraw);
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);
     REGISTER_EVENT(LocalizeUiString);
@@ -262,6 +263,12 @@ extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
 
     va_end(args);
     return boolResult;
+}
+
+extern "C" bool EventSystem_ShouldActorDraw(Actor* actor) {
+    bool should = true;
+    CALL_EVENT(ShouldActorDraw, actor, &should);
+    return should;
 }
 
 // 1, or -1 when the player inverted the control.
