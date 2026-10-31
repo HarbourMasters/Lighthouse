@@ -165,7 +165,31 @@ typedef enum VBehaviorID {
     VB_MAP_SAVESTATE_USE,
 
     // Gameplay options and cheats
+
+    // Whether an actor is near enough to the player to update.
+    // #### `result`
+    // ```c
+    // func_803296D8(actor, temp_s1)                      // the actor array
+    // subaddie_playerIsWithinSphereAndActive(this, 2500) // Blubber
+    // subaddie_playerIsWithinSphere(this, 0xFA0)         // the bee swarm
+    // subaddie_playerIsWithinSphere(this, 4000)          // the snowman, enemies
+    // subaddie_playerIsWithinSphereAndActive(this, 3150) // the snowman
+    // func_803296D8(this, 2000)                          // the trainers
+    // false                                              // the scarab beetles
+    // ```
+    // #### `args`
+    // - `*Actor` (this)
     VB_ACTOR_UPDATE_DISTANCE,
+
+    // Whether this walker takes one of its kind's two footsteps this frame.
+    // #### `result`
+    // ```c
+    // (this->state == CRAB_STATE_2_IDLE_UNK) || (this->state == CRAB_STATE_3_TURN_TO_PLAYER) ||
+    //     (this->state == CRAB_STATE_4_CHASE_PLAYER) // the crabs
+    // true                                           // the termites
+    // ```
+    // #### `args`
+    // - `*Actor` (this)
     VB_ACTOR_FOOTSTEP_SLOT,
     VB_ACTOR_AMBIENT_PARTICLES,
 
