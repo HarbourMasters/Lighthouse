@@ -120,12 +120,42 @@ typedef enum VBehaviorID {
 
     // Vanilla bug fixes and corrections
     VB_GRUNTY_DEFEATED_FLAG_BOSS,
+
+    // #### `result`
+    // ```c
+    // item_empty(ITEM_16_LIFE)
+    // ```
+    // #### `args`
+    // - None
     VB_VOID_OUT_GAME_OVER,
     VB_CCW_GNAWTY_SPRING_ROCK,
     VB_CCW_FLOWER_REPLANT,
+
+    // A listener that returns false sets the slide rate itself.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*f32` (sp28)
     VB_TERMITE_MOUND_SLOPES,
+
+    // #### `result`
+    // ```c
+    // bakey_pressed(BUTTON_B) && can_claw()
+    // ```
+    // #### `args`
+    // - None
     VB_CLAW_SWIPE_SLIDE,
-    VB_BOGGY_RACE_GAME_OVER,
+
+    // Game over at no lives left, or a respawn. A listener that returns false handles the death itself.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_HANDLE_PLAYER_DEATH,
     VB_JINJO_CHARGE_SOUND,
     VB_ENEMY_BECOME_BUNDLE,
     VB_YUMYUM_DROP,
