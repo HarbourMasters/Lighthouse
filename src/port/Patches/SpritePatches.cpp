@@ -24,6 +24,7 @@ void* assetcache_get(enum asset_e assetId);
 void assetcache_release(void* asset);
 enum asset_e print_getCurrentMapBoldFontTexture(void);
 char* ResourceMgr_ReloadByAssetId(uint32_t assetId);
+int ResourceMgr_GetLanguageGeneration(void);
 
 enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
@@ -166,6 +167,7 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
 static BKSprite* sPauseBanner = NULL;
 static s32 sPauseBannerPage = -1;
 static s32 sPauseBannerAlpha = 0;
+static s32 sPauseBannerLanguageGen = -1;
 #define PAUSE_BANNER_LAST_PAGE 11
 
 static s32 PauseBannerUpdate(s32 page_id) {
@@ -177,12 +179,14 @@ static s32 PauseBannerUpdate(s32 page_id) {
     if (page < 0 || page > PAUSE_BANNER_LAST_PAGE) {
         page = -1;
     }
-    if (page != sPauseBannerPage) {
+    const s32 languageGen = ResourceMgr_GetLanguageGeneration();
+    if (page != sPauseBannerPage || languageGen != sPauseBannerLanguageGen) {
         if (sPauseBanner != NULL) {
             assetcache_release(sPauseBanner);
             sPauseBanner = NULL;
         }
         sPauseBannerPage = page;
+        sPauseBannerLanguageGen = languageGen;
         sPauseBannerAlpha = 0;
         if (page >= 0) {
             s32 fillId = (page != 0 && page == gcpausemenu_levelToMenuPage(level_get())) ? 0x6e7 : -1;
