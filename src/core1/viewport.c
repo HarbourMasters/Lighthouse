@@ -361,13 +361,9 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[1] = (f32) ((cube->y * 1000) + 500) - sViewportPosition[1];
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
-    {
-        // [port] Extended draw distance: scale the cube cull threshold by the distance multiplier.
-        // Vanilla threshold is 1.6e7 (4000 units squared); the multiplier is linear, so square it.
-        f32 mul = port_drawDistanceMul();
-        if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f * mul * mul) {
-            return false;
-        }
+//  if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
+    if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f * port_drawDistanceMul() * port_drawDistanceMul()) {
+        return false;
     }
 
     min[0] = (f32) ((cube->x * 1000) - 150);

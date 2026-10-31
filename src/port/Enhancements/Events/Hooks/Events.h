@@ -99,9 +99,33 @@ typedef enum VBehaviorID {
     VB_GCLIGHTS_RECOLOR,
     VB_SNOW_CAMERA_ROTATION,
     VB_SNOW_RENDER_STATE,
-    VB_MODEL_DRAWDIST_FADE_ALPHA,
     VB_SPRITE_RESTORE_ALPHA_COMPARE,
+
+    // #### `result`
+    // ```c
+    // viewport_isBoundingBoxInFrustum(scaled_min, scaled_max)
+    // ```
+    // #### `args`
+    // - `*f32` (scaled_min)
+    // - `*f32` (scaled_max)
     VB_DRAWDIST_BOX_CULL,
+
+    // #### `result`
+    // ```c
+    // (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) ||
+    //     (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT))         // CAMERA
+    // (cmd->min < dist) && (dist <= cmd->max)                               // LOD
+    // viewport_func_8024DB50(pos_scaled, dist_scaled) && cmd->branch_offset // UNKE
+    // ```
+    // #### `args`
+    // - `s32` (OCCLUSION_CMD_CAMERA, OCCLUSION_CMD_LOD or OCCLUSION_CMD_UNKE)
+    // - `*void` (the geo command)
+    // - `*BKModelBin`
+    // - `*u8` (camera-area ids, CAMERA only)
+    // - `s32` (camera-area count, promoted from `u8`)
+    // - `s32` (CAMERA flags promoted from `u8`, or LOD min)
+    // - `s32` (LOD max)
+    VB_DRAW_GEO_CMD,
     VB_PICTUREBOX_TARGET_FB,
     VB_PICTUREBOX_SUBMIT_FRAME,
     VB_ITEMPRINT_DRAW_COUNT,

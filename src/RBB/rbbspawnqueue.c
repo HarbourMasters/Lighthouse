@@ -158,6 +158,7 @@ void func_80386A7C(Actor *this){
     this->unk38_0 = 0;
     // [port] Extend the bespoke distance cull with draw distance; quadrant occlusion below stays.
     f32 cull = 8000.0f * port_drawDistanceMul();
+//  if(viewport[0] + 8000.0f < this->position_x || this->position_x < viewport[0] - 8000.0f)
     if(viewport[0] + cull < this->position_x || this->position_x < viewport[0] - cull)
         return;
 
