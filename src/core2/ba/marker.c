@@ -3,7 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 #include "core2/ba/physics.h"
 #include "version.h"
 #include "prop.h"
@@ -191,14 +190,15 @@ void __baMarker_8028BA00(s32 arg0){
 
 
 void __baMarker_resolveMusicNoteCollision(Prop *arg0) {
-    s32 notesMax = port_getRomhackNotesMax();
-    if (notesMax < 0) { notesMax = 100; }
+    s32 notesMax = 100; // [port]
+    CALL_EVENT(OnLevelItemMax, ITEM_C_NOTE, level_get(), &notesMax); // [port]
 
     if (!func_802FADD4(ITEM_1B_VILE_VILE_SCORE)) {
         item_inc(ITEM_C_NOTE);
     } else {
         item_adjustByDiffWithoutHud(ITEM_C_NOTE, 1);
     }
+//  if (item_getCount(ITEM_C_NOTE) < 100) {
     if (item_getCount(ITEM_C_NOTE) < notesMax) {
         coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
         timedFunc_set_1(0.75f, (GenFunction_1)progressDialog_showDialogMaskZero, FILEPROG_3_MUSIC_NOTE_TEXT);

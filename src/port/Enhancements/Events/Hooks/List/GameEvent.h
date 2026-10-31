@@ -49,6 +49,10 @@ DEFINE_EVENT(OnMapTransitionIn, int32_t map; int32_t * index;)
 DEFINE_EVENT(OnMapTransitionOut, int32_t from; int32_t to; int32_t * index;)
 // overlay = enum overlay_e, the one spawnQueue_reset just registered actors for.
 DEFINE_EVENT(OnSpawnableActorsReset, int32_t overlay;)
+// The most of an item the player can carry, by the cheato flags.
+DEFINE_EVENT(OnItemMax, int32_t item; int32_t * max;)
+// A level's total of notes (ITEM_C_NOTE), jiggies (ITEM_E_JIGGY) or honeycombs (ITEM_13_EMPTY_HONEYCOMB).
+DEFINE_EVENT(OnLevelItemMax, int32_t item; int32_t level; int32_t * max;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
 // result = MapSkyInfo* or MapModelDescription* for the first two.

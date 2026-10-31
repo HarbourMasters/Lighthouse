@@ -293,28 +293,21 @@ void gcpausemenu_80311B44(void) {
 }
 
 void gcpausemenu_getLevelNoteScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
-    s32 override;
     *valPtr = itemscore_noteScores_get(level);
-    override = port_getRomhackNotesMax();
-    *maxPtr = (override >= 0) ? override : 100;
+    *maxPtr = 100;
+    CALL_EVENT(OnLevelItemMax, ITEM_C_NOTE, level, maxPtr); // [port]
 }
 
 void gcpausemenu_getLevelJiggyScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
-    s32 override;
     *valPtr = jiggyscore_leveltotal(level);
-    override = port_getRomhackJiggiesPerWorld();
-    *maxPtr = (override >= 0) ? override : 10;
+    *maxPtr = 10;
+    CALL_EVENT(OnLevelItemMax, ITEM_E_JIGGY, level, maxPtr); // [port]
 }
 
 void gcpausemenu_getLevelHoneycombScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
-    s32 specialLevel = port_getRomhackSpecialLevel();
-    s32 hcMax = port_getRomhackHoneycombsPerWorld();
-    s32 hcSpecial = port_getRomhackExtraHcStart();
-    if (specialLevel < 0) { specialLevel = LEVEL_B_SPIRAL_MOUNTAIN; }
-    if (hcMax < 0) { hcMax = 2; }
-    if (hcSpecial < 0) { hcSpecial = 6; }
     *valPtr = honeycombscore_get_level_total(level);
-    *maxPtr = (level == specialLevel) ? hcSpecial : hcMax;
+    *maxPtr = (level == LEVEL_B_SPIRAL_MOUNTAIN) ? 6 : 2;
+    CALL_EVENT(OnLevelItemMax, ITEM_13_EMPTY_HONEYCOMB, level, maxPtr); // [port]
 }
 
 char *gcpausemenu_TimeToA(int time) {

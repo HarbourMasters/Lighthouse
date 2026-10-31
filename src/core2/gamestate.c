@@ -13,7 +13,6 @@ s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
 void itemscore_noteScores_update(s32);
 
 #include "port/Patches/Patches.h"
-#include "port/Romhack/RomhackConfig.h"
 
 /* .bss */
 s32 D_80385F30[0x2C];
@@ -105,37 +104,23 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
     D_80385F30[ITEM_16_LIFE] = MIN(0xFF, D_80385F30[ITEM_16_LIFE]);
 
     switch(item){
-        case ITEM_D_EGGS: {
-            s32 cheato = port_getRomhackMaxEggsCheato();
-            s32 normal = port_getRomhackMaxEggs();
-            sp38 = (fileProgressFlag_get(FILEPROG_BE_CHEATO_BLUEEGGS))
-                ? (cheato >= 0 ? cheato : 200)
-                : (normal >= 0 ? normal : 100);
+        case ITEM_D_EGGS:
+            sp38 = (fileProgressFlag_get(FILEPROG_BE_CHEATO_BLUEEGGS))? 200 : 100;
             break;
-        }
 
-        case ITEM_F_RED_FEATHER: {
-            s32 cheato = port_getRomhackMaxRedFeathersCheato();
-            s32 normal = port_getRomhackMaxRedFeathers();
-            sp38 = (fileProgressFlag_get(FILEPROG_BF_CHEATO_REDFEATHERS))
-                ? (cheato >= 0 ? cheato : 100)
-                : (normal >= 0 ? normal : 50);
+        case ITEM_F_RED_FEATHER:
+            sp38 = (fileProgressFlag_get(FILEPROG_BF_CHEATO_REDFEATHERS))? 100 : 50;
             break;
-        }
 
-        case ITEM_10_GOLD_FEATHER: {
-            s32 cheato = port_getRomhackMaxGoldFeathersCheato();
-            s32 normal = port_getRomhackMaxGoldFeathers();
-            sp38 = (fileProgressFlag_get(FILEPROG_C0_CHEATO_GOLDFEATHERS))
-                ? (cheato >= 0 ? cheato : 20)
-                : (normal >= 0 ? normal : 10);
+        case ITEM_10_GOLD_FEATHER:
+            sp38 = (fileProgressFlag_get(FILEPROG_C0_CHEATO_GOLDFEATHERS))? 20 : 10;
             break;
-        }
 
         default:
             sp38 = 0;
             break;
     }
+    CALL_EVENT(OnItemMax, item, &sp38); // [port]
     if(sp38){
         D_80385F30[item] = MIN(sp38, D_80385F30[item]);
     }
@@ -173,8 +158,10 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
         case ITEM_C_NOTE:
             sp28 = itemscore_noteScores_get(level_get());
             itemscore_noteScores_update(D_80385F30[item]);
+            s32 notesMax = 100; // [port]
+            CALL_EVENT(OnLevelItemMax, ITEM_C_NOTE, level_get(), &notesMax); // [port]
 //          if(D_80385F30[item] == 100 && sp28 != 100){
-            if(D_80385F30[item] == port_getNotesPerLevel() && sp28 != port_getNotesPerLevel()){
+            if(D_80385F30[item] == notesMax && sp28 != notesMax){
                 coMusicPlayer_playMusic(COMUSIC_36_100TH_NOTE_COLLECTED, 20000);
                 item_inc(ITEM_16_LIFE);
             }
@@ -438,12 +425,10 @@ void itemscore_noteScores_clear(void) {
 /* records a new best note count for the current level (not during demos / file playback) */
 void itemscore_noteScores_update(s32 note_count) {
     s32 level_id;
-    s32 notesMax;
-
-    notesMax = port_getRomhackNotesMax();
-    if (notesMax < 0) { notesMax = 100; }
+    s32 notesMax = 100; // [port]
 
     level_id = level_get();
+    CALL_EVENT(OnLevelItemMax, ITEM_C_NOTE, level_id, &notesMax); // [port]
     if (!func_802E4A08() && (level_id > 0) && (level_id < 0xE)) {
         if (sItemscoreNoteScores[level_id] < note_count) {
             sItemscoreNoteScores[level_id] = note_count;

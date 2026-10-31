@@ -341,33 +341,17 @@ extern "C" int port_getRomhackMaxEggs(void) {
     ROMHACK_GUARD_INT;
     return sEggsNormalMax;
 }
-extern "C" int port_getRomhackMaxEggsCheato(void) {
-    ROMHACK_GUARD_INT;
-    return sEggsCheatomax;
-}
 extern "C" int port_getRomhackMaxRedFeathers(void) {
     ROMHACK_GUARD_INT;
     return sRedFeathersNormalMax;
-}
-extern "C" int port_getRomhackMaxRedFeathersCheato(void) {
-    ROMHACK_GUARD_INT;
-    return sRedFeathersCheatomax;
 }
 extern "C" int port_getRomhackMaxGoldFeathers(void) {
     ROMHACK_GUARD_INT;
     return sGoldFeathersNormalMax;
 }
-extern "C" int port_getRomhackMaxGoldFeathersCheato(void) {
-    ROMHACK_GUARD_INT;
-    return sGoldFeathersCheatomax;
-}
 extern "C" int port_getRomhackNotesMax(void) {
     ROMHACK_GUARD_INT;
     return sNotesMax;
-}
-extern "C" int port_getNotesPerLevel(void) {
-    const int notesMax = port_getRomhackNotesMax();
-    return notesMax >= 0 ? notesMax : 100;
 }
 extern "C" int port_getRomhackJiggiesPerWorld(void) {
     ROMHACK_GUARD_INT;
@@ -560,6 +544,48 @@ static void RegisterRomhackConfig_Init() {
         if (dest >= 0) {
             func_8031CC8C((NodeProp*)ev->nodeProp, dest);
             event->Cancelled = true;
+        }
+    });
+    COND_HOOK(OnItemMax, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnItemMax*)event;
+        s32 max = -1;
+        switch (ev->item) {
+            case ITEM_D_EGGS:
+                max = fileProgressFlag_get(FILEPROG_BE_CHEATO_BLUEEGGS) ? sEggsCheatomax : sEggsNormalMax;
+                break;
+            case ITEM_F_RED_FEATHER:
+                max = fileProgressFlag_get(FILEPROG_BF_CHEATO_REDFEATHERS) ? sRedFeathersCheatomax
+                                                                           : sRedFeathersNormalMax;
+                break;
+            case ITEM_10_GOLD_FEATHER:
+                max = fileProgressFlag_get(FILEPROG_C0_CHEATO_GOLDFEATHERS) ? sGoldFeathersCheatomax
+                                                                            : sGoldFeathersNormalMax;
+                break;
+        }
+        if (max >= 0) {
+            *ev->max = max;
+        }
+    });
+    COND_HOOK(OnLevelItemMax, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnLevelItemMax*)event;
+        switch (ev->item) {
+            case ITEM_C_NOTE:
+                if (sNotesMax >= 0) {
+                    *ev->max = sNotesMax;
+                }
+                break;
+            case ITEM_E_JIGGY:
+                if (sJiggiesPerWorld >= 0) {
+                    *ev->max = sJiggiesPerWorld;
+                }
+                break;
+            case ITEM_13_EMPTY_HONEYCOMB:
+                if (sSpecialLevel >= 0 || sHoneycombsPerWorld >= 0 || sExtraHcStart >= 0) {
+                    const s32 special = sSpecialLevel >= 0 ? sSpecialLevel : LEVEL_B_SPIRAL_MOUNTAIN;
+                    *ev->max = ev->level == special ? (sExtraHcStart >= 0 ? sExtraHcStart : 6)
+                                                    : (sHoneycombsPerWorld >= 0 ? sHoneycombsPerWorld : 2);
+                }
+                break;
         }
     });
 }
