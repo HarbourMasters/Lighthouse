@@ -61,10 +61,6 @@ void port_patchTransitionModel(void* model_bin);
 
 void port_spriteDisplayCache_clear(void);
 
-// Save (SaveEnhancements.cpp)
-
-void port_syncBottlesBonusIndex(void);
-
 // Camera (CameraPatches.cpp)
 
 float port_wsCameraYawScale(void);
@@ -125,7 +121,6 @@ void port_enableNoteDoorComposer(void);
 
 // Romhacks
 
-void* port_getRomhackResumeWarpFunc(void);
 void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 
 // Attract-demo audio hold

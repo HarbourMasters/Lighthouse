@@ -24,6 +24,7 @@ f32 StoryStickAxis(s32 raw);
 void StorybookInputCapture();
 void StorybookPageUpdate();
 void ApplyStorybookIntroHooks();
+void ResumeWarp(NodeProp* node, ActorMarker* marker);
 
 // Engine tuning
 constexpr f32 kPageStep = 2500.0f;
@@ -97,6 +98,11 @@ void StorybookPageUpdate() {
 }
 
 void ApplyStorybookIntroHooks() {
+    COND_VB_SHOULD(VB_GAMESELECT_RESUME_WARP, EVENT_PRIORITY_NORMAL, sStorybookEnabled, {
+        timedFunc_set_2((f32)va_arg(args, double), (GenFunction_2)&ResumeWarp, 0, 0);
+        *should = false;
+    });
+
     // First storybook writes a mumbo token to indicate that it's been seen
     COND_VB_SHOULD(VB_GAMESELECT_START_NEW_GAME, EVENT_PRIORITY_NORMAL, sStorybookEnabled, {
         (void)args; // gamenum is passed but unused
@@ -113,16 +119,12 @@ void ApplyStorybookIntroHooks() {
     });
 }
 
-} // namespace
-
-extern "C" void Storybook_ResumeWarp(NodeProp* node, ActorMarker* marker) {
+void ResumeWarp(NodeProp* node, ActorMarker* marker) {
     (void)marker;
     func_8031CC8C(node, sResumeDest);
 }
 
-extern "C" void* port_getRomhackResumeWarpFunc(void) {
-    return sStorybookEnabled ? (void*)&Storybook_ResumeWarp : nullptr;
-}
+} // namespace
 
 void Storybook_Enable(const StorybookConfig& cfg) {
     sPages = cfg.pages;

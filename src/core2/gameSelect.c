@@ -9,9 +9,6 @@
 #include "core2/gc/zoombox.h"
 #include "core2/quiz/storage.h"
 
-#include "port/Romhack/RomhackConfig.h"
-#include "port/Patches/Patches.h"
-
 
 s32 gSelectedGameNum = -1;
 
@@ -458,48 +455,27 @@ void gameSelect_update(Actor *this){
                     if(anctrl_isStopped(this->anctrl)){
                         chBottlesBonus_resetCompleted();
                         gameFile_load(gSelectedGameNum);
-                        // [port] Rando refuses a new file whose seed failed to generate
-                        if(!EventSystem_Should(VB_GAMESELECT_START_GAME, true, game_number)){
-                            coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
-                            if(game_number == CH_GAME_SELECT_SAVEFILE_0_BED)
-                                func_802C75A0(this, 1);
-                            subaddie_set_state(this, 1);
-                            actor_loopAnimation(this);
+                        if(!EventSystem_Should(VB_GAMESELECT_START_GAME, true, this, game_number)){ // [port]
                             break;
                         }
-                        port_syncBottlesBonusIndex();
                         CALL_EVENT(OnGameStart);
+//                      if(!gameFile_isNotEmpty(game_number)){
                         if(EventSystem_Should(VB_GAMESELECT_START_NEW_GAME, !gameFile_isNotEmpty(game_number), game_number)){
-                            s32 skipIntro = 0;
-                            CALL_EVENT(OnNewGame, &skipIntro);
-                            if (skipIntro) {
-                                timedFunc_set_2(0.0f, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
-                                timedFunc_set_1(0.0f, (GenFunction_1)gsworld_setEnableUpdate, 1);
-                            } else {
-                                // [port] Romhacks can override the new-game boot map
-                                s32 newGameMap = port_getRomhackNewGameMap();
-                                if (newGameMap < 0) {
-                                    newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
-                                }
-                                timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
-                                if (port_getRomhackKnowAllMoves() >= 0) {
-                                    ability_setAllLearned(-1);
-                                }
-                            }
+                            CALL_EVENT(OnNewGame); // [port]
+//                          timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, MAP_85_CS_SPIRAL_MOUNTAIN_3, 0, 1);
+                            if(EventSystem_Should(VB_GAMESELECT_NEW_GAME_INTRO, true)) timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, MAP_85_CS_SPIRAL_MOUNTAIN_3, 0, 1);
                         }
                         else{//L802C511C
                             function_time = 0.0f;
                             if(this->state == 4 &&  (game_number == CH_GAME_SELECT_SAVEFILE_0_BED || game_number == CH_GAME_SELECT_SAVEFILE_1_GAMING_CHAIR))
                                 function_time = 0.25f;
-                            // [port] Romhacks can replace the resume transition outright
-                            if(port_getRomhackResumeWarpFunc() != NULL){
-                                timedFunc_set_2(function_time, (GenFunction_2)port_getRomhackResumeWarpFunc(), 0, 0);
-                            }
-                            else if(chmole_learnedAllSpiralMountainAbilities() && fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE)){
-                                timedFunc_set_2(function_time, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
+                            if(chmole_learnedAllSpiralMountainAbilities() && fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE)){
+//                              timedFunc_set_2(function_time, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
+                                if(EventSystem_Should(VB_GAMESELECT_RESUME_WARP, true, function_time)) timedFunc_set_2(function_time, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
                             }
                             else{//L802C5188
-                                timedFunc_set_2(function_time, (GenFunction_2)warp_smExitBanjosHouse, 0, 0);
+//                              timedFunc_set_2(function_time, (GenFunction_2)warp_smExitBanjosHouse, 0, 0);
+                                if(EventSystem_Should(VB_GAMESELECT_RESUME_WARP, true, function_time)) timedFunc_set_2(function_time, (GenFunction_2)warp_smExitBanjosHouse, 0, 0);
                             }//L802C51A0
                             timedFunc_set_1(function_time, (GenFunction_1)gsworld_setEnableUpdate, 1);
                         }//L802C51B8
@@ -690,12 +666,8 @@ void gameSelect_saveAndExit(void){
     s32 sp1C = level_get();
     s32 is_map_game_over = gsworld_getMap() == MAP_83_CS_GAME_OVER_MACHINE_ROOM;
     s32 is_level_id_valid = (0 < sp1C && sp1C < 0xd);
-    // [port] Permadeath erases the save on death; the game over path routes back through
-    // here, and saving would write the still-live game state over the erased slot.
-    if(!EventSystem_Should(VB_SAVE_AND_EXIT, true)){
-        return;
-    }
-    if( is_level_id_valid || is_map_game_over)
+//  if( is_level_id_valid || is_map_game_over)
+    if( EventSystem_Should(VB_SAVE_AND_EXIT, is_level_id_valid || is_map_game_over))
     {
         if(gameNumber != -1 && !func_802E4A08() && gsworld_getMap() != MAP_91_FILE_SELECT){
             gameFile_save(gameNumber);

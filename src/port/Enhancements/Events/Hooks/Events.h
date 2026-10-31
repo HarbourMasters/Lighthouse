@@ -67,6 +67,13 @@ typedef enum VBehaviorID {
     VB_BEAK_BOMB_WINDUP,
     VB_BEAK_BOMB_RANGE_END,
     VB_DISABLE_SNACKER,
+
+    // #### `result`
+    // ```c
+    // is_level_id_valid || is_map_game_over
+    // ```
+    // #### `args`
+    // - None
     VB_SAVE_AND_EXIT,
     VB_MUMBO_DETRANSFORM,
     VB_ZOOMBOX_FAST_VOICE,
@@ -179,8 +186,39 @@ typedef enum VBehaviorID {
     VB_WARP_KEEPS_MUSIC,
     VB_BUMP_REBOUNDS_PLAYER,
     VB_WARP_DISPATCH,
+
+    // #### `result`
+    // ```c
+    // !gameFile_isNotEmpty(game_number)
+    // ```
+    // #### `args`
+    // - `s32` (game_number)
     VB_GAMESELECT_START_NEW_GAME,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the file's game select actor)
+    // - `s32` (game_number)
     VB_GAMESELECT_START_GAME,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_GAMESELECT_NEW_GAME_INTRO,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `f64` (function_time, promoted from `f32`)
+    VB_GAMESELECT_RESUME_WARP,
     VB_NOTEDOOR_DRAW_NUMBER,
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando

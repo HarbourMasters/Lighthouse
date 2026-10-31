@@ -123,6 +123,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnPropInit);
     REGISTER_EVENT(OnWarpResolveDest);
     REGISTER_EVENT(OnNewGame);
+    REGISTER_EVENT(OnDefaultBootMap);
     REGISTER_EVENT(OnGameStart);
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);
