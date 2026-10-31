@@ -76,4 +76,6 @@ DEFINE_EVENT(OnWorldDrawBegin);
 DEFINE_EVENT(OnWorldDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnHudDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
+DEFINE_EVENT(OnPauseMenuDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx; s32 menu; s32 headerY;);
+DEFINE_EVENT(OnPauseMenuFree);
 DEFINE_EVENT(OnReset);

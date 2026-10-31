@@ -12,8 +12,43 @@
 // added to the group they belong to rather than to the end.
 typedef enum VBehaviorID {
     // Return to Lair restoration, and the pause-menu adjustments
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*struct1As` (D_8036C4E0, the main menu's options)
     VB_INIT_RETURN_TO_LAIR,
-    VB_PAUSE_MENU_PORTRAIT_DEPTH,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `**Gfx`
+    // - `**Mtx`
+    // - `**Vtx`
+    // - `**GcZoombox` (the four menu boxes)
+    // - `s32` (menu, promoted from `u8`)
+    // - `s32` (selection, promoted from `u8`)
+    VB_PAUSEMENU_DRAW_ZOOMBOXES,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PAUSEMENU_UPDATE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (page_id)
+    VB_PAUSEMENU_PRINT_LEVEL_NAME,
     VB_ZOOMBOX_TEXT_ADJUST, // text scale (shrink pause text) + X nudge (JP kana clearance)
 
     // Camera behavior

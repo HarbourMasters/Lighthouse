@@ -73,6 +73,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);
     REGISTER_EVENT(OnHudDraw);
+    REGISTER_EVENT(OnPauseMenuDraw);
+    REGISTER_EVENT(OnPauseMenuFree);
 
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);

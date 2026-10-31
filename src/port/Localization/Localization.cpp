@@ -102,10 +102,10 @@ std::unordered_set<uint32_t> sEverRepointedModels;
 extern "C" {
 void gcpausemenu_zoomboxes_free(void);
 void gcpausemenu_zoomboxes_initMainMenu(void);
-void gcPauseMenu_setState(int state); // enum gcpausemenu_state_e
+bool gcpausemenu_initReturnToLair(void);
 }
 
-extern "C" int port_pauseMenuNeedsRefresh(void) {
+static bool PauseMenuNeedsRefresh() {
     static int sGen = 0;
     static int sLair = 0;
     static bool sInit = false;
@@ -115,23 +115,14 @@ extern "C" int port_pauseMenuNeedsRefresh(void) {
         sInit = true;
         sGen = gen;
         sLair = lair;
-        return 0;
+        return false;
     }
     if (gen == sGen && lair == sLair) {
-        return 0;
+        return false;
     }
     sGen = gen;
     sLair = lair;
-    return 1;
-}
-
-// Rebuild the main pause-menu option zoomboxes and replay the open animation, so they
-// re-localize / re-evaluate cleanly (re-setting a live box's string would reveal it as a 2nd line).
-// The caller re-evaluates the Return to Lair option (a decomp bitfield) first, before the recreate.
-extern "C" void port_pauseMenuRebuild(void) {
-    gcpausemenu_zoomboxes_free();
-    gcpausemenu_zoomboxes_initMainMenu();
-    gcPauseMenu_setState(1); // PAUSE_STATE_1_MENU_OPENING
+    return true;
 }
 
 // Minimal view of PrintBuffer (src/core2/font/print.c)
@@ -728,6 +719,19 @@ static void RegisterLocalizedText() {
     // decomp's game-init reset (func_8031B62C) would zero it on parade/mode warps and
     // revert the user's selection to the base language, so skip it.
     COND_VB_SHOULD(VB_RESET_DIALOG_LANGUAGE, EVENT_PRIORITY_NORMAL, true, { *should = false; });
+
+    // Rebuild the main pause-menu option zoomboxes, so they re-localize / re-evaluate cleanly
+    // (re-setting a live box's string would reveal it as a 2nd line). Return to Lair lays the
+    // options out first; the menu then re-reads its bitfield and replays the open animation. Registered whatever
+    // the setting, since the language and Return to Lair can change while the menu is open.
+    COND_VB_SHOULD(VB_PAUSEMENU_UPDATE, EVENT_PRIORITY_NORMAL, true, {
+        if (PauseMenuNeedsRefresh()) {
+            gcpausemenu_initReturnToLair();
+            gcpausemenu_zoomboxes_free();
+            gcpausemenu_zoomboxes_initMainMenu();
+            *should = false;
+        }
+    });
 
     // JP: nudge the pause-menu zoombox text a few px right so the wider kana clear the portrait.
     COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, true, {
