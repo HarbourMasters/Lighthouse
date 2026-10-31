@@ -3,27 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
-void vtxList_tintColorsFrom(BKVertexList *dst, s32 target_color[3], f32 amount, BKVertexList *src);
-BKVertexList *vtxList_clone(BKVertexList *);
-
 /* typedefs and declarations */
-typedef struct {
-    s16 actorId;
-    f32 position[3];
-    s16 mapSpecificFlag;
-} Struct_ChWhistleSwitchInfo;
-
-typedef struct {
-    u8 unk0;
-    u8 pad1[3];
-    Struct_ChWhistleSwitchInfo *whistleSwitchInfo;
-    f32 unk8;
-    BKVertexList *unkC;
-    // [port] Back buffer for unkC. See chRBBWhistleSwitch_draw.
-    BKVertexList *portVtxBack;
-} ActorLocal_RBB_47D0;
+#include "whistleswitch.h" // [port] the typedefs moved there
 
 Actor *chRBBWhistleSwitch_draw(ActorMarker *marker, Gfx** gdl, Mtx** mptr, Vtx **arg3);
 void chRBBWhistleSwitch_update(Actor *this);
@@ -84,14 +65,7 @@ void chRBBWhistleSwitch_setState(Actor *this, s32 new_state){
     local->unk8 = 0.0f;
     if(new_state == CH_RBB_WHISTLE_SWITCH_STATE_2_UNK){
         func_8030E6D4(SFX_90_SWITCH_PRESS);
-        // [port] Clone once and keep it. Freeing on release hands the buffer back
-        // while a display list built from this tick may still be queued for the
-        // render thread.
-        if(local->unkC == NULL){
-            BKVertexList *src = modelbin_getVtxList(marker_loadModelBin(this->marker));
-            local->unkC = vtxList_clone(src);
-            local->portVtxBack = vtxList_clone(src);
-        }
+        local->unkC = vtxList_clone(modelbin_getVtxList(marker_loadModelBin(this->marker)));
         
         mapSpecificFlags_set(local->whistleSwitchInfo->mapSpecificFlag, true);
         this->position_y -= 30.0f;
@@ -106,6 +80,7 @@ void chRBBWhistleSwitch_setState(Actor *this, s32 new_state){
         this->position_x = local->whistleSwitchInfo->position[0];
         this->position_y = local->whistleSwitchInfo->position[1];
         this->position_z = local->whistleSwitchInfo->position[2];
+        vtxList_free(local->unkC);
     }
     this->state = new_state;
 }
@@ -117,17 +92,7 @@ void chRBBWhistleSwitch_press(ActorMarker *marker, ActorMarker *arg1){
 }
 
 void chRBBWhistleSwitch_free(Actor *this){
-    ActorLocal_RBB_47D0 *local = (ActorLocal_RBB_47D0 *)&this->local;
     chRBBWhistleSwitch_setState(this, CH_RBB_WHISTLE_SWITCH_STATE_0_NOT_INIT);
-    if(local->unkC != NULL){
-        // [port] No queued display list may still reference these vertices once
-        // they are handed back to the heap.
-        port_pipelineSyncPoint();
-        vtxList_free(local->unkC);
-        vtxList_free(local->portVtxBack);
-        local->unkC = NULL;
-        local->portVtxBack = NULL;
-    }
 }
 
 Actor *chRBBWhistleSwitch_draw(ActorMarker *marker, Gfx **gdl, Mtx **mptr, Vtx **arg3){
@@ -143,23 +108,14 @@ Actor *chRBBWhistleSwitch_draw(ActorMarker *marker, Gfx **gdl, Mtx **mptr, Vtx *
     if( actor->state == 2 
         && local->unk0 != 0
     ){
-        BKVertexList *swap;
-
         temp_v0 = marker_loadModelBin(marker);
         sp1C = (local->unk0 == 2) ? D_80390938 : D_8039092C;
-
-        // [port] Alternate between two clones.
-        swap = local->unkC;
-        local->unkC = local->portVtxBack;
-        local->portVtxBack = swap;
-
         vtxList_tintColorsFrom(local->unkC, sp1C, 
             (local->whistleSwitchInfo->position[1] - actor->position_y) / 30.0,
             modelbin_getVtxList(temp_v0)
         );
         modelRender_setVertexList(local->unkC);
     }
-
     return actor_draw(marker, gdl, mptr, arg3);
 }
 
@@ -170,11 +126,7 @@ void chRBBWhistleSwitch_update(Actor *this){
     
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
-        // [port] The map savestate memcpys `local` wholesale and only nulls the
-        // Actor's own heap pointers, so these two come back pointing at freed
-        // vertices. Drop them before anything can reuse or free them again.
-        local->unkC = NULL;
-        local->portVtxBack = NULL;
+        local->unkC = NULL; // [port] Saved mid-press, this points at a freed clone that setState would free again.
         this->marker->propPtr->unk8_3 = 1;
         this->marker->actorFreeFunc = chRBBWhistleSwitch_free;
         marker_setCollisionScripts(this->marker, NULL, chRBBWhistleSwitch_press, NULL);
