@@ -25,7 +25,6 @@ int port_getRomhackHoneycombsPerWorld(void);
 void port_overrideRomhackHoneycombsPerWorld(int value);
 int port_getRomhackExtraHcStart(void);
 int port_getRomhackNoteDoor(int door_index);
-int port_getRomhackJiggyPuzzleCost(int puzzle_index);
 int port_getRomhackJiggyPuzzleSize(int puzzle_index);
 int port_getRomhackJiggyPuzzleFlag(int puzzle_index);
 const char* port_getRomhackLevelName(int level_index);

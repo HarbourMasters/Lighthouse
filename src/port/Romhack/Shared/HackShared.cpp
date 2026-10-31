@@ -12,6 +12,7 @@ extern "C" {
 #include "functions.h"
 #include "actor.h"
 #include "core2/abilityprogress.h"
+#include "lair/jigsawpicture.h"
 
 extern ActorArray* suBaddieActorArray;
 
@@ -25,10 +26,6 @@ typedef struct {
     f32 scale;
 } TransitionInfoEntry;
 extern TransitionInfoEntry D_8036C150[0x16];
-
-s32 _puzzleCost(s32 index);
-s32 _puzzleSize(s32 index);
-s32 _puzzleFlag(s32 index);
 
 extern s32 print_sCurrentFont;
 extern s32 print_sMonospacedModeEnabled;
@@ -301,9 +298,9 @@ bool sPuzzleDepositClamp = false;
 void ApplyPuzzleDepositClamp() {
     COND_HOOK(OnMapLoadStub, EVENT_PRIORITY_NORMAL, sPuzzleDepositClamp, [](IEvent*) {
         for (s32 i = 0; i < 11; i++) {
-            const enum file_progress_e flag = (enum file_progress_e)_puzzleFlag(i);
-            const s32 bits = _puzzleSize(i);
-            const s32 cost = _puzzleCost(i);
+            const enum file_progress_e flag = (enum file_progress_e)PICTURE_INFO[i].progress_flag;
+            const s32 bits = PICTURE_INFO[i].size_bits;
+            const s32 cost = PICTURE_INFO[i].cost;
             if ((u32)cost < fileProgressFlag_getN(flag, bits)) {
                 fileProgressFlag_setN(flag, cost, bits);
             }

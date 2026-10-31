@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "jigsawpicture.h"
-#include "port/Romhack/RomhackConfig.h"
 #include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
@@ -17,12 +16,6 @@ typedef struct {
     s32 unk4;
     s32 unk8;
 }ActorLocal_lair_86F0;
-
-typedef struct {
-    u8 cost;
-    u8 size_bits;
-    u16 progress_flag; // enum file_progress_e
-}Struct_lair_86F0_0;
 
 void jigsawPicture_setState(Actor *this, s32 next_state);
 void updateJigsawPictureActor(Actor *this);
@@ -56,31 +49,12 @@ ParticleScaleAndLifetimeRanges D_80394830 = {
 };
 
 /* .code */
-s32 _puzzleCost(s32 index) {
-    s32 override = port_getRomhackJiggyPuzzleCost(index);
-    return (override >= 0) ? override : PICTURE_INFO[index].cost;
-}
-
-s32 _puzzleSize(s32 index) {
-    s32 override = port_getRomhackJiggyPuzzleSize(index);
-    return (override >= 0) ? override : PICTURE_INFO[index].size_bits;
-}
-
-s32 _puzzleFlag(s32 index) {
-    s32 override = port_getRomhackJiggyPuzzleFlag(index);
-    return (override >= 0) ? override : PICTURE_INFO[index].progress_flag;
-}
-
 bool jigsawPicture_isJigsawPictureComplete(s32 arg0) {
-    s32 cost = _puzzleCost(arg0 - 1);
-    return fileProgressFlag_getN(_puzzleFlag(arg0 - 1), _puzzleSize(arg0 - 1)) == cost;
+    return fileProgressFlag_getN(PICTURE_INFO[arg0 - 1].progress_flag, PICTURE_INFO[arg0 - 1].size_bits) == PICTURE_INFO[arg0 - 1].cost;
 }
 
 s32 getPictureCost(Actor *this){
-    if (this->actorTypeSpecificField != 0 && this->actorTypeSpecificField < 0xC) {
-        return _puzzleCost(this->actorTypeSpecificField - 1);
-    }
-    return 0;
+    return (this->actorTypeSpecificField != 0 && this->actorTypeSpecificField < 0xC) ? PICTURE_INFO[this->actorTypeSpecificField - 1].cost : 0;
 }
 
 bool isPictureComplete(Actor *this){
@@ -352,7 +326,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
                 addOrRemovePieceFromDisplay(this, temp_s1, 0);
                 local->unk4--;
                 local->unk0 &= ~(1 << temp_s1);
-                fileProgressFlag_setN(_puzzleFlag(this->actorTypeSpecificField - 1), local->unk4, _puzzleSize(this->actorTypeSpecificField - 1));
+                fileProgressFlag_setN(PICTURE_INFO[this->actorTypeSpecificField - 1].progress_flag, local->unk4, PICTURE_INFO[this->actorTypeSpecificField - 1].size_bits);
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, 1);
             }
             break;
@@ -365,7 +339,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
                 temp_s1 = getPicturePiecePosition(this);
                 addOrRemovePieceFromDisplay(this, temp_s1, 1);
                 local->unk0 |= (1 << temp_s1);
-                fileProgressFlag_setN(_puzzleFlag(this->actorTypeSpecificField - 1), local->unk4, _puzzleSize(this->actorTypeSpecificField - 1));
+                fileProgressFlag_setN(PICTURE_INFO[this->actorTypeSpecificField - 1].progress_flag, local->unk4, PICTURE_INFO[this->actorTypeSpecificField - 1].size_bits);
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 unlockAdditionalActions(this);
             }
@@ -388,7 +362,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
                     local->unk0 |= (1 << temp_s1);
                     item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 }
-                fileProgressFlag_setN(_puzzleFlag(this->actorTypeSpecificField - 1), local->unk4, _puzzleSize(this->actorTypeSpecificField - 1));
+                fileProgressFlag_setN(PICTURE_INFO[this->actorTypeSpecificField - 1].progress_flag, local->unk4, PICTURE_INFO[this->actorTypeSpecificField - 1].size_bits);
                 unlockAdditionalActions(this);
             }
             break;
@@ -455,7 +429,7 @@ static void revealCcwPuzzlePodium(Actor *this) {
 }
 
 static s32 jigsawPicture_placedFromFlags(Actor *this) {
-    return fileProgressFlag_getN(_puzzleFlag(this->actorTypeSpecificField - 1), _puzzleSize(this->actorTypeSpecificField - 1));
+    return fileProgressFlag_getN(PICTURE_INFO[this->actorTypeSpecificField - 1].progress_flag, PICTURE_INFO[this->actorTypeSpecificField - 1].size_bits);
 }
 
 static void jigsawPicture_resyncFromFlags(Actor *this) {
@@ -490,7 +464,7 @@ void updateJigsawPictureActor(Actor *this) {
 
     if (!this->volatile_initialized) {
         // temp_v0 = &PICTURE_INFO[this->actorTypeSpecificField - 1];
-        sp64 = fileProgressFlag_getN(_puzzleFlag(this->actorTypeSpecificField - 1), _puzzleSize(this->actorTypeSpecificField - 1));
+        sp64 = fileProgressFlag_getN(PICTURE_INFO[this->actorTypeSpecificField - 1].progress_flag, PICTURE_INFO[this->actorTypeSpecificField - 1].size_bits);
         local->unk0 = 0;
         local->unk4 = 0;
         local->unk8 = (isBanjoOnPodium(this->marker)) ? 0xff : 1;

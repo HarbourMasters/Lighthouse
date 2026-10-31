@@ -8,11 +8,11 @@
 
 #include "functions.h"
 extern "C" {
-// Decomp functions that functions.h does not declare (defined in smbottles.c,
-// mumbo_transforms.c and jigsawpicture.c respectively).
+#include "lair/jigsawpicture.h"
+// Decomp functions that functions.h does not declare (defined in smbottles.c and
+// mumbo.c respectively).
 void __chSmBottles_skipIntroTutorial(void);
 s32 __transformation_getCost(enum transformation_e trans_id);
-s32 _puzzleCost(s32 index);
 }
 
 extern int32_t randoFinalSeed;
@@ -241,7 +241,7 @@ inline bool CanOpenWorld(level_e levelId) {
 
     // [port] index 9 is the Door of Grunty picture; 25 is only its vanilla cost, and a
     // romhack can change it like any other.
-    int32_t puzzleCost = levelId == LEVEL_6_LAIR ? _puzzleCost(9) : _puzzleCost(levelNum - 1);
+    int32_t puzzleCost = levelId == LEVEL_6_LAIR ? PICTURE_INFO[9].cost : PICTURE_INFO[levelNum - 1].cost;
     int32_t jiggyCount = item_getCount(ITEM_E_JIGGY);
 
     if (jiggyCount >= puzzleCost) {

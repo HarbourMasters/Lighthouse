@@ -17,6 +17,7 @@
 extern "C" {
 #include "core2/gc/sky.h"
 #include "core2/map/mapModel.h"
+#include "lair/jigsawpicture.h"
 }
 
 /*
@@ -414,14 +415,6 @@ extern "C" int port_getRomhackNoteDoor(int door_index) {
     return -1;
 }
 
-extern "C" int port_getRomhackJiggyPuzzleCost(int puzzle_index) {
-    ROMHACK_GUARD_INT;
-    if (puzzle_index >= 0 && puzzle_index < 11) {
-        return sJiggyCosts[puzzle_index];
-    }
-    return -1;
-}
-
 extern "C" int port_getRomhackJiggyPuzzleSize(int puzzle_index) {
     ROMHACK_GUARD_INT;
     if (puzzle_index >= 0 && puzzle_index < 11) {
@@ -469,6 +462,19 @@ static MapModelDescription sSceneDefOverride;
 
 static void RegisterRomhackConfig_Init() {
     const bool romhack = port_isRomhack();
+    if (romhack) {
+        for (int i = 0; i < 11; i++) {
+            if (sJiggyCosts[i] >= 0) {
+                PICTURE_INFO[i].cost = (u8)sJiggyCosts[i];
+            }
+            if (sJiggySizes[i] >= 0) {
+                PICTURE_INFO[i].size_bits = (u8)sJiggySizes[i];
+            }
+            if (sJiggyFlags[i] >= 0) {
+                PICTURE_INFO[i].progress_flag = (u16)sJiggyFlags[i];
+            }
+        }
+    }
     COND_HOOK(OnGetMapSkyInfo, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
         auto* ev = (OnGetMapSkyInfo*)event;
         auto it = sSkyboxAssign.find(ev->map);
