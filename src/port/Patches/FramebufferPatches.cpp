@@ -21,6 +21,9 @@ extern "C" {
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
 s32 getGameMode(void);
+// Mirror mode's state at the last capture (MirrorPatches.cpp)
+void MirrorPatches_MarkCapture(void);
+int MirrorPatches_ShouldFlipPauseBg(void);
 
 // During FADE_IN, the game disables scene drawing one frame before
 // capturing gFramebuffers. Without freezing, the readback would overwrite
@@ -77,7 +80,7 @@ static void createPauseFb(void* arg) {
     s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
 }
 
-int port_getPauseFramebufferId(void) {
+static int getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
         currentRenderSize(&s_pauseFbW, &s_pauseFbH);
         port_runOnRenderThread(createPauseFb, NULL);
@@ -89,7 +92,7 @@ int port_getPauseFramebufferId(void) {
 // snapshot copy, recreating it only when the resolution actually changed since the last
 // capture. Recreating leaks the previous FB id (there is no destroy API), but this fires only
 // on a real resolution change at pause entry, not every pause, so it is bounded and rare.
-int port_capturePauseFramebuffer(void) {
+static int capturePauseFramebuffer(void) {
     int w;
     int h;
     currentRenderSize(&w, &h);
@@ -101,9 +104,34 @@ int port_capturePauseFramebuffer(void) {
     return s_pauseFbId;
 }
 
-void port_getPauseFramebufferSize(int* w, int* h) {
+static void getPauseFramebufferSize(int* w, int* h) {
     *w = s_pauseFbW;
     *h = s_pauseFbH;
+}
+
+// Draws the paused frame as the menu's background, edge to edge in widescreen. The capture
+// frame first copies the backbuffer into the pause FB.
+void Framebuffer_DrawPauseBackground(Gfx** gfx, int capture) {
+    s32 pauseFb = getPauseFramebufferId();
+    if (capture) {
+        pauseFb = capturePauseFramebuffer();
+        gDPCopyFB((*gfx)++, pauseFb, 0, 0, NULL);
+    }
+
+    int renderW;
+    int renderH;
+    getPauseFramebufferSize(&renderW, &renderH);
+    s32 x0 = OTRGetRectDimensionFromLeftEdge(0);
+    s32 x1 = OTRGetRectDimensionFromRightEdge((f32)gFramebufferWidth);
+
+    gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, pauseFb);
+    int16_t uls = MirrorPatches_ShouldFlipPauseBg() ? renderW : 0;
+    int16_t lrs = MirrorPatches_ShouldFlipPauseBg() ? 0 : renderW;
+    gDPImageRectangle((*gfx)++, x0 << 2, 0, uls, 0, x1 << 2, gFramebufferHeight << 2, lrs, renderH, G_TX_RENDERTILE,
+                      renderW, renderH);
+    if (capture) {
+        MirrorPatches_MarkCapture();
+    }
 }
 
 static int s_recapLastW = 0;

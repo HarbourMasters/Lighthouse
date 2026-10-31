@@ -15,6 +15,7 @@ extern "C" {
 #include "core2/particle.h"
 
 ParticleEmitter* __fxSparkle_create(s16 position[3], f32 height, enum asset_e sprite_id);
+void func_8029CBC4(void);
 }
 
 #define CVAR_TOOIE_JIGGY_DANCE CVAR_ENHANCEMENT("Backports.JiggyAnimation")
@@ -265,6 +266,8 @@ void updateOrbit() {
 
 } // namespace
 
+static bool sPlayOrbit = false;
+
 // Romhacks that bundle wedarobi's jiggy dance should have it on by default.
 // The hack may depend on the retained player motion that the animation provides.
 static bool sJiggyDanceForced = false;
@@ -295,21 +298,45 @@ void RegisterJiggyCollect_Init() {
     clearOrbit();
     const bool skip = CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0);
     const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0) || sJiggyDanceForced;
-    const bool playOrbit = tooie && !skip;
+    sPlayOrbit = tooie && !skip;
 
     COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, {
+        if (*should && !JiggyDanceSuppressedOnThisMap()) {
+            *should = false;
+            if (sPlayOrbit) {
+                spawnOrbit();
+            }
+        }
+    });
+    // The first jiggies' tutorial dialog, without stopping Banjo for it.
+    COND_VB_SHOULD(VB_JIGGY_TUTORIAL_DIALOG, EVENT_PRIORITY_NORMAL, skip || tooie, {
+        if (*should && !JiggyDanceSuppressedOnThisMap()) {
+            *should = false;
+            gcdialog_showDialog(va_arg(args, s32), 0x22, NULL, NULL, NULL, 0);
+        }
+    });
+    COND_VB_SHOULD(VB_JINJO_JINGLE_LOOK_AT, EVENT_PRIORITY_NORMAL, skip || tooie, {
         if (!JiggyDanceSuppressedOnThisMap()) {
             *should = false;
         }
     });
-
-    COND_HOOK(OnTooieJiggyCollect, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) {
+    // Leaves the music up and returns the camera to normal play.
+    COND_VB_SHOULD(VB_JIGGY_JINGLE_DUCK_MUSIC, EVENT_PRIORITY_NORMAL, skip || tooie, {
         if (!JiggyDanceSuppressedOnThisMap()) {
-            spawnOrbit();
+            *should = false;
+            func_80291548();
         }
     });
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { updateOrbit(); });
-    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { forgetOrbit(); });
+    // Restores the music now rather than after the fanfare.
+    COND_VB_SHOULD(VB_JIGGY_FANFARE_MUSIC_DELAY, EVENT_PRIORITY_NORMAL, skip || tooie, {
+        if (!JiggyDanceSuppressedOnThisMap()) {
+            *should = false;
+            func_8029CBC4();
+        }
+    });
+
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, sPlayOrbit, [](IEvent*) { updateOrbit(); });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, sPlayOrbit, [](IEvent*) { forgetOrbit(); });
 }
 
 void TooieJiggyDance_ForceEnable() {

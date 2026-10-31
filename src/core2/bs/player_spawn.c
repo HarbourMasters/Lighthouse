@@ -297,14 +297,7 @@ void func_8029B5EC(void){
 }
 
 void func_8029B62C(void){
-    // [port] v1.1 fix: don't trigger game over during Boggy's race — just reload the map
-    if(item_empty(ITEM_16_LIFE) && maSlalom_isActive() && !EventSystem_Should(VB_BOGGY_RACE_GAME_OVER, true)){
-        // [port] Romhack gate: some hacks want a full map transition here instead.
-        if (EventSystem_Should(VB_RACE_VOID_OUT_FULL_TRANSITION, false)) {
-            transitionToMap((enum map_e)gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
-        } else {
-            game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
-        }
+    if(!EventSystem_Should(VB_HANDLE_PLAYER_DEATH, true)){ // [port]
         return;
     }
     // [port] Permadeath difficulty empties the reserve and erases the save here.
@@ -335,15 +328,11 @@ void func_8029B62C(void){
 }
 
 void func_8029B6F0(void){
-    // [port] Void-outs don't cost a life, so they should never trigger game over.
-    if (EventSystem_Should(VB_VOID_OUT_GAME_OVER, true)) {
-        if(item_empty(ITEM_16_LIFE)){
-            func_8029B62C();
-        }
-        else{
-            transitionToMap(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
-        }
-    } else {
+//  if(item_empty(ITEM_16_LIFE)){
+    if(EventSystem_Should(VB_VOID_OUT_GAME_OVER, item_empty(ITEM_16_LIFE))){
+        func_8029B62C();
+    }
+    else{
         transitionToMap(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
     }
 }
@@ -881,9 +870,8 @@ s32 func_8029C9C0(s32 arg0){
     if(bakey_pressed(BUTTON_A))
         arg0 = bs_getTypeOfJump();
 
-    // [port] v1.1 fix: check sliding first so claw swipe can't trigger during a slide
-    if(bakey_pressed(BUTTON_B) && can_claw() &&
-       (EventSystem_Should(VB_CLAW_SWIPE_SLIDE, true) || !player_isSliding()))
+//  if(bakey_pressed(BUTTON_B) && can_claw())
+    if(EventSystem_Should(VB_CLAW_SWIPE_SLIDE, bakey_pressed(BUTTON_B) && can_claw()))
         arg0 = BS_6_CLAW;
 
     if(bakey_held(BUTTON_Z) && bainput_should_beak_barge())
@@ -945,11 +933,8 @@ void func_8029CBF4(void){
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
             timedFunc_set_3(4.1f, (GenFunction_3)transitionToMap, MAP_95_CS_END_ALL_100, 0, 1);
         }//L8029CC58
-        if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
-            timedFunc_set_0(4.0f, func_8029CBC4);
-        } else {
-            func_8029CBC4();
-        }
+//      timedFunc_set_0(4.0f, func_8029CBC4);
+        if(EventSystem_Should(VB_JIGGY_FANFARE_MUSIC_DELAY, true)) timedFunc_set_0(4.0f, func_8029CBC4);
         coMusicPlayer_playMusic(COMUSIC_42_NOTEDOOR_OPENING_FANFARE, -1);
     }//L8029CC7C
     else{
@@ -975,17 +960,9 @@ void func_8029CCC4(void){
     if(jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
         func_8028F918(2);
     }
-
-    // [port] Jiggy Dance
-    if (!EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
-        func_80291548();
-        coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
-        timedFunc_set_0(4.0f, func_8029CBF4);
-        return;
-    }
-
     midichannel_incOrDecCounter(false);
-    func_8025A55C(0, 4000, 0xC);
+//  func_8025A55C(0, 4000, 0xC);
+    if(EventSystem_Should(VB_JIGGY_JINGLE_DUCK_MUSIC, true)) func_8025A55C(0, 4000, 0xC);
     coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
     timedFunc_set_0(4.0f, func_8029CBF4);
 }

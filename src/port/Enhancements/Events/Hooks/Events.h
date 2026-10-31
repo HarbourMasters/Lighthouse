@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -11,49 +12,228 @@
 // added to the group they belong to rather than to the end.
 typedef enum VBehaviorID {
     // Return to Lair restoration, and the pause-menu adjustments
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*struct1As` (D_8036C4E0, the main menu's options)
     VB_INIT_RETURN_TO_LAIR,
-    VB_PAUSE_MENU_PORTRAIT_DEPTH,
-    VB_ZOOMBOX_TEXT_ADJUST, // text scale (shrink pause text) + X nudge (JP kana clearance)
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `**Gfx`
+    // - `**Mtx`
+    // - `**Vtx`
+    // - `**GcZoombox` (the four menu boxes)
+    // - `s32` (menu, promoted from `u8`)
+    // - `s32` (selection, promoted from `u8`)
+    VB_PAUSEMENU_DRAW_ZOOMBOXES,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PAUSEMENU_UPDATE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (page_id)
+    VB_PAUSEMENU_PRINT_LEVEL_NAME,
 
     // Camera behavior
-    VB_CUTSCENE_ACTOR_DRAW,
-    VB_CAMERA_LIVE_ASPECT,
     VB_CAMERA_FOLLOW,
     VB_CAMERA_APPLY_SHAKE,
 
+    // #### `result`
+    // ```c
+    // !balookat_getState() && player_movementGroup() != BSGROUP_4_LOOK && batimer_get(7) == 0.0f &&
+    //     bainput_should_zoom_out_camera()
+    // ```
+    // #### `args`
+    // - None
+    VB_CAMERA_CYCLE_ZOOM,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CAMERA_SWIVEL,
+
     // Cutscene and celebration skips
-    VB_PLAY_BOOT_LOGOS,
+
+    // #### `result`
+    // ```c
+    // i_ptr->unk4 != 0 && i_ptr->unkC != NULL
+    // ```
+    // #### `args`
+    // - `s32` (i_ptr->unk0, promoted from `s16`)
+    VB_CUTSCENE_TRIGGER_UPDATE,
     VB_PLAY_INTRO_CUTSCENE,
+
+    // #### `result`
+    // ```c
+    // !sp2C
+    // ```
+    // #### `args`
+    // - None
     VB_PLAY_JIGGY_DANCE,
+
+    // A listener that returns false shows the dialog itself.
+    // #### `result`
+    // ```c
+    // s0
+    // ```
+    // #### `args`
+    // - `s32` (s0)
+    VB_JIGGY_TUTORIAL_DIALOG,
+
+    // #### `result`
+    // ```c
+    // comusic_isTrackQueued(COMUSIC_30_5TH_JINJO_COLLECTED)
+    // ```
+    // #### `args`
+    // - None
+    VB_JINJO_JINGLE_LOOK_AT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_JIGGY_JINGLE_DUCK_MUSIC,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_JIGGY_FANFARE_MUSIC_DELAY,
     VB_PLAY_NOTEDOOR_DANCE,
 
     // Vanilla bug fixes and corrections
     VB_GRUNTY_DEFEATED_FLAG_BOSS,
+
+    // #### `result`
+    // ```c
+    // item_empty(ITEM_16_LIFE)
+    // ```
+    // #### `args`
+    // - None
     VB_VOID_OUT_GAME_OVER,
     VB_CCW_GNAWTY_SPRING_ROCK,
     VB_CCW_FLOWER_REPLANT,
+
+    // A listener that returns false sets the slide rate itself.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*f32` (sp28)
     VB_TERMITE_MOUND_SLOPES,
+
+    // #### `result`
+    // ```c
+    // bakey_pressed(BUTTON_B) && can_claw()
+    // ```
+    // #### `args`
+    // - None
     VB_CLAW_SWIPE_SLIDE,
-    VB_BOGGY_RACE_GAME_OVER,
+
+    // Game over at no lives left, or a respawn. A listener that returns false handles the death itself.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_HANDLE_PLAYER_DEATH,
     VB_JINJO_CHARGE_SOUND,
     VB_ENEMY_BECOME_BUNDLE,
     VB_YUMYUM_DROP,
     VB_MM_CHIMPY_STUMP_RUMBLE,
     VB_MM_CHIMPY_NOISE,
     VB_SPLINE_PATH_SFX,
+
+    // #### `result`
+    // ```c
+    // !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE) // mapSavestate_save
+    // true                                                    // mapSavestate_apply
+    // ```
+    // #### `args`
+    // - `s32` (outgoing_mode, or mode for the apply)
     VB_MAP_SAVESTATE_USE,
 
     // Gameplay options and cheats
+
+    // Whether an actor is near enough to the player to update.
+    // #### `result`
+    // ```c
+    // func_803296D8(actor, temp_s1)                      // the actor array
+    // subaddie_playerIsWithinSphereAndActive(this, 2500) // Blubber
+    // subaddie_playerIsWithinSphere(this, 0xFA0)         // the bee swarm
+    // subaddie_playerIsWithinSphere(this, 4000)          // the snowman, enemies
+    // subaddie_playerIsWithinSphereAndActive(this, 3150) // the snowman
+    // func_803296D8(this, 2000)                          // the trainers
+    // false                                              // the scarab beetles
+    // ```
+    // #### `args`
+    // - `*Actor` (this)
     VB_ACTOR_UPDATE_DISTANCE,
+
+    // Whether this walker takes one of its kind's two footsteps this frame.
+    // #### `result`
+    // ```c
+    // (this->state == CRAB_STATE_2_IDLE_UNK) || (this->state == CRAB_STATE_3_TURN_TO_PLAYER) ||
+    //     (this->state == CRAB_STATE_4_CHASE_PLAYER) // the crabs
+    // true                                           // the termites
+    // ```
+    // #### `args`
+    // - `*Actor` (this)
     VB_ACTOR_FOOTSTEP_SLOT,
     VB_ACTOR_AMBIENT_PARTICLES,
+
+    // #### `result`
+    // ```c
+    // anctrl_isAt(sp58, 0.6905f)
+    // ```
+    // #### `args`
+    // - `*AnimCtrl` (sp58)
+    // - `*f32` (D_8037D338)
     VB_BEAK_BOMB_WINDUP,
+
+    // #### `result`
+    // ```c
+    // sp48[0] * sp48[0] + sp48[1] * sp48[1] + sp48[2] * sp48[2] > 16000000.0f
+    // ```
+    // #### `args`
+    // - None
     VB_BEAK_BOMB_RANGE_END,
     VB_DISABLE_SNACKER,
+
+    // #### `result`
+    // ```c
+    // is_level_id_valid || is_map_game_over
+    // ```
+    // #### `args`
+    // - None
     VB_SAVE_AND_EXIT,
     VB_MUMBO_DETRANSFORM,
     VB_ZOOMBOX_FAST_VOICE,
-    VB_ZOOMBOX_YELLOW_TEXT,
 
     // Rando object behavior
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,
@@ -82,9 +262,33 @@ typedef enum VBehaviorID {
     VB_GCLIGHTS_RECOLOR,
     VB_SNOW_CAMERA_ROTATION,
     VB_SNOW_RENDER_STATE,
-    VB_MODEL_DRAWDIST_FADE_ALPHA,
     VB_SPRITE_RESTORE_ALPHA_COMPARE,
+
+    // #### `result`
+    // ```c
+    // viewport_isBoundingBoxInFrustum(scaled_min, scaled_max)
+    // ```
+    // #### `args`
+    // - `*f32` (scaled_min)
+    // - `*f32` (scaled_max)
     VB_DRAWDIST_BOX_CULL,
+
+    // #### `result`
+    // ```c
+    // (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) ||
+    //     (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT))         // CAMERA
+    // (cmd->min < dist) && (dist <= cmd->max)                               // LOD
+    // viewport_func_8024DB50(pos_scaled, dist_scaled) && cmd->branch_offset // UNKE
+    // ```
+    // #### `args`
+    // - `s32` (OCCLUSION_CMD_CAMERA, OCCLUSION_CMD_LOD or OCCLUSION_CMD_UNKE)
+    // - `*void` (the geo command)
+    // - `*BKModelBin`
+    // - `*u8` (camera-area ids, CAMERA only)
+    // - `s32` (camera-area count, promoted from `u8`)
+    // - `s32` (CAMERA flags promoted from `u8`, or LOD min)
+    // - `s32` (LOD max)
+    VB_DRAW_GEO_CMD,
     VB_PICTUREBOX_TARGET_FB,
     VB_PICTUREBOX_SUBMIT_FRAME,
     VB_ITEMPRINT_DRAW_COUNT,
@@ -138,8 +342,39 @@ typedef enum VBehaviorID {
     VB_WARP_KEEPS_MUSIC,
     VB_BUMP_REBOUNDS_PLAYER,
     VB_WARP_DISPATCH,
+
+    // #### `result`
+    // ```c
+    // !gameFile_isNotEmpty(game_number)
+    // ```
+    // #### `args`
+    // - `s32` (game_number)
     VB_GAMESELECT_START_NEW_GAME,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the file's game select actor)
+    // - `s32` (game_number)
     VB_GAMESELECT_START_GAME,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_GAMESELECT_NEW_GAME_INTRO,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `f64` (function_time, promoted from `f32`)
+    VB_GAMESELECT_RESUME_WARP,
     VB_NOTEDOOR_DRAW_NUMBER,
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
@@ -161,6 +396,8 @@ typedef enum VBehaviorID {
     VB_PROP_SPRITE_SCALE,
     VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
     VB_CROC_MAX_WALK_VELOCITY,
+
+    VB_COUNT,
 } VBehaviorID;
 
 typedef enum DoorCameraId {
@@ -171,13 +408,34 @@ typedef enum DoorCameraId {
     MMM_DOOR_CAM_CHURCH, // church door, Tumblar challenge (flag 0)
 } DoorCameraId;
 
+typedef enum InvertControlType {
+    INVERT_CAMERA_X,
+    INVERT_CAMERA_Y,
+    INVERT_FIRST_PERSON_X,
+} InvertControlType;
+
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
+extern int EventSystem_InvertControl(InvertControlType type);
 #ifdef __cplusplus
+}
+
+// functions.h includes this header, and C++ files include functions.h inside extern "C".
+extern "C++" {
+ListenerID VanillaBehavior_RegisterListener(VBehaviorID id, const char* name, EventPriority priority,
+                                            EventCallback callback, const char* file, int line);
+void VanillaBehavior_UnregisterListener(VBehaviorID id, ListenerID listenerId);
+ListenerID ActorEvent_RegisterListener(EventID* event, EventCallback forward, const char* name, int32_t actorId,
+                                       EventCallback callback, EventPriority priority, const char* file, int line);
+void ActorEvent_UnregisterListener(EventID* event, int32_t actorId, ListenerID listenerId);
+void ActorEvent_Forward(EventID* event, IEvent* payload);
+template <EventID* Event> void ActorEvent_ForwardTo(IEvent* payload) {
+    ActorEvent_Forward(Event, payload);
+}
 }
 #endif
 
@@ -191,53 +449,71 @@ extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
         return eventType##_.result;                                                        \
     }
 
-#define REGISTER_VB_SHOULD(idToCheck, priority, body)                \
-    REGISTER_LISTENER(VanillaBehavior, priority, [](IEvent* event) { \
-        auto* ev = reinterpret_cast<VanillaBehavior*>(event);        \
-        if (ev->id == idToCheck) {                                   \
-            bool* should = ev->should;                               \
-            va_list args;                                            \
-            va_copy(args, *ev->originalArgs);                        \
-            body;                                                    \
-            va_end(args);                                            \
-        }                                                            \
-    })
+#define REGISTER_VB_SHOULD(idToCheck, priority, ...)              \
+    VanillaBehavior_RegisterListener(                             \
+        idToCheck, #idToCheck, priority,                          \
+        [](IEvent* event) {                                       \
+            auto* ev = reinterpret_cast<VanillaBehavior*>(event); \
+            bool* should = ev->should;                            \
+            va_list args;                                         \
+            va_copy(args, *ev->originalArgs);                     \
+            __VA_ARGS__;                                          \
+            va_end(args);                                         \
+        },                                                        \
+        __FILE__, __LINE__)
 
-#define COND_HOOK(eventId, priority, condition, body)                \
-    {                                                                \
-        static ListenerID listenerId = -1;                           \
-        if (listenerId != -1) {                                      \
-            UNREGISTER_LISTENER(eventId, listenerId);                \
-            listenerId = -1;                                         \
-        }                                                            \
-        if (condition) {                                             \
-            listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                            \
+#define COND_HOOK(eventId, priority, condition, ...)                                                          \
+    {                                                                                                         \
+        static ListenerID listenerId = -1;                                                                    \
+        if (listenerId != -1) {                                                                               \
+            UNREGISTER_LISTENER(eventId, listenerId);                                                         \
+            listenerId = -1;                                                                                  \
+        }                                                                                                     \
+        if (condition) {                                                                                      \
+            listenerId = EventSystemRegisterListener(eventId##ID, __VA_ARGS__, priority, __FILE__, __LINE__); \
+        }                                                                                                     \
     }
-#define COND_ID_HOOK(eventId, id, priority, condition, body)         \
-    {                                                                \
-        static ListenerID listenerId = -1;                           \
-        if (listenerId != -1) {                                      \
-            UNREGISTER_LISTENER(eventId, listenerId);                \
-            listenerId = -1;                                         \
-        }                                                            \
-        if (condition) {                                             \
-            listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                            \
+// Its priority orders it only against other COND_ID_HOOKs on the same actor id; they all run inside one
+// NORMAL-priority listener on the event.
+#define COND_ID_HOOK(eventId, actorId, priority, condition, ...)                                                   \
+    {                                                                                                              \
+        static_assert(offsetof(eventId, actor) == offsetof(ActorEventPayload, actor), "needs Actor* actor first"); \
+        static ListenerID listenerId = -1;                                                                         \
+        if (listenerId != -1) {                                                                                    \
+            ActorEvent_UnregisterListener(&eventId##ID, actorId, listenerId);                                      \
+            listenerId = -1;                                                                                       \
+        }                                                                                                          \
+        if (condition) {                                                                                           \
+            listenerId = ActorEvent_RegisterListener(&eventId##ID, ActorEvent_ForwardTo<&eventId##ID>, #eventId,   \
+                                                     actorId, __VA_ARGS__, priority, __FILE__, __LINE__);          \
+        }                                                                                                          \
     }
-#define COND_VB_SHOULD(id, priority, condition, body)            \
-    {                                                            \
-        static ListenerID listenerId = -1;                       \
-        if (listenerId != -1) {                                  \
-            UNREGISTER_LISTENER(VanillaBehavior, listenerId);    \
-            listenerId = -1;                                     \
-        }                                                        \
-        if (condition) {                                         \
-            listenerId = REGISTER_VB_SHOULD(id, priority, body); \
-        }                                                        \
+#define COND_VB_SHOULD(id, priority, condition, ...)                    \
+    {                                                                   \
+        static ListenerID listenerId = -1;                              \
+        if (listenerId != -1) {                                         \
+            VanillaBehavior_UnregisterListener(id, listenerId);         \
+            listenerId = -1;                                            \
+        }                                                               \
+        if (condition) {                                                \
+            listenerId = REGISTER_VB_SHOULD(id, priority, __VA_ARGS__); \
+        }                                                               \
     }
 
 #include "List/EngineEvent.h"
 #include "List/BehaviorEvent.h"
 #include "List/GameEvent.h"
 #include "List/RandoEvent.h"
+
+typedef struct {
+    IEvent Event;
+    Actor* actor;
+} ActorEventPayload;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+bool EventSystem_ShouldActorDraw(Actor* actor);
+#ifdef __cplusplus
+}
+#endif

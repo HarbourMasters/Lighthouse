@@ -58,9 +58,6 @@ int port_bootsUnloaded(void);
 // Currently selected game number (0-2), set at file pick. -1 if none.
 extern s32 gSelectedGameNum;
 
-// Per-frame controller input shaping
-void port_shapeControllerInput(void* contPad);
-
 // True in the non-interactive demo modes
 bool IsDemoMode(void);
 

@@ -57,3 +57,10 @@ void RegisterIntroLogos_Init() {
 }
 
 static RegisterShipInitFunc introLogosInit(RegisterIntroLogos_Init, { CVAR_SETTING("BootSequence") });
+
+void RegisterBootToFileSelect_Init() {
+    COND_HOOK(OnDefaultBootMap, EVENT_PRIORITY_NORMAL, port_getBootSequence() == BOOTSEQUENCE_FILESELECT,
+              [](IEvent* event) { *((OnDefaultBootMap*)event)->map = MAP_91_FILE_SELECT; });
+}
+
+static RegisterShipInitFunc bootToFileSelectInit(RegisterBootToFileSelect_Init, { CVAR_SETTING("BootSequence") });

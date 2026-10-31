@@ -74,9 +74,18 @@ void Rando::MiscBehavior::OnFileLoad() {
         }
     });
 
+    // Refuse a new file whose seed failed to generate.
     REGISTER_VB_SHOULD(VB_GAMESELECT_START_GAME, EVENT_PRIORITY_NORMAL, {
         if (sSeedGenerationFailed) {
+            Actor* actor = va_arg(args, Actor*);
+            s32 gameNumber = va_arg(args, s32);
             sSeedGenerationFailed = false;
+            coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
+            if (gameNumber == 0) { // CH_GAME_SELECT_SAVEFILE_0_BED
+                func_802C75A0(actor, 1);
+            }
+            subaddie_set_state(actor, 1);
+            actor_loopAnimation(actor);
             *should = false;
         }
     });

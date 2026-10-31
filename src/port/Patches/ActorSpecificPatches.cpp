@@ -74,11 +74,9 @@ static const HiddenCutsceneActor* findHiddenCutsceneActor(int32_t map, int32_t m
 }
 
 void RegisterHiddenCutsceneActors() {
-    COND_VB_SHOULD(VB_CUTSCENE_ACTOR_DRAW, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), {
-        Actor* actor = va_arg(args, Actor*);
-        if (actor == nullptr || actor->marker == nullptr) {
-            return;
-        }
+    COND_HOOK(ShouldActorDraw, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
+        auto* ev = (ShouldActorDraw*)event;
+        Actor* actor = ev->actor;
         const HiddenCutsceneActor* hidden = findHiddenCutsceneActor((int32_t)gsworld_getMap(), actor->marker->modelId);
         if (hidden == nullptr) {
             return;
@@ -103,14 +101,14 @@ void RegisterHiddenCutsceneActors() {
             if ((dx * dx + dy * dy + dz * dz) > (kHiddenMoveThreshold * kHiddenMoveThreshold)) {
                 anchor.moved = true;
             } else {
-                *should = false;
+                *ev->should = false;
                 return;
             }
         }
 
         if (anchor.elapsed < hidden->delay) {
             anchor.elapsed += time_getDelta();
-            *should = false;
+            *ev->should = false;
         }
     });
 

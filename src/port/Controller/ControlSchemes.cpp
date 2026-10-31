@@ -7,6 +7,7 @@
 //   Modern - Xbox Live Arcade layout
 //   Pocket - Super Pocket layout
 
+#include <algorithm>
 #include <memory>
 #include <SDL2/SDL.h>
 
@@ -33,6 +34,7 @@ extern "C" {
 int bs_getState(void);
 int bsbtrot_inSet(int state); // nonzero if `state` is one of the Talon Trot states
 s32 getGameMode(void);
+extern OSContPad sInputs[MAXCONTROLLERS];
 }
 
 using namespace Ship;
@@ -240,20 +242,16 @@ void ControlSchemes_Apply(int scheme) {
     }
 }
 
+// -1 to 1, with Y up.
+void ControlSchemes_GetRightStick(float dst[2]) {
+    dst[0] = std::clamp(sInputs[0].right_stick_x / 127.0f, -1.0f, 1.0f);
+    dst[1] = std::clamp(sInputs[0].right_stick_y / 127.0f, -1.0f, 1.0f);
+}
+
 // Frames of C-Down passthrough left for a jigsaw podium.
 static int32_t sJigsawPodiumTTL = 0;
 
-void RegisterControlSchemes_Init() {
-    COND_HOOK(OnJigsawPodiumInput, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { sJigsawPodiumTTL = 4; });
-}
-
-static RegisterShipInitFunc initControlSchemes(RegisterControlSchemes_Init);
-
-extern "C" void port_shapeControllerInput(void* contPad) {
-    auto* pad = static_cast<OSContPad*>(contPad);
-    if (pad == nullptr) {
-        return;
-    }
+static void ShapeControllerInput(OSContPad* pad) {
     // Demo modes feed their own recorded pad; don't reshape live input over it.
     if (IsDemoMode()) {
         return;
@@ -487,3 +485,12 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         sPrevGesture = false;
     }
 }
+
+void RegisterControlSchemes_Init() {
+    COND_HOOK(OnJigsawPodiumInput, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { sJigsawPodiumTTL = 4; });
+    // Every scheme reshapes the pad, Retro included.
+    COND_HOOK(OnControllerRead, EVENT_PRIORITY_NORMAL, true,
+              [](IEvent* event) { ShapeControllerInput(static_cast<OSContPad*>(((OnControllerRead*)event)->pad)); });
+}
+
+static RegisterShipInitFunc initControlSchemes(RegisterControlSchemes_Init);

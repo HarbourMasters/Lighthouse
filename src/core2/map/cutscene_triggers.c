@@ -149,19 +149,11 @@ void func_803223AC(void) {
 
 void func_80322490(void) {
     Struct_core2_9B180_0 *i_ptr;
-    static s32 introFrameCounter = 0;
-
-    introFrameCounter++;
 
     if (D_80383330 != 0) {
         for(i_ptr = D_8036DE00; i_ptr != &D_8036DE00[6]; i_ptr++){
-            // [port] Allow skipping boot logos on MAP_1F when enabled.
-            if ((i_ptr->unk4 != 0
-                || (!EventSystem_Should(VB_PLAY_BOOT_LOGOS, true)
-                    && i_ptr->unkC == func_80322318
-                    && gsworld_getMap() == MAP_1F_CS_START_RAREWARE
-                    && introFrameCounter > 30))
-                && i_ptr->unkC != NULL) {
+//          if(i_ptr->unk4 != 0 && i_ptr->unkC != NULL){
+            if(EventSystem_Should(VB_CUTSCENE_TRIGGER_UPDATE, i_ptr->unk4 != 0 && i_ptr->unkC != NULL, i_ptr->unk0)){
                 i_ptr->unkC(i_ptr);
             }
         }

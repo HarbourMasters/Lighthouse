@@ -6,7 +6,6 @@
 #include <string.h>
 
 #include <libultra/convert.h>
-#include "port/Engine.h"
 #include "port/Patches/Patches.h"
 
 Gfx D_8036C630[] =
@@ -40,39 +39,24 @@ s32 D_803830A0;
 
 /* .code */
 void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void *frame_buffer_2) {
-    // [port] GPU-side pause snapshot
-    s32 pauseFb = port_getPauseFramebufferId();
-    bool isCapture = (frame_buffer_1 == depthbuffer_getDataPtr());
+//  s32 x;
+//  s32 y;
 
     gSPDisplayList((*gfx)++, D_8036C630);
-
-    if (isCapture) {
-        // First frame: size the pause FB to the current render res (only changes on a
-        // resolution/aspect toggle between pauses), then copy the backbuffer into it.
-        pauseFb = port_capturePauseFramebuffer();
-        gDPCopyFB((*gfx)++, pauseFb, 0, 0, NULL);
-    }
-
-    // Draw the saved pause FB as a full-screen background, edge-to-edge in widescreen
-    s32 renderW;
-    s32 renderH;
-    port_getPauseFramebufferSize(&renderW, &renderH);
-    s32 x0 = OTRGetRectDimensionFromLeftEdge(0);
-    s32 x1 = OTRGetRectDimensionFromRightEdge((f32)gFramebufferWidth);
-
-    gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, pauseFb);
-    {
-        int16_t uls = port_mirror_shouldFlipPauseBg() ? renderW : 0;
-        int16_t lrs = port_mirror_shouldFlipPauseBg() ? 0 : renderW;
-        gDPImageRectangle((*gfx)++,
-            x0 << 2, 0,
-            uls, 0,
-            x1 << 2, gFramebufferHeight << 2,
-            lrs, renderH,
-            G_TX_RENDERTILE,
-            renderW, renderH);
-    }
-
+//  gDPSetColorImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, OS_PHYSICAL_TO_K0(frame_buffer_1));
+//  for(y = 0;  y < gFramebufferHeight / 32 + 1; y++){
+//      for(x = 0; x < gFramebufferWidth / 32 + 1; x++){
+//          gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(frame_buffer_2), G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, gFramebufferHeight,
+//              0x20*x, 0x20*y, 0x20*(x + 1) - 1, 0x20*(y + 1) - 1,
+//              NULL, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, 0, 0
+//          );
+//          gSPScisTextureRectangle((*gfx)++, (0x20*x)*4, (0x20*y)*4, 0x20*(x + 1)*4, (0x20*(y + 1)*4),
+//              G_TX_RENDERTILE, (0x20*x)<<5, (0x20*y)<<5, 0x400, 0x400
+//          );
+//      }
+//  }
+    // [port] The GPU keeps the snapshot, so it's drawn from there instead of copied in tiles.
+    Framebuffer_DrawPauseBackground(gfx, frame_buffer_1 == depthbuffer_getDataPtr());
     gSPDisplayList((*gfx)++, D_8036C690);
     gDPSetColorImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, OS_PHYSICAL_TO_K0(gFramebuffers[getActiveFramebuffer()]));
 }
@@ -81,7 +65,6 @@ void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     gsworld_setEnableDraw(0);
     D_803830A0 = 2;
     func_80314BB0(gfx, mtx, vtx, depthbuffer_getDataPtr(), gFramebuffers[getActiveFramebuffer()]);
-    port_mirror_markCapture();
 }
 
 void func_80315110(Gfx **gfx, Mtx **mtx, Vtx **vtx){

@@ -5,8 +5,11 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 
 #include "port/UI/cvar_prefixes.h"
+#include "port/Controller/ControlSchemes.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
 #include "port/Enhancements/Camera/CameraShared.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
 
 namespace {
 using namespace PortCamera;
@@ -43,7 +46,7 @@ float SpringGain() {
 }
 
 float ReadStick(float out[2]) {
-    controller_getRightStick(0, out);
+    ControlSchemes_GetRightStick(out);
     float mag = std::sqrt(out[0] * out[0] + out[1] * out[1]);
     if (mag < kDeadzone) {
         out[0] = out[1] = 0.0f;
@@ -93,18 +96,12 @@ void ExitOrbit() {
     }
 }
 
-} // namespace
-
-extern "C" int port_freeLook_isEnabled(void) {
-    return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0;
-}
-
-extern "C" int port_freeLook_handle(void) {
+bool HandleInput() {
     if (!port_freeLook_isEnabled()) {
         if (sActive) {
             ExitOrbit();
         }
-        return 0;
+        return false;
     }
 
     int state = ncDynamicCamera_getState();
@@ -112,33 +109,33 @@ extern "C" int port_freeLook_handle(void) {
     if (sActive) {
         if (state != FREELOOK_CAM_STATE) {
             sActive = false;
-            return 0;
+            return false;
         }
         if (ManualCameraControl()) {
             ExitOrbit();
-            return 0;
+            return false;
         }
-        return 1;
+        return true;
     }
 
     if (ManualCameraControl()) {
-        return 0;
+        return false;
     }
 
     if (state != 0xB && state != 0x1 && state != 0xA) {
-        return 0;
+        return false;
     }
 
     float stick[2];
     if (ReadStick(stick) >= kEnterThreshold) {
         EnterOrbit();
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
-extern "C" void port_freeLookCamera_update(void) {
+void UpdateOrbit() {
     float dt = time_getDelta();
 
     float stick[2];
@@ -178,3 +175,26 @@ extern "C" void port_freeLookCamera_update(void) {
     func_802BE6FC(rot, focus);
     ncDynamicCamera_setRotation(rot);
 }
+
+} // namespace
+
+extern "C" int port_freeLook_isEnabled(void) {
+    return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0;
+}
+
+void RegisterFreeLookCamera_Init() {
+    // Registered whatever the setting, so turning it off mid-orbit still hands the camera back. Low, so it runs
+    // before ModernCamera's swivel listener, which defers to it through *should.
+    COND_VB_SHOULD(VB_CAMERA_SWIVEL, EVENT_PRIORITY_LOW, true, {
+        if (HandleInput()) {
+            *should = false;
+        }
+    });
+    COND_HOOK(OnDynamicCameraUpdate, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (((OnDynamicCameraUpdate*)event)->state == FREELOOK_CAM_STATE) {
+            UpdateOrbit();
+        }
+    });
+}
+
+static RegisterShipInitFunc initFreeLookCamera(RegisterFreeLookCamera_Init, {});

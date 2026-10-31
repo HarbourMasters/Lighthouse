@@ -18,6 +18,8 @@ int func_8028F070(void);
 void gcparade_beginFFParade(void);
 void baflag_clear(enum misc_flag_e arg0);
 void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
+enum map_e gsworld_getMap(void);
+s32 globalTimer_getTime(void);
 }
 
 #define CVAR_SKIP_BOOT_LOGOS CVAR_ENHANCEMENT("Cutscenes.SkipBootLogos")
@@ -27,9 +29,16 @@ void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
 #define CVAR_SKIP_NOTEDOOR_DANCE CVAR_ENHANCEMENT("Cutscenes.SkipNoteDoorDance")
 #define CVAR_TRIGGER_FF_PARADE CVAR_DEVELOPER_TOOLS("TriggerFFParade")
 
+// Vanilla holds back Start-to-skip on the Rareware logo at first boot. This lets it through 30 frames after boot.
 void RegisterSkipBootLogos_Init() {
-    COND_VB_SHOULD(VB_PLAY_BOOT_LOGOS, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !port_isRomhack(), { *should = false; });
+    COND_VB_SHOULD(VB_CUTSCENE_TRIGGER_UPDATE, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !port_isRomhack(), {
+                       // 0x18 is the logo's trigger node.
+                       if (va_arg(args, s32) == 0x18 && gsworld_getMap() == MAP_1F_CS_START_RAREWARE &&
+                           globalTimer_getTime() > 30) {
+                           *should = true;
+                       }
+                   });
 }
 
 void RegisterSkipIntroCutscene_Init() {

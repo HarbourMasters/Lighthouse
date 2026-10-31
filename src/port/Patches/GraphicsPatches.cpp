@@ -296,15 +296,6 @@ static void RegisterSnowRenderState_Init() {
 
 static RegisterShipInitFunc sSnowRenderStateInit(RegisterSnowRenderState_Init);
 
-static void RegisterModelDrawDistFadeAlpha_Init() {
-    COND_VB_SHOULD(VB_MODEL_DRAWDIST_FADE_ALPHA, EVENT_PRIORITY_NORMAL, true, {
-        s32* alpha = va_arg(args, s32*);
-        *alpha = std::clamp(*alpha, 0, 0xFF);
-    });
-}
-
-static RegisterShipInitFunc sModelDrawDistFadeAlphaInit(RegisterModelDrawDistFadeAlpha_Init);
-
 // ============
 // HUD COUNTERS
 // ============

@@ -7,6 +7,7 @@
 #include "functions.h"
 extern "C" {
 #include "enums.h"
+#include "core2/gc/zoombox.h"
 }
 
 #define CVAR_HIGHLIGHT_HEARD_HINTS CVAR_ENHANCEMENT("Gameplay.HighlightHeardHints")
@@ -57,9 +58,11 @@ static void RegisterHighlightHeardHints_Init() {
         }
     });
 
-    COND_VB_SHOULD(VB_ZOOMBOX_YELLOW_TEXT, EVENT_PRIORITY_NORMAL, enabled, {
-        const void* zoombox = va_arg(args, void*);
-        *should = zoombox != nullptr && zoombox == sYellowBox && gcquiz_isNotInInitialState();
+    COND_HOOK(OnZoomboxTextDraw, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
+        auto* zoombox = static_cast<GcZoombox*>(reinterpret_cast<OnZoomboxTextDraw*>(event)->zoombox);
+        if (zoombox == sYellowBox && gcquiz_isNotInInitialState()) {
+            text_setNormalTextColor(zoombox->unk168, zoombox->unk168, 0);
+        }
     });
 }
 

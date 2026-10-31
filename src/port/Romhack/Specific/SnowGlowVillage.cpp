@@ -21,18 +21,10 @@ extern "C" {
 #include "core1/sns.h"
 #include "core1/viewport.h"
 #include "core2/core2.h"
+#include "core2/gc/pauseMenu.h"
 #include "core2/gc/zoombox.h"
 #include "core2/model.h"
 #include "core2/modelRender.h"
-
-typedef struct {
-    f32 delay;
-    f32 unk4;
-    u8* str;
-    s16 y;
-    u8 portrait;
-    u8 unkF;
-} PauseMenuOption;
 
 extern struct1Bs D_8036C560[];
 extern ActorInfo D_80394C70; // the unused {MARKER_29A_FF_PRIZE, 0x3C6, 0x34C} prize slot
@@ -96,7 +88,7 @@ void SnowGlow_EnablePauseMenu() {
 
     // Listeners run lowest-priority first, force RTL for this hack
     REGISTER_VB_SHOULD(VB_INIT_RETURN_TO_LAIR, EVENT_PRIORITY_HIGH, {
-        auto* menu = va_arg(args, PauseMenuOption*);
+        auto* menu = va_arg(args, struct1As*);
         menu[kExitEntry].str = kExitLevelLabel;
 
         if (SnowGlow_ExitLevelAvailable(level_get())) {

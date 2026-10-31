@@ -14,6 +14,7 @@ extern "C" {
 #include "enums.h"
 
 enum map_e gsworld_getMap(void);
+extern s32 gVoidOutReturnLocation[2];
 }
 
 // Check if in parade
@@ -37,6 +38,7 @@ extern "C" int port_isInCharacterParade(void) {
 #define CVAR_CONGA_TEXT CVAR_ENHANCEMENT("Fixes.CongaText")
 #define CVAR_STUMP_RUMBLE CVAR_ENHANCEMENT("Fixes.ChimpyStumpRumble")
 
+// Void-outs don't cost a life, so they never end the game.
 void RegisterVoidOutGameOver_Init() {
     COND_VB_SHOULD(VB_VOID_OUT_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_VOID_OUT, 0),
                    { *should = false; });
@@ -82,22 +84,37 @@ void RegisterCCWFlowerReplant_Init() {
                    { *should = true; });
 }
 
-// Termite mound: instant slide on slopes (v1.1).
+// Termite mound: instant slide on slopes (v1.1). v1.0 doubled the rate.
 void RegisterTermiteMoundSlopes_Init() {
     COND_VB_SHOULD(VB_TERMITE_MOUND_SLOPES, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_TERMITE_SLOPES, 0) && !port_isRomhack(), { *should = false; });
+                   CVarGetInteger(CVAR_TERMITE_SLOPES, 0) && !port_isRomhack(), {
+                       *va_arg(args, f32*) = 100.0f;
+                       *should = false;
+                   });
 }
 
 // Claw swipe: suppress claw during a slide (v1.1).
 void RegisterClawSwipeSlide_Init() {
-    COND_VB_SHOULD(VB_CLAW_SWIPE_SLIDE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CLAW_SLIDE, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_CLAW_SWIPE_SLIDE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CLAW_SLIDE, 0), {
+        if (player_isSliding()) {
+            *should = false;
+        }
+    });
 }
 
 // Boggy race: reload instead of game over at 0 lives (v1.1).
 void RegisterBoggyRaceGameOver_Init() {
-    COND_VB_SHOULD(VB_BOGGY_RACE_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_BOGGY_RACE, 1),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_HANDLE_PLAYER_DEATH, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_BOGGY_RACE, 1), {
+        if (item_empty(ITEM_16_LIFE) && maSlalom_isActive()) {
+            *should = false;
+            // Some hacks want a full map transition here instead.
+            if (EventSystem_Should(VB_RACE_VOID_OUT_FULL_TRANSITION, false)) {
+                transitionToMap((enum map_e)gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+            } else {
+                game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+            }
+        }
+    });
 }
 
 // Grunty fight: stop the Jinjo charge-up sound on hit (v1.1).

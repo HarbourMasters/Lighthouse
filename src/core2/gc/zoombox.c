@@ -816,10 +816,9 @@ void gczoombox_func_803160A8(GcZoombox *this) {
 void func_803162B4(GcZoombox *this){
      f32 textScale = 1.0f;
      s32 textXOfs = 0;
-     EventSystem_Should(VB_ZOOMBOX_TEXT_ADJUST, false, this->unk198, &textScale, &textXOfs);
+     text_setNormalTextColor(this->unk168, this->unk168, this->unk168);
+     CALL_EVENT(OnZoomboxTextDraw, this, this->unk198, &textScale, &textXOfs); // [port]
      this->unk16A += textXOfs;
-//   text_setNormalTextColor(this->unk168, this->unk168, this->unk168);
-     text_setNormalTextColor(this->unk168, this->unk168, EventSystem_Should(VB_ZOOMBOX_YELLOW_TEXT, false, this) ? 0 : this->unk168);
      if(this->unk1A4_30){
           if(this->unk1A4_17){
                print_dialog_gradient2(this->unk16A, this->unk16C, this->unk0, this->unk166, -1);

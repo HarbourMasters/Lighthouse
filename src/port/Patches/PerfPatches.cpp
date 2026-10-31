@@ -235,15 +235,15 @@ static void RegisterDrawDistCull_Init() {
         sPadFrustumY = *ev->frustumY;
         sPadPlanesDirty = true;
     });
+    // The N64 bounding boxes in CmdD_DRAW_DISTANCE are too conservative for the port's viewport
+    // (292x216 -> 320x240 at 4:3), and the port always renders at a higher effective resolution.
     COND_VB_SHOULD(VB_DRAWDIST_BOX_CULL, EVENT_PRIORITY_NORMAL, true, {
         f32* boxMin = va_arg(args, f32*);
         f32* boxMax = va_arg(args, f32*);
         if (sPadPlanesDirty) {
             RebuildPaddedPlanes();
         }
-        if (func_8023E000() != 0 && PaddedBoxCulled(boxMin, boxMax)) {
-            *should = false;
-        }
+        *should = func_8023E000() == 0 || !PaddedBoxCulled(boxMin, boxMax);
     });
 }
 

@@ -179,3 +179,10 @@ extern "C" void port_dialogFontHd_rebuild(void) {
         sBuiltSheets.insert(activeFont);
     }
 }
+
+static void RegisterAltDialogFont_Init() {
+    // Alt assets can be turned on at any time, so the rebuild checks them itself.
+    COND_HOOK(OnDialogFontLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { port_dialogFontHd_rebuild(); });
+}
+
+static RegisterShipInitFunc altDialogFontInitFunc(RegisterAltDialogFont_Init);
