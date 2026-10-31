@@ -479,6 +479,14 @@ typedef enum VBehaviorID {
     // - `s32` (the map)
     VB_HEALTH_HUD_SHOW,
     VB_MIDI_SET_CHAN_MASK,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (item)
+    // - `*s32` (diff)
     VB_ITEM_ADJUST_BY_DIFF,
     VB_MM_HUT_DESPAWN_ON_SMASH,
     VB_NABNUT_SNORE_SFX,

@@ -12,8 +12,6 @@ s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
 
 void itemscore_noteScores_update(s32);
 
-#include "port/Patches/Patches.h"
-
 /* .bss */
 s32 D_80385F30[0x2C];
 s32 D_80385FE0;
@@ -86,11 +84,6 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
         ){
             diff = 0;
         }
-    }
-
-    // [port] Difficulty scale
-    if(item == ITEM_14_HEALTH && diff < 0){
-        diff = -port_scalePlayerDamage(-diff);
     }
 
     sp28 =  D_80385F30[item] =  MAX(0, D_80385F30[item] + diff);
@@ -180,20 +173,16 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
-    if (!EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, diff)) {
-        return D_80385F30[item];
-    }
-    return item_adjustByDiff(item, diff, 0, 1);
+//  item_adjustByDiff(item, diff, 0);
+    return EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, &diff) ? item_adjustByDiff(item, diff, 0, 1) : D_80385F30[item];
 }
 
 // func_803463F4
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
-    if (!EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, diff)) {
-        return;
-    }
-    item_adjustByDiff(item, diff, 1, 1);
+//  item_adjustByDiff(item, diff, 1);
+    if (EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, &diff)) item_adjustByDiff(item, diff, 1, 1);
 }
 
 void item_setEx(s32 item, s32 val, s32 triggerEvent){

@@ -325,7 +325,7 @@ static void Gruntch_EnableHealthRules() {
     // No health loss on maps 0x07 and 0x26
     REGISTER_VB_SHOULD(VB_ITEM_ADJUST_BY_DIFF, EVENT_PRIORITY_NORMAL, {
         const s32 item = va_arg(args, s32);
-        const s32 diff = va_arg(args, s32);
+        const s32 diff = *va_arg(args, s32*);
         const s32 map = gsworld_getMap();
         if (item == ITEM_14_HEALTH && diff < 0 &&
             (map == MAP_7_TTC_TREASURE_TROVE_COVE || map == MAP_26_MMM_NAPPERS_ROOM)) {

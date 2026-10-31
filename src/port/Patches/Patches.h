@@ -66,10 +66,6 @@ float port_wsCameraPitchScale(void);
 
 float port_getRumbleScale(void);
 
-// Gameplay
-
-int port_scalePlayerDamage(int damage);
-
 // Graphics (GraphicsPatches.cpp)
 
 int port_getDrawDistanceSetting(void); // configured multiplier; safe during map load
