@@ -579,7 +579,8 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     if (jiggy_id == JIGGY_20_BGS_ELEVATED_WALKWAY || jiggy_id == JIGGY_25_BGS_MAZE) {
                         func_802D6924();
                     }
-                    if (jiggyscore_total() < 3 && EventSystem_Should(VB_JIGGY_COLLECT_TUTORIAL, true)) {
+//                  if (jiggyscore_total() < 3) {
+                    if (EventSystem_Should(VB_JIGGY_COLLECT_TUTORIAL, jiggyscore_total() < 3)) {
                         __baMarker_8028B848();
                     }
 

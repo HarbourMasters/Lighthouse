@@ -346,9 +346,17 @@ typedef enum VBehaviorID {
     VB_MAP_SAVESTATE_CLEAR_ALL,
     VB_LEVEL_LOAD_SAVESTATE_INIT,
     VB_RACE_VOID_OUT_FULL_TRANSITION,
-    VB_PROGRESS_FLAG_DIALOG, // showProgressFlagDialog(): false = never show (and never set) progress dialogs.
-    VB_LAIR_GRUNTY_TAUNTS,   // Grunty's random lair taunt timer block: false = skip entirely.
-    VB_AMBIENCE_MAP_UPDATE,  // Per-map ambience/chan-mask switch: false = a listener replaced it.
+
+    // A listener that returns false keeps the dialog from showing, and its flag stays unset.
+    // #### `result`
+    // ```c
+    // fileProgressFlag_get(progress_flag) == 0
+    // ```
+    // #### `args`
+    // - `s32` (progress_flag)
+    VB_PROGRESS_FLAG_DIALOG,
+    VB_LAIR_GRUNTY_TAUNTS,  // Grunty's random lair taunt timer block: false = skip entirely.
+    VB_AMBIENCE_MAP_UPDATE, // Per-map ambience/chan-mask switch: false = a listener replaced it.
 
     // A listener that returns false skips the Stop 'N' Swop display and can draw a different one.
     // #### `result`
@@ -446,6 +454,13 @@ typedef enum VBehaviorID {
     // - `f64` (function_time, promoted from `f32`)
     VB_GAMESELECT_RESUME_WARP,
     VB_NOTEDOOR_DRAW_NUMBER,
+
+    // #### `result`
+    // ```c
+    // jiggyscore_total() < 3
+    // ```
+    // #### `args`
+    // - None
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
     VB_BRENTILDA_HEAL_DIALOG,
@@ -456,6 +471,13 @@ typedef enum VBehaviorID {
     VB_BOGGY_HOME_VISIBLE,
     VB_LAST_JIGGY_FANFARE,
     VB_JIGSAW_PODIUM_COLLIDE,
+
+    // #### `result`
+    // ```c
+    // sp50
+    // ```
+    // #### `args`
+    // - `s32` (the map)
     VB_HEALTH_HUD_SHOW,
     VB_MIDI_SET_CHAN_MASK,
     VB_ITEM_ADJUST_BY_DIFF,
