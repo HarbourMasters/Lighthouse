@@ -49,7 +49,6 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (page_id)
     VB_PAUSEMENU_PRINT_LEVEL_NAME,
-    VB_ZOOMBOX_TEXT_ADJUST, // text scale (shrink pause text) + X nudge (JP kana clearance)
 
     // Camera behavior
     VB_CUTSCENE_ACTOR_DRAW,
@@ -112,7 +111,6 @@ typedef enum VBehaviorID {
     VB_SAVE_AND_EXIT,
     VB_MUMBO_DETRANSFORM,
     VB_ZOOMBOX_FAST_VOICE,
-    VB_ZOOMBOX_YELLOW_TEXT,
 
     // Rando object behavior
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,

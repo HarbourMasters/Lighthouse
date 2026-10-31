@@ -734,12 +734,10 @@ static void RegisterLocalizedText() {
     });
 
     // JP: nudge the pause-menu zoombox text a few px right so the wider kana clear the portrait.
-    COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, true, {
-        double boxScale = va_arg(args, double);
-        va_arg(args, float*);
-        int* xOfs = va_arg(args, int*);
-        if (xOfs != nullptr && boxScale < 1.0 && ResourceMgr_IsJapanese()) {
-            *xOfs += 4;
+    COND_HOOK(OnZoomboxTextDraw, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnZoomboxTextDraw*>(event);
+        if (ev->boxScale < 1.0f && ResourceMgr_IsJapanese()) {
+            *ev->xOffset += 4;
         }
     });
 }
