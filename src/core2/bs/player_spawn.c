@@ -318,12 +318,8 @@ void func_8029B62C(void){
         }
     }
     else{
-        // [port] Romhack gate: listeners can replace the void-out respawn with a
-        // full map transition.
-        if (EventSystem_Should(VB_VOID_OUT_RESPAWN_TRANSITION, true, gVoidOutReturnLocation[0],
-                               gVoidOutReturnLocation[1])) {
-            game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
-        }
+//      game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        if(EventSystem_Should(VB_VOID_OUT_RESPAWN_TRANSITION, true, gVoidOutReturnLocation[0], gVoidOutReturnLocation[1])) game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
     }
 }
 

@@ -337,14 +337,6 @@ extern "C" int port_getRomhackNewGameMap(void) {
     ROMHACK_GUARD_INT;
     return sNewGameMap;
 }
-extern "C" int port_getRomhackStartLevel1(void) {
-    ROMHACK_GUARD_INT;
-    return sStartLevel1;
-}
-extern "C" int port_getRomhackStartLevel2(void) {
-    ROMHACK_GUARD_INT;
-    return sStartLevel2;
-}
 extern "C" int port_getRomhackMaxEggs(void) {
     ROMHACK_GUARD_INT;
     return sEggsNormalMax;
@@ -398,14 +390,6 @@ extern "C" int port_getRomhackExtraHcStart(void) {
 extern "C" int port_getRomhackKnowAllMoves(void) {
     ROMHACK_GUARD_INT;
     return sKnowAllMoves;
-}
-extern "C" int port_getRomhackWarpExitBanjosHouse(void) {
-    ROMHACK_GUARD_INT;
-    return sWarpExitBanjosHouse;
-}
-extern "C" int port_getRomhackWarpEnterLair(void) {
-    ROMHACK_GUARD_INT;
-    return sWarpEnterLair;
 }
 extern "C" int port_getRomhackSpecialLevel(void) {
     ROMHACK_GUARD_INT;
@@ -489,6 +473,13 @@ extern "C" void port_clearRomhackWarpDest(int warp_index) {
     sWarpDests.erase(warp_index);
 }
 
+extern "C" void port_clearRomhackNamedWarps(void) {
+    LoadGameConfig();
+    sWarpExitBanjosHouse = -1;
+    sWarpEnterLair = -1;
+    sStartLevel1 = -1;
+}
+
 static MapSkyInfo sSkyOverride;
 static MapModelDescription sSceneDefOverride;
 
@@ -543,6 +534,33 @@ static void RegisterRomhackConfig_Init() {
         }
         ev->result = it->second;
         event->Cancelled = true;
+    });
+    COND_HOOK(OnWarpDispatch, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnWarpDispatch*)event;
+        auto it = sWarpDests.find(ev->warpIndex);
+        if (it == sWarpDests.end() || it->second < 0) {
+            return;
+        }
+        func_8031CC8C((NodeProp*)ev->nodeProp, it->second);
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnNamedWarp, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnNamedWarp*)event;
+        s32 dest = -1;
+        if (ev->warpId == WARP_ID_SM_EXIT_BANJOS_HOUSE && (sWarpExitBanjosHouse >= 0 || sStartLevel1 >= 0)) {
+            dest = sWarpExitBanjosHouse >= 0 ? sWarpExitBanjosHouse
+                                             : (MAP_1_SM_SPIRAL_MOUNTAIN << 8) + WARP_SM_12_FROM_HOUSE;
+            // START_LEVEL_1 swaps the map and keeps the exit.
+            if (sStartLevel1 >= 0) {
+                dest = (sStartLevel1 << 8) | (dest & 0xFF);
+            }
+        } else if (ev->warpId == WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL) {
+            dest = sWarpEnterLair;
+        }
+        if (dest >= 0) {
+            func_8031CC8C((NodeProp*)ev->nodeProp, dest);
+            event->Cancelled = true;
+        }
     });
 }
 

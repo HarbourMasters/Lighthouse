@@ -127,7 +127,12 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnSaveClear);
     REGISTER_EVENT(OnPropInit);
-    REGISTER_EVENT(OnWarpResolveDest);
+    REGISTER_EVENT(OnWarpDispatch);
+    REGISTER_EVENT(OnNamedWarp);
+    REGISTER_EVENT(OnWarpMusic);
+    REGISTER_EVENT(OnMapChangeRequest);
+    REGISTER_EVENT(OnMapTransitionIn);
+    REGISTER_EVENT(OnMapTransitionOut);
     REGISTER_EVENT(OnNewGame);
     REGISTER_EVENT(OnDefaultBootMap);
     REGISTER_EVENT(OnGetMapSkyInfo);
@@ -149,7 +154,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(InitRandoEvents);
     REGISTER_EVENT(OnLoadFileSelect);
     REGISTER_EVENT(OnSaveLoad);
-    REGISTER_EVENT(OnWarpDispatch);
     REGISTER_EVENT(OnActorSpawn);
     REGISTER_EVENT(OnLoadActorSaveState);
     REGISTER_EVENT(OnSaveActorSaveState);

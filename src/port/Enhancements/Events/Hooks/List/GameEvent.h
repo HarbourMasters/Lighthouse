@@ -34,17 +34,19 @@ DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)
 DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)
 DEFINE_EVENT(OnSaveFileSave, void* saveBuffer; int32_t fileNum; int32_t * result;)
-// Identifies which warp_* dispatcher is firing OnWarpResolveDest. Keep values
-// stable so listener case statements keep matching across refactors.
+// The warp_* functions a romhack's config can send elsewhere.
 typedef enum WarpId {
     WARP_ID_SM_EXIT_BANJOS_HOUSE = 1,
-    WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL = 2,
-    // Also lands in the MM Lobby, but from the post-cutscene branch of a different
-    // dispatcher. Listeners that treat both lair entrances alike should match on 2 || 3.
     WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL = 3,
 } WarpId;
 
-DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;)
+// nodeProp = NodeProp*.
+DEFINE_EVENT(OnWarpDispatch, void* nodeProp; int32_t warpIndex;)
+DEFINE_EVENT(OnNamedWarp, void* nodeProp; int32_t warpId;)
+DEFINE_EVENT(OnWarpMusic, int32_t dest;)
+DEFINE_EVENT(OnMapChangeRequest, int32_t* map; int32_t * exit;)
+DEFINE_EVENT(OnMapTransitionIn, int32_t map; int32_t * index;)
+DEFINE_EVENT(OnMapTransitionOut, int32_t from; int32_t to; int32_t * index;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
 // result = MapSkyInfo* or MapModelDescription* for the first two.

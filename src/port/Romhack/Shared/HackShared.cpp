@@ -144,8 +144,8 @@ bool WarpInMusicGroup(const WarpMusicGroup& group, s32 a, s32 b) {
 }
 
 void ApplyWarpMusicGroups() {
-    COND_VB_SHOULD(VB_WARP_KEEPS_MUSIC, EVENT_PRIORITY_NORMAL, sWarpMusicGroupCount > 0, {
-        const s32 dest = va_arg(args, s32);
+    COND_HOOK(OnWarpMusic, EVENT_PRIORITY_NORMAL, sWarpMusicGroupCount > 0, [](IEvent* event) {
+        const s32 dest = ((OnWarpMusic*)event)->dest;
         const s32 cur = gsworld_getMap();
         for (int i = 0; i < sWarpMusicGroupCount; i++) {
             if (WarpInMusicGroup(sWarpMusicGroups[i], cur, dest)) {
@@ -153,7 +153,6 @@ void ApplyWarpMusicGroups() {
                 break;
             }
         }
-        (void)should;
     });
 }
 
@@ -304,25 +303,21 @@ void ApplyTransitionPairs() {
     D_8036C150[13].model_index = 0;
     D_8036C150[13].scale = 0.0f;
 
-    COND_VB_SHOULD(VB_MAP_TRANSITION_OUT_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
-        const s32 from = va_arg(args, s32);
-        const s32 to = va_arg(args, s32);
-        s32* outIndex = va_arg(args, s32*);
-        sTransitionFromMap = from;
-        if (const TransitionPair* pair = FindTransitionPair(from, to)) {
-            *outIndex = pair->out;
+    COND_HOOK(OnMapTransitionOut, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, [](IEvent* event) {
+        auto* ev = (OnMapTransitionOut*)event;
+        sTransitionFromMap = ev->from;
+        if (const TransitionPair* pair = FindTransitionPair(ev->from, ev->to)) {
+            *ev->index = pair->out;
         }
-        (void)should;
     });
 
-    COND_VB_SHOULD(VB_MAP_TRANSITION_IN_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
-        const s32 map = va_arg(args, s32);
-        s32* inIndex = va_arg(args, s32*);
-        const TransitionPair* pair = sTransitionFromMap != 0 ? FindTransitionPair(sTransitionFromMap, map) : nullptr;
+    COND_HOOK(OnMapTransitionIn, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, [](IEvent* event) {
+        auto* ev = (OnMapTransitionIn*)event;
+        const TransitionPair* pair =
+            sTransitionFromMap != 0 ? FindTransitionPair(sTransitionFromMap, ev->map) : nullptr;
         if (pair != nullptr) {
-            *inIndex = pair->in;
+            *ev->index = pair->in;
         }
-        (void)should;
     });
 }
 

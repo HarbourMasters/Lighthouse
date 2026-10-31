@@ -334,13 +334,25 @@ typedef enum VBehaviorID {
     VB_PAUSEMENU_BOLD_FONT_TEXTURE,
     VB_PAUSEMENU_LEVEL_NAME_X,
     VB_PAUSEMENU_ROW_VISIBLE,
-    VB_MAP_CHANGE_REQUEST,
-    VB_MAP_TRANSITION_IN_INDEX,
-    VB_MAP_TRANSITION_OUT_INDEX,
+
+    // A listener that returns false skips game_transitionToMapResettingLevel and moves the player another way.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (gVoidOutReturnLocation[0], the map)
+    // - `s32` (gVoidOutReturnLocation[1], the exit)
     VB_VOID_OUT_RESPAWN_TRANSITION,
     VB_EGG_FIRE_SFX,
-    VB_WARP_KEEPS_MUSIC,
     VB_BUMP_REBOUNDS_PLAYER,
+
+    // #### `result`
+    // ```c
+    // (codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time
+    // ```
+    // #### `args`
+    // - `s32` (the warp's index in sWarpFunctions)
     VB_WARP_DISPATCH,
 
     // #### `result`

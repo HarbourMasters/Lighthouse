@@ -209,14 +209,12 @@ void RegisterCutThroatCoastPatches() {
     port_enableNoteDoorComposer();
 
     // Exiting via the exit pad should go back to the CTC lobby map
-    REGISTER_VB_SHOULD(VB_MAP_CHANGE_REQUEST, EVENT_PRIORITY_NORMAL, {
-        s32* map = va_arg(args, s32*);
-        s32* exit = va_arg(args, s32*);
-        if (*map == MAP_75_GL_MMM_LOBBY) {
-            *map = MAP_1_SM_SPIRAL_MOUNTAIN;
-            *exit = 2;
+    REGISTER_LISTENER(OnMapChangeRequest, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnMapChangeRequest*)event;
+        if (*ev->map == MAP_75_GL_MMM_LOBBY) {
+            *ev->map = MAP_1_SM_SPIRAL_MOUNTAIN;
+            *ev->exit = 2;
         }
-        (void)should;
     });
 
     REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
