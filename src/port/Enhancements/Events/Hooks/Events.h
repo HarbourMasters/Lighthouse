@@ -75,7 +75,47 @@ typedef enum VBehaviorID {
     // Cutscene and celebration skips
     VB_PLAY_BOOT_LOGOS,
     VB_PLAY_INTRO_CUTSCENE,
+
+    // #### `result`
+    // ```c
+    // !sp2C
+    // ```
+    // #### `args`
+    // - None
     VB_PLAY_JIGGY_DANCE,
+
+    // A listener that returns false shows the dialog itself.
+    // #### `result`
+    // ```c
+    // s0
+    // ```
+    // #### `args`
+    // - `s32` (s0)
+    VB_JIGGY_TUTORIAL_DIALOG,
+
+    // #### `result`
+    // ```c
+    // comusic_isTrackQueued(COMUSIC_30_5TH_JINJO_COLLECTED)
+    // ```
+    // #### `args`
+    // - None
+    VB_JINJO_JINGLE_LOOK_AT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_JIGGY_JINGLE_DUCK_MUSIC,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_JIGGY_FANFARE_MUSIC_DELAY,
     VB_PLAY_NOTEDOOR_DANCE,
 
     // Vanilla bug fixes and corrections

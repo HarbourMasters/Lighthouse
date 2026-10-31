@@ -945,11 +945,8 @@ void func_8029CBF4(void){
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
             timedFunc_set_3(4.1f, (GenFunction_3)transitionToMap, MAP_95_CS_END_ALL_100, 0, 1);
         }//L8029CC58
-        if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
-            timedFunc_set_0(4.0f, func_8029CBC4);
-        } else {
-            func_8029CBC4();
-        }
+//      timedFunc_set_0(4.0f, func_8029CBC4);
+        if(EventSystem_Should(VB_JIGGY_FANFARE_MUSIC_DELAY, true)) timedFunc_set_0(4.0f, func_8029CBC4);
         coMusicPlayer_playMusic(COMUSIC_42_NOTEDOOR_OPENING_FANFARE, -1);
     }//L8029CC7C
     else{
@@ -975,17 +972,9 @@ void func_8029CCC4(void){
     if(jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
         func_8028F918(2);
     }
-
-    // [port] Jiggy Dance
-    if (!EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
-        func_80291548();
-        coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
-        timedFunc_set_0(4.0f, func_8029CBF4);
-        return;
-    }
-
     midichannel_incOrDecCounter(false);
-    func_8025A55C(0, 4000, 0xC);
+//  func_8025A55C(0, 4000, 0xC);
+    if(EventSystem_Should(VB_JIGGY_JINGLE_DUCK_MUSIC, true)) func_8025A55C(0, 4000, 0xC);
     coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
     timedFunc_set_0(4.0f, func_8029CBF4);
 }
