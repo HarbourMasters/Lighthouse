@@ -1328,11 +1328,10 @@ s32 gcPauseMenu_update(void) {
                     func_802DC560(0, 0);
                     game_setMapTransitionWithStyle(1, 0);
                     // [port] Honor BootSequence so Save & Quit lands at the same place as a fresh boot.
-                    {
-                        s32 returnMap = getDefaultBootMap();
-                        EventSystem_Should(VB_GAME_OVER_RETURN_MAP, true, &returnMap);
-                        transitionToMap((enum map_e)returnMap, 0, 1);
-                    }
+                    s32 returnMap = getDefaultBootMap();
+                    CALL_EVENT(OnGameOverReturnMap, &returnMap); // [port]
+//                  transitionToMap(MAP_1F_CS_START_RAREWARE, 0, 1);
+                    transitionToMap(returnMap, 0, 1);
                     D_80383010.unk3_6 = 1;
                 }
             }

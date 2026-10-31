@@ -57,8 +57,17 @@ DEFINE_EVENT(OnTransformationCost, int32_t transformation; int32_t result;)
 DEFINE_EVENT(OnMumboWishwashyId, int32_t* id;)
 // Before actor_new builds the actor, while its info and flags can still change.
 DEFINE_EVENT(OnActorNew, ActorInfo* info; uint32_t * flags;)
+// sfx = SFX_46_KAZOOIE_CHOKING_UP or SFX_57_KAZOOIE_HEGH from Kazooie's head, SFX_3E_POOP_NOISE from her rear.
+DEFINE_EVENT(OnEggFireSfx, int32_t sfx; int32_t * rate;)
+DEFINE_EVENT(OnCrocMaxWalkVelocity, float* velocity;)
+// count = the jiggies a level holds before its last, 9 in vanilla.
+DEFINE_EVENT(OnLastJiggyCount, int32_t* count;)
+// scale = f32[3], before the prop's sprite draws.
+DEFINE_EVENT(OnPropSpriteScale, int32_t sprite; float* scale;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
+// The map a game over, its skipped cutscene, or Save & Quit goes to.
+DEFINE_EVENT(OnGameOverReturnMap, int32_t* map;)
 // result = MapSkyInfo* or MapModelDescription* for the first two.
 DEFINE_EVENT(OnGetMapSkyInfo, int32_t map; void* result;)
 DEFINE_EVENT(OnGetMapModelDescription, int32_t map; void* result;)

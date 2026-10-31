@@ -259,24 +259,22 @@ static void Gruntch_EnableVoidOutRespawn() {
 
 // Firing an egg spikes the stealth meter
 static void Gruntch_EnableEggNoise() {
-    REGISTER_VB_SHOULD(VB_EGG_FIRE_SFX, EVENT_PRIORITY_NORMAL, {
-        s32 slot = va_arg(args, s32);
-        s32* rate = va_arg(args, s32*);
-        switch (slot) {
-            case 0:
+    REGISTER_LISTENER(OnEggFireSfx, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnEggFireSfx*)event;
+        switch (ev->sfx) {
+            case SFX_46_KAZOOIE_CHOKING_UP:
                 StealthNoise_AddBurst(0.3f, 0.2f);
                 break;
-            case 1:
+            case SFX_57_KAZOOIE_HEGH:
                 StealthNoise_AddBurst(0.65f, 0.3f);
-                *rate = 0x6D60;
+                *ev->rate = 0x6D60;
                 break;
-            case 2:
+            case SFX_3E_POOP_NOISE:
                 StealthNoise_AddBurst(0.65f, 0.4f);
                 break;
             default:
                 break;
         }
-        (void)should;
     });
 }
 
@@ -373,23 +371,18 @@ static void Gruntch_EnableCosmetics() {
     // Red sparkles in place of yellow
     D_803726F0[0] = 5;
 
-    REGISTER_VB_SHOULD(VB_PROP_SPRITE_SCALE, EVENT_PRIORITY_NORMAL, {
-        const s32 sprite = va_arg(args, s32);
-        f32* scale = va_arg(args, f32*);
-        if (sprite == 0x15) {
-            scale[0] = scale[1] = scale[2] = scale[0] / 2.5f;
+    REGISTER_LISTENER(OnPropSpriteScale, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnPropSpriteScale*)event;
+        if (ev->sprite == 0x15) {
+            ev->scale[0] = ev->scale[1] = ev->scale[2] = ev->scale[0] / 2.5f;
         }
-        (void)should;
     });
 
     // Play a sound when pressing this switch
     REGISTER_VB_SHOULD(VB_MM_WITCH_SWITCH_JIGGY_FLUSH, EVENT_PRIORITY_NORMAL, { *should = true; });
 
-    REGISTER_VB_SHOULD(VB_CROC_MAX_WALK_VELOCITY, EVENT_PRIORITY_NORMAL, {
-        f32* velocity = va_arg(args, f32*);
-        *velocity = 450.0f;
-        (void)should;
-    });
+    REGISTER_LISTENER(OnCrocMaxWalkVelocity, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnCrocMaxWalkVelocity*)event)->velocity = 450.0f; });
 }
 
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap

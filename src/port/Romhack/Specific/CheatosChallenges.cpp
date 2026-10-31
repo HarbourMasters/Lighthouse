@@ -59,11 +59,8 @@ void RegisterCheatosChallengesPatches() {
     REGISTER_VB_SHOULD(VB_LEVEL_ENTERED_FROM_LAIR, EVENT_PRIORITY_NORMAL, { *should = false; });
 
     // Two jiggies a level
-    REGISTER_VB_SHOULD(VB_LAST_JIGGY_COUNT, EVENT_PRIORITY_NORMAL, {
-        s32* count = va_arg(args, s32*);
-        *count = 1;
-        (void)should;
-    });
+    REGISTER_LISTENER(OnLastJiggyCount, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnLastJiggyCount*)event)->count = 1; });
 
     // Cheato's Library only shows its time
     HackShared_SetPauseRowsVisible(LEVEL_6_LAIR, 1 << 3);

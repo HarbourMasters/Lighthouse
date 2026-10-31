@@ -75,9 +75,10 @@ bool cutscene_skipGameOverCutsceneCheck(void) {
             mapSpecificFlags_set(0xC, true);
             func_802DC528(0, 0);
             timedFunc_set_2(11.0f, (GenFunction_2)func_802DC560, 0, 0);
-            // [port] Honor BootSequence so Save & Quit lands at the same place as a fresh boot.
+            // [port] Honor BootSequence so a game over lands at the same place as a fresh boot.
             s32 returnMap = getDefaultBootMap();
-            EventSystem_Should(VB_GAME_OVER_RETURN_MAP, true, &returnMap);
+            CALL_EVENT(OnGameOverReturnMap, &returnMap); // [port]
+//          timedFunc_set_3(12.0f, (GenFunction_3)transitionToMap, MAP_1F_CS_START_RAREWARE, 0, 1);
             timedFunc_set_3(12.0f, (GenFunction_3)transitionToMap, returnMap, 0, 1);
         } else {
             timedFuncQueue_flush();

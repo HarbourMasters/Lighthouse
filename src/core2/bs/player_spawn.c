@@ -288,12 +288,10 @@ f32 func_8029B56C(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 void func_8029B5EC(void){
     func_802DC560(0, 0);
     game_setMapTransitionWithStyle(1, 0);
-    // [port] Romhack gate: hacks send the game-over return somewhere of their own.
-    {
-        s32 returnMap = MAP_1F_CS_START_RAREWARE;
-        EventSystem_Should(VB_GAME_OVER_RETURN_MAP, true, &returnMap);
-        transitionToMap((enum map_e)returnMap, 0, 1);
-    }
+    s32 returnMap = MAP_1F_CS_START_RAREWARE; // [port]
+    CALL_EVENT(OnGameOverReturnMap, &returnMap); // [port]
+//  transitionToMap(MAP_1F_CS_START_RAREWARE, 0, 1);
+    transitionToMap(returnMap, 0, 1);
 }
 
 void func_8029B62C(void){

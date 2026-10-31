@@ -119,10 +119,8 @@ void SnowGlow_EnablePauseMenu() {
 void SnowGlow_EnableCutsceneSkips() {
     REGISTER_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, { *should = false; });
 
-    REGISTER_VB_SHOULD(VB_GAME_OVER_RETURN_MAP, EVENT_PRIORITY_NORMAL, {
-        s32* map = va_arg(args, s32*);
-        *map = MAP_77_GL_RBB_LOBBY;
-    });
+    REGISTER_LISTENER(OnGameOverReturnMap, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnGameOverReturnMap*)event)->map = MAP_77_GL_RBB_LOBBY; });
 }
 
 // Load resets

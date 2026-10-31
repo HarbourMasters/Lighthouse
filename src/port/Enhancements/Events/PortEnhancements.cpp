@@ -142,8 +142,13 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnTransformationCost);
     REGISTER_EVENT(OnMumboWishwashyId);
     REGISTER_EVENT(OnActorNew);
+    REGISTER_EVENT(OnEggFireSfx);
+    REGISTER_EVENT(OnCrocMaxWalkVelocity);
+    REGISTER_EVENT(OnLastJiggyCount);
+    REGISTER_EVENT(OnPropSpriteScale);
     REGISTER_EVENT(OnNewGame);
     REGISTER_EVENT(OnDefaultBootMap);
+    REGISTER_EVENT(OnGameOverReturnMap);
     REGISTER_EVENT(OnGetMapSkyInfo);
     REGISTER_EVENT(OnGetMapModelDescription);
     REGISTER_EVENT(OnGetMapMusicTrack);
