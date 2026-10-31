@@ -13,6 +13,7 @@ extern "C" {
 #include "core2/model.h"
 
 extern struct1Cs_1 D_8036C58C[0xD];
+void print_setBoldFontTexture(s32 textureId);
 
 // Acorn replaced with collectible doubloon
 extern ActorInfo chCarriedAcorn;
@@ -181,18 +182,13 @@ void RegisterCutThroatCoastPatches() {
         *should = false;
     });
 
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_LEVEL_TO_PAGE, EVENT_PRIORITY_NORMAL, {
-        va_arg(args, s32);
-        s32* page = va_arg(args, s32*);
-        *page = 8;
-        *should = false;
+    // Every level's totals are on page 8, with no paging.
+    REGISTER_LISTENER(OnPauseLevelToPage, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        ((OnPauseLevelToPage*)event)->result = 8;
+        event->Cancelled = true;
     });
 
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_SET_NEXT_PAGE, EVENT_PRIORITY_NORMAL, {
-        s8* page = va_arg(args, s8*);
-        *page = 8;
-        *should = false;
-    });
+    REGISTER_VB_SHOULD(VB_PAUSEMENU_SET_NEXT_PAGE, EVENT_PRIORITY_NORMAL, { *should = false; });
 
     REGISTER_VB_SHOULD(VB_PAUSEMENU_DRAW_JOYSTICKS, EVENT_PRIORITY_NORMAL, {
         (void)args;
@@ -200,9 +196,8 @@ void RegisterCutThroatCoastPatches() {
     });
 
     REGISTER_VB_SHOULD(VB_PAUSEMENU_BOLD_FONT_TEXTURE, EVENT_PRIORITY_NORMAL, {
-        s32* fontId = va_arg(args, s32*);
-        *fontId = 0x6E4;
-        (void)should;
+        print_setBoldFontTexture(SPRITE_BOLD_FONT_YELLOW_GREEN_SPHERE_TEXTURE);
+        *should = false;
     });
 
     // TODO: CTC's blob also patches the gravestone model's display lists once it loads.

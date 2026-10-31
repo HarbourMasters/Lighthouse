@@ -80,5 +80,8 @@ DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnHudDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPauseMenuDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx; s32 menu; s32 headerY;);
 DEFINE_EVENT(OnPauseMenuFree);
+DEFINE_EVENT(OnPauseLevelToPage, int32_t level; int32_t result;);
+DEFINE_EVENT(OnPauseSnsItems, uint8_t* items;);
+DEFINE_EVENT(OnPauseLevelName, int32_t page; int32_t * x; uint8_t * *name;);
 DEFINE_EVENT(OnZoomboxTextDraw, void* zoombox; f32 boxScale; f32 * scale; s32 * xOffset;);
 DEFINE_EVENT(OnReset);

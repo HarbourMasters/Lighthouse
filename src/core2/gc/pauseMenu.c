@@ -3,7 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
 #include "core2/gc/zoombox.h"
@@ -407,11 +406,7 @@ void gcpausemenu_printTotals(void) {
 }
 
 s32 gcpausemenu_levelToMenuPage(enum level_e level) {
-    // [port] Romhack gate: listeners can pin every level to one menu page.
-    s32 override_page = 0;
-    if (!EventSystem_Should(VB_PAUSEMENU_LEVEL_TO_PAGE, true, level, &override_page)) {
-        return override_page;
-    }
+    CALL_CANCELLABLE_RETURN_EVENT(OnPauseLevelToPage, level); // [port]
     switch (level) {
         case LEVEL_1_MUMBOS_MOUNTAIN:
         case LEVEL_2_TREASURE_TROVE_COVE:
@@ -455,7 +450,6 @@ void gcpausemenu_8031209C(struct1As *arg0, s32 arg1) {
 
 void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
     s32 i;
-    s32 hideCollLvl, hideJigLvl, selLvl;
     switch (next_state) {
         case PAUSE_STATE_0_MENU_INIT:
             gcpausemenu_80311A84();
@@ -515,10 +509,8 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             gcpausemenu_zoomboxes_initTotalsMenu();
 
             if (D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                // [port] Romhack gate: listeners can swap the highlight bold-font texture.
-                s32 boldFontId = 0x6e7;
-                EventSystem_Should(VB_PAUSEMENU_BOLD_FONT_TEXTURE, true, &boldFontId);
-                print_setBoldFontTexture(boldFontId);
+//              print_setBoldFontTexture(SPRITE_BOLD_FONT_PINK_SPHERE_TEXTURE);
+                if (EventSystem_Should(VB_PAUSEMENU_BOLD_FONT_TEXTURE, true)) print_setBoldFontTexture(SPRITE_BOLD_FONT_PINK_SPHERE_TEXTURE);
             }
 
             if (D_80383010.selection) {
@@ -528,23 +520,19 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
                 gcpausemenu_printTotals();
             }
 
-            hideCollLvl = port_getRomhackHideCollectiblesLevel();
-            hideJigLvl = port_getRomhackHideJiggiesLevel();
-            selLvl = D_8036C58C[D_80383010.selection].level_id;
-            if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
-            if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
-            for (i = 0; i < 4; i++) {
-                s32 rowVisible;
-                if (selLvl == hideCollLvl) {
-                    rowVisible = (!(i == 0) && !(i == 2));
-                } else if (selLvl == hideJigLvl) {
-                    rowVisible = (!(i == 0) && !(i == 1));
-                } else {
-                    rowVisible = 1;
+            for (i = 0; i < 4; i++) {//L80312420
+                if (D_8036C58C[D_80383010.selection].level_id == 6) {
+//                  gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 2)));
+                    gczoombox_highlight(D_80383010.zoombox[i], EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, (!(i == 0) && !(i == 2)), D_8036C58C[D_80383010.selection].level_id, i));
                 }
-                // [port] Romhack gate: level-merging hacks can hide extra rows per page.
-                rowVisible = EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, rowVisible, selLvl, i);
-                gczoombox_highlight(D_80383010.zoombox[i], rowVisible);
+                else if (D_8036C58C[D_80383010.selection].level_id == 0xB) {
+//                  gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 1)));
+                    gczoombox_highlight(D_80383010.zoombox[i], EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, (!(i == 0) && !(i == 1)), D_8036C58C[D_80383010.selection].level_id, i));
+                }
+                else {
+//                  gczoombox_highlight(D_80383010.zoombox[i], 1);
+                    gczoombox_highlight(D_80383010.zoombox[i], EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, 1, D_8036C58C[D_80383010.selection].level_id, i));
+                }
             }
             break;
 
@@ -601,10 +589,8 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             D_80383010.selection = D_80383010.page;
 
             if (D_80383010.selection && D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                // [port] Romhack gate: listeners can swap the highlight bold-font texture.
-                s32 boldFontId = 0x6e7;
-                EventSystem_Should(VB_PAUSEMENU_BOLD_FONT_TEXTURE, true, &boldFontId);
-                print_setBoldFontTexture(boldFontId);
+//              print_setBoldFontTexture(SPRITE_BOLD_FONT_PINK_SPHERE_TEXTURE);
+                if (EventSystem_Should(VB_PAUSEMENU_BOLD_FONT_TEXTURE, true)) print_setBoldFontTexture(SPRITE_BOLD_FONT_PINK_SPHERE_TEXTURE);
             }
 
             if (D_80383010.selection) {
@@ -614,23 +600,20 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
                 gcpausemenu_printTotals();
             }
 
-            hideCollLvl = port_getRomhackHideCollectiblesLevel();
-            hideJigLvl = port_getRomhackHideJiggiesLevel();
-            selLvl = D_8036C58C[D_80383010.selection].level_id;
-            if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
-            if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
-            for (i = 0; i < 4; i++) {
-                s32 rowVisible;
-                if (selLvl == hideCollLvl) {
-                    rowVisible = !((i == 0) || (i == 2));
-                } else if (selLvl == hideJigLvl) {
-                    rowVisible = (!(i == 0) && !(i == 1));
-                } else {
-                    rowVisible = 1;
+            for (i = 0; i < 4; i++) {//L803126D8
+                //L80312764
+                if (D_8036C58C[D_80383010.selection].level_id == 6) {
+//                  gczoombox_highlight(D_80383010.zoombox[i], !((i == 0) || (i == 2)));
+                    gczoombox_highlight(D_80383010.zoombox[i], EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, !((i == 0) || (i == 2)), D_8036C58C[D_80383010.selection].level_id, i));
                 }
-                // [port] Romhack gate: level-merging hacks can hide extra rows per page.
-                rowVisible = EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, rowVisible, selLvl, i);
-                gczoombox_highlight(D_80383010.zoombox[i], rowVisible);
+                else if (D_8036C58C[D_80383010.selection].level_id == 0xB) {//L80312728
+//                  gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 1)));
+                    gczoombox_highlight(D_80383010.zoombox[i], EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, (!(i == 0) && !(i == 1)), D_8036C58C[D_80383010.selection].level_id, i));
+                }
+                else {
+//                  gczoombox_highlight(D_80383010.zoombox[i], 1);
+                    gczoombox_highlight(D_80383010.zoombox[i], EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, 1, D_8036C58C[D_80383010.selection].level_id, i));
+                }
 
                 if (gczoombox_is_highlighted(D_80383010.zoombox[i])) {
                     gczoombox_maximize(D_80383010.zoombox[i]);
@@ -794,12 +777,7 @@ void gcpausemenu_init(void) {
     sp34 = sns_get_item_state(2, 0);
     sp38 = sns_get_item_state(1, 0);
     D_80383010.sns_items = sp38 + sp34 + sp30 + sp2C + sp28 + sp24 + sns_get_item_state(7, 0);
-    // [port] Romhack gate: a listener can override the count
-    {
-        s32 snsItems = D_80383010.sns_items;
-        EventSystem_Should(VB_PAUSEMENU_SNS_ITEMS, true, &snsItems);
-        D_80383010.sns_items = snsItems;
-    }
+    CALL_EVENT(OnPauseSnsItems, &D_80383010.sns_items); // [port]
     D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
     gcdialog_incrementYPositionModifier();
     gcpausemenu_zoomboxes_initMainMenu();
@@ -867,13 +845,11 @@ void gcpausemenu_80312E80(struct1As *arg0, s32 arg1) {
 
 void gcpausemenu_printTotalsHeader(s32 page_id) {
     struct1Cs_1 *v0 = D_8036C58C + page_id;
-    const char *name = port_getRomhackLevelName(page_id);
-    // [port] A custom romhack name inherits the vanilla name's hand-tuned x; let a
-    // listener recenter it for its own width.
-    s32 nameX = v0->x;
-    EventSystem_Should(VB_PAUSEMENU_LEVEL_NAME_X, true, &nameX, page_id, (const char*)v0->string, name);
+    s32 nameX = v0->x; // [port]
+    u8 *name = v0->string; // [port]
+    CALL_EVENT(OnPauseLevelName, page_id, &nameX, &name); // [port]
 //  print_bold_overlapping(v0->x, D_80383010.unk8, -1.05f, v0->string);
-    if(EventSystem_Should(VB_PAUSEMENU_PRINT_LEVEL_NAME, true, page_id)) print_bold_overlapping(nameX, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
+    if(EventSystem_Should(VB_PAUSEMENU_PRINT_LEVEL_NAME, true, page_id)) print_bold_overlapping(nameX, D_80383010.unk8, -1.05f, name);
 }
 
 void gcpausemenu_80312FD0(s32 arg0) {
@@ -903,10 +879,6 @@ s32 gcpausemenu_getMaxPage(void) {
 }
 
 void gcpausemenu_setNextPage(s32 increment) {
-    // [port] Romhack gate: listeners can pin the page and skip paging entirely.
-    if (!EventSystem_Should(VB_PAUSEMENU_SET_NEXT_PAGE, true, &D_80383010.page)) {
-        return;
-    }
     D_80383010.page = D_80383010.selection;
     do {
         D_80383010.page += increment;
@@ -1230,12 +1202,14 @@ s32 gcPauseMenu_update(void) {
             }
             else if (0.75 < joystick[JOYSTICK_X]) {
                 if ((s32) D_80383010.selection < gcpausemenu_getMaxPage()) {
-                    gcpausemenu_setNextPage(1);
+//                  gcpausemenu_setNextPage(1);
+                    if (EventSystem_Should(VB_PAUSEMENU_SET_NEXT_PAGE, true)) gcpausemenu_setNextPage(1);
                 }
             }
             else if (joystick[JOYSTICK_X] < -0.75) {//L80313CCC
                 if ((s32) D_80383010.selection > 0) {
-                    gcpausemenu_setNextPage(-1);
+//                  gcpausemenu_setNextPage(-1);
+                    if (EventSystem_Should(VB_PAUSEMENU_SET_NEXT_PAGE, true)) gcpausemenu_setNextPage(-1);
                 }
             }
             break;
@@ -1319,7 +1293,8 @@ s32 gcPauseMenu_update(void) {
                 gcPauseMenu_setState(PAUSE_STATE_11_SNS_CLOSING);
             }
             else if (joystick[JOYSTICK_X] < -0.75) {
-                gcpausemenu_setNextPage(-1);
+//              gcpausemenu_setNextPage(-1);
+                if (EventSystem_Should(VB_PAUSEMENU_SET_NEXT_PAGE, true)) gcpausemenu_setNextPage(-1);
                 gcPauseMenu_setState(PAUSE_STATE_11_SNS_CLOSING);
             }
             break;
@@ -1509,11 +1484,8 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         }
     }
 
-    if (D_80383010.sns_alpha != 0
-        // [port] Romhack gate: false = a listener drew its own Stop 'N' Swop display.
-        && EventSystem_Should(VB_PAUSEMENU_SNS_DRAW, true, gfx, mtx, (s32)D_80383010.sns_alpha,
-                              D_80383010.unk3E, D_80383010.sns_egg_model,
-                              D_80383010.ice_key_model)) {
+//  if (D_80383010.sns_alpha != 0) {
+    if (EventSystem_Should(VB_PAUSEMENU_SNS_DRAW, D_80383010.sns_alpha != 0, gfx, mtx, (s32)D_80383010.sns_alpha, D_80383010.unk3E, D_80383010.sns_egg_model, D_80383010.ice_key_model)) {
         sp7C = time_getDelta();
         for (i = 1; i < 7; i++) {
             if (sns_get_item_state(i, 0)) {

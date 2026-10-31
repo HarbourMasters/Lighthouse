@@ -40,7 +40,8 @@ namespace {
 
 void ApplyNoteSignHooks();
 f32 MeasureBoldNameWidth(const char* s);
-void ApplyPauseNameCentering();
+void ApplyPauseLevelNames();
+void ApplyPauseRowVisibility();
 void ApplyDialogSuppression();
 void ApplyForceAbilitiesUsed();
 
@@ -103,17 +104,52 @@ f32 MeasureBoldNameWidth(const char* s) {
     return x;
 }
 
-void ApplyPauseNameCentering() {
-    COND_VB_SHOULD(VB_PAUSEMENU_LEVEL_NAME_X, EVENT_PRIORITY_NORMAL, port_getRomhackIdentifier() != nullptr, {
-        s32* x = va_arg(args, s32*);
-        va_arg(args, s32);
-        const char* vanillaName = va_arg(args, const char*);
-        const char* romhackName = va_arg(args, const char*);
-        if (romhackName != nullptr && vanillaName != nullptr) {
-            const f32 shift = (MeasureBoldNameWidth(vanillaName) - MeasureBoldNameWidth(romhackName)) * 0.5f;
-            *x += (s32)(shift >= 0.0f ? shift + 0.5f : shift - 0.5f);
+// A ported hack's level names are recentered on the vanilla names' hand-tuned x.
+void ApplyPauseLevelNames() {
+    COND_HOOK(OnPauseLevelName, EVENT_PRIORITY_NORMAL, port_isRomhack(), [](IEvent* event) {
+        auto* ev = (OnPauseLevelName*)event;
+        const char* romhackName = port_getRomhackLevelName(ev->page);
+        if (romhackName == nullptr) {
+            return;
         }
-        (void)should;
+        if (port_getRomhackIdentifier() != nullptr) {
+            const f32 shift = (MeasureBoldNameWidth((const char*)*ev->name) - MeasureBoldNameWidth(romhackName)) * 0.5f;
+            *ev->x += (s32)(shift >= 0.0f ? shift + 0.5f : shift - 0.5f);
+        }
+        *ev->name = (u8*)romhackName;
+    });
+}
+
+s32 sPauseRowsLevel = -1;
+s32 sPauseRowsMask = 0;
+
+// One listener decides every totals row. A mask from HackShared_SetPauseRowsVisible beats the config's hidden rows.
+void ApplyPauseRowVisibility() {
+    COND_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+        const s32 level = va_arg(args, s32);
+        const s32 row = va_arg(args, s32);
+        if (level == sPauseRowsLevel) {
+            *should = (sPauseRowsMask >> row) & 1;
+            return;
+        }
+        s32 hideCollectibles = port_getRomhackHideCollectiblesLevel();
+        s32 hideJiggies = port_getRomhackHideJiggiesLevel();
+        if (hideCollectibles < 0 && hideJiggies < 0) {
+            return;
+        }
+        if (hideCollectibles < 0) {
+            hideCollectibles = LEVEL_6_LAIR;
+        }
+        if (hideJiggies < 0) {
+            hideJiggies = LEVEL_B_SPIRAL_MOUNTAIN;
+        }
+        if (level == hideCollectibles) {
+            *should = row != 0 && row != 2;
+        } else if (level == hideJiggies) {
+            *should = row != 0 && row != 1;
+        } else {
+            *should = true;
+        }
     });
 }
 
@@ -334,10 +370,16 @@ static void ApplyNewGameHooks() {
 }
 
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
-RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
+RegisterShipInitFunc pauseLevelNameInit(ApplyPauseLevelNames, { "BOOT" });
+RegisterShipInitFunc pauseRowVisibilityInit(ApplyPauseRowVisibility, { "BOOT" });
 RegisterShipInitFunc newGameInit(ApplyNewGameHooks, { "BOOT" });
 
 } // namespace
+
+void HackShared_SetPauseRowsVisible(int level, int rowMask) {
+    sPauseRowsLevel = level;
+    sPauseRowsMask = rowMask;
+}
 
 void HackShared_EnableNoteSignSuppression(int signActorId) {
     sNoteSignActorId = signActorId;

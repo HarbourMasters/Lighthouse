@@ -426,13 +426,7 @@ static void Gruntch_EnableJiggyTally() {
     port_overrideRomhackJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {
-        s32 lvl = va_arg(args, s32);
-        s32 row = va_arg(args, s32);
-        if (lvl == LEVEL_2_TREASURE_TROVE_COVE) {
-            *should = (row != 0 && row != 1);
-        }
-    });
+    HackShared_SetPauseRowsVisible(LEVEL_2_TREASURE_TROVE_COVE, (1 << 2) | (1 << 3));
 }
 
 // The second act stays locked until the RBB level-open flag is set

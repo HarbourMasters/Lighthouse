@@ -326,13 +326,49 @@ typedef enum VBehaviorID {
     VB_PROGRESS_FLAG_DIALOG, // showProgressFlagDialog(): false = never show (and never set) progress dialogs.
     VB_LAIR_GRUNTY_TAUNTS,   // Grunty's random lair taunt timer block: false = skip entirely.
     VB_AMBIENCE_MAP_UPDATE,  // Per-map ambience/chan-mask switch: false = a listener replaced it.
-    VB_PAUSEMENU_SNS_ITEMS,  // Overrides the collected-SNS-item count that gates the Stop 'N' Swop page.
-    VB_PAUSEMENU_SNS_DRAW,   // Stop 'N' Swop totals display: false = a listener drew its own version.
-    VB_PAUSEMENU_LEVEL_TO_PAGE,
+
+    // A listener that returns false skips the Stop 'N' Swop display and can draw a different one.
+    // #### `result`
+    // ```c
+    // D_80383010.sns_alpha != 0
+    // ```
+    // #### `args`
+    // - `**Gfx`
+    // - `**Mtx`
+    // - `s32` (sns_alpha)
+    // - `*s16` (unk3E, the egg angles)
+    // - `*BKModelBin` (sns_egg_model)
+    // - `*BKModelBin` (ice_key_model)
+    VB_PAUSEMENU_SNS_DRAW,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_PAUSEMENU_SET_NEXT_PAGE,
     VB_PAUSEMENU_DRAW_JOYSTICKS,
+
+    // The pink bold font on the current level's page. A listener that returns false sets a different texture.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_PAUSEMENU_BOLD_FONT_TEXTURE,
-    VB_PAUSEMENU_LEVEL_NAME_X,
+
+    // Whether a totals row shows.
+    // #### `result`
+    // ```c
+    // !(i == 0) && !(i == 2) // the Lair page
+    // !(i == 0) && !(i == 1) // Spiral Mountain's page
+    // 1                      // every other page
+    // ```
+    // #### `args`
+    // - `s32` (the page's level_id)
+    // - `s32` (i, the row)
     VB_PAUSEMENU_ROW_VISIBLE,
 
     // A listener that returns false skips game_transitionToMapResettingLevel and moves the player another way.

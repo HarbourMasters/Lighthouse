@@ -77,6 +77,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnHudDraw);
     REGISTER_EVENT(OnPauseMenuDraw);
     REGISTER_EVENT(OnPauseMenuFree);
+    REGISTER_EVENT(OnPauseLevelToPage);
+    REGISTER_EVENT(OnPauseSnsItems);
+    REGISTER_EVENT(OnPauseLevelName);
     REGISTER_EVENT(OnZoomboxTextDraw);
 
     // Register behavior events
