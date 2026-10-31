@@ -546,6 +546,14 @@ static void RegisterRomhackConfig_Init() {
             event->Cancelled = true;
         }
     });
+    COND_HOOK(OnTransformationCost, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnTransformationCost*)event;
+        const s32 cost = port_getRomhackMumboCost(ev->transformation);
+        if (cost >= 0) {
+            ev->result = cost;
+            event->Cancelled = true;
+        }
+    });
     COND_HOOK(OnItemMax, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
         auto* ev = (OnItemMax*)event;
         s32 max = -1;

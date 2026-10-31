@@ -311,6 +311,14 @@ typedef enum VBehaviorID {
     VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
     // Romhack port gates
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_ABILITY_CLEAR_ALL,
     VB_JIGGYSCORE_LEVEL_TOTAL,
     VB_HONEYCOMBSCORE_LEVEL_TOTAL,
     VB_MUMBO_HUT_INTERACT,

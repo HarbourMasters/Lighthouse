@@ -139,6 +139,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSpawnableActorsReset);
     REGISTER_EVENT(OnItemMax);
     REGISTER_EVENT(OnLevelItemMax);
+    REGISTER_EVENT(OnTransformationCost);
     REGISTER_EVENT(OnNewGame);
     REGISTER_EVENT(OnDefaultBootMap);
     REGISTER_EVENT(OnGetMapSkyInfo);

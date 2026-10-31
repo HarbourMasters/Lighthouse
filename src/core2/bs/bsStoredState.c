@@ -16,7 +16,8 @@ void bsStoredState_debug(void){
 }
 
 void bsStoredState_clear(void){
-    ability_clearAll();
+//  ability_clearAll();
+    if (EventSystem_Should(VB_ABILITY_CLEAR_ALL, true)) ability_clearAll();
     bsStoredState.longleg_timer = bsStoredState.turbo_timer = 0.0f;
     bsStoredState.transformation = TRANSFORM_1_BANJO;
     bsStoredStateInTrot = false;

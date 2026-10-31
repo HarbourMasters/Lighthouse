@@ -89,6 +89,8 @@ void AddOtherOverlaysSpawnableActors(IEvent* event) {
 
 void RegisterRomhackPatches_Init() {
     COND_HOOK(OnSpawnableActorsReset, EVENT_PRIORITY_NORMAL, port_isRomhack(), AddOtherOverlaysSpawnableActors);
+    // Romhacks keep their learned moves when the stored state clears.
+    COND_VB_SHOULD(VB_ABILITY_CLEAR_ALL, EVENT_PRIORITY_NORMAL, port_isRomhack(), { *should = false; });
 
     const char* id = port_getRomhackIdentifier();
     if (id == nullptr) {
