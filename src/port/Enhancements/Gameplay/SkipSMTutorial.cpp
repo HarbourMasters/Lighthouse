@@ -11,6 +11,7 @@
 
 extern "C" float sItemscoreTimeScores[];
 extern "C" void __chSmBottles_setHasUsedSpiralMountainAbilities(void);
+extern "C" void warp_lairEnterLairFromSMLevel(s32, s32);
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial")
 
@@ -29,7 +30,6 @@ void RegisterSkipSMTutorial_Init() {
         if (port_isRomhack() || IS_RANDO) {
             return;
         }
-        auto* ev = reinterpret_cast<OnNewGame*>(event);
 
         for (ability_e ability : kSpiralMountainAbilities) {
             player_unlockAbility(ability);
@@ -46,8 +46,13 @@ void RegisterSkipSMTutorial_Init() {
 
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);
         sItemscoreTimeScores[LEVEL_B_SPIRAL_MOUNTAIN] = 122.0f; // Average speedrun time for SM completion (2:02)
-
-        *ev->skipIntro = 1;
+    });
+    COND_VB_SHOULD(VB_GAMESELECT_NEW_GAME_INTRO, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), {
+        if (!port_isRomhack() && !IS_RANDO) {
+            timedFunc_set_2(0.0f, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
+            timedFunc_set_1(0.0f, (GenFunction_1)gsworld_setEnableUpdate, 1);
+            *should = false;
+        }
     });
 }
 

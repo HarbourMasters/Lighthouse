@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "core2/ba/timer.h"
-#include "port/Enhancements/Camera/FreeLookCamera.h"
-#include "port/Controller/ModernCamera.h"
 
 void func_80291488(s32 arg0);
 void func_802914CC(s32 arg0);
@@ -121,12 +119,12 @@ int func_80290E8C(void){
 }
 
 void func_80290F14(void){
-    port_modernCamera_handleZoom();
-    if( !balookat_getState()
+//  if( !balookat_getState()
+    if( EventSystem_Should(VB_CAMERA_CYCLE_ZOOM, !balookat_getState()
         && player_movementGroup() != BSGROUP_4_LOOK
         && batimer_get(7) == 0.0f
-        && bainput_should_zoom_out_camera()
-        && !port_camera_suppressVanillaZoom()
+//      && bainput_should_zoom_out_camera()
+        && bainput_should_zoom_out_camera())
     ){
         switch(D_8037C061){
             case 1://L80290FA4
@@ -160,27 +158,20 @@ int func_8029105C(s32 arg0){
     if(balookat_getState())
         return false;
 
-    // [port] Right-stick free look. When it owns the frame (entering or held)
-    // we consume it so the follow camera isn't reset; a C-button camera control
-    // makes it hand the frame back so the vanilla swivel/zoom below runs. The ba
-    // camera mode is left untouched so we keep coming back through this handler.
-    if(port_freeLook_handle()){
+    // [port] False when the port's camera took the stick this frame.
+    if(!EventSystem_Should(VB_CAMERA_SWIVEL, true)){
         return true;
     }
 
-    // [port] Modern scheme: right stick = smooth continuous yaw.
-    if(port_modernCamera_handleYaw()){
-        return true;
-    }
-
-    // [port] Invert Camera X flips the C-button swivel direction (Retro/Pocket horizontal camera).
-    if(bainput_should_rotate_camera_left() && ncDynamicCamA_func_802C1DB0(-45.0f * port_cameraInvertXSign())){
+//  if(bainput_should_rotate_camera_left() && ncDynamicCamA_func_802C1DB0(-45.0f)){
+    if(bainput_should_rotate_camera_left() && ncDynamicCamA_func_802C1DB0(-45.0f * EventSystem_InvertControl(INVERT_CAMERA_X))){
         func_80291488(arg0);
         func_8029103C();
         return true;
     }
 
-    if(bainput_should_rotate_camera_right() && ncDynamicCamA_func_802C1DB0(45.0f * port_cameraInvertXSign())){
+//  if(bainput_should_rotate_camera_right() && ncDynamicCamA_func_802C1DB0(45.0f)){
+    if(bainput_should_rotate_camera_right() && ncDynamicCamA_func_802C1DB0(45.0f * EventSystem_InvertControl(INVERT_CAMERA_X))){
         func_80291488(arg0);
         func_8029103C();
         return true;

@@ -47,8 +47,6 @@ s32 controller_getStartButton(s32 controllerIdx);
 s32 controller_getStartButtonSafe(s32 controllerIdx);
 void controller_copyDpadButtons(s32 controllerIdx, s32 dst[4]);
 void controller_copyJoystick(s32 controllerIdx, f32 dst[2]);
-// [port] Raw right-stick analog values, normalized to [-1, 1] (y positive = up).
-void controller_getRightStick(s32 controller_index, f32 dst[2]);
 void joy_update(void);
 void joy_readData();
 void joy_main(void *null);

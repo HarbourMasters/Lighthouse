@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <ship/resource/type/Json.h>
 #include "port/Engine.h"
+#include "port/FrameHost.h"
 #include "port/ShipUtils.h"
 #include "port/UI/MenuTypes.h"
 #include "port/UI/LighthouseMenu.h"
@@ -154,7 +155,7 @@ void applyPreset(std::string presetName, std::vector<PresetSection> includeSecti
             // }
         }
     }
-    ShipInit::InitAll();
+    Lighthouse::RunOnGameThread([] { ShipInit::InitAll(); });
     GameEngine::Instance->ScaleImGui();
 }
 

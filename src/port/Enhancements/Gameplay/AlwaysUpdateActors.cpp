@@ -150,7 +150,7 @@ void RegisterAlwaysUpdateActors_Init() {
     // and end up silencing footsteps for actors actually close to Banjo.
     COND_VB_SHOULD(VB_ACTOR_FOOTSTEP_SLOT, EVENT_PRIORITY_NORMAL, enabled, {
         Actor* actor = va_arg(args, Actor*);
-        if (!IsDemoMode()) {
+        if (*should && !IsDemoMode()) {
             *should = TakeFootstepSlot(actor);
         }
     });

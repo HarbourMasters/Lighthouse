@@ -7,7 +7,6 @@
 #include "actor.h"
 
 #include "prop.h"
-#include "port/Enhancements/Retention/Retention.h"
 #include "port/Patches/Patches.h"
 
 extern bool D_80370990;
@@ -443,9 +442,7 @@ void func_80325FE8(Actor *this) {
 void actorArray_free(void) {
     Actor *var_s0;
 
-    // [port] Note retention: every note actor is about to be freed, so drop our
-    // live-actor tracking (markers are being released here).
-    port_noteRetention_onActorsFreed();
+    CALL_EVENT(OnActorArrayFree); // [port]
     port_remoteCarry_reset();
     port_anchorDummies_onActorsFreed();
 

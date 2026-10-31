@@ -3,7 +3,7 @@
 #include "core2/core2.h"
 #include <ultra64.h>
 #include "functions.h"
-#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
+#include "port/ShipUtils.h" // BK_LOG_*
 #include "port/Engine.h"
 
 #include <libultra/convert.h>

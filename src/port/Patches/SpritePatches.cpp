@@ -17,11 +17,14 @@ extern "C" {
 void codeAEDA0_setSpriteDrawMode(s32 arg0);
 void func_80338308(s32 arg0, s32 arg1);
 BKSpriteDisplayData* func_80344A1C(BKSprite* arg0);
+void __gcpausemenu_drawSprite(Gfx** gdl, Mtx** mptr, Vtx** vptr, BKSprite* sprite, s32 frame, f32 x, f32 y, f32 w,
+                              f32 h, u8 a);
 
 void* assetcache_get(enum asset_e assetId);
 void assetcache_release(void* asset);
 enum asset_e print_getCurrentMapBoldFontTexture(void);
 char* ResourceMgr_ReloadByAssetId(uint32_t assetId);
+int ResourceMgr_GetLanguageGeneration(void);
 
 enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
@@ -164,9 +167,10 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
 static BKSprite* sPauseBanner = NULL;
 static s32 sPauseBannerPage = -1;
 static s32 sPauseBannerAlpha = 0;
+static s32 sPauseBannerLanguageGen = -1;
 #define PAUSE_BANNER_LAST_PAGE 11
 
-s32 port_pauseBannerUpdate(s32 page_id) {
+static s32 PauseBannerUpdate(s32 page_id) {
     // Draw a pre-rendered world-name banner when one exists for this page. The JP cart
     // ships them, and a language pack can supply its own; if none resolves,
     // port_loadFilledBanner returns NULL below and the caller falls back to drawing the
@@ -175,12 +179,14 @@ s32 port_pauseBannerUpdate(s32 page_id) {
     if (page < 0 || page > PAUSE_BANNER_LAST_PAGE) {
         page = -1;
     }
-    if (page != sPauseBannerPage) {
+    const s32 languageGen = ResourceMgr_GetLanguageGeneration();
+    if (page != sPauseBannerPage || languageGen != sPauseBannerLanguageGen) {
         if (sPauseBanner != NULL) {
             assetcache_release(sPauseBanner);
             sPauseBanner = NULL;
         }
         sPauseBannerPage = page;
+        sPauseBannerLanguageGen = languageGen;
         sPauseBannerAlpha = 0;
         if (page >= 0) {
             s32 fillId = (page != 0 && page == gcpausemenu_levelToMenuPage(level_get())) ? 0x6e7 : -1;
@@ -196,7 +202,7 @@ s32 port_pauseBannerUpdate(s32 page_id) {
     return sPauseBanner != NULL;
 }
 
-BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH) {
+static BKSprite* PauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH) {
     if (sPauseBanner == NULL) {
         return NULL;
     }
@@ -220,7 +226,7 @@ BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, 
 }
 
 // Release the banner held for the current page
-void port_pauseBannerFree(void) {
+static void PauseBannerFree(void) {
     if (sPauseBanner != NULL) {
         assetcache_release(sPauseBanner);
         sPauseBanner = NULL;
@@ -230,6 +236,33 @@ void port_pauseBannerFree(void) {
 }
 
 } // extern "C"
+
+static void RegisterPauseBanner_Init() {
+    // Registered whatever the language, which can change while the game runs; with no banner the
+    // update finds none.
+    COND_VB_SHOULD(VB_PAUSEMENU_PRINT_LEVEL_NAME, EVENT_PRIORITY_NORMAL, true, {
+        if (PauseBannerUpdate(va_arg(args, s32))) {
+            *should = false;
+        }
+    });
+    COND_HOOK(OnPauseMenuDraw, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnPauseMenuDraw*)event;
+        if (ev->menu == 0) { // PAUSE_MENU_0_MAIN
+            return;
+        }
+        f32 x;
+        f32 y;
+        f32 w;
+        f32 h;
+        BKSprite* banner = PauseBannerGetDraw(ev->headerY, &x, &y, &w, &h);
+        if (banner != NULL) {
+            __gcpausemenu_drawSprite(ev->gfx, ev->mtx, ev->vtx, banner, 0, x, y, w, h, 0xFF);
+        }
+    });
+    COND_HOOK(OnPauseMenuFree, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { PauseBannerFree(); });
+}
+
+static RegisterShipInitFunc sPauseBannerInit(RegisterPauseBanner_Init);
 
 static void RegisterSpriteRestoreAlphaCompare_Init() {
     COND_VB_SHOULD(VB_SPRITE_RESTORE_ALPHA_COMPARE, EVENT_PRIORITY_NORMAL, true, { *should = true; });

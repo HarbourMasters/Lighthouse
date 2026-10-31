@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
-#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
+#include "port/ShipUtils.h" // BK_LOG_*
 #include "variables.h"
 #include "core1/joy.h"
 
@@ -178,17 +178,6 @@ void controller_copyJoystick(s32 controllerIdx, f32 dst[2])
     }
 }
 
-// [port] Raw right-stick analog values, normalized to [-1, 1]. Positive Y is
-// "up", matching the left stick's forward convention.
-void controller_getRightStick(s32 controller_index, f32 dst[2]){
-    dst[0] = (f32)sInputs[controller_index].right_stick_x / 127.0f;
-    dst[1] = (f32)sInputs[controller_index].right_stick_y / 127.0f;
-    if(dst[0] < -1.0f) dst[0] = -1.0f;
-    if(dst[0] >  1.0f) dst[0] =  1.0f;
-    if(dst[1] < -1.0f) dst[1] = -1.0f;
-    if(dst[1] >  1.0f) dst[1] =  1.0f;
-}
-
 
 #define INCREMENT_OR_CLEAR_IF(dst, test) dst = (test) ? ((dst) + 1) : (0)
 
@@ -216,12 +205,7 @@ void joy_update(void)
     // below rewrites this buffer in place.
     osContGetReadData(sInputs);
 
-    // [port] Control-scheme input shaping: right stick -> C-button conversion,
-    // Free Look right-stick handling, and the Modern-scheme Talon Trot combo.
-    // Implemented in Enhancements/ControlSchemes.cpp.
-    port_shapeControllerInput(&sInputs[0]);
-
-    if (port_mirror_active()) sInputs[0].stick_x = -sInputs[0].stick_x;
+    CALL_EVENT(OnControllerRead, &sInputs[0]); // [port]
 
     sInputsPrimary.stick_x = sInputs[0].stick_x;
     sInputsPrimary.stick_y = sInputs[0].stick_y;

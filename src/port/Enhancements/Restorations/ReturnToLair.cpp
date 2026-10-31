@@ -6,20 +6,14 @@
 #include "port/Romhack/RomhackConfig.h"
 
 #include "include/core2/anctrl.h"
+extern "C" {
+#include "core2/gc/pauseMenu.h"
 #include "include/core2/gc/zoombox.h"
+}
 
 #include "functions.h"
 
 extern "C" struct1Bs D_8036C560[]; // not declared in variables.h
-
-typedef struct struct_1A_s {
-    f32 delay;
-    f32 unk4;
-    u8* str;
-    s16 y;
-    u8 portrait;
-    u8 unkF;
-} struct1As;
 
 struct1As* menuData;
 
@@ -27,6 +21,7 @@ struct1As* menuData;
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterReturnToLair_Init() {
+    // Registered whatever the setting, so turning it off puts the vanilla layout back.
     COND_VB_SHOULD(VB_INIT_RETURN_TO_LAIR, EVENT_PRIORITY_NORMAL, true, {
         menuData = va_arg(args, struct1As*);
 
@@ -66,7 +61,6 @@ void RegisterReturnToLair_Init() {
                 menuData[1].str = (u8*)"EXIT TO WITCH'S LAIR";
             }
         } else {
-            *should = true;
             menuData[0].y = 55;
             menuData[1].y = -100;
             menuData[2].y = 90;
@@ -79,22 +73,36 @@ void RegisterReturnToLair_Init() {
         }
     });
 
-    COND_VB_SHOULD(VB_PAUSE_MENU_PORTRAIT_DEPTH, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(),
-                   { *should = false; });
+    // Draw the main menu with the selected box on top, the others back to front for Return to Lair. In the totals
+    // menu the selection is a page, not a box. Registered whatever the setting, since the selected box goes on top
+    // either way.
+    COND_VB_SHOULD(VB_PAUSEMENU_DRAW_ZOOMBOXES, EVENT_PRIORITY_NORMAL, true, {
+        Gfx** gfx = va_arg(args, Gfx**);
+        Mtx** mtx = va_arg(args, Mtx**);
+        Vtx** vtx = va_arg(args, Vtx**);
+        GcZoombox** zoombox = va_arg(args, GcZoombox**);
+        s32 menu = va_arg(args, s32);
+        s32 selection = va_arg(args, s32);
+        if (menu == 0) { // PAUSE_MENU_0_MAIN
+            const bool backToFront = CVAR && !port_isRomhack();
+            for (s32 n = 0; n < 4; n++) {
+                const s32 i = backToFront ? 3 - n : n;
+                if (i != selection) {
+                    gczoombox_draw(zoombox[i], gfx, mtx, vtx);
+                }
+            }
+            gczoombox_draw(zoombox[selection], gfx, mtx, vtx);
+            *should = false;
+        }
+    });
 
     // Shrink the pause-menu zoombox text so the longer string fits at the vanilla box scale.
-    // Only sub-1.0 boxes (the pause menus) are touched; the box scale arrives as the first vararg.
-    COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(), {
-        double boxScale = va_arg(args, double);
-        f32* outScale = va_arg(args, f32*);
-        int* xOfs = va_arg(args, int*);
-        if (boxScale < 1.0) {
-            if (outScale != nullptr) {
-                *outScale = 0.85f;
-            }
-            if (xOfs != nullptr) {
-                *xOfs += 4;
-            }
+    // Only sub-1.0 boxes (the pause menus) are touched.
+    COND_HOOK(OnZoomboxTextDraw, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(), [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnZoomboxTextDraw*>(event);
+        if (ev->boxScale < 1.0f) {
+            *ev->scale = 0.85f;
+            *ev->xOffset += 4;
         }
     });
 }

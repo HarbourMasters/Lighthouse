@@ -155,8 +155,8 @@ extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit,
     }
 }
 
-// Called from the actual pickup (__chJinjo_802CDBA8), not broad-phase collision.
-extern "C" void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId) {
+// OnJinjoCollected fires from the actual pickup (__chJinjo_collected), not broad-phase collision.
+static void recordLocalJinjo(int32_t markerId) {
     if (!systemActive()) {
         return;
     }
@@ -201,6 +201,9 @@ extern "C" void port_jinjoRetention_requestReseed(void) {
 }
 
 void RegisterJinjoRetention_Init() {
+    // Recorded whatever the setting; only applying the record follows it.
+    COND_HOOK(OnJinjoCollected, EVENT_PRIORITY_NORMAL, true,
+              [](IEvent* event) { recordLocalJinjo(((OnJinjoCollected*)event)->markerId); });
     // Seed ITEM_12_JINJOS from saved bits on entry.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;

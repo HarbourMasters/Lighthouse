@@ -167,12 +167,11 @@ extern "C" void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) 
     *addr = (uint8_t*)s;
 }
 
-// Called from the actual pickup (MARKER_5F_MUSIC_NOTE), not broad-phase collision.
-extern "C" void port_noteRetention_onLocalNoteCollected(void* markerPtr) {
+// OnNoteCollected fires from the actual pickup, not broad-phase collision.
+static void recordLocalNote(ActorMarker* marker) {
     if (!systemActive()) {
         return;
     }
-    ActorMarker* marker = (ActorMarker*)markerPtr;
     if (marker == nullptr || marker->id != MARKER_5F_MUSIC_NOTE) {
         return;
     }
@@ -223,22 +222,6 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
             }
         }
     }
-}
-
-// Called from gsworld_load before cube parsing; fires on every re-parse (map load, intra-
-// level warps). Resets the index counter.
-extern "C" void port_noteRetention_beginMapLoad(int32_t mapId) {
-    (void)mapId;
-    noteCounter = 0;
-    noteActorQueue.clear();
-}
-
-extern "C" void port_noteRetention_onActorsFreed(void) {
-    for (auto& [key, marker] : activeNoteSet) {
-        ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
-    }
-    activeNoteSet.clear();
-    noteActorQueue.clear();
 }
 
 // Queue the same deferred reseed a level entry uses; it waits for normal play, so it can't fire
@@ -474,6 +457,20 @@ static void RegisterRetentionSaving_Init() {
             activeNoteSet.erase(noteKey(nl->mapId, nl->noteIndex));
             nl->magic = 0;
         }
+    });
+    // Recorded whatever the setting; only applying the record follows it.
+    COND_HOOK(OnNoteCollected, EVENT_PRIORITY_NORMAL, true,
+              [](IEvent* event) { recordLocalNote(((OnNoteCollected*)event)->marker); });
+    // Cleared whatever the setting, since the hooks above fill these whenever systemActive() is true.
+    COND_HOOK(OnActorArrayFree, EVENT_PRIORITY_NORMAL, true, [](IEvent*) {
+        activeNoteSet.clear();
+        noteActorQueue.clear();
+    });
+
+    // Before the cube parse, on every map load and intra-level warp, whatever the setting.
+    COND_HOOK(OnMapFileLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent*) {
+        noteCounter = 0;
+        noteActorQueue.clear();
     });
 }
 

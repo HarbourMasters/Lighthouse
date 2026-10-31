@@ -9,8 +9,6 @@ float mlNormalizeAngle(float deg);
 
 float time_getDelta(void);
 
-void controller_getRightStick(int controller_index, float dst[2]);
-
 int bainput_should_rotate_camera_left(void);
 int bainput_should_rotate_camera_right(void);
 int bainput_should_look_first_person_camera(void);

@@ -17,14 +17,7 @@
 #endif
 
 
-typedef struct struct_1A_s {
-    f32 delay;
-    f32 unk4;
-    u8 *str;
-    s16 y;
-    u8 portrait;
-    u8 unkF;
-} struct1As;
+#include "pauseMenu.h" // [port] the typedef moved there
 
 extern void gameSelect_saveAndExit(void);
 extern void game_setMapTransitionWithStyle(s32, s32);
@@ -44,11 +37,6 @@ extern void func_8025A430(s32, s32, s32);
 extern void print_setBoldFontTexture(enum asset_e);
 extern void print_resetBoldFontTexture(void);
 extern void code_73640_printItemCount(enum item_e);
-
-// [port] JP pause-menu world-name banner
-extern s32 port_pauseBannerUpdate(s32 page_id);
-extern BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
-extern void port_pauseBannerFree(void);
 
 enum gcpausemenu_state_e {
     PAUSE_STATE_0_MENU_INIT,
@@ -243,7 +231,7 @@ void gcpausemenu_free(void) {
         D_80383010.b_button_sprite = NULL;
     }
     gcpausemenu_zoomboxes_free();
-    port_pauseBannerFree(); // [port]
+    CALL_EVENT(OnPauseMenuFree); // [port]
     gcdialog_decrementYPositionModifier();
 }
 
@@ -788,7 +776,8 @@ s32 gcpausemenu_initLargestPageIndex(void) {
 #include <stdio.h>
 #include "port/Patches/Patches.h"
 bool gcpausemenu_initReturnToLair(void) {
-    return EventSystem_Should(VB_INIT_RETURN_TO_LAIR, false, &D_8036C4E0);
+//  return TRUE;
+    return EventSystem_Should(VB_INIT_RETURN_TO_LAIR, true, &D_8036C4E0);
 }
 
 void gcpausemenu_init(void) {
@@ -886,16 +875,12 @@ void gcpausemenu_80312E80(struct1As *arg0, s32 arg1) {
 void gcpausemenu_printTotalsHeader(s32 page_id) {
     struct1Cs_1 *v0 = D_8036C58C + page_id;
     const char *name = port_getRomhackLevelName(page_id);
-    // [port] If a pre-rendered world-name banner exists (JP, or a language pack that ships one),
-    // draw it here instead of the bold-font name.
-    if (port_pauseBannerUpdate(page_id)) {
-        return;
-    }
     // [port] A custom romhack name inherits the vanilla name's hand-tuned x; let a
     // listener recenter it for its own width.
     s32 nameX = v0->x;
     EventSystem_Should(VB_PAUSEMENU_LEVEL_NAME_X, true, &nameX, page_id, (const char*)v0->string, name);
-    print_bold_overlapping(nameX, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
+//  print_bold_overlapping(v0->x, D_80383010.unk8, -1.05f, v0->string);
+    if(EventSystem_Should(VB_PAUSEMENU_PRINT_LEVEL_NAME, true, page_id)) print_bold_overlapping(nameX, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
 }
 
 void gcpausemenu_80312FD0(s32 arg0) {
@@ -1047,9 +1032,10 @@ s32 gcPauseMenu_update(void) {
             break;
 
         case PAUSE_STATE_2_MENU: //open
-            if (port_pauseMenuNeedsRefresh()) {
+            // [port] False once a listener has rebuilt the boxes for a new language or Return to Lair setting.
+            if (!EventSystem_Should(VB_PAUSEMENU_UPDATE, true)) {
                 D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
-                port_pauseMenuRebuild();
+                gcPauseMenu_setState(PAUSE_STATE_1_MENU_OPENING);
                 break;
             }
             if (D_80383010.unk70_31 && !func_802FC3C4()) {
@@ -1480,29 +1466,11 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         func_80315110(gfx, mtx, vtx);
     }
 
-    // Only applies to main menu — in totals, selection is a page index (0-12),
-    // not a zoombox index (0-3).
-    if (D_80383010.menu == PAUSE_MENU_0_MAIN) {
-        bool should = EventSystem_Should(VB_PAUSE_MENU_PORTRAIT_DEPTH, true);
-        for (i = 0; i < 4; i++) {
-            s32 idx = should ? i : (3 - i);
-            if (idx != D_80383010.selection)
-                gczoombox_draw(D_80383010.zoombox[idx], gfx, mtx, vtx);
-        }
-        gczoombox_draw(D_80383010.zoombox[D_80383010.selection], gfx, mtx, vtx);
-    } else {
-        for (i = 0; i < 4; i++) {
-            gczoombox_draw(D_80383010.zoombox[i], gfx, mtx, vtx);
-        }
-        {
-            // [port] World-name title banner (JP, or a language pack that ships one)
-            f32 bx, by, bw, bh;
-            BKSprite *banner = port_pauseBannerGetDraw(D_80383010.unk8, &bx, &by, &bw, &bh);
-            if (banner != NULL) {
-                __gcpausemenu_drawSprite(gfx, mtx, vtx, banner, 0, bx, by, bw, bh, 0xFF);
-            }
-        }
+//  for (i = 0; i < 4; i++) {
+    if (EventSystem_Should(VB_PAUSEMENU_DRAW_ZOOMBOXES, true, gfx, mtx, vtx, D_80383010.zoombox, D_80383010.menu, D_80383010.selection)) for (i = 0; i < 4; i++) {
+        gczoombox_draw(D_80383010.zoombox[i], gfx, mtx, vtx);
     }
+    CALL_EVENT(OnPauseMenuDraw, gfx, mtx, vtx, D_80383010.menu, D_80383010.unk8); // [port]
 
     if (EventSystem_Should(VB_PAUSEMENU_DRAW_JOYSTICKS, true, NULL)) {
         gcpausemenu_drawSprite(gfx, mtx, vtx, D_80383010.joystick_sprite, D_80383010.joystick_frame, 30.0f, 196.0f, 1, (s32) D_80383010.left_joystick_alpha);

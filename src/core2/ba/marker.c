@@ -4,7 +4,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Romhack/RomhackConfig.h"
-#include "port/Enhancements/Retention/Retention.h"
 #include "core2/ba/physics.h"
 #include "version.h"
 #include "prop.h"
@@ -119,17 +118,12 @@ void __baMarker_8028B848(void){
         s0 = ASSET_B45_DIALOG_JIGGY_COLLECT_10;
     }
 
-    if(s0){
-        if(EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)){
-            if(player_getTransformation() ==  TRANSFORM_1_BANJO){
-                __baMarker_8028B7F4();
-            }
-            gcdialog_showDialog(s0, 0x2A, NULL, NULL, NULL, 0);
+//  if(s0){
+    if(EventSystem_Should(VB_JIGGY_TUTORIAL_DIALOG, s0, s0)){
+        if(player_getTransformation() ==  TRANSFORM_1_BANJO){
+            __baMarker_8028B7F4();
         }
-        else{
-            // [port] Tooie jiggy collect
-            gcdialog_showDialog(s0, 0x22, NULL, NULL, NULL, 0);
-        }
+        gcdialog_showDialog(s0, 0x2A, NULL, NULL, NULL, 0);
     }
 }
 
@@ -589,7 +583,8 @@ void __baMarker_resolveCollision(Prop *other_prop){
                         __baMarker_8028B848();
                     }
 
-                    if (comusic_isTrackQueued(COMUSIC_30_5TH_JINJO_COLLECTED) && EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
+//                  if(comusic_isTrackQueued(COMUSIC_30_5TH_JINJO_COLLECTED)){
+                    if(EventSystem_Should(VB_JINJO_JINGLE_LOOK_AT, comusic_isTrackQueued(COMUSIC_30_5TH_JINJO_COLLECTED))){
                         __baMarker_8028B8DC();
                     }
                     __spawnQueue_add_4((GenFunction_4)__baMarker_8028B904, reinterpret_cast(u32, other_prop->actorProp.position_x), reinterpret_cast(u32, other_prop->actorProp.position_y), reinterpret_cast(u32, other_prop->actorProp.position_z), jiggy_id);
@@ -728,7 +723,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     return;
 
                 __baMarker_resolveMusicNoteCollision(other_prop);
-                port_noteRetention_onLocalNoteCollected(marker);
+                CALL_EVENT(OnNoteCollected, marker); // [port]
                 marker_despawn(marker);
                 break;
 

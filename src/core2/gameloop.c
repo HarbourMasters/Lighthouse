@@ -129,11 +129,9 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
 
     setupFramebufferForGamemode(gfx, framebuffer_idx);
     sGameState.unkC = false;
-    port_mirror_beginScene();
+    CALL_EVENT(OnWorldDrawBegin); // [port]
     gsworld_draw(gfx, mtx, vtx);
     CALL_EVENT(OnWorldDraw, gfx, mtx, vtx);
-    port_mirror_endScene();
-    port_mirror_undoProjection(gfx, mtx);
     if (!arg4) { // related to framebufferdraw_ functions
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());
@@ -306,8 +304,8 @@ void game_changeMap(enum game_mode_e mode){
     prev_mode = sGameState.unk0;
     game_setMode(GAME_MODE_2_UNKNOWN, 0);
     if(!volatileFlag_getAndSet(VOLATILE_FLAG_21, 0) || map_getLevel(gsworld_getMap()) == map_getLevel(sGameState.map)){
-        if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)
-            && EventSystem_Should(VB_MAP_SAVESTATE_USE, true, outgoing_mode))
+//      if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE))
+        if(EventSystem_Should(VB_MAP_SAVESTATE_USE, !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE), outgoing_mode))
             mapSavestate_save(gsworld_getMap());
     }
     func_802E398C(1);

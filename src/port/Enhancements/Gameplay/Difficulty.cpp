@@ -43,6 +43,8 @@ void RegisterDifficulty_Init() {
 
     COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sSaveErased = false; });
 
+    // Permadeath erases the save on death, and the game over path saves on its way back. Registered whatever the
+    // setting, so turning it off after a death doesn't write the live game over the erased slot.
     COND_VB_SHOULD(VB_SAVE_AND_EXIT, EVENT_PRIORITY_NORMAL, true, {
         if (sSaveErased) {
             *should = false;

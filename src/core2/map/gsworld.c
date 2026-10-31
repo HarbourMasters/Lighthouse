@@ -450,7 +450,7 @@ Opens the setup file and reads the contents.
 void gsworld_load(enum map_e map_id) {
     File *f;
 
-    port_noteRetention_beginMapLoad((int32_t)map_id);
+    CALL_EVENT(OnMapFileLoad, map_id); // [port]
     port_carriedSync_beginMapLoad((int32_t)map_id);
 
     core1_15B30_sendMesg3ToRenderThread();

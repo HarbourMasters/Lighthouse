@@ -9,6 +9,7 @@
 #include <core2/file.h>
 #include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
+#include "port/ObjectExtension/ObjectExtension.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 
@@ -345,7 +346,10 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
             percentage = 1.0f;
         }
         modelRender_func_8033A280(percentage);
-        this->drawFunc(this, gfx, mtx, vtx);
+        CALL_EVENT(OnActorDrawBegin, actor); // [port]
+//      this->drawFunc(this, gfx, mtx, vtx);
+        if (EventSystem_ShouldActorDraw(actor)) this->drawFunc(this, gfx, mtx, vtx);
+        CALL_EVENT(OnActorDrawEnd, actor); // [port]
     }//L8032D300
     modelRender_func_8033A244(30000.0f);
     modelRender_func_8033A280(1.0f);
@@ -2523,6 +2527,7 @@ void func_80332B2C(ActorMarker * arg0){
     static s32 D_8036E804[8] = {0x7F, 0xBF, 0xDF, 0xEF, 0xF7, 0xFB, 0xFD, 0xFE};
 
     s32 index = (arg0 - D_8036E7C8);
+    ObjectExtension_Free(arg0); // [port]
     arg0->unk5C = 0;
     D_80383428[index >> 3] =  D_80383428[index >> 3] & D_8036E804[index & 7];
 }

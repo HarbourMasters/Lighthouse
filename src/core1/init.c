@@ -137,12 +137,11 @@ enum map_e getSpecialBootMap(void) {
     return DEBUG_use_special_bootmap() ? MAP_80_GL_FF_ENTRANCE : MAP_91_FILE_SELECT;
 }
 
-// [port] Boot sequence: 0=Default (Rareware logo), 1=Authentic (same), 2=File Select
 enum map_e getDefaultBootMap(void) {
-    int seq = port_getBootSequence();
-    if (seq == 2) // BOOTSEQUENCE_FILESELECT
-        return MAP_91_FILE_SELECT;
-    return MAP_1F_CS_START_RAREWARE;
+    s32 map = MAP_1F_CS_START_RAREWARE; // [port]
+    CALL_EVENT(OnDefaultBootMap, &map); // [port]
+//  return MAP_1F_CS_START_RAREWARE;
+    return map;
 }
 
 void func_8023DBAC(void) {

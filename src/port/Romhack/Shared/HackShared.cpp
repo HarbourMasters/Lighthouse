@@ -329,8 +329,18 @@ void ApplyTransitionPairs() {
 const SpawnRewrite* sSpawnRewrites = nullptr;
 int sSpawnRewriteCount = 0;
 
+static void ApplyNewGameHooks() {
+    COND_VB_SHOULD(VB_GAMESELECT_NEW_GAME_INTRO, EVENT_PRIORITY_NORMAL, port_getRomhackNewGameMap() >= 0, {
+        timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, port_getRomhackNewGameMap(), 0, 1);
+        *should = false;
+    });
+    COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, port_getRomhackKnowAllMoves() >= 0,
+              [](IEvent*) { ability_setAllLearned(-1); });
+}
+
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
+RegisterShipInitFunc newGameInit(ApplyNewGameHooks, { "BOOT" });
 
 } // namespace
 

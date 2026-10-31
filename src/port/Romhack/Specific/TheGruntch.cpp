@@ -16,6 +16,7 @@ extern "C" {
 #include "macros.h"
 #include "actor.h"
 #include "core1/ml.h"
+#include "core2/gc/pauseMenu.h"
 #include "core2/timedfunc.h"
 #include "core2/modelRender.h"
 #include "bk_time.h"
@@ -34,15 +35,7 @@ extern struct {
     u8 level;
 } sLevelState;
 
-typedef struct struct_1A_s {
-    f32 delay;
-    f32 unk4;
-    u8* str;
-    s16 y;
-    u8 portrait;
-    u8 unkF;
-} PauseTotalsRow;
-extern PauseTotalsRow D_8036C520[4];
+extern struct1As D_8036C520[4];
 extern s8 D_8036C5F4[];
 extern s32 D_803726F0[2];
 }

@@ -30,8 +30,6 @@ int port_getCutsceneExtraVis(void);
 
 // Localization (Localization.cpp)
 
-int port_pauseMenuNeedsRefresh(void); // language or Return-to-Lair CVar changed while menu open
-void port_pauseMenuRebuild(void);     // free + recreate + replay the main menu open
 void port_setPrintScale(float scale);
 
 // Dialog font (AltDialogFont.cpp, SpritePatches.cpp)
@@ -45,9 +43,7 @@ int port_dialogFontUsesShiftedCodes(void);   // format codes shifted past the ex
 void port_freezeReadback(int freeze);
 void port_requestReadback(void);
 int port_consumeReadbackRequest(void);
-int port_getPauseFramebufferId(void);
-int port_capturePauseFramebuffer(void);
-void port_getPauseFramebufferSize(int* w, int* h);
+void Framebuffer_DrawPauseBackground(Gfx** gfx, int capture);
 int port_pauseConsumeRecaptureRequest(void);
 int port_shouldCaptureTransition(void);
 
@@ -60,10 +56,6 @@ void port_patchTransitionModel(void* model_bin);
 // Sprite Display Cache (SpritePatches.cpp)
 
 void port_spriteDisplayCache_clear(void);
-
-// Save (SaveEnhancements.cpp)
-
-void port_syncBottlesBonusIndex(void);
 
 // Camera (CameraPatches.cpp)
 
@@ -97,22 +89,6 @@ void port_animVtx_beginTick(void);
 // segment 0x01 at the copy.
 void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t count);
 
-// Mirror (MirrorPatches.cpp)
-
-int port_mirror_active(void);
-void port_mirror_beginScene(void);
-void port_mirror_endScene(void);
-void port_mirror_undoProjection(Gfx** gfx, Mtx** mtx);
-void port_viewport_applyMirror(Gfx** gfx, Mtx** mtx);
-void port_mirror_markCapture(void);
-int port_mirror_shouldFlipPauseBg(void);
-
-// Mirror per-model exclusion (counter-mirror text-bearing objects)
-void port_mirror_setExclude(void);
-void port_mirror_clearExclude(void);
-int port_mirror_bakeCounterScale(void);
-void port_mirror_patchTextActors(void);
-
 // Volatile flag checks
 
 int port_isInCharacterParade(void);
@@ -136,7 +112,6 @@ void port_enableNoteDoorComposer(void);
 
 // Romhacks
 
-void* port_getRomhackResumeWarpFunc(void);
 void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 
 // Attract-demo audio hold
