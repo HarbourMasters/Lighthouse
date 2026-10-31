@@ -69,6 +69,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoldFontLetterBuilt);
     REGISTER_EVENT(ResolveBoldFontHd);
     REGISTER_EVENT(OnBoldFontReset);
+    REGISTER_EVENT(OnDialogFontLoad);
     REGISTER_EVENT(OnWorldDrawBegin);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);
