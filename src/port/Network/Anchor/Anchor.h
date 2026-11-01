@@ -52,6 +52,7 @@ struct RoomState {
 };
 
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
+void Anchor_MarkMapFlagsRemote(uint32_t mask);
 
 class Anchor : public Network {
 private:

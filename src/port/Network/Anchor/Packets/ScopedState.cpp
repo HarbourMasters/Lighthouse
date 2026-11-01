@@ -82,6 +82,8 @@ void Anchor::HandlePacket_ScopedState(nlohmann::json& payload) {
     }
     if (payload.contains("mapFlags") && (s32)gsworld_getMap() == payload.at("map").get<s32>()) {
         u32 mapFlags = payload["mapFlags"].get<u32>();
+        // Mark the teammate's flags remote, so doors they opened don't play our opening camera.
+        Anchor_MarkMapFlagsRemote(mapFlags & ~mapSpecificFlags_getAll());
         mapSpecificFlags_setAll(mapSpecificFlags_getAll() | mapFlags);
         RevealSwitchHoneycomb();
     }

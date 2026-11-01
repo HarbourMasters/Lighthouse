@@ -14,6 +14,10 @@ extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
     return (index >= 0 && index < 32 && (sMapFlagSetRemotely & (1u << index))) ? 1 : 0;
 }
 
+void Anchor_MarkMapFlagsRemote(uint32_t mask) {
+    sMapFlagSetRemotely |= mask;
+}
+
 /**
  * SCOPED_FLAG
  *
