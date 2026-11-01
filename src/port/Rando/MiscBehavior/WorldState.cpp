@@ -91,9 +91,9 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         *should = RANDO_SAVE_CHECKS[randoCheckId].obtained;
     })
 
-    COND_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, true, {
-        s32 level = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    REGISTER_LISTENER(OnJiggyScoreLevelTotal, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnJiggyScoreLevelTotal* ev = (OnJiggyScoreLevelTotal*)event;
+        s32 level = ev->level;
 
         if (!IS_RANDO || !JIGGY_OPTION_ENABLED) {
             return;
@@ -109,13 +109,13 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
             }
         }
 
-        *result = total;
-        *should = false;
+        event->Cancelled = true;
+        ev->result = total;
     })
 
-    COND_VB_SHOULD(VB_HONEYCOMBSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, true, {
-        s32 level = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    REGISTER_LISTENER(OnHoneycombScoreLevelTotal, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnHoneycombScoreLevelTotal* ev = (OnHoneycombScoreLevelTotal*)event;
+        s32 level = ev->level;
 
         if (!IS_RANDO || !EMPTY_HONEYCOMB_OPTION_ENABLED) {
             return;
@@ -135,8 +135,8 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
             }
         }
 
-        *result = total;
-        *should = false;
+        event->Cancelled = true;
+        ev->result = total;
     })
 
     REGISTER_LISTENER(OnActorSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

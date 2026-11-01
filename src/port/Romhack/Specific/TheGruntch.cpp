@@ -259,24 +259,22 @@ static void Gruntch_EnableVoidOutRespawn() {
 
 // Firing an egg spikes the stealth meter
 static void Gruntch_EnableEggNoise() {
-    REGISTER_VB_SHOULD(VB_EGG_FIRE_SFX, EVENT_PRIORITY_NORMAL, {
-        s32 slot = va_arg(args, s32);
-        s32* rate = va_arg(args, s32*);
-        switch (slot) {
-            case 0:
+    REGISTER_LISTENER(OnEggFireSfx, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnEggFireSfx*)event;
+        switch (ev->sfx) {
+            case SFX_46_KAZOOIE_CHOKING_UP:
                 StealthNoise_AddBurst(0.3f, 0.2f);
                 break;
-            case 1:
+            case SFX_57_KAZOOIE_HEGH:
                 StealthNoise_AddBurst(0.65f, 0.3f);
-                *rate = 0x6D60;
+                *ev->rate = 0x6D60;
                 break;
-            case 2:
+            case SFX_3E_POOP_NOISE:
                 StealthNoise_AddBurst(0.65f, 0.4f);
                 break;
             default:
                 break;
         }
-        (void)should;
     });
 }
 
@@ -327,7 +325,7 @@ static void Gruntch_EnableHealthRules() {
     // No health loss on maps 0x07 and 0x26
     REGISTER_VB_SHOULD(VB_ITEM_ADJUST_BY_DIFF, EVENT_PRIORITY_NORMAL, {
         const s32 item = va_arg(args, s32);
-        const s32 diff = va_arg(args, s32);
+        const s32 diff = *va_arg(args, s32*);
         const s32 map = gsworld_getMap();
         if (item == ITEM_14_HEALTH && diff < 0 &&
             (map == MAP_7_TTC_TREASURE_TROVE_COVE || map == MAP_26_MMM_NAPPERS_ROOM)) {
@@ -373,23 +371,18 @@ static void Gruntch_EnableCosmetics() {
     // Red sparkles in place of yellow
     D_803726F0[0] = 5;
 
-    REGISTER_VB_SHOULD(VB_PROP_SPRITE_SCALE, EVENT_PRIORITY_NORMAL, {
-        const s32 sprite = va_arg(args, s32);
-        f32* scale = va_arg(args, f32*);
-        if (sprite == 0x15) {
-            scale[0] = scale[1] = scale[2] = scale[0] / 2.5f;
+    REGISTER_LISTENER(OnPropSpriteScale, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnPropSpriteScale*)event;
+        if (ev->sprite == 0x15) {
+            ev->scale[0] = ev->scale[1] = ev->scale[2] = ev->scale[0] / 2.5f;
         }
-        (void)should;
     });
 
     // Play a sound when pressing this switch
     REGISTER_VB_SHOULD(VB_MM_WITCH_SWITCH_JIGGY_FLUSH, EVENT_PRIORITY_NORMAL, { *should = true; });
 
-    REGISTER_VB_SHOULD(VB_CROC_MAX_WALK_VELOCITY, EVENT_PRIORITY_NORMAL, {
-        f32* velocity = va_arg(args, f32*);
-        *velocity = 450.0f;
-        (void)should;
-    });
+    REGISTER_LISTENER(OnCrocMaxWalkVelocity, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnCrocMaxWalkVelocity*)event)->velocity = 450.0f; });
 }
 
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
@@ -426,13 +419,7 @@ static void Gruntch_EnableJiggyTally() {
     port_overrideRomhackJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {
-        s32 lvl = va_arg(args, s32);
-        s32 row = va_arg(args, s32);
-        if (lvl == LEVEL_2_TREASURE_TROVE_COVE) {
-            *should = (row != 0 && row != 1);
-        }
-    });
+    HackShared_SetPauseRowsVisible(LEVEL_2_TREASURE_TROVE_COVE, (1 << 2) | (1 << 3));
 }
 
 // The second act stays locked until the RBB level-open flag is set

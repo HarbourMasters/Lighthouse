@@ -56,6 +56,11 @@ inline void HackShared_EnableJiggyRelocation(const JiggyRelocation (&groups)[N],
 // Caps every level's retallied total
 void HackShared_SetJiggyLevelCap(int cap);
 
+// ------------------------------------------------------------------ Pause menu
+
+// Only the rows in rowMask (bit 0 = row 0) show on this level's totals page
+void HackShared_SetPauseRowsVisible(int level, int rowMask);
+
 // ------------------------------------------------------------------ Lair puzzles
 
 // The player counts as on a podium within 140 units of its center and at least 38

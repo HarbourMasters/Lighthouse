@@ -12,6 +12,7 @@ extern "C" {
 #include "functions.h"
 #include "actor.h"
 #include "core2/abilityprogress.h"
+#include "lair/jigsawpicture.h"
 
 extern ActorArray* suBaddieActorArray;
 
@@ -26,10 +27,6 @@ typedef struct {
 } TransitionInfoEntry;
 extern TransitionInfoEntry D_8036C150[0x16];
 
-s32 _puzzleCost(s32 index);
-s32 _puzzleSize(s32 index);
-s32 _puzzleFlag(s32 index);
-
 extern s32 print_sCurrentFont;
 extern s32 print_sMonospacedModeEnabled;
 extern char print_sPreviousBoldLetter;
@@ -40,7 +37,8 @@ namespace {
 
 void ApplyNoteSignHooks();
 f32 MeasureBoldNameWidth(const char* s);
-void ApplyPauseNameCentering();
+void ApplyPauseLevelNames();
+void ApplyPauseRowVisibility();
 void ApplyDialogSuppression();
 void ApplyForceAbilitiesUsed();
 
@@ -103,17 +101,52 @@ f32 MeasureBoldNameWidth(const char* s) {
     return x;
 }
 
-void ApplyPauseNameCentering() {
-    COND_VB_SHOULD(VB_PAUSEMENU_LEVEL_NAME_X, EVENT_PRIORITY_NORMAL, port_getRomhackIdentifier() != nullptr, {
-        s32* x = va_arg(args, s32*);
-        va_arg(args, s32);
-        const char* vanillaName = va_arg(args, const char*);
-        const char* romhackName = va_arg(args, const char*);
-        if (romhackName != nullptr && vanillaName != nullptr) {
-            const f32 shift = (MeasureBoldNameWidth(vanillaName) - MeasureBoldNameWidth(romhackName)) * 0.5f;
-            *x += (s32)(shift >= 0.0f ? shift + 0.5f : shift - 0.5f);
+// A ported hack's level names are recentered on the vanilla names' hand-tuned x.
+void ApplyPauseLevelNames() {
+    COND_HOOK(OnPauseLevelName, EVENT_PRIORITY_NORMAL, port_isRomhack(), [](IEvent* event) {
+        auto* ev = (OnPauseLevelName*)event;
+        const char* romhackName = port_getRomhackLevelName(ev->page);
+        if (romhackName == nullptr) {
+            return;
         }
-        (void)should;
+        if (port_getRomhackIdentifier() != nullptr) {
+            const f32 shift = (MeasureBoldNameWidth((const char*)*ev->name) - MeasureBoldNameWidth(romhackName)) * 0.5f;
+            *ev->x += (s32)(shift >= 0.0f ? shift + 0.5f : shift - 0.5f);
+        }
+        *ev->name = (u8*)romhackName;
+    });
+}
+
+s32 sPauseRowsLevel = -1;
+s32 sPauseRowsMask = 0;
+
+// One listener decides every totals row. A mask from HackShared_SetPauseRowsVisible beats the config's hidden rows.
+void ApplyPauseRowVisibility() {
+    COND_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+        const s32 level = va_arg(args, s32);
+        const s32 row = va_arg(args, s32);
+        if (level == sPauseRowsLevel) {
+            *should = (sPauseRowsMask >> row) & 1;
+            return;
+        }
+        s32 hideCollectibles = port_getRomhackHideCollectiblesLevel();
+        s32 hideJiggies = port_getRomhackHideJiggiesLevel();
+        if (hideCollectibles < 0 && hideJiggies < 0) {
+            return;
+        }
+        if (hideCollectibles < 0) {
+            hideCollectibles = LEVEL_6_LAIR;
+        }
+        if (hideJiggies < 0) {
+            hideJiggies = LEVEL_B_SPIRAL_MOUNTAIN;
+        }
+        if (level == hideCollectibles) {
+            *should = row != 0 && row != 2;
+        } else if (level == hideJiggies) {
+            *should = row != 0 && row != 1;
+        } else {
+            *should = true;
+        }
     });
 }
 
@@ -144,8 +177,8 @@ bool WarpInMusicGroup(const WarpMusicGroup& group, s32 a, s32 b) {
 }
 
 void ApplyWarpMusicGroups() {
-    COND_VB_SHOULD(VB_WARP_KEEPS_MUSIC, EVENT_PRIORITY_NORMAL, sWarpMusicGroupCount > 0, {
-        const s32 dest = va_arg(args, s32);
+    COND_HOOK(OnWarpMusic, EVENT_PRIORITY_NORMAL, sWarpMusicGroupCount > 0, [](IEvent* event) {
+        const s32 dest = ((OnWarpMusic*)event)->dest;
         const s32 cur = gsworld_getMap();
         for (int i = 0; i < sWarpMusicGroupCount; i++) {
             if (WarpInMusicGroup(sWarpMusicGroups[i], cur, dest)) {
@@ -153,18 +186,14 @@ void ApplyWarpMusicGroups() {
                 break;
             }
         }
-        (void)should;
     });
 }
 
 bool sFileSelectGameOver = false;
 
 void ApplyFileSelectGameOver() {
-    COND_VB_SHOULD(VB_GAME_OVER_RETURN_MAP, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, {
-        s32* map = va_arg(args, s32*);
-        *map = MAP_91_FILE_SELECT;
-        (void)should;
-    });
+    COND_HOOK(OnGameOverReturnMap, EVENT_PRIORITY_NORMAL, sFileSelectGameOver,
+              [](IEvent* event) { *((OnGameOverReturnMap*)event)->map = MAP_91_FILE_SELECT; });
     COND_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
     COND_VB_SHOULD(VB_GAME_OVER_MACHINE_ROOM, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
 }
@@ -204,9 +233,9 @@ bool JiggyRelocated(s32 id) {
 }
 
 void ApplyJiggyRelocation() {
-    COND_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, sJiggyRelocationCount > 0, {
-        const s32 level = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    COND_HOOK(OnJiggyScoreLevelTotal, EVENT_PRIORITY_NORMAL, sJiggyRelocationCount > 0, [](IEvent* event) {
+        auto* ev = (OnJiggyScoreLevelTotal*)event;
+        const s32 level = ev->level;
         s32 total = 0;
 
         // Vanilla groups jiggies into ten-id blocks, one block per level.
@@ -229,8 +258,8 @@ void ApplyJiggyRelocation() {
         if (sJiggyLevelCap > 0 && total > sJiggyLevelCap) {
             total = sJiggyLevelCap;
         }
-        *result = total;
-        *should = false;
+        ev->result = total;
+        event->Cancelled = true;
     });
 }
 
@@ -266,9 +295,9 @@ bool sPuzzleDepositClamp = false;
 void ApplyPuzzleDepositClamp() {
     COND_HOOK(OnMapLoadStub, EVENT_PRIORITY_NORMAL, sPuzzleDepositClamp, [](IEvent*) {
         for (s32 i = 0; i < 11; i++) {
-            const enum file_progress_e flag = (enum file_progress_e)_puzzleFlag(i);
-            const s32 bits = _puzzleSize(i);
-            const s32 cost = _puzzleCost(i);
+            const enum file_progress_e flag = (enum file_progress_e)PICTURE_INFO[i].progress_flag;
+            const s32 bits = PICTURE_INFO[i].size_bits;
+            const s32 cost = PICTURE_INFO[i].cost;
             if ((u32)cost < fileProgressFlag_getN(flag, bits)) {
                 fileProgressFlag_setN(flag, cost, bits);
             }
@@ -304,30 +333,43 @@ void ApplyTransitionPairs() {
     D_8036C150[13].model_index = 0;
     D_8036C150[13].scale = 0.0f;
 
-    COND_VB_SHOULD(VB_MAP_TRANSITION_OUT_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
-        const s32 from = va_arg(args, s32);
-        const s32 to = va_arg(args, s32);
-        s32* outIndex = va_arg(args, s32*);
-        sTransitionFromMap = from;
-        if (const TransitionPair* pair = FindTransitionPair(from, to)) {
-            *outIndex = pair->out;
+    COND_HOOK(OnMapTransitionOut, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, [](IEvent* event) {
+        auto* ev = (OnMapTransitionOut*)event;
+        sTransitionFromMap = ev->from;
+        if (const TransitionPair* pair = FindTransitionPair(ev->from, ev->to)) {
+            *ev->index = pair->out;
         }
-        (void)should;
     });
 
-    COND_VB_SHOULD(VB_MAP_TRANSITION_IN_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
-        const s32 map = va_arg(args, s32);
-        s32* inIndex = va_arg(args, s32*);
-        const TransitionPair* pair = sTransitionFromMap != 0 ? FindTransitionPair(sTransitionFromMap, map) : nullptr;
+    COND_HOOK(OnMapTransitionIn, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, [](IEvent* event) {
+        auto* ev = (OnMapTransitionIn*)event;
+        const TransitionPair* pair =
+            sTransitionFromMap != 0 ? FindTransitionPair(sTransitionFromMap, ev->map) : nullptr;
         if (pair != nullptr) {
-            *inIndex = pair->in;
+            *ev->index = pair->in;
         }
-        (void)should;
     });
 }
 
 const SpawnRewrite* sSpawnRewrites = nullptr;
 int sSpawnRewriteCount = 0;
+
+void ApplySpawnRewrites() {
+    COND_HOOK(OnActorNew, EVENT_PRIORITY_NORMAL, sSpawnRewriteCount > 0, [](IEvent* event) {
+        auto* ev = (OnActorNew*)event;
+        for (int i = 0; i < sSpawnRewriteCount; i++) {
+            const SpawnRewrite& rewrite = sSpawnRewrites[i];
+            if (rewrite.actorId != ev->info->actorId) {
+                continue;
+            }
+            *ev->flags = (*ev->flags & ~rewrite.clearFlags) | rewrite.setFlags;
+            if (rewrite.drawDistance != 0) {
+                ev->info->draw_distance = rewrite.drawDistance;
+            }
+            break;
+        }
+    });
+}
 
 static void ApplyNewGameHooks() {
     COND_VB_SHOULD(VB_GAMESELECT_NEW_GAME_INTRO, EVENT_PRIORITY_NORMAL, port_getRomhackNewGameMap() >= 0, {
@@ -339,10 +381,16 @@ static void ApplyNewGameHooks() {
 }
 
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
-RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
+RegisterShipInitFunc pauseLevelNameInit(ApplyPauseLevelNames, { "BOOT" });
+RegisterShipInitFunc pauseRowVisibilityInit(ApplyPauseRowVisibility, { "BOOT" });
 RegisterShipInitFunc newGameInit(ApplyNewGameHooks, { "BOOT" });
 
 } // namespace
+
+void HackShared_SetPauseRowsVisible(int level, int rowMask) {
+    sPauseRowsLevel = level;
+    sPauseRowsMask = rowMask;
+}
 
 void HackShared_EnableNoteSignSuppression(int signActorId) {
     sNoteSignActorId = signActorId;
@@ -412,19 +460,5 @@ void HackShared_EnableTransitionPairs(const TransitionPair* pairs, int count) {
 void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count) {
     sSpawnRewrites = rewrites;
     sSpawnRewriteCount = count;
-}
-
-extern "C" void romhack_RewriteActorSpawn(void* actorInfo, u32* flags) {
-    ActorInfo* info = (ActorInfo*)actorInfo;
-    for (int i = 0; i < sSpawnRewriteCount; i++) {
-        const SpawnRewrite& rewrite = sSpawnRewrites[i];
-        if (rewrite.actorId != info->actorId) {
-            continue;
-        }
-        *flags = (*flags & ~rewrite.clearFlags) | rewrite.setFlags;
-        if (rewrite.drawDistance != 0) {
-            info->draw_distance = rewrite.drawDistance;
-        }
-        break;
-    }
+    ApplySpawnRewrites();
 }

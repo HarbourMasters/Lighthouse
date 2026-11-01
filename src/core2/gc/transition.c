@@ -389,11 +389,11 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 void gctransition_8030BD4C(void){
     MapTransitionInfo *tmp_10s;
     TransitionInfo *tmp_a1;
-    s32 in_index;
+    s32 in_index; // [port]
     tmp_10s = _gctranstion_get_map_transition_info(gsworld_getMap());
-    in_index = tmp_10s->in_index;
-    // [port] Romhack gate: listeners may override the incoming transition style.
-    EventSystem_Should(VB_MAP_TRANSITION_IN_INDEX, true, gsworld_getMap(), &in_index);
+    in_index = tmp_10s->in_index; // [port]
+    CALL_EVENT(OnMapTransitionIn, gsworld_getMap(), &in_index); // [port]
+//  tmp_a1 = _gctranstion_8030B400(tmp_10s->in_index);
     tmp_a1 = _gctranstion_8030B400(in_index);
    _gctranstion_changeState(tmp_a1->state, tmp_a1);
 }
@@ -424,8 +424,8 @@ void gctransition_8030BE3C(void){
 
 void gctransition_8030BE60(void){
     TransitionInfo *tmp_a1;
-    s32 out_index = _gctranstion_get_map_transition_info(gsworld_getMap())->out_index;
-    EventSystem_Should(VB_MAP_TRANSITION_OUT_INDEX, true, gsworld_getMap(), GetCurrentMap(), &out_index);
+    s32 out_index = _gctranstion_get_map_transition_info(gsworld_getMap())->out_index; // [port]
+    CALL_EVENT(OnMapTransitionOut, gsworld_getMap(), GetCurrentMap(), &out_index); // [port]
 //  tmp_a1 = _gctranstion_8030B400(_gctranstion_get_map_transition_info(gsworld_getMap())->out_index);
     tmp_a1 = _gctranstion_8030B400(out_index);
    picturebox_func_8030C180();

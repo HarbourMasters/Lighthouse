@@ -77,6 +77,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnHudDraw);
     REGISTER_EVENT(OnPauseMenuDraw);
     REGISTER_EVENT(OnPauseMenuFree);
+    REGISTER_EVENT(OnPauseLevelToPage);
+    REGISTER_EVENT(OnPauseSnsItems);
+    REGISTER_EVENT(OnPauseLevelName);
     REGISTER_EVENT(OnZoomboxTextDraw);
 
     // Register behavior events
@@ -118,6 +121,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnHoneycombDropSpawn);
     REGISTER_EVENT(OnTimedJiggyExpired);
     REGISTER_EVENT(OnPlayerDeath);
+    REGISTER_EVENT(OnBoggyRaceReload);
     REGISTER_EVENT(OnGameFileErase);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
@@ -127,9 +131,31 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnSaveClear);
     REGISTER_EVENT(OnPropInit);
-    REGISTER_EVENT(OnWarpResolveDest);
+    REGISTER_EVENT(OnWarpDispatch);
+    REGISTER_EVENT(OnNamedWarp);
+    REGISTER_EVENT(OnWarpMusic);
+    REGISTER_EVENT(OnMapChangeRequest);
+    REGISTER_EVENT(OnMapTransitionIn);
+    REGISTER_EVENT(OnMapTransitionOut);
+    REGISTER_EVENT(OnSpawnableActorsReset);
+    REGISTER_EVENT(OnItemMax);
+    REGISTER_EVENT(OnLevelItemMax);
+    REGISTER_EVENT(OnJiggyScoreLevelTotal);
+    REGISTER_EVENT(OnHoneycombScoreLevelTotal);
+    REGISTER_EVENT(OnTransformationCost);
+    REGISTER_EVENT(OnMumboWishwashyId);
+    REGISTER_EVENT(OnActorNew);
+    REGISTER_EVENT(OnEggFireSfx);
+    REGISTER_EVENT(OnCrocMaxWalkVelocity);
+    REGISTER_EVENT(OnLastJiggyCount);
+    REGISTER_EVENT(OnPropSpriteScale);
     REGISTER_EVENT(OnNewGame);
     REGISTER_EVENT(OnDefaultBootMap);
+    REGISTER_EVENT(OnGameOverReturnMap);
+    REGISTER_EVENT(OnGetMapSkyInfo);
+    REGISTER_EVENT(OnGetMapModelDescription);
+    REGISTER_EVENT(OnGetMapMusicTrack);
+    REGISTER_EVENT(OnGetMapLevel);
     REGISTER_EVENT(OnGameStart);
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);
@@ -145,7 +171,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(InitRandoEvents);
     REGISTER_EVENT(OnLoadFileSelect);
     REGISTER_EVENT(OnSaveLoad);
-    REGISTER_EVENT(OnWarpDispatch);
     REGISTER_EVENT(OnActorSpawn);
     REGISTER_EVENT(OnLoadActorSaveState);
     REGISTER_EVENT(OnSaveActorSaveState);

@@ -387,8 +387,7 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition){
 }
 
 void game_setNextMapResettingLevel(s32 map, s32 exit){
-    // [port] Romhack gate: listeners may rewrite the requested destination.
-    EventSystem_Should(VB_MAP_CHANGE_REQUEST, true, &map, &exit);
+    CALL_EVENT(OnMapChangeRequest, &map, &exit); // [port]
     sGameState.reset_level = 1;
     sGameState.map = map;
     sGameState.exit = exit;
@@ -399,8 +398,7 @@ void game_setMapChangeRequest( s32 arg0){
 }
 
 void game_setNextMap(s32 map, s32 exit){
-    // [port] Romhack gate: listeners may rewrite the requested destination.
-    EventSystem_Should(VB_MAP_CHANGE_REQUEST, true, &map, &exit);
+    CALL_EVENT(OnMapChangeRequest, &map, &exit); // [port]
     sGameState.reset_level = 0;
     sGameState.map = map;
     sGameState.exit = exit;

@@ -36,8 +36,8 @@ u8 s_ate_wrong;
 
 /* .code */
 f32 __bscroc_getMaxVelocity(void){
-    f32 maxWalkVelocity = bsCrocMaxWalkVelocity;
-    EventSystem_Should(VB_CROC_MAX_WALK_VELOCITY, true, &maxWalkVelocity);
+    f32 maxWalkVelocity = bsCrocMaxWalkVelocity; // [port]
+    CALL_EVENT(OnCrocMaxWalkVelocity, &maxWalkVelocity); // [port]
     if(stateTimer_get(STATE_TIMER_3_TURBO_TALON) != 0.0f)
         return bsCrocMaxTurboVelocity;
     else
@@ -149,10 +149,10 @@ void bscroc_idle_end(void){
 }
 
 void bscroc_walk_init(void){
-    f32 maxWalkVelocity = bsCrocMaxWalkVelocity;
     baanim_playForDuration_loopSmoothStartingAt(ASSET_E0_ANIM_BSCROC_WALK, 0.8f, 0.4f);
     code_14420_setUpdateTypes(BAANIM_UPDATE_2_SCALE_HORZ, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
-    EventSystem_Should(VB_CROC_MAX_WALK_VELOCITY, true, &maxWalkVelocity);
+    f32 maxWalkVelocity = bsCrocMaxWalkVelocity; // [port]
+    CALL_EVENT(OnCrocMaxWalkVelocity, &maxWalkVelocity); // [port]
 //  baanim_setVelocityMapRanges(bsCrocMinWalkVelocity, bsCrocMaxWalkVelocity, bsCrocSlowestWalkDuration, bsCrocFastestWalkDuration);
     baanim_setVelocityMapRanges(bsCrocMinWalkVelocity, maxWalkVelocity, bsCrocSlowestWalkDuration, bsCrocFastestWalkDuration);
     func_802900B4();

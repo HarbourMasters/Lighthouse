@@ -42,17 +42,17 @@ void bsegghead_update(void) {
             func_80346C10((enum bs_e *)&sp28, -1, 0, ITEM_D_EGGS, 0);
     }
     if (has_eggs) {
-        // [port] Romhack gate: listeners may retune the sample rate and hook the
-        // egg noise into a stealth meter.
         if (anctrl_isAt(aCtrl, 0.1f)) {
-            s32 rate = 0x7fff;
-            EventSystem_Should(VB_EGG_FIRE_SFX, true, 0, &rate);
+            s32 rate = 0x7fff; // [port]
+            CALL_EVENT(OnEggFireSfx, SFX_46_KAZOOIE_CHOKING_UP, &rate); // [port]
+//          func_8030E760(SFX_46_KAZOOIE_CHOKING_UP, 1.0f, 0x7fff);
             func_8030E760(SFX_46_KAZOOIE_CHOKING_UP, 1.0f, rate);
         }
 
         if (anctrl_isAt(aCtrl, 0.4f)) {
-            s32 rate = 0x7fff;
-            EventSystem_Should(VB_EGG_FIRE_SFX, true, 1, &rate);
+            s32 rate = 0x7fff; // [port]
+            CALL_EVENT(OnEggFireSfx, SFX_57_KAZOOIE_HEGH, &rate); // [port]
+//          func_8030E760(SFX_57_KAZOOIE_HEGH, 1.0f, 0x7fff);
             func_8030E760(SFX_57_KAZOOIE_HEGH, 1.0f, rate);
         }
 

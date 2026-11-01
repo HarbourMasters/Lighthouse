@@ -8,6 +8,8 @@ DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnActorArrayFree)
 DEFINE_EVENT(OnMapFileLoad, int32_t map;)
 DEFINE_EVENT(OnPlayerDeath)
+// GameFixes' Boggy race reload at 0 lives. Cancelling it skips game_transitionToMapResettingLevel.
+DEFINE_EVENT(OnBoggyRaceReload, int32_t map; int32_t exit;)
 DEFINE_EVENT(OnGameFileErase, int32_t gamenum;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
 DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
@@ -34,19 +36,48 @@ DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)
 DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)
 DEFINE_EVENT(OnSaveFileSave, void* saveBuffer; int32_t fileNum; int32_t * result;)
-// Identifies which warp_* dispatcher is firing OnWarpResolveDest. Keep values
-// stable so listener case statements keep matching across refactors.
+// The warp_* functions a romhack's config can send elsewhere.
 typedef enum WarpId {
     WARP_ID_SM_EXIT_BANJOS_HOUSE = 1,
-    WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL = 2,
-    // Also lands in the MM Lobby, but from the post-cutscene branch of a different
-    // dispatcher. Listeners that treat both lair entrances alike should match on 2 || 3.
     WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL = 3,
 } WarpId;
 
-DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;)
+// nodeProp = NodeProp*.
+DEFINE_EVENT(OnWarpDispatch, void* nodeProp; int32_t warpIndex;)
+DEFINE_EVENT(OnNamedWarp, void* nodeProp; int32_t warpId;)
+DEFINE_EVENT(OnWarpMusic, int32_t dest;)
+DEFINE_EVENT(OnMapChangeRequest, int32_t* map; int32_t * exit;)
+DEFINE_EVENT(OnMapTransitionIn, int32_t map; int32_t * index;)
+DEFINE_EVENT(OnMapTransitionOut, int32_t from; int32_t to; int32_t * index;)
+// overlay = enum overlay_e, the one spawnQueue_reset just registered actors for.
+DEFINE_EVENT(OnSpawnableActorsReset, int32_t overlay;)
+// The most of an item the player can carry, by the cheato flags.
+DEFINE_EVENT(OnItemMax, int32_t item; int32_t * max;)
+// A level's total of notes (ITEM_C_NOTE), jiggies (ITEM_E_JIGGY) or honeycombs (ITEM_13_EMPTY_HONEYCOMB).
+DEFINE_EVENT(OnLevelItemMax, int32_t item; int32_t level; int32_t * max;)
+// A level's collected jiggies or honeycombs.
+DEFINE_EVENT(OnJiggyScoreLevelTotal, int32_t level; int32_t result;)
+DEFINE_EVENT(OnHoneycombScoreLevelTotal, int32_t level; int32_t result;)
+DEFINE_EVENT(OnTransformationCost, int32_t transformation; int32_t result;)
+DEFINE_EVENT(OnMumboWishwashyId, int32_t* id;)
+// Before actor_new builds the actor, while its info and flags can still change.
+DEFINE_EVENT(OnActorNew, ActorInfo* info; uint32_t * flags;)
+// sfx = SFX_46_KAZOOIE_CHOKING_UP or SFX_57_KAZOOIE_HEGH from Kazooie's head, SFX_3E_POOP_NOISE from her rear.
+DEFINE_EVENT(OnEggFireSfx, int32_t sfx; int32_t * rate;)
+DEFINE_EVENT(OnCrocMaxWalkVelocity, float* velocity;)
+// count = the jiggies a level holds before its last, 9 in vanilla.
+DEFINE_EVENT(OnLastJiggyCount, int32_t* count;)
+// scale = f32[3], before the prop's sprite draws.
+DEFINE_EVENT(OnPropSpriteScale, int32_t sprite; float* scale;)
 DEFINE_EVENT(OnNewGame)
 DEFINE_EVENT(OnDefaultBootMap, int32_t* map;)
+// The map a game over, its skipped cutscene, or Save & Quit goes to.
+DEFINE_EVENT(OnGameOverReturnMap, int32_t* map;)
+// result = MapSkyInfo* or MapModelDescription* for the first two.
+DEFINE_EVENT(OnGetMapSkyInfo, int32_t map; void* result;)
+DEFINE_EVENT(OnGetMapModelDescription, int32_t map; void* result;)
+DEFINE_EVENT(OnGetMapMusicTrack, int32_t map; bool secondary; int32_t result;)
+DEFINE_EVENT(OnGetMapLevel, int32_t map; int32_t result;)
 // The file-select commit, for both new game and continue. Unlike OnGameLoad this
 // does not fire for the zoombox preview.
 DEFINE_EVENT(OnGameStart)

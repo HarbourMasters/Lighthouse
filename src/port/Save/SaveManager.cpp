@@ -142,8 +142,8 @@ static ResolvedFlag ResolveFlag(const FlagDef& f) {
 // picks its occupied slots by rejection sampling, which never terminates once every slot
 // is taken, so pin the counter to what the current table can represent on the way in.
 static uint32_t ClampPuzzleCount(int puzzle, uint32_t value, const char* name) {
-    const int cost = _puzzleCost(puzzle);
-    if (cost >= 0 && value > static_cast<uint32_t>(cost)) {
+    const int cost = PICTURE_INFO[puzzle].cost;
+    if (value > static_cast<uint32_t>(cost)) {
         SPDLOG_WARN("[SaveManager] {} is {} but the picture only has {} slots; clamping", name, value, cost);
         return static_cast<uint32_t>(cost);
     }

@@ -311,36 +311,113 @@ typedef enum VBehaviorID {
     VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
     // Romhack port gates
-    VB_JIGGYSCORE_LEVEL_TOTAL,
-    VB_HONEYCOMBSCORE_LEVEL_TOTAL,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_ABILITY_CLEAR_ALL,
     VB_MUMBO_HUT_INTERACT,
+
+    // A listener that returns false skips player_transform, and Mumbo carries on as if the cast worked.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (the transformation)
+    VB_MUMBO_CAST,
+
+    // #### `result`
+    // ```c
+    // randf() < 0.01 // the T. rex
+    // randf() < 0.05 // the mistake
+    // ```
+    // #### `args`
+    // - None
+    VB_MUMBO_RANDOM_EVENT,
     VB_LEVEL_LOAD_RESET_SCORES,
     VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
     VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,
-    VB_GAME_OVER_RETURN_MAP,
     VB_GAME_OVER_MACHINE_ROOM,
     VB_LEVEL_ENTERED_FROM_LAIR,
     VB_MAP_SAVESTATE_CLEAR_ALL,
     VB_LEVEL_LOAD_SAVESTATE_INIT,
-    VB_RACE_VOID_OUT_FULL_TRANSITION,
-    VB_PROGRESS_FLAG_DIALOG, // showProgressFlagDialog(): false = never show (and never set) progress dialogs.
-    VB_LAIR_GRUNTY_TAUNTS,   // Grunty's random lair taunt timer block: false = skip entirely.
-    VB_AMBIENCE_MAP_UPDATE,  // Per-map ambience/chan-mask switch: false = a listener replaced it.
-    VB_PAUSEMENU_SNS_ITEMS,  // Overrides the collected-SNS-item count that gates the Stop 'N' Swop page.
-    VB_PAUSEMENU_SNS_DRAW,   // Stop 'N' Swop totals display: false = a listener drew its own version.
-    VB_PAUSEMENU_LEVEL_TO_PAGE,
+
+    // A listener that returns false keeps the dialog from showing, and its flag stays unset.
+    // #### `result`
+    // ```c
+    // fileProgressFlag_get(progress_flag) == 0
+    // ```
+    // #### `args`
+    // - `s32` (progress_flag)
+    VB_PROGRESS_FLAG_DIALOG,
+    VB_LAIR_GRUNTY_TAUNTS,  // Grunty's random lair taunt timer block: false = skip entirely.
+    VB_AMBIENCE_MAP_UPDATE, // Per-map ambience/chan-mask switch: false = a listener replaced it.
+
+    // A listener that returns false skips the Stop 'N' Swop display and can draw a different one.
+    // #### `result`
+    // ```c
+    // D_80383010.sns_alpha != 0
+    // ```
+    // #### `args`
+    // - `**Gfx`
+    // - `**Mtx`
+    // - `s32` (sns_alpha)
+    // - `*s16` (unk3E, the egg angles)
+    // - `*BKModelBin` (sns_egg_model)
+    // - `*BKModelBin` (ice_key_model)
+    VB_PAUSEMENU_SNS_DRAW,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_PAUSEMENU_SET_NEXT_PAGE,
     VB_PAUSEMENU_DRAW_JOYSTICKS,
+
+    // The pink bold font on the current level's page. A listener that returns false sets a different texture.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_PAUSEMENU_BOLD_FONT_TEXTURE,
-    VB_PAUSEMENU_LEVEL_NAME_X,
+
+    // Whether a totals row shows.
+    // #### `result`
+    // ```c
+    // !(i == 0) && !(i == 2) // the Lair page
+    // !(i == 0) && !(i == 1) // Spiral Mountain's page
+    // 1                      // every other page
+    // ```
+    // #### `args`
+    // - `s32` (the page's level_id)
+    // - `s32` (i, the row)
     VB_PAUSEMENU_ROW_VISIBLE,
-    VB_MAP_CHANGE_REQUEST,
-    VB_MAP_TRANSITION_IN_INDEX,
-    VB_MAP_TRANSITION_OUT_INDEX,
+
+    // A listener that returns false skips game_transitionToMapResettingLevel and moves the player another way.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (gVoidOutReturnLocation[0], the map)
+    // - `s32` (gVoidOutReturnLocation[1], the exit)
     VB_VOID_OUT_RESPAWN_TRANSITION,
-    VB_EGG_FIRE_SFX,
-    VB_WARP_KEEPS_MUSIC,
     VB_BUMP_REBOUNDS_PLAYER,
+
+    // #### `result`
+    // ```c
+    // (codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time
+    // ```
+    // #### `args`
+    // - `s32` (the warp's index in sWarpFunctions)
     VB_WARP_DISPATCH,
 
     // #### `result`
@@ -376,6 +453,13 @@ typedef enum VBehaviorID {
     // - `f64` (function_time, promoted from `f32`)
     VB_GAMESELECT_RESUME_WARP,
     VB_NOTEDOOR_DRAW_NUMBER,
+
+    // #### `result`
+    // ```c
+    // jiggyscore_total() < 3
+    // ```
+    // #### `args`
+    // - None
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
     VB_BRENTILDA_HEAL_DIALOG,
@@ -384,18 +468,30 @@ typedef enum VBehaviorID {
     VB_CCW_SEASON_DOOR_RAISED_INIT,
     VB_XMAS_TREE_ICE_UPDATE,
     VB_BOGGY_HOME_VISIBLE,
-    VB_LAST_JIGGY_COUNT,
     VB_LAST_JIGGY_FANFARE,
     VB_JIGSAW_PODIUM_COLLIDE,
+
+    // #### `result`
+    // ```c
+    // sp50
+    // ```
+    // #### `args`
+    // - `s32` (the map)
     VB_HEALTH_HUD_SHOW,
     VB_MIDI_SET_CHAN_MASK,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (item)
+    // - `*s32` (diff)
     VB_ITEM_ADJUST_BY_DIFF,
     VB_MM_HUT_DESPAWN_ON_SMASH,
     VB_NABNUT_SNORE_SFX,
     VB_NAPPER_WAKE_SFX,
-    VB_PROP_SPRITE_SCALE,
     VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
-    VB_CROC_MAX_WALK_VELOCITY,
 
     VB_COUNT,
 } VBehaviorID;

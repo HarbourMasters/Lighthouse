@@ -22,8 +22,6 @@ DEFINE_EVENT(OnSaveLoad, void* saveData;)
 
 DEFINE_EVENT(OnSaveClear, void* result;)
 
-DEFINE_EVENT(OnWarpDispatch, int32_t warpId; int32_t warpDest;)
-
 DEFINE_EVENT(OnActorSpawn, int32_t actorId; int32_t posX; int32_t posY; int32_t posZ; int32_t rot; Actor * result;)
 
 DEFINE_EVENT(OnLoadActorSaveState, Actor* actor; int32_t posX; int32_t posY; int32_t posZ;)

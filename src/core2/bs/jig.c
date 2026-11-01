@@ -24,7 +24,6 @@ void bsjig_setJiggyMarkerPtr(ActorMarker * jiggyMarkerPtr){
 void bsjig_jiggy_init(void){
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
     int tmp;
-    s32 lastJiggyCount = 9;
 
     anctrl_reset(aCtrl);
     anctrl_setSmoothTransition(aCtrl, false);
@@ -37,8 +36,8 @@ void bsjig_jiggy_init(void){
     baphysics_set_target_horizontal_velocity(0.0f);
     midichannel_incOrDecCounter(false);
     func_8025A2FC(0,0xfa0);
-    // [port] Romhack gate: hacks with fewer jiggies a level play the last-jiggy fanfare sooner.
-    EventSystem_Should(VB_LAST_JIGGY_COUNT, true, &lastJiggyCount);
+    s32 lastJiggyCount = 9; // [port]
+    CALL_EVENT(OnLastJiggyCount, &lastJiggyCount); // [port]
 //  tmp = (item_getCount(ITEM_E_JIGGY) == 9);
     tmp = EventSystem_Should(VB_LAST_JIGGY_FANFARE, item_getCount(ITEM_E_JIGGY) == lastJiggyCount, bsjig_gJiggyMarker);
     if(tmp == 0) //weird if...

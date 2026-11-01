@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Romhack/RomhackConfig.h"
 //these funtions include references to overlay functions
 extern void func_802DC528(NodeProp*, ActorMarker*);
 extern void func_802DC560(NodeProp*, ActorMarker*);
@@ -552,25 +551,14 @@ void func_8033443C(NodeProp *arg0, ActorMarker *arg1){}
 
 void func_80334448(NodeProp *arg0, ActorMarker *arg1) {
     s32 global_timer_time;
-    s32 warpIdx;
-    s32 warpDest;
 
     switch(codeA5BC0_getNodePropCategory(arg0)) {
         case 3: // warp (L80334480)
             global_timer_time = globalTimer_getTime();
-            if ((codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time) {
-                // [port] Romhacks remap warp destinations via BKCF config
-                warpIdx = codeA5BC0_getNodePropActorId(arg0);
-                warpDest = port_getRomhackWarpDest(warpIdx);
-                CALL_EVENT(OnWarpDispatch, warpIdx, warpDest);
-                // [port] Romhacks can hold a warp shut behind progress
-                if (EventSystem_Should(VB_WARP_DISPATCH, true, warpIdx)) {
-                    if (warpDest >= 0) {
-                        func_8031CC8C(arg0, warpDest);
-                    } else {
-                        sWarpFunctions[warpIdx](arg0, arg1);
-                    }
-                }
+//          if ((codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time) {
+            if (EventSystem_Should(VB_WARP_DISPATCH, (codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time, codeA5BC0_getNodePropActorId(arg0))) {
+//              ((CodeAD110Callback) sWarpFunctions[codeA5BC0_getNodePropActorId(arg0)])(arg0, arg1);
+                CALL_CANCELLABLE_EVENT(OnWarpDispatch, arg0, codeA5BC0_getNodePropActorId(arg0)) ((CodeAD110Callback) sWarpFunctions[codeA5BC0_getNodePropActorId(arg0)])(arg0, arg1);
             }
             codeA5BC0_setNodePropUnkC(arg0, global_timer_time);
             break;

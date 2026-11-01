@@ -10,8 +10,6 @@ extern void func_80325760(Actor *);
 Actor *chMumbo_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chMumbo_update(Actor *this);
 
-#include "port/Romhack/RomhackConfig.h"
-
 /* .data */
 ActorAnimationInfo D_80367490[] = {
     {0, 0.0f}, 
@@ -75,11 +73,9 @@ void chmumbo_func_802D1724(void){
     D_8037DDF0 = func_802D16AC();
 }
 
+//static s32 __transformation_getCost(enum transformation_e trans_id){
 s32 __transformation_getCost(enum transformation_e trans_id){
-    s32 override = port_getRomhackMumboCost(trans_id);
-    if (override >= 0) {
-        return override;
-    }
+    CALL_CANCELLABLE_RETURN_EVENT(OnTransformationCost, trans_id); // [port]
     switch(trans_id){
         case TRANSFORM_2_TERMITE:
             return 5;
@@ -341,7 +337,8 @@ void chMumbo_update(Actor *this) {
                         func_8028F94C(2, this->position);
                         if ( sp44 && gsworld_getMap() != MAP_7A_GL_CRYPT 
                              && !fileProgressFlag_get(FILEPROG_BA_HAS_SEEN_TREX_TEXT) 
-                             && romhack_mumboRandomEventsAllowed() && randf() < 0.01 
+//                           && randf() < 0.01 
+                             && EventSystem_Should(VB_MUMBO_RANDOM_EVENT, randf() < 0.01)
                              && sp48
                         ) {
                             gcdialog_showDialog(VER_SELECT(ASSET_DAE_DIALOG_MUMBO_TREX_START, 0xA2C, 0, 0), 6, NULL, this->marker, __chMumbo_textCallback, NULL);
@@ -353,7 +350,8 @@ void chMumbo_update(Actor *this) {
                             && gsworld_getMap() != MAP_7A_GL_CRYPT  
                             && !this->unk138_23 
                             && (sp40 = fileProgressFlag_getN(FILEPROG_BB_MUMBO_MISTAKE_INDEX, 2), sp40 < 3) 
-                            && romhack_mumboRandomEventsAllowed() && randf() < 0.05 
+//                          && randf() < 0.05 
+                            && EventSystem_Should(VB_MUMBO_RANDOM_EVENT, randf() < 0.05)
                             && sp48
                         ){
                             this->unk138_23 = true;
@@ -397,15 +395,21 @@ void chMumbo_update(Actor *this) {
                 func_8025A58C(0, 1000);
             }
             if (actor_animationIsAt(this, 0.01f)) {
+                s32 wishwashy = TRANSFORM_7_WISHWASHY; // [port]
+                CALL_EVENT(OnMumboWishwashyId, &wishwashy); // [port]
                 
                 if ( this->has_met_before
                      || (this->unk10_12 == 0 
                         && (player_getTransformation() != TRANSFORM_1_BANJO) 
-                        && (player_getTransformation() != romhack_mumboWishwashyId()))
+//                      && (player_getTransformation() != TRANSFORM_7_WISHWASHY))
+                        && (player_getTransformation() != wishwashy))
                 ) {
-                    romhack_mumboTransform(TRANSFORM_1_BANJO);
-                } else if (romhack_mumboTransform(D_8037DDF0)) {
-                    if (D_8037DDF0 != romhack_mumboWishwashyId()) {
+//                  player_transform(TRANSFORM_1_BANJO);
+                    if (EventSystem_Should(VB_MUMBO_CAST, true, TRANSFORM_1_BANJO)) player_transform(TRANSFORM_1_BANJO);
+//              } else if (player_transform(D_8037DDF0)) {
+                } else if (EventSystem_Should(VB_MUMBO_CAST, true, D_8037DDF0) ? player_transform(D_8037DDF0) : true) {
+//                  if (D_8037DDF0 != TRANSFORM_7_WISHWASHY) {
+                    if (D_8037DDF0 != wishwashy) {
                         if (fileProgressFlag_getAndSet(__bkProgId_from_transformationId(D_8037DDF0), true)) {
                             this->velocity[0] = 1.0f;
                         }

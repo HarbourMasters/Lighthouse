@@ -119,10 +119,8 @@ void SnowGlow_EnablePauseMenu() {
 void SnowGlow_EnableCutsceneSkips() {
     REGISTER_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, { *should = false; });
 
-    REGISTER_VB_SHOULD(VB_GAME_OVER_RETURN_MAP, EVENT_PRIORITY_NORMAL, {
-        s32* map = va_arg(args, s32*);
-        *map = MAP_77_GL_RBB_LOBBY;
-    });
+    REGISTER_LISTENER(OnGameOverReturnMap, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnGameOverReturnMap*)event)->map = MAP_77_GL_RBB_LOBBY; });
 }
 
 // Load resets
@@ -133,18 +131,17 @@ void SnowGlow_DisableLevelLoadResets() {
     REGISTER_VB_SHOULD(VB_MAP_SAVESTATE_CLEAR_ALL, EVENT_PRIORITY_NORMAL,
                        { *should = gsworld_getMap() == MAP_91_FILE_SELECT; });
 
-    REGISTER_VB_SHOULD(VB_RACE_VOID_OUT_FULL_TRANSITION, EVENT_PRIORITY_NORMAL, { *should = true; });
+    // The Boggy race reloads at 0 lives with a full map transition.
+    REGISTER_LISTENER(OnBoggyRaceReload, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnBoggyRaceReload*)event;
+        transitionToMap((enum map_e)ev->map, ev->exit, 1);
+        event->Cancelled = true;
+    });
 }
 
 // Pause-menu totals rows
 void SnowGlow_EnablePauseRowVisibility() {
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {
-        const s32 selLevel = va_arg(args, s32);
-        const s32 row = va_arg(args, s32);
-        if (selLevel == LEVEL_6_LAIR) {
-            *should = (row == 3);
-        }
-    });
+    HackShared_SetPauseRowsVisible(LEVEL_6_LAIR, 1 << 3);
 }
 
 // Dialog gates
@@ -315,12 +312,11 @@ bool SnowGlow_HoneycombRelocated(s32 index) {
 }
 
 void SnowGlow_EnableHoneycombTotals() {
-    REGISTER_VB_SHOULD(VB_HONEYCOMBSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {
-        const s32 level = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    REGISTER_LISTENER(OnHoneycombScoreLevelTotal, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnHoneycombScoreLevelTotal*)event;
+        const s32 level = ev->level;
 
-        *should = false;
-        *result = 0;
+        event->Cancelled = true;
 
         if (level <= 0 || level == LEVEL_6_LAIR || level >= LEVEL_C_BOSS) {
             return;
@@ -347,7 +343,7 @@ void SnowGlow_EnableHoneycombTotals() {
             }
         }
 
-        *result = total;
+        ev->result = total;
     });
 }
 
@@ -697,13 +693,13 @@ void SnowGlow_DrawSnsPage(Gfx** gfx, Mtx** mtx, s32 snsAlpha, s16* angles, BKMod
 }
 
 void SnowGlow_EnableSnsPausePage() {
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_SNS_ITEMS, EVENT_PRIORITY_NORMAL, {
-        s32* items = va_arg(args, s32*);
-        *items = 1;
-        (void)should;
-    });
+    REGISTER_LISTENER(OnPauseSnsItems, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnPauseSnsItems*)event)->items = 1; });
 
     REGISTER_VB_SHOULD(VB_PAUSEMENU_SNS_DRAW, EVENT_PRIORITY_NORMAL, {
+        if (!*should) {
+            return;
+        }
         Gfx** gfx = va_arg(args, Gfx**);
         Mtx** mtx = va_arg(args, Mtx**);
         const s32 snsAlpha = va_arg(args, s32);

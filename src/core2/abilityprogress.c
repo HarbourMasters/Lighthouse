@@ -3,7 +3,6 @@
 #include "variables.h"
 
 #include "core2/core2.h"
-#include "port/Romhack/RomhackConfig.h"
 
 // Special note: The learned abilities and used abilities IDs are different!
 
@@ -130,10 +129,6 @@ u32 ability_getAllLearned(void) {
 void ability_debug(void) {}
 
 void ability_clearAll(void) {
-    if (port_isRomhack()) {
-        return;
-    }
-
     learnedAbilities = 0;
     usedAbilities = 0;
 }

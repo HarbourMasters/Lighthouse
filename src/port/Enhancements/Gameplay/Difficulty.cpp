@@ -11,17 +11,6 @@ extern "C" {
 
 static bool sSaveErased = false;
 
-extern "C" int port_scalePlayerDamage(int damage) {
-    if (damage <= 0) {
-        return damage;
-    }
-    int mode = CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.DamageScale"), 1);
-    if (mode >= 4) {
-        return 9999;
-    }
-    return damage * (mode < 1 ? 1 : mode);
-}
-
 void RegisterDifficulty_Init() {
     // Permadeath, ignore lives and game over with file erase
     COND_HOOK(OnPlayerDeath, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.Permadeath"), 0),
@@ -53,3 +42,19 @@ void RegisterDifficulty_Init() {
 }
 
 static RegisterShipInitFunc initFunc(RegisterDifficulty_Init, { CVAR_ENHANCEMENT("Gameplay.Permadeath") });
+
+#define CVAR_DAMAGE_SCALE CVAR_ENHANCEMENT("Gameplay.DamageScale")
+
+void RegisterDamageScale_Init() {
+    COND_VB_SHOULD(VB_ITEM_ADJUST_BY_DIFF, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DAMAGE_SCALE, 1) > 1, {
+        const s32 item = va_arg(args, s32);
+        s32* diff = va_arg(args, s32*);
+        if (item == ITEM_14_HEALTH && *diff < 0) {
+            const int scale = CVarGetInteger(CVAR_DAMAGE_SCALE, 1);
+            // 4 is One-Hit.
+            *diff = scale >= 4 ? -9999 : *diff * scale;
+        }
+    });
+}
+
+static RegisterShipInitFunc damageScaleInitFunc(RegisterDamageScale_Init, { CVAR_DAMAGE_SCALE });

@@ -11,10 +11,20 @@
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
 
+#include "functions.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
+extern "C" {
+#include "core2/gc/sky.h"
+#include "core2/map/mapModel.h"
+#include "lair/jigsawpicture.h"
+}
+
 /*
     RomhackConfig loads and parses the aGameConfig blob from romhack
     o2r archives and exposes the relevant overrides to the decompilation
-    (via the port_getRomhack* accessors declared in RomhackConfig.h).
+    (through its listeners and the port_getRomhack* accessors declared
+    in RomhackConfig.h).
     It is what makes romhacks function properly beyond simple asset swaps.
 */
 
@@ -313,12 +323,6 @@ extern "C" const char* port_getRomhackIdentifier(void) {
     return nullptr;
 }
 
-extern "C" int port_getRomhackSceneRemap(int map_id) {
-    ROMHACK_GUARD_INT;
-    auto it = sSceneRemaps.find(map_id);
-    return (it != sSceneRemaps.end()) ? it->second : -1;
-}
-
 extern "C" int port_getRomhackReturnToLair(int level_index, int* out_map, int* out_exit) {
     ROMHACK_GUARD_ZERO;
     auto it = sReturnToLair.find(level_index);
@@ -330,108 +334,25 @@ extern "C" int port_getRomhackReturnToLair(int level_index, int* out_map, int* o
     return 0;
 }
 
-extern "C" int port_getRomhackMusic(int map_id, int* out_track1, int* out_track2) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sMusicAssign.find(map_id);
-    if (it != sMusicAssign.end()) {
-        *out_track1 = it->second.first;
-        *out_track2 = it->second.second;
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackSkybox(int scene_id) {
-    ROMHACK_GUARD_INT;
-    auto it = sSkyboxAssign.find(scene_id);
-    return (it != sSkyboxAssign.end()) ? it->second.models[0] : -1;
-}
-
-extern "C" int port_getRomhackSkyboxFull(int scene_id, int out_models[3], float out_scales[3], float out_rotations[3]) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sSkyboxAssign.find(scene_id);
-    if (it != sSkyboxAssign.end()) {
-        for (int i = 0; i < 3; i++) {
-            out_models[i] = it->second.models[i];
-            out_scales[i] = it->second.scales[i];
-            out_rotations[i] = it->second.rotations[i];
-        }
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackSceneDef(int scene_id, int* out_opa, int* out_xlu) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sSceneDefs.find(scene_id);
-    if (it != sSceneDefs.end()) {
-        *out_opa = it->second.opa;
-        *out_xlu = it->second.xlu;
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_xlu, short out_min[3], short out_max[3],
-                                           float* out_scale) {
-    ROMHACK_GUARD_ZERO;
-    auto it = sSceneDefs.find(scene_id);
-    if (it != sSceneDefs.end()) {
-        *out_opa = it->second.opa;
-        *out_xlu = it->second.xlu;
-        for (int i = 0; i < 3; i++) {
-            out_min[i] = it->second.min[i];
-            out_max[i] = it->second.max[i];
-        }
-        *out_scale = it->second.scale;
-        return 1;
-    }
-    return 0;
-}
-
 extern "C" int port_getRomhackNewGameMap(void) {
     ROMHACK_GUARD_INT;
     return sNewGameMap;
-}
-extern "C" int port_getRomhackStartLevel1(void) {
-    ROMHACK_GUARD_INT;
-    return sStartLevel1;
-}
-extern "C" int port_getRomhackStartLevel2(void) {
-    ROMHACK_GUARD_INT;
-    return sStartLevel2;
 }
 extern "C" int port_getRomhackMaxEggs(void) {
     ROMHACK_GUARD_INT;
     return sEggsNormalMax;
 }
-extern "C" int port_getRomhackMaxEggsCheato(void) {
-    ROMHACK_GUARD_INT;
-    return sEggsCheatomax;
-}
 extern "C" int port_getRomhackMaxRedFeathers(void) {
     ROMHACK_GUARD_INT;
     return sRedFeathersNormalMax;
-}
-extern "C" int port_getRomhackMaxRedFeathersCheato(void) {
-    ROMHACK_GUARD_INT;
-    return sRedFeathersCheatomax;
 }
 extern "C" int port_getRomhackMaxGoldFeathers(void) {
     ROMHACK_GUARD_INT;
     return sGoldFeathersNormalMax;
 }
-extern "C" int port_getRomhackMaxGoldFeathersCheato(void) {
-    ROMHACK_GUARD_INT;
-    return sGoldFeathersCheatomax;
-}
 extern "C" int port_getRomhackNotesMax(void) {
     ROMHACK_GUARD_INT;
     return sNotesMax;
-}
-extern "C" int port_getNotesPerLevel(void) {
-    const int notesMax = port_getRomhackNotesMax();
-    return notesMax >= 0 ? notesMax : 100;
 }
 extern "C" int port_getRomhackJiggiesPerWorld(void) {
     ROMHACK_GUARD_INT;
@@ -454,14 +375,6 @@ extern "C" int port_getRomhackExtraHcStart(void) {
 extern "C" int port_getRomhackKnowAllMoves(void) {
     ROMHACK_GUARD_INT;
     return sKnowAllMoves;
-}
-extern "C" int port_getRomhackWarpExitBanjosHouse(void) {
-    ROMHACK_GUARD_INT;
-    return sWarpExitBanjosHouse;
-}
-extern "C" int port_getRomhackWarpEnterLair(void) {
-    ROMHACK_GUARD_INT;
-    return sWarpEnterLair;
 }
 extern "C" int port_getRomhackSpecialLevel(void) {
     ROMHACK_GUARD_INT;
@@ -502,14 +415,6 @@ extern "C" int port_getRomhackNoteDoor(int door_index) {
     return -1;
 }
 
-extern "C" int port_getRomhackJiggyPuzzleCost(int puzzle_index) {
-    ROMHACK_GUARD_INT;
-    if (puzzle_index >= 0 && puzzle_index < 11) {
-        return sJiggyCosts[puzzle_index];
-    }
-    return -1;
-}
-
 extern "C" int port_getRomhackJiggyPuzzleSize(int puzzle_index) {
     ROMHACK_GUARD_INT;
     if (puzzle_index >= 0 && puzzle_index < 11) {
@@ -544,3 +449,159 @@ extern "C" void port_clearRomhackWarpDest(int warp_index) {
     LoadGameConfig();
     sWarpDests.erase(warp_index);
 }
+
+extern "C" void port_clearRomhackNamedWarps(void) {
+    LoadGameConfig();
+    sWarpExitBanjosHouse = -1;
+    sWarpEnterLair = -1;
+    sStartLevel1 = -1;
+}
+
+static MapSkyInfo sSkyOverride;
+static MapModelDescription sSceneDefOverride;
+
+static void RegisterRomhackConfig_Init() {
+    const bool romhack = port_isRomhack();
+    if (romhack) {
+        for (int i = 0; i < 11; i++) {
+            if (sJiggyCosts[i] >= 0) {
+                PICTURE_INFO[i].cost = (u8)sJiggyCosts[i];
+            }
+            if (sJiggySizes[i] >= 0) {
+                PICTURE_INFO[i].size_bits = (u8)sJiggySizes[i];
+            }
+            if (sJiggyFlags[i] >= 0) {
+                PICTURE_INFO[i].progress_flag = (u16)sJiggyFlags[i];
+            }
+        }
+    }
+    COND_HOOK(OnGetMapSkyInfo, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapSkyInfo*)event;
+        auto it = sSkyboxAssign.find(ev->map);
+        if (it == sSkyboxAssign.end()) {
+            return;
+        }
+        sSkyOverride.map = (s16)ev->map;
+        for (int i = 0; i < 3; i++) {
+            sSkyOverride.sky_list[i].model_id = (s16)it->second.models[i];
+            sSkyOverride.sky_list[i].scale = it->second.scales[i];
+            sSkyOverride.sky_list[i].rotation_speed = it->second.rotations[i];
+        }
+        ev->result = &sSkyOverride;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnGetMapModelDescription, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapModelDescription*)event;
+        auto it = sSceneDefs.find(ev->map);
+        if (it == sSceneDefs.end()) {
+            return;
+        }
+        sSceneDefOverride.map_id = (s16)ev->map;
+        sSceneDefOverride.opa_model_id = (s16)it->second.opa;
+        sSceneDefOverride.xlu_model_id = (s16)it->second.xlu;
+        for (int i = 0; i < 3; i++) {
+            sSceneDefOverride.cube_min_offset[i] = it->second.min[i];
+            sSceneDefOverride.cube_max_offset[i] = it->second.max[i];
+        }
+        sSceneDefOverride.scale = it->second.scale;
+        ev->result = &sSceneDefOverride;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnGetMapMusicTrack, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapMusicTrack*)event;
+        auto it = sMusicAssign.find(ev->map);
+        if (it == sMusicAssign.end()) {
+            return;
+        }
+        ev->result = ev->secondary ? it->second.second : it->second.first;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnGetMapLevel, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnGetMapLevel*)event;
+        auto it = sSceneRemaps.find(ev->map);
+        if (it == sSceneRemaps.end() || it->second < 0) {
+            return;
+        }
+        ev->result = it->second;
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnWarpDispatch, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnWarpDispatch*)event;
+        auto it = sWarpDests.find(ev->warpIndex);
+        if (it == sWarpDests.end() || it->second < 0) {
+            return;
+        }
+        func_8031CC8C((NodeProp*)ev->nodeProp, it->second);
+        event->Cancelled = true;
+    });
+    COND_HOOK(OnNamedWarp, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnNamedWarp*)event;
+        s32 dest = -1;
+        if (ev->warpId == WARP_ID_SM_EXIT_BANJOS_HOUSE && (sWarpExitBanjosHouse >= 0 || sStartLevel1 >= 0)) {
+            dest = sWarpExitBanjosHouse >= 0 ? sWarpExitBanjosHouse
+                                             : (MAP_1_SM_SPIRAL_MOUNTAIN << 8) + WARP_SM_12_FROM_HOUSE;
+            // START_LEVEL_1 swaps the map and keeps the exit.
+            if (sStartLevel1 >= 0) {
+                dest = (sStartLevel1 << 8) | (dest & 0xFF);
+            }
+        } else if (ev->warpId == WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL) {
+            dest = sWarpEnterLair;
+        }
+        if (dest >= 0) {
+            func_8031CC8C((NodeProp*)ev->nodeProp, dest);
+            event->Cancelled = true;
+        }
+    });
+    COND_HOOK(OnTransformationCost, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnTransformationCost*)event;
+        const s32 cost = port_getRomhackMumboCost(ev->transformation);
+        if (cost >= 0) {
+            ev->result = cost;
+            event->Cancelled = true;
+        }
+    });
+    COND_HOOK(OnItemMax, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnItemMax*)event;
+        s32 max = -1;
+        switch (ev->item) {
+            case ITEM_D_EGGS:
+                max = fileProgressFlag_get(FILEPROG_BE_CHEATO_BLUEEGGS) ? sEggsCheatomax : sEggsNormalMax;
+                break;
+            case ITEM_F_RED_FEATHER:
+                max = fileProgressFlag_get(FILEPROG_BF_CHEATO_REDFEATHERS) ? sRedFeathersCheatomax
+                                                                           : sRedFeathersNormalMax;
+                break;
+            case ITEM_10_GOLD_FEATHER:
+                max = fileProgressFlag_get(FILEPROG_C0_CHEATO_GOLDFEATHERS) ? sGoldFeathersCheatomax
+                                                                            : sGoldFeathersNormalMax;
+                break;
+        }
+        if (max >= 0) {
+            *ev->max = max;
+        }
+    });
+    COND_HOOK(OnLevelItemMax, EVENT_PRIORITY_NORMAL, romhack, [](IEvent* event) {
+        auto* ev = (OnLevelItemMax*)event;
+        switch (ev->item) {
+            case ITEM_C_NOTE:
+                if (sNotesMax >= 0) {
+                    *ev->max = sNotesMax;
+                }
+                break;
+            case ITEM_E_JIGGY:
+                if (sJiggiesPerWorld >= 0) {
+                    *ev->max = sJiggiesPerWorld;
+                }
+                break;
+            case ITEM_13_EMPTY_HONEYCOMB:
+                if (sSpecialLevel >= 0 || sHoneycombsPerWorld >= 0 || sExtraHcStart >= 0) {
+                    const s32 special = sSpecialLevel >= 0 ? sSpecialLevel : LEVEL_B_SPIRAL_MOUNTAIN;
+                    *ev->max = ev->level == special ? (sExtraHcStart >= 0 ? sExtraHcStart : 6)
+                                                    : (sHoneycombsPerWorld >= 0 ? sHoneycombsPerWorld : 2);
+                }
+                break;
+        }
+    });
+}
+
+static RegisterShipInitFunc romhackConfigInitFunc(RegisterRomhackConfig_Init, { "BOOT" });

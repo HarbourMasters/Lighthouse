@@ -13,6 +13,7 @@ extern "C" {
 #include "core2/model.h"
 
 extern struct1Cs_1 D_8036C58C[0xD];
+void print_setBoldFontTexture(s32 textureId);
 
 // Acorn replaced with collectible doubloon
 extern ActorInfo chCarriedAcorn;
@@ -163,11 +164,10 @@ void RegisterCutThroatCoastPatches() {
     });
 
     // Pause menu pins below
-    REGISTER_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {
-        s32 lvl = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
+    REGISTER_LISTENER(OnJiggyScoreLevelTotal, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnJiggyScoreLevelTotal*)event;
         s32 cnt = 0;
-        if (lvl == 0xA) {
+        if (ev->level == 0xA) {
             for (s32 i = 1; i < 0x65; i++) {
                 if (jiggyscore_isCollected((enum jiggy_e)i)) {
                     cnt++;
@@ -177,22 +177,17 @@ void RegisterCutThroatCoastPatches() {
                 cnt = 0xA;
             }
         }
-        *result = cnt;
-        *should = false;
+        ev->result = cnt;
+        event->Cancelled = true;
     });
 
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_LEVEL_TO_PAGE, EVENT_PRIORITY_NORMAL, {
-        va_arg(args, s32);
-        s32* page = va_arg(args, s32*);
-        *page = 8;
-        *should = false;
+    // Every level's totals are on page 8, with no paging.
+    REGISTER_LISTENER(OnPauseLevelToPage, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        ((OnPauseLevelToPage*)event)->result = 8;
+        event->Cancelled = true;
     });
 
-    REGISTER_VB_SHOULD(VB_PAUSEMENU_SET_NEXT_PAGE, EVENT_PRIORITY_NORMAL, {
-        s8* page = va_arg(args, s8*);
-        *page = 8;
-        *should = false;
-    });
+    REGISTER_VB_SHOULD(VB_PAUSEMENU_SET_NEXT_PAGE, EVENT_PRIORITY_NORMAL, { *should = false; });
 
     REGISTER_VB_SHOULD(VB_PAUSEMENU_DRAW_JOYSTICKS, EVENT_PRIORITY_NORMAL, {
         (void)args;
@@ -200,23 +195,20 @@ void RegisterCutThroatCoastPatches() {
     });
 
     REGISTER_VB_SHOULD(VB_PAUSEMENU_BOLD_FONT_TEXTURE, EVENT_PRIORITY_NORMAL, {
-        s32* fontId = va_arg(args, s32*);
-        *fontId = 0x6E4;
-        (void)should;
+        print_setBoldFontTexture(SPRITE_BOLD_FONT_YELLOW_GREEN_SPHERE_TEXTURE);
+        *should = false;
     });
 
     // TODO: CTC's blob also patches the gravestone model's display lists once it loads.
     port_enableNoteDoorComposer();
 
     // Exiting via the exit pad should go back to the CTC lobby map
-    REGISTER_VB_SHOULD(VB_MAP_CHANGE_REQUEST, EVENT_PRIORITY_NORMAL, {
-        s32* map = va_arg(args, s32*);
-        s32* exit = va_arg(args, s32*);
-        if (*map == MAP_75_GL_MMM_LOBBY) {
-            *map = MAP_1_SM_SPIRAL_MOUNTAIN;
-            *exit = 2;
+    REGISTER_LISTENER(OnMapChangeRequest, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnMapChangeRequest*)event;
+        if (*ev->map == MAP_75_GL_MMM_LOBBY) {
+            *ev->map = MAP_1_SM_SPIRAL_MOUNTAIN;
+            *ev->exit = 2;
         }
-        (void)should;
     });
 
     REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
