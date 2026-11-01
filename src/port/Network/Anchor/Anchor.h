@@ -70,10 +70,14 @@ private:
     std::optional<nlohmann::json> heldTeamState;
     std::vector<nlohmann::json> heldIncomingPackets;
     std::atomic<bool> isHoldingTeamState{ false };
+    nlohmann::json pendingTeamState;
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
     void FlushPendingJiggySpawns();
+    void QueueAhead(std::vector<nlohmann::json>& packets);
     void UseHeldTeamState();
+    void FlushPendingTeamState();
+    void ApplyLoadedTeamState(nlohmann::json& state);
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();

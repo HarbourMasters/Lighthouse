@@ -100,6 +100,7 @@ void Anchor::OnDisconnected() {
 
         heldTeamState.reset();
         heldIncomingPackets.clear();
+        pendingTeamState = nullptr;
         isHoldingTeamState = false;
     });
 }
@@ -204,8 +205,9 @@ void Anchor::ProcessIncomingPacketQueue() {
             }
         }
 
-        // Kept back until the player picks between their file and the team save.
-        if (isHoldingTeamState && !AllowedWithoutGameSync(packetType)) {
+        // Kept back until the player picks between their file and the team save, or until a file-load catch-up has
+        // applied, since the handlers drop what arrives before the save is in play.
+        if ((isHoldingTeamState || !pendingTeamState.is_null()) && !AllowedWithoutGameSync(packetType)) {
             heldIncomingPackets.push_back(std::move(payload));
             continue;
         }

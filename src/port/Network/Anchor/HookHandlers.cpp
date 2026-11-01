@@ -260,6 +260,11 @@ void Anchor::RegisterHooks() {
         anchor->hasCheckedRandoCompat = false;
         anchor->reloadMapOnTeamState = false;
         anchor->gameMismatchWithTeam = false;
+        anchor->pendingTeamState = nullptr;
+        // Packets held for a catch-up this one replaces are older than its state.
+        if (!anchor->isHoldingTeamState) {
+            anchor->heldIncomingPackets.clear();
+        }
         anchor->SendPacket_RequestTeamState(true);
     });
 
@@ -276,6 +281,7 @@ void Anchor::RegisterHooks() {
         if (std::memcmp(&colors, &anchor->sentColors, sizeof(colors)) != 0) {
             anchor->SendPacket_UpdateClientState();
         }
+        anchor->FlushPendingTeamState();
         anchor->ProcessIncomingPacketQueue();
         anchor->RefreshClientActors();
         anchor->UpdateDummies();
