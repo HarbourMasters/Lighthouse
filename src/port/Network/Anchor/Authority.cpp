@@ -4,6 +4,7 @@
 #include "port/Network/Anchor/VileSync.h"
 #include "port/Network/Anchor/FightSync.h"
 #include <libultraship/libultraship.h>
+#include <unordered_set>
 
 #include "enums.h"
 #include "functions.h"
@@ -11,6 +12,8 @@
 struct ActivityState {
     bool claimed = false;
     uint32_t owner = 0;
+    uint32_t seq = 0; // numbers our claims, so an accept counts only for the claim it answers
+    std::unordered_set<uint32_t> accepted;
 };
 
 static ActivityState sActivities[NET_ACTIVITY_COUNT];
@@ -79,9 +82,11 @@ void NetAuthority_Claim(NetworkActivityId activity) {
     if (!state.claimed || state.owner != anchor->ownClientId) {
         state.claimed = true;
         state.owner = anchor->ownClientId;
+        state.seq++;
+        state.accepted.clear();
         Authority_OnOwnerChanged(activity);
     }
-    anchor->SendPacket_AuthorityState((uint8_t)activity, true);
+    anchor->SendPacket_AuthorityState((uint8_t)activity, true, state.seq);
 }
 
 void NetAuthority_Release(NetworkActivityId activity) {
@@ -94,10 +99,11 @@ void NetAuthority_Release(NetworkActivityId activity) {
         return;
     }
     Authority_ClearClaim(activity);
-    anchor->SendPacket_AuthorityState((uint8_t)activity, false);
+    anchor->SendPacket_AuthorityState((uint8_t)activity, false, state.seq);
 }
 
-void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool claimed) {
+void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool claimed, uint32_t seq) {
+    Anchor* anchor = Anchor::GetInstance();
     if (!Authority_IsValidActivity(activity)) {
         return;
     }
@@ -111,12 +117,51 @@ void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool c
             // Simultaneous-claim tie-break: lowest clientId wins. Every client applies
             // this same rule, so all converge; a losing local claimant observes
             // NetAuthority_IsSelf() turning false.
+            const bool wasOurs = state.owner == anchor->ownClientId;
             state.owner = clientId;
             Authority_OnOwnerChanged(activity);
+            // Teammates who took our claim as the winner before this one reached them drop it on this release.
+            if (wasOurs) {
+                anchor->SendPacket_AuthorityState((uint8_t)activity, false, state.seq);
+            }
+        }
+        if (state.owner == clientId) {
+            anchor->SendPacket_AuthorityAccept((uint8_t)activity, clientId, seq);
         }
     } else if (state.claimed && state.owner == clientId) {
         Authority_ClearClaim(activity);
     }
+}
+
+void Authority_OnAccept(NetworkActivityId activity, uint32_t clientId, uint32_t seq) {
+    Anchor* anchor = Anchor::GetInstance();
+    if (!Authority_IsValidActivity(activity)) {
+        return;
+    }
+    ActivityState& state = sActivities[activity];
+    if (state.claimed && state.owner == anchor->ownClientId && seq == state.seq) {
+        state.accepted.insert(clientId);
+    }
+}
+
+bool NetAuthority_IsConfirmed(NetworkActivityId activity) {
+    Anchor* anchor = Anchor::GetInstance();
+    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
+        return true;
+    }
+    const ActivityState& state = sActivities[activity];
+    if (!state.claimed || state.owner != anchor->ownClientId) {
+        return false;
+    }
+    for (const auto& [clientId, client] : anchor->clients) {
+        // A teammate on another build never sees our claim, so it can't race us.
+        if (!client.self && client.online && client.isSaveLoaded && client.map == sActivityMap[activity] &&
+            client.clientVersion == anchor->clientVersion && anchor->IsTeammate(clientId) &&
+            !state.accepted.contains(clientId)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map) {
@@ -151,7 +196,7 @@ void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
             Authority_ClearClaim((NetworkActivityId)i);
         } else if (anchor != nullptr && state.owner == anchor->ownClientId && map == sActivityMap[i]) {
             // A peer just entered the map of an activity we own; make sure they know.
-            anchor->SendPacket_AuthorityState((uint8_t)i, true);
+            anchor->SendPacket_AuthorityState((uint8_t)i, true, state.seq);
             if (i == NET_ACTIVITY_FINAL_BOSS) {
                 FightSync_SendSnapshot(clientId);
             }

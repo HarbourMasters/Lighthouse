@@ -245,7 +245,8 @@ public:
     std::string GetClientName(uint32_t clientId);
     std::string GetNametagLabel(uint32_t clientId);
 
-    void SendPacket_AuthorityState(u8 activity, bool claimed);
+    void SendPacket_AuthorityState(u8 activity, bool claimed, uint32_t seq);
+    void SendPacket_AuthorityAccept(u8 activity, uint32_t claimant, uint32_t seq);
     void SendPacket_ClearTeamState(std::string teamId);
     void ClearMismatchedTeamState(std::string teamId);
     bool LocalGameMatchesRoom();

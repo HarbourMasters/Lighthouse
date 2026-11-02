@@ -16,6 +16,9 @@
 //  - Simultaneous claims resolve deterministically: the lowest clientId wins. Both
 //    sides apply the same rule on receive, so they converge without extra round trips;
 //    the loser observes NetAuthority_IsSelf() turning false.
+//  - Each receiver sends the winner an accept. An activity that can't let two clients
+//    start it waits for NetAuthority_IsConfirmed(): every teammate in its map has
+//    accepted our claim, so no earlier claim can still be on its way.
 //  - Authority is auto-released when the owner disconnects or leaves the activity's
 //    map (each activity is tied to one map in Authority.cpp).
 //
@@ -41,12 +44,14 @@ bool NetAuthority_IsSelf(NetworkActivityId activity);
 bool NetAuthority_IsClaimed(NetworkActivityId activity);
 void NetAuthority_Claim(NetworkActivityId activity);
 void NetAuthority_Release(NetworkActivityId activity);
+bool NetAuthority_IsConfirmed(NetworkActivityId activity);
 
 #ifdef __cplusplus
 }
 
 // Network-internal entry points (called from Anchor packet handlers / lifecycle):
-void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool claimed);
+void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool claimed, uint32_t seq);
+void Authority_OnAccept(NetworkActivityId activity, uint32_t clientId, uint32_t seq);
 // React to a client's online/map state changing (offline or wrong map drops its claims).
 void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map);
 // A peer finished loading a map: drop their stale claims, and rebroadcast any claim of
