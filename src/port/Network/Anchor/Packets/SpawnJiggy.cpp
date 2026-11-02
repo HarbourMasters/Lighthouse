@@ -16,6 +16,8 @@ extern Struct_core2_ABC00_0 jiggylist_list[];
 extern s32 s_jiggyList_level_jiggy_count;
 }
 
+extern "C" void port_jiggySpawn_remove(int32_t jiggyId);
+
 /**
  * JIGGY_SPAWN
  *
@@ -95,12 +97,55 @@ void Anchor::SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z) {
     SendJsonToRemote(payload);
 }
 
+// A timed BGS jiggy that ran out on the sender; receivers drop its record and their copy.
+void Anchor::SendPacket_JiggyExpired(s16 jiggyId) {
+    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
+        return;
+    }
+
+    nlohmann::json payload;
+    payload["type"] = JIGGY_SPAWN;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    payload["addToQueue"] = true;
+    payload["jiggyId"] = jiggyId;
+    payload["expired"] = true;
+
+    SendJsonToRemote(payload);
+}
+
+// Our copy of a teammate's timed BGS jiggy goes too, unless that switch's timer is running here.
+static void expireTimedJiggy(int16_t jiggyId) {
+    s32 timerRunningFlag;
+
+    switch (jiggyId) {
+        case JIGGY_20_BGS_ELEVATED_WALKWAY:
+            timerRunningFlag = BGS_SPECIFIC_FLAG_3_WALKWAY_JIGGY_TIMER_RUNNING;
+            break;
+        case JIGGY_25_BGS_MAZE:
+            timerRunningFlag = BGS_SPECIFIC_FLAG_C_MAZE_JIGGY_TIMER_RUNNING;
+            break;
+        default:
+            return;
+    }
+    if (gsworld_getMap() != MAP_D_BGS_BUBBLEGLOOP_SWAMP || mapSpecificFlags_get(timerRunningFlag) ||
+        !jiggyListHasObject(jiggyId)) {
+        return;
+    }
+    func_8030E6D4(SFX_30_MAGIC_POOF);
+    marker_despawn(jiggylist_list[jiggyId - 1].unk10.marker);
+}
+
 void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
 
     s16 jiggyId = payload.at("jiggyId").get<s16>();
+    if (payload.value("expired", false)) {
+        port_jiggySpawn_remove(jiggyId);
+        expireTimedJiggy(jiggyId);
+        return;
+    }
     s32 map = payload.at("map").get<s32>();
     f32 x = payload.at("x").get<f32>();
     f32 y = payload.at("y").get<f32>();

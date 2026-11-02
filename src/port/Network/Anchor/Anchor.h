@@ -285,6 +285,7 @@ public:
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
+    void SendPacket_JiggyExpired(s16 jiggyId);
     void SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(uint32_t clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);

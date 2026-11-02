@@ -143,9 +143,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         index == LEVEL_FLAG_E_CC_MUTIE_SNIPPETS) {
         return true;
     }
-    // BGS jiggy-switch timers (walkway=3, maze=0xC): kept local.
+    // BGS timed jiggy switches (walkway 1-5 and 7, maze 8-0xD): the challenge runs for the presser only.
+    // The jiggy and its running out sync via JIGGY_SPAWN.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
-        (index == 3 || index == 0xC)) {
+        ((index >= 1 && index <= 5) || (index >= 7 && index <= 0xD))) {
         return true;
     }
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE &&
@@ -696,6 +697,7 @@ void Anchor::RegisterHooks() {
         }
         auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);
         port_jiggySpawn_remove(ev->jiggyId);
+        Anchor::GetInstance()->SendPacket_JiggyExpired((s16)ev->jiggyId);
     });
 
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected,
