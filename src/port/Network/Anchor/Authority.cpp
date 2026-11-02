@@ -6,6 +6,7 @@
 #include <libultraship/libultraship.h>
 
 #include "enums.h"
+#include "functions.h"
 
 struct ActivityState {
     bool claimed = false;
@@ -133,6 +134,13 @@ void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map)
 void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
     JigsawPedestal_ClearClient(clientId);
     Anchor* anchor = Anchor::GetInstance();
+    // Claims are per team, so another team's map load changes nothing here.
+    if (anchor != nullptr && !anchor->IsTeammate(clientId)) {
+        return;
+    }
+    if (map == (int32_t)gsworld_getMap()) {
+        JigsawPedestal_ResendSelf();
+    }
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         ActivityState& state = sActivities[i];
         if (!state.claimed) {

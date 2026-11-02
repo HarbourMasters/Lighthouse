@@ -293,8 +293,9 @@ public:
     void SendPacket_VileUpdate(const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 animMode);
     void OnActorDestroyed(Actor* actor);
     void RevealSwitchHoneycomb();
-    void SendToCurrentMapPlayers(nlohmann::json& payload);
-    void SendToCurrentLevelPlayers(nlohmann::json& payload);
+    void SendToCurrentMapPlayers(nlohmann::json& payload, bool teammatesOnly = true);
+    void SendToCurrentLevelPlayers(nlohmann::json& payload, bool teammatesOnly = true);
+    bool IsTeammate(uint32_t clientId);
     void SweepUnoccupiedLevelState(GameMap selfMap);
 
     static Anchor* GetInstance();

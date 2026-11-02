@@ -7,13 +7,14 @@
  * AUTHORITY_STATE
  *
  * Claim or release of authority over a network activity (see Authority.h). Broadcast to
- * the whole room; receivers resolve conflicting claims deterministically (lowest
+ * the team; receivers resolve conflicting claims deterministically (lowest
  * clientId wins), so no acknowledgement is needed. The owner is the sender.
  */
 
 void Anchor::SendPacket_AuthorityState(u8 activity, bool claimed) {
     nlohmann::json payload;
     payload["type"] = AUTHORITY_STATE;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["activity"] = activity;
     payload["claimed"] = claimed;
 

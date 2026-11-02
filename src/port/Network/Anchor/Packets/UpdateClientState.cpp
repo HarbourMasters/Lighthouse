@@ -59,6 +59,8 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
 
     if (clients.contains(clientId)) {
         AnchorClient client = payload["state"].get<AnchorClient>();
+        const bool wasOnline = clients[clientId].online;
+        const int32_t prevMap = clients[clientId].map;
         clients[clientId].clientId = clientId;
         clients[clientId].name = client.name;
         clients[clientId].clientVersion = client.clientVersion;
@@ -74,7 +76,8 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         EvaluateDummyForClient(clientId);
         Authority_OnClientStateChanged(clientId, client.online, client.map);
         SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
-        if (client.online) {
+        // Only on coming online or changing map: any other update would drop the peer's podium claims.
+        if (client.online && (!wasOnline || prevMap != client.map)) {
             // Covers clients (re)connecting while already in an activity's map: rebroadcast
             // any claim of ours so they don't briefly act as their own authority.
             Authority_OnPeerMapLoad(clientId, client.map);

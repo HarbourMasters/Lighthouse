@@ -88,6 +88,20 @@ void JigsawPedestal_ReleaseAllSelf() {
     }
 }
 
+// A peer who arrives in our map, or reconnected and lost its table, would otherwise see our
+// podium as free and take it from us.
+void JigsawPedestal_ResendSelf() {
+    Anchor* anchor = Anchor::GetInstance();
+    if (!JigsawPedestal_SyncActive()) {
+        return;
+    }
+    for (auto& [id, owner] : sPedestalOwner) {
+        if (owner == anchor->ownClientId) {
+            anchor->SendPacket_PedestalOwner(id, true);
+        }
+    }
+}
+
 void JigsawPedestal_Reset() {
     sPedestalOwner.clear();
 }
