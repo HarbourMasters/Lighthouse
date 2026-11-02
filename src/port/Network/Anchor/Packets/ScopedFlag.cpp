@@ -74,8 +74,10 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
                 for (s32 i = 0; i < count; i++) {
                     const s32 bit = index + i;
                     const u8 value = (values >> i) & 1;
+                    // Only a write that sets the flag marks it; one we already had stays ours.
+                    const bool wasSet = bit >= 0 && bit < 32 && mapSpecificFlags_get(bit);
                     mapSpecificFlags_set(bit, value);
-                    if (value && bit >= 0 && bit < 32) {
+                    if (value && !wasSet && bit >= 0 && bit < 32) {
                         sMapFlagSetRemotely |= (1u << bit);
                     }
                 }

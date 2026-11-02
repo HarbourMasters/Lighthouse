@@ -20,6 +20,8 @@ s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
+void func_80324CD8(f32 time);
+void func_803877A8(ActorMarker* caller, enum asset_e text_id, s32 arg2);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 }
 
@@ -396,6 +398,33 @@ void Anchor::RegisterHooks() {
         if (Anchor_WorldSyncActive()) {
             s32 stageFlag = va_arg(args, s32);
             *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
+        }
+    });
+
+    // A teammate's sled crash rescues Boggy here as animation only; the camera and dialog stay theirs, and the jiggy
+    // comes through JIGGY_SPAWN. This and the two hooks below register always, so a rescue that started as a
+    // teammate's ends that way if we disconnect mid-scene. The remote bits are 0 unless a teammate's flag landed this
+    // visit.
+    COND_VB_SHOULD(VB_FP_BOGGY_RESCUE_SCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+            *should = false;
+        }
+    });
+    // No dialog ends a teammate's rescue, so Boggy runs off once he's done coughing.
+    COND_VB_SHOULD(VB_FP_BOGGY_WAIT_FOR_DIALOG, EVENT_PRIORITY_NORMAL, true, {
+        Actor* boggy = va_arg(args, Actor*);
+        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+            func_803877A8(boggy->marker, (enum asset_e)0, 2);
+            *should = false;
+        }
+    });
+    // Riding the sled after a teammate rescued Boggy: our crash plays no scene, and the scene is what releases the
+    // ride's camera.
+    COND_ID_HOOK(OnActorDestroy, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        Actor* sled = reinterpret_cast<OnActorDestroy*>(event)->actor;
+        if (sled->state == 2 && port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+            func_80324CD8(0.0f);
+            timed_exitStaticCamera(0.0f);
         }
     });
 
