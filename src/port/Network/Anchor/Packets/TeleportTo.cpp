@@ -4,6 +4,14 @@
 
 #include "functions.h"
 
+extern "C" {
+#include "core1/ml.h"
+
+extern f32 D_8037BFC0[3];
+extern f32 D_8037BFCC;
+extern f32 D_8037BFD0;
+}
+
 // Exit id the game reserves for "spawn at an explicit position" (see player_spawnAtMapExit).
 #define EXIT_WARP_DESTINATION 0x63
 
@@ -49,6 +57,10 @@ void Anchor::HandlePacket_TeleportTo(nlohmann::json& payload) {
         return;
     }
 
-    player_setWarpDestination(pos.data(), yaw, payload.value("exit", 0));
+    // player_spawnAtMapExit's arrival point for EXIT_WARP_DESTINATION. func_8028FCE8 otherwise fills it
+    // from the player's position.
+    ml_vec3f_copy(D_8037BFC0, pos.data());
+    D_8037BFCC = yaw;
+    D_8037BFD0 = (f32)payload.value("exit", 0);
     func_8031D04C(map, EXIT_WARP_DESTINATION);
 }

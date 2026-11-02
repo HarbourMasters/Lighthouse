@@ -471,13 +471,6 @@ void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
     *addr = sItemscoreNoteScores;
 }
 
-// Max-merge a level's note high score.
-void itemscore_noteScores_setLevel(enum level_e level, s32 score) {
-    if (level >= 0 && level < 0xE && score > sItemscoreNoteScores[level]) {
-        sItemscoreNoteScores[level] = score;
-    }
-}
-
 void itemscore_noteScoress_maxAll(void) {
     s32 i;
 

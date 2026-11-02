@@ -31,6 +31,7 @@ extern "C" {
 extern f32 gBundle_yaw;
 extern ActorInfo sumusicNote;
 extern f32 itemPrintValues[0x2C];
+extern u8 sItemscoreNoteScores[0xE];
 }
 
 namespace {
@@ -208,7 +209,10 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
             item_inc(ITEM_C_NOTE);
         } else {
             // Different level: can't touch live ITEM_C_NOTE, still bump its high score.
-            itemscore_noteScores_setLevel((enum level_e)level, countCollectedForLevel(level));
+            const int32_t count = countCollectedForLevel(level);
+            if (level >= 0 && level < 0xE && count > sItemscoreNoteScores[level]) {
+                sItemscoreNoteScores[level] = count;
+            }
         }
     }
     if (sameMap) {

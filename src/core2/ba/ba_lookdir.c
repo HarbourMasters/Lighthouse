@@ -990,9 +990,3 @@ void func_8028FCE8(void) {
     D_8037BFCC = yaw_get();
     D_8037BFD0 = sPlayerExitId;
 }
-
-void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id) {
-    ml_vec3f_copy(D_8037BFC0, position);
-    D_8037BFCC = yaw;
-    D_8037BFD0 = (f32) exit_id;
-}

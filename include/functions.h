@@ -1477,9 +1477,6 @@ void func_8032196C(void);
 void func_803219A8(void);
 void func_803219F4(s32 arg0);
 
-// --- core2/ba/playerposition.c ---
-void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id);
-
 // --- core2/ba/ba_recoil.c ---
 enum asset_e func_80294974(void);
 enum transformation_e func_80294A4C(void);
@@ -2845,7 +2842,6 @@ void itemscore_highNoteScores_fromSaveData(u8 *savedata);
 void itemscore_levelReset(enum level_e level);
 void notescore_getSizeAndPtr(s32 *size, void **ptr);
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr);
-void itemscore_noteScores_setLevel(enum level_e level, s32 score);
 void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 
