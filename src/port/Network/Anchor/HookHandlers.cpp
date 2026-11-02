@@ -574,7 +574,7 @@ void Anchor::RegisterHooks() {
         }
         auto ev = reinterpret_cast<OnItemCountChanged*>(event);
         if (Anchor_ShouldSyncItemCount(ev->item, anchor->roomState)) {
-            anchor->SendPacket_SetItemCount((s16)ev->item, ev->count);
+            anchor->SendPacket_SetItemCount((s16)ev->item, ev->diff);
         }
     });
 

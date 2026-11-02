@@ -267,7 +267,7 @@ public:
     void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);
-    void SendPacket_SetItemCount(s16 item, s32 count);
+    void SendPacket_SetItemCount(s16 item, s32 delta);
     void SendPacket_SetAbility(s16 move, u8 value);
     void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
     void SendPacket_RequestScopedState(GameMap map);

@@ -164,7 +164,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
             break;
     }
     if (D_80385F30[item] != oldVal) { // [port]
-        CALL_EVENT(OnItemCountChanged, item, D_80385F30[item]);
+        CALL_EVENT(OnItemCountChanged, item, D_80385F30[item], D_80385F30[item] - oldVal);
     }
     return D_80385F30[item];
 }
