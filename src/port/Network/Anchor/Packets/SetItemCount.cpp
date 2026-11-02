@@ -4,7 +4,7 @@
 
 #include "functions.h"
 extern "C" {
-s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent);
+s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud);
 }
 
 /**
@@ -39,9 +39,9 @@ void Anchor::HandlePacket_SetItemCount(nlohmann::json& payload) {
     if (item == ITEM_26_JIGGY_TOTAL) {
         s32 delta = count - item_getCount(ITEM_26_JIGGY_TOTAL);
         s32 noHud = (delta > 0 || func_802FADD4(ITEM_2B_UNKNOWN)) ? 1 : 0;
-        item_adjustByDiff((enum item_e)item, delta, noHud, 0);
+        ApplyRemote([&] { item_adjustByDiff((enum item_e)item, delta, noHud); });
         return;
     }
 
-    item_setEx(item, count, 0);
+    ApplyRemote([&] { item_set(item, count); });
 }

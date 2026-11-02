@@ -36,7 +36,7 @@ void Anchor::HandlePacket_SetAbility(nlohmann::json& payload) {
     s16 move = payload.at("move").get<s16>();
     u8 value = payload.at("value").get<u8>();
 
-    ability_setLearnedEx(move, value, 0);
+    ApplyRemote([&] { ability_setLearned((enum ability_e)move, value); });
 
     // A remote unlock just completed the SM tutorial set while we're standing in Spiral
     // Mountain with a pre-completion world. Apply the completion state live.

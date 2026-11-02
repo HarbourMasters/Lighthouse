@@ -569,7 +569,7 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnItemCountChanged, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
-        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags || anchor->isApplyingRemote) {
             return;
         }
         auto ev = reinterpret_cast<OnItemCountChanged*>(event);
@@ -580,7 +580,7 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnAbilityLearned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
-        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags || anchor->isApplyingRemote) {
             return;
         }
         auto ev = reinterpret_cast<OnAbilityLearned*>(event);

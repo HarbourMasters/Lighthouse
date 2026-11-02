@@ -133,22 +133,16 @@ void ability_clearAll(void) {
     usedAbilities = 0;
 }
 
-void ability_setLearnedEx(s32 ability, s32 has_learned, s32 triggerEvent) {
-    s32 prev = (learnedAbilities >> ability) & 1;
-
+void ability_setLearned(enum ability_e ability, bool has_learned) {
+    s32 prev = (learnedAbilities >> ability) & 1; // [port]
     if (has_learned) {
         learnedAbilities |= (1 << ability);
     } else {
         learnedAbilities &= ~(1 << ability);
     }
-
-    if (triggerEvent && prev != (has_learned ? 1 : 0)) {
+    if (prev != (has_learned ? 1 : 0)) { // [port]
         CALL_EVENT(OnAbilityLearned, ability, has_learned ? 1 : 0);
     }
-}
-
-void ability_setLearned(enum ability_e ability, bool has_learned) {
-    ability_setLearnedEx(ability, has_learned, 1);
 }
 
 void ability_setAllLearned(u32 val) {

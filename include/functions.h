@@ -306,7 +306,6 @@ void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 // --- core2/gamestate.c ---
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
-void item_setEx(s32 item, s32 val, s32 triggerEvent);
 
 // --- core2/game_complete.c ---
 enum AnchorFlagSpace {
@@ -991,9 +990,6 @@ void sns_restore_backed_up_items(void);
 void sns_load_global_data(void);
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state);
 void sns_write_payload_over_heap(void);
-
-// --- core2/abilityprogress.c ---
-void ability_setLearnedEx(s32 move, s32 val, s32 triggerEvent);
 
 // --- core2/actor_array.c ---
 void func_8032728C(f32[3], f32, s32, int(*)(Actor *));
