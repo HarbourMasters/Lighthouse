@@ -526,6 +526,19 @@ void Anchor::RegisterHooks() {
             return;
         }
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
+        // A multi-bit field (a counter) goes as one packet. Sent a bit at a time, a receiver can
+        // apply part of it and see a count nobody set: a podium going 4 -> 3 passes 5 and 7.
+        if (ev->length > 1 && ev->flagSpace != ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
+            const u32 values = (u32)ev->value & ((1u << ev->length) - 1);
+            if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
+                if (!Anchor_ScopedFlagExcluded(ev->flagSpace, ev->index)) {
+                    anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)ev->index, values, ev->length);
+                }
+            } else if (ev->flagSpace != ANCHOR_FLAGSPACE_VOLATILE || Anchor_ShouldBroadcastVolatileFlag(ev->index)) {
+                anchor->SendPacket_SetFlag((u8)ev->flagSpace, (s16)ev->index, values, ev->length);
+            }
+            return;
+        }
         for (s32 i = 0; i < ev->length; i++) {
             s32 index = ev->index + i;
             if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {

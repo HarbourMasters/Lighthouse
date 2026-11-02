@@ -266,10 +266,10 @@ public:
     bool SendPacket_RequestTeamState(bool force = false);
     void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
-    void SendPacket_SetFlag(u8 flagSpace, s16 flag);
+    void SendPacket_SetFlag(u8 flagSpace, s16 flag, u32 values = 1, s32 count = 1);
     void SendPacket_SetItemCount(s16 item, s32 delta);
     void SendPacket_SetAbility(s16 move, u8 value);
-    void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
+    void SendPacket_ScopedFlag(u8 space, s16 index, u32 value, s32 count = 1);
     void SendPacket_RequestScopedState(GameMap map);
     void SendPacket_CollectItem(u8 kind, s32 id);
     void SendPacket_CarryThrow(s32 markerId, f32 start[3], f32 target[3]);

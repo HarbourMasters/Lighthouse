@@ -24,7 +24,8 @@ void Anchor_MarkMapFlagsRemote(uint32_t mask) {
  * Realtime sync of a transient level-/map flag; ctx = sender's level/map id.
  */
 
-void Anchor::SendPacket_ScopedFlag(u8 space, s16 index, u8 value) {
+// count > 1 sends a multi-bit field: value holds its bits, lowest first.
+void Anchor::SendPacket_ScopedFlag(u8 space, s16 index, u32 value, s32 count) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -35,6 +36,9 @@ void Anchor::SendPacket_ScopedFlag(u8 space, s16 index, u8 value) {
     payload["space"] = space;
     payload["index"] = index;
     payload["value"] = value;
+    if (count > 1) {
+        payload["count"] = count;
+    }
 
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
         payload["ctx"] = (s32)map_getLevel(gsworld_getMap());
@@ -52,19 +56,30 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
 
     u8 space = payload.at("space").get<u8>();
     s16 index = payload.at("index").get<s16>();
-    u8 value = payload.at("value").get<u8>();
+    u32 values = payload.at("value").get<u32>();
+    s32 count = payload.value("count", 1);
     s32 ctx = payload.at("ctx").get<s32>();
 
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
         if ((s32)map_getLevel(gsworld_getMap()) == ctx) {
-            ApplyRemote([&] { levelSpecificFlags_set(index, value); });
+            ApplyRemote([&] {
+                for (s32 i = 0; i < count; i++) {
+                    levelSpecificFlags_set(index + i, (values >> i) & 1);
+                }
+            });
         }
     } else if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
         if ((s32)gsworld_getMap() == ctx) {
-            ApplyRemote([&] { mapSpecificFlags_set(index, value); });
-            if (value && index >= 0 && index < 32) {
-                sMapFlagSetRemotely |= (1u << index);
-            }
+            ApplyRemote([&] {
+                for (s32 i = 0; i < count; i++) {
+                    const s32 bit = index + i;
+                    const u8 value = (values >> i) & 1;
+                    mapSpecificFlags_set(bit, value);
+                    if (value && bit >= 0 && bit < 32) {
+                        sMapFlagSetRemotely |= (1u << bit);
+                    }
+                }
+            });
             RevealSwitchHoneycomb();
         }
     }
