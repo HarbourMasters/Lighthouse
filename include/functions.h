@@ -2248,8 +2248,6 @@ void jiggyscore_setSpawned(s32, s32);
 
 // --- core2/fx/effect_jiggy_list.c ---
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
-void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e, f32[3], s32 triggerEvent);
-s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id);
 void func_80332E08(void);
 void func_8033301C(void);
 void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);

@@ -10,6 +10,11 @@
 #include <vector>
 
 #include "functions.h"
+extern "C" {
+#include "core2/fx/effect_jiggy_list.h"
+extern Struct_core2_ABC00_0 jiggylist_list[];
+extern s32 s_jiggyList_level_jiggy_count;
+}
 
 /**
  * JIGGY_SPAWN
@@ -41,11 +46,20 @@ SpawnedJiggy& recordJiggySpawn(int32_t map, int16_t jiggyId, float x, float y, f
     return list.back();
 }
 
+// True once the jiggy list slot's marker is linked (covers bundle-pop, unlike jiggyscore_isSpawned).
+static bool jiggyListHasObject(int16_t jiggyId) {
+    return jiggylist_list[jiggyId - 1].unk10.marker != NULL;
+}
+
 void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
+    // Only a mismatched or broken peer sends an id outside the jiggy list.
+    if (pj.jiggyId <= 0 || pj.jiggyId >= s_jiggyList_level_jiggy_count * 10) {
+        return;
+    }
     if (jiggyscore_isCollected((enum jiggy_e)pj.jiggyId)) {
         return;
     }
-    if (jiggylist_hasSpawnedObject((enum jiggy_e)pj.jiggyId)) {
+    if (jiggyListHasObject(pj.jiggyId)) {
         pj.inFlight = false;
         return;
     }
@@ -53,7 +67,7 @@ void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
         return;
     }
     f32 pos[3] = { pj.x, pj.y, pj.z };
-    codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)pj.jiggyId, pos, 0); // silent, no re-broadcast
+    codeABC00_spawnJiggyAtLocation((enum jiggy_e)pj.jiggyId, pos);
     pj.inFlight = true;
 }
 
@@ -92,7 +106,7 @@ void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
     SpawnedJiggy& pj = recordJiggySpawn(map, jiggyId, x, y, z);
 
     if ((s32)gsworld_getMap() == map) {
-        trySpawnRecordedJiggy(pj);
+        ApplyRemote([&] { trySpawnRecordedJiggy(pj); });
     }
 }
 
@@ -108,7 +122,7 @@ void Anchor::FlushPendingJiggySpawns() {
             list.erase(list.begin() + i);
             continue;
         }
-        trySpawnRecordedJiggy(pj);
+        ApplyRemote([&] { trySpawnRecordedJiggy(pj); });
         i++;
     }
 }
