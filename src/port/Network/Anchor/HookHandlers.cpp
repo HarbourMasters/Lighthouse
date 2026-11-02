@@ -242,6 +242,8 @@ static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
     }
 }
 
+static s32 sScarfSledBoardTime = 0;
+
 void Anchor::RegisterHooks() {
 
     // #region Hooks that are required for basic Anchor functionality
@@ -418,13 +420,52 @@ void Anchor::RegisterHooks() {
             *should = false;
         }
     });
-    // Riding the sled after a teammate rescued Boggy: our crash plays no scene, and the scene is what releases the
-    // ride's camera.
+    // Our ride ended in a crash, so the sled's claim goes. After a teammate rescued Boggy the crash plays no scene, and
+    // the scene is what releases the ride's camera.
     COND_ID_HOOK(OnActorDestroy, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         Actor* sled = reinterpret_cast<OnActorDestroy*>(event)->actor;
-        if (sled->state == 2 && port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+        if (sled->state != 2) {
+            return;
+        }
+        NetAuthority_Release(NET_ACTIVITY_FP_SCARF_SLED);
+        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             func_80324CD8(0.0f);
             timed_exitStaticCamera(0.0f);
+        }
+    });
+    // One player rides the scarf sled at a time: boarding claims it and waits for every teammate in FP to accept.
+    COND_VB_SHOULD(VB_FP_SCARF_SLED_BOARD, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (!NetAuthority_IsClaimed(NET_ACTIVITY_FP_SCARF_SLED)) {
+            NetAuthority_Claim(NET_ACTIVITY_FP_SCARF_SLED);
+        }
+        sScarfSledBoardTime = globalTimer_getTime();
+        if (!NetAuthority_IsConfirmed(NET_ACTIVITY_FP_SCARF_SLED)) {
+            *should = false;
+        }
+    });
+    // Despawns the sled once a teammate's ride has rescued Boggy, and releases a claim we stepped away from without
+    // boarding. While a teammate holds the sled, it isn't solid or touchable.
+    COND_ID_HOOK(OnActorTick, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        Actor* sled = reinterpret_cast<OnActorTick*>(event)->actor;
+        if (sled->state != 1) {
+            return;
+        }
+        const bool heldByTeammate = !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED);
+        sled->marker->collidable = !heldByTeammate;
+        sled->marker->propPtr->unk8_3 = !heldByTeammate;
+        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+            marker_despawn(sled->marker);
+        } else if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_SCARF_SLED) &&
+                   NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED) &&
+                   globalTimer_getTime() - sScarfSledBoardTime > 15) { // frames
+            NetAuthority_Release(NET_ACTIVITY_FP_SCARF_SLED);
+        }
+    });
+    // Hidden rather than despawned while a teammate holds the sled, so it comes back if they step away without riding.
+    COND_ID_HOOK(ShouldActorDraw, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = reinterpret_cast<ShouldActorDraw*>(event);
+        if (ev->actor->state != 2 && !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED)) {
+            *ev->should = false;
         }
     });
 

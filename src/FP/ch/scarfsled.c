@@ -46,8 +46,10 @@ void __chScarfSled_touch(ActorMarker *this_marker, ActorMarker *other_marker){
     if(this->state != 1)  return;
     if(player_getTransformation() != TRANSFORM_1_BANJO) return;
 
-    if(func_8028F68C(BS_INTR_27_BANJO_SLED, this->marker))
-        __chScarfSled_setState(this, 2);
+    if(EventSystem_Should(VB_FP_SCARF_SLED_BOARD, true)){
+        if(func_8028F68C(BS_INTR_27_BANJO_SLED, this->marker))
+            __chScarfSled_setState(this, 2);
+    }
 }
 
 void __chScarfSled_func_8038655C(Actor *this){

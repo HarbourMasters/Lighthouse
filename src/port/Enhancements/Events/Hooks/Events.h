@@ -330,6 +330,15 @@ typedef enum VBehaviorID {
     // - `*Actor` (Boggy)
     VB_FP_BOGGY_WAIT_FOR_DIALOG,
 
+    // Whether Banjo can board the scarf sled he's touching.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_FP_SCARF_SLED_BOARD,
+
     // Romhack port gates
 
     // #### `result`
