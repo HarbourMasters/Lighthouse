@@ -49,14 +49,14 @@ static bool IsBottlesBonusUnlocked(int i) {
 static void ApplyBottlesBonusState() {
     bool any = false;
     for (int i = 0; i < 7; i++) {
-        volatileFlag_setEx((enum volatile_flags_e)(VOLATILE_FLAG_97_SANDCASTLE_BOTTLES_BONUS_1 + i),
-                           sBottlesBonusState[i] ? 1 : 0, 0);
+        volatileFlag_set((enum volatile_flags_e)(VOLATILE_FLAG_97_SANDCASTLE_BOTTLES_BONUS_1 + i),
+                         sBottlesBonusState[i] ? 1 : 0);
         if (sBottlesBonusState[i]) {
             any = true;
         }
     }
     // Master gate read by __baanim_applyBottlesBonus / baanim_getActiveBottlesBonusMask.
-    volatileFlag_setEx(VOLATILE_FLAG_78_SANDCASTLE_NO_BONUS, any ? 1 : 0, 0);
+    volatileFlag_set(VOLATILE_FLAG_78_SANDCASTLE_NO_BONUS, any ? 1 : 0);
 }
 
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;

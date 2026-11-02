@@ -298,13 +298,9 @@ int jiggyscore_isSpawned(enum jiggy_e jiggy_id);
 // --- core2/honeycombscore.c ---
 bool honeycombscore_get(enum honeycomb_e indx);
 
-// --- core2/map/mapspecificflags.c ---
-void mapSpecificFlags_setEx(s32 i, s32 val, s32 triggerEvent);
-
 // --- core2/level/levelspecificflags.c ---
 s32 levelSpecificFlags_get(s32 i);
 void levelSpecificFlags_set(s32, s32);
-void levelSpecificFlags_setEx(s32 index, s32 val, s32 triggerEvent);
 void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 
 // --- core2/gamestate.c ---
@@ -334,10 +330,6 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_GOLD = 10,
     ANCHOR_COLLECTIBLE_ORANGE = 11,
 };
-
-// --- core2/flags_bitfield.c ---
-void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
-void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
 // --- core2/dialog/progressDialog.c ---
 void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0);

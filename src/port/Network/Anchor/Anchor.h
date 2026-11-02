@@ -61,6 +61,7 @@ private:
     bool justLoadedSave = false;
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
+    bool isApplyingRemote = false;
     bool hasRequestedTeamState = false;
     bool isReconnecting = false;
     BKPlayerColorSet sentColors = {};
@@ -79,6 +80,12 @@ private:
     void UseHeldTeamState();
     void FlushPendingTeamState();
     void ApplyLoadedTeamState(nlohmann::json& state);
+    // Writes a teammate's value through a vanilla setter without sending its event back.
+    template <typename Write> void ApplyRemote(Write write) {
+        isApplyingRemote = true;
+        write();
+        isApplyingRemote = false;
+    }
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();

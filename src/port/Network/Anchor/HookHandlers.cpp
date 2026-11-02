@@ -522,7 +522,7 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
-        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags || anchor->isApplyingRemote) {
             return;
         }
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
@@ -553,6 +553,10 @@ void Anchor::RegisterHooks() {
                 }
                 bit = volatileFlag_get((enum volatile_flags_e)index);
             } else {
+                // The sandcastle cheats' save-file copies, which saveData_create writes from the volatile flags.
+                if (index >= FILEPROG_FF_SANDCASTLE_OPEN_DOOR_TWO && index <= FILEPROG_123_CHEAT_ENTERED) {
+                    continue;
+                }
                 bit = fileProgressFlag_get((enum file_progress_e)index);
             }
             if (bit) {

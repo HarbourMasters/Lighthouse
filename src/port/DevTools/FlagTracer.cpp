@@ -116,9 +116,9 @@ std::string FlagLabel(int32_t flagSpace, int32_t index) {
 // Symbolized stack of whatever led here.
 std::string CaptureCallerStack(int maxFrames) {
     auto isPlumbing = [](const char* name) {
-        static const char* kPlumbing[] = { "FlagTrace",    "EventSystem", "CallEvent", "Flag_set",   "Flags_set",
-                                           "Flag_setEx",   "Flags_setEx", "Flag_setN", "Flags_setN", "Flag_getAndSet",
-                                           "Flags_getSet", "invoke",      "std::",     "lambda" };
+        static const char* kPlumbing[] = { "FlagTrace",    "EventSystem", "CallEvent",  "Flag_set",
+                                           "Flags_set",    "Flag_setN",   "Flags_setN", "Flag_getAndSet",
+                                           "Flags_getSet", "invoke",      "std::",      "lambda" };
         for (const char* p : kPlumbing) {
             if (std::strstr(name, p) != nullptr) {
                 return true;

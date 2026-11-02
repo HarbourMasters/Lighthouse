@@ -59,10 +59,10 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
             RANDO_SAVE_FLAGS[flag].flagState = 1;
         }
     } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
-        volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
+        ApplyRemote([&] { volatileFlag_set((enum volatile_flags_e)flag, 1); });
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
-        fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
+        ApplyRemote([&] { fileProgressFlag_set((enum file_progress_e)flag, 1); });
         // A duplicate (two players breaking the same cobweb) would replay the cue over the one already playing.
         if (!wasSet) {
             port_progressFlag_remoteCue(flag);

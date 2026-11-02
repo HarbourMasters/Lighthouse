@@ -135,20 +135,14 @@ void fileprogressflag_func_8031FFAC(void) {
     fileprogressflag_func_8031FEC0();
 }
 
-void fileProgressFlag_setEx(enum file_progress_e index, s32 value, s32 triggerEvent) {
-    s32 changed = bitfieldarray_getBit(gFileProgressFlags.unk8, index) != (value ? 1 : 0);
-
+void fileProgressFlag_set(enum file_progress_e index, bool value) {
+    s32 changed = bitfieldarray_getBit(gFileProgressFlags.unk8, index) != (value ? 1 : 0); // [port]
     bitfieldarray_setBit(gFileProgressFlags.unk8, index, value);
     fileprogressflag_func_8031FC40();
     fileprogressflag_func_8031FEC0();
-
-    if (triggerEvent && changed) {
+    if (changed) { // [port]
         CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_FILE_PROGRESS, index, value ? 1 : 0, 1);
     }
-}
-
-void fileProgressFlag_set(enum file_progress_e index, bool value) {
-    fileProgressFlag_setEx(index, value, 1);
 }
 
 void fileProgressFlag_setN(enum file_progress_e start_index, u32 values, s32 count) {
@@ -298,20 +292,14 @@ void volatileFlag_clear(void) {
     volatileflag_func_803203A0();
 }
 
-void volatileFlag_setEx(enum volatile_flags_e index, s32 value, s32 triggerEvent) {
-    s32 changed = bitfieldarray_getBit(gVolatileFlags.unk8, index) != (value ? 1 : 0);
-
+void volatileFlag_set(enum volatile_flags_e index, bool value) {
+    s32 changed = bitfieldarray_getBit(gVolatileFlags.unk8, index) != (value ? 1 : 0); // [port]
     bitfieldarray_setBit(gVolatileFlags.unk8, index, value);
     volatileflag_func_803202D0();
     volatileflag_func_803203A0();
-
-    if (triggerEvent && changed) {
+    if (changed) { // [port]
         CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_VOLATILE, index, value ? 1 : 0, 1);
     }
-}
-
-void volatileFlag_set(enum volatile_flags_e index, bool value) {
-    volatileFlag_setEx(index, value, 1);
 }
 
 void volatileFlag_setN(enum volatile_flags_e start_index, s32 values, s32 count) {

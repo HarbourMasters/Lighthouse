@@ -170,7 +170,7 @@ void func_8038A384(Actor *this){
             }
             netBits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
             if ((netBits & sCubPresentSync[cubIdx].bit) && !levelSpecificFlags_get(D_80391E80[cubIdx].unk0)) {
-                levelSpecificFlags_setEx(D_80391E80[cubIdx].unk0, 1, 0);
+                levelSpecificFlags_set(D_80391E80[cubIdx].unk0, 1);
                 subaddie_set_state_with_direction(this, 2, 0.001f, 1);
             }
         }

@@ -57,11 +57,11 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
 
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
         if ((s32)map_getLevel(gsworld_getMap()) == ctx) {
-            levelSpecificFlags_setEx(index, value, 0);
+            ApplyRemote([&] { levelSpecificFlags_set(index, value); });
         }
     } else if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
         if ((s32)gsworld_getMap() == ctx) {
-            mapSpecificFlags_setEx(index, value, 0);
+            ApplyRemote([&] { mapSpecificFlags_set(index, value); });
             if (value && index >= 0 && index < 32) {
                 sMapFlagSetRemotely |= (1u << index);
             }

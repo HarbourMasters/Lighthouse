@@ -34,8 +34,8 @@ void Anchor::HandlePacket_UnsetFlag(nlohmann::json& payload) {
     s16 flag = payload.at("flag").get<s16>();
 
     if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
-        volatileFlag_setEx((enum volatile_flags_e)flag, 0, 0);
+        ApplyRemote([&] { volatileFlag_set((enum volatile_flags_e)flag, 0); });
     } else {
-        fileProgressFlag_setEx((enum file_progress_e)flag, 0, 0);
+        ApplyRemote([&] { fileProgressFlag_set((enum file_progress_e)flag, 0); });
     }
 }
