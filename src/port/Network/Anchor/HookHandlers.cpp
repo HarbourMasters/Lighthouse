@@ -119,6 +119,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_23_RBB_OPEN,
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_24_CCW_OPEN,
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_3F_LAIR_GRUNTY_DOOR_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_33_MMM_UNKNOWN, // MMM Loggo flusher's exit dialog
+        // RBB propeller press: the cutscene and engine-room warp play for the presser only; 0x27/0x28 carry the result.
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_3_RBB_UNKNOWN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_4_RBB_UNKNOWN,
     };
     if (excluded.contains((space << 16) | index)) {
         return true;
@@ -158,6 +162,22 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         index == FP_SPECIFIC_FLAG_D_UNKNOWN) {
         return true;
     }
+    // Jinxy's nostril and door latches pair each client's camera lock with its release (carpet2.c,
+    // gvspawnqueue.c). Each client sets them from the synced eggs and flag 0x10.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY &&
+        (index == 2 || index == 0xE || index == 0xF)) {
+        return true;
+    }
+    // The church-door warp latch (cutscene_skip.c), re-armed by each door opening, and the flag the door
+    // rewrites every frame from its yaw (mmmspawnqueue.c).
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION &&
+        (index == MMM_SPECIFIC_FLAG_2_UNKNOWN || index == MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)) {
+        return true;
+    }
+    // Per-frame scratch for the local player (quiz/game.c, its only writer).
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && index == 0x1F) {
+        return true;
+    }
     // FP bear cubs' presents-received flags: kept local; ANCHOR_PUZZLE_FP_PRESENTS syncs the result.
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
         (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_5_FREEZEEZY_PEAK &&
@@ -170,6 +190,38 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         return true;
     }
     return false;
+}
+
+// Clears that stay local. The flags' sets still sync.
+static bool Anchor_LocalFlagClear(s32 space, s32 index) {
+    switch (space) {
+        case ANCHOR_FLAGSPACE_FILE_PROGRESS:
+            // Each beanstalk and Gobi reset it (beanstalk.c, ccwgobi.c); a teammate's would unwater our flower
+            // while the waterer's jiggy is on its way.
+            return index == FILEPROG_E5_CCW_FLOWER_AUTUMN;
+        case ANCHOR_FLAGSPACE_MAP_SPECIFIC:
+            // An idle flibbit clears the call-up as it answers (yellowflibbit.c); a teammate's clear cancels ours.
+            if (gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
+                index == BGS_SPECIFIC_FLAG_12_FROG_MINIGAME_BATTLE_ACTIVE) {
+                return true;
+            }
+            // The sun door clears 3 and 4 when its cycle ends (gvspawnqueue.c); a teammate's clear halts our open door.
+            if (gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY && (index == 3 || index == 4)) {
+                return true;
+            }
+            // The Tee-Hees clear 3 and 4 as they wake and leave (ghost.c); a teammate's clear can land with the set.
+            if (gsworld_getMap() == MAP_24_MMM_TUMBLARS_SHED &&
+                (index == MMM_SPECIFIC_FLAG_3_UNKNOWN || index == MMM_SPECIFIC_FLAG_4_UNKNOWN)) {
+                return true;
+            }
+            // Snorkel clears the anchor cue as it leaves (dolphin.c); a teammate's clear warps a lagging presser early.
+            return gsworld_getMap() == MAP_31_RBB_RUSTY_BUCKET_BAY && index == RBB_MAIN_SPECIFIC_FLAG_4_ANCHOR_LIFTING;
+        case ANCHOR_FLAGSPACE_LEVEL_SPECIFIC:
+            // The propeller timer clears these when it stops (propellorctrl.c); a teammate leaving RBB restarts ours.
+            return index == LEVEL_FLAG_27_RBB_UNKNOWN || index == LEVEL_FLAG_28_RBB_UNKNOWN;
+        default:
+            return false;
+    }
 }
 
 static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
@@ -477,18 +529,21 @@ void Anchor::RegisterHooks() {
         for (s32 i = 0; i < ev->length; i++) {
             s32 index = ev->index + i;
             if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
-                if (Anchor_ScopedFlagExcluded(ev->flagSpace, index)) {
+                const u8 value = levelSpecificFlags_get(index) ? 1 : 0;
+                if (Anchor_ScopedFlagExcluded(ev->flagSpace, index) ||
+                    (!value && Anchor_LocalFlagClear(ev->flagSpace, index))) {
                     continue;
                 }
-                anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index,
-                                              (u8)(levelSpecificFlags_get(index) ? 1 : 0));
+                anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index, value);
                 continue;
             }
             if (ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
-                if (Anchor_ScopedFlagExcluded(ev->flagSpace, index)) {
+                const u8 value = mapSpecificFlags_get(index) ? 1 : 0;
+                if (Anchor_ScopedFlagExcluded(ev->flagSpace, index) ||
+                    (!value && Anchor_LocalFlagClear(ev->flagSpace, index))) {
                     continue;
                 }
-                anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index, (u8)(mapSpecificFlags_get(index) ? 1 : 0));
+                anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index, value);
                 continue;
             }
             s32 bit;
@@ -502,7 +557,7 @@ void Anchor::RegisterHooks() {
             }
             if (bit) {
                 anchor->SendPacket_SetFlag((u8)ev->flagSpace, (s16)index);
-            } else {
+            } else if (!Anchor_LocalFlagClear(ev->flagSpace, index)) {
                 anchor->SendPacket_UnsetFlag((u8)ev->flagSpace, (s16)index);
             }
         }
