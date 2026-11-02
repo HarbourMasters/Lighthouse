@@ -642,6 +642,10 @@ void Anchor::RegisterHooks() {
             return;
         }
         auto ev = reinterpret_cast<OnJiggySpawned*>(event);
+        // Grabba spawns his held jiggy on every load; a record would spawn a loose copy ahead of his.
+        if (ev->jiggyId == JIGGY_3E_GV_GRABBA) {
+            return;
+        }
         anchor->SendPacket_SpawnJiggy((s16)ev->jiggyId, ev->x, ev->y, ev->z);
     });
 

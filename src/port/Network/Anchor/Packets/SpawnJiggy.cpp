@@ -67,6 +67,9 @@ void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
         return;
     }
     f32 pos[3] = { pj.x, pj.y, pj.z };
+    // A recorded jiggy has no owner; Conga's or Grabba's callback from an earlier visit would write
+    // through that visit's freed marker.
+    jiggylist_list[pj.jiggyId - 1].unk10.unk14 = NULL;
     codeABC00_spawnJiggyAtLocation((enum jiggy_e)pj.jiggyId, pos);
     pj.inFlight = true;
 }
@@ -145,6 +148,10 @@ std::vector<int32_t> port_jiggySpawn_snapshot() {
 void port_jiggySpawn_restore(const std::vector<int32_t>& flat) {
     sSpawnedJiggies.clear();
     for (size_t i = 0; i + 5 <= flat.size(); i += 5) {
+        // The collect that would clear a record can sit in a queue that was never replayed.
+        if (jiggyscore_isCollected((enum jiggy_e)flat[i + 1])) {
+            continue;
+        }
         sSpawnedJiggies[flat[i]].push_back(
             { (int16_t)flat[i + 1], (float)flat[i + 2], (float)flat[i + 3], (float)flat[i + 4] });
     }
