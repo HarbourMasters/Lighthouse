@@ -6,7 +6,6 @@
 #include "port/Engine.h"
 #include "port/Nametag/Nametag.h"
 #include "port/Interpolation/FrameInterpolation.h"
-#include "port/ObjectExtension/ObjectExtension.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/FrameHost.h"
 #include "port/UI/Notification.h"
@@ -320,22 +319,6 @@ void Anchor::ProcessIncomingPacketQueue() {
 }
 
 // MARK: - Misc/Helpers
-
-struct DummyPlayerClientId {
-    uint32_t clientId;
-};
-
-// Kills all existing anchor actors and respawns them with the new client data
-static ObjectExtension::Register<DummyPlayerClientId> DummyPlayerClientIdRegister;
-
-uint32_t Anchor::GetDummyPlayerClientId(const Actor* actor) {
-    const DummyPlayerClientId* clientId = ObjectExtension::GetInstance().Get<DummyPlayerClientId>(actor);
-    return clientId != nullptr ? clientId->clientId : 0;
-}
-
-void Anchor::SetDummyPlayerClientId(const Actor* actor, uint32_t clientId) {
-    ObjectExtension::GetInstance().Set<DummyPlayerClientId>(actor, DummyPlayerClientId{ clientId });
-}
 
 // Roughly the top of Banjo's head.
 static constexpr f32 kNametagHeight = 155.0f;

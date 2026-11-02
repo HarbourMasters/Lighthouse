@@ -84,7 +84,6 @@ private:
     nlohmann::json PrepRoomState();
     void RegisterHooks();
     void RefreshClientActors();
-    void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
     void DrawDummies(OnPlayerDraw* event);
     void ClearDummies();
     void PopulateDummies(GameMap map);
@@ -218,7 +217,6 @@ public:
     void SendJsonToRemote(nlohmann::json packet);
     bool IsSaveLoaded();
     bool CanTeleportTo(uint32_t clientId);
-    uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
 
     bool IsGlobalRoom();
