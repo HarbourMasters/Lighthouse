@@ -16,7 +16,10 @@ extern Struct_core2_ABC00_0 jiggylist_list[];
 extern s32 s_jiggyList_level_jiggy_count;
 }
 
-extern "C" void port_jiggySpawn_remove(int32_t jiggyId);
+extern "C" {
+void func_80332BB0(void);
+void port_jiggySpawn_remove(int32_t jiggyId);
+}
 
 /**
  * JIGGY_SPAWN
@@ -53,20 +56,21 @@ bool Anchor_JiggyListHasObject(int16_t jiggyId) {
     return jiggylist_list[jiggyId - 1].unk10.marker != NULL;
 }
 
-void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
+// True when this call spawned it.
+bool trySpawnRecordedJiggy(SpawnedJiggy& pj) {
     // Only a mismatched or broken peer sends an id outside the jiggy list.
     if (pj.jiggyId <= 0 || pj.jiggyId >= s_jiggyList_level_jiggy_count * 10) {
-        return;
+        return false;
     }
     if (jiggyscore_isCollected((enum jiggy_e)pj.jiggyId)) {
-        return;
+        return false;
     }
     if (Anchor_JiggyListHasObject(pj.jiggyId)) {
         pj.inFlight = false;
-        return;
+        return false;
     }
     if (pj.inFlight) {
-        return;
+        return false;
     }
     f32 pos[3] = { pj.x, pj.y, pj.z };
     // A recorded jiggy has no owner; Conga's or Grabba's callback from an earlier visit would write
@@ -74,6 +78,17 @@ void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
     jiggylist_list[pj.jiggyId - 1].unk10.unk14 = NULL;
     codeABC00_spawnJiggyAtLocation((enum jiggy_e)pj.jiggyId, pos);
     pj.inFlight = true;
+    return true;
+}
+
+// jiggy_spawn's jingle, which the silent spawn above leaves out.
+static void playSpawnJingle(int16_t jiggyId) {
+    if (jiggyId != JIGGY_3E_GV_GRABBA && jiggyId != JIGGY_0B_TTC_JINJO) {
+        midichannel_incOrDecCounter(false);
+        func_8025A55C(0, 4000, 5);
+        coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        timedFunc_set_0(3.5f, func_80332BB0);
+    }
 }
 
 void Anchor::SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z) {
@@ -153,8 +168,15 @@ void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
 
     SpawnedJiggy& pj = recordJiggySpawn(map, jiggyId, x, y, z);
 
+    // A jiggy that appears while we're here plays its jingle within earshot; one already waiting when we arrive
+    // doesn't.
+    f32 pos[3] = { x, y, z };
     if ((s32)gsworld_getMap() == map) {
-        ApplyRemote([&] { trySpawnRecordedJiggy(pj); });
+        bool spawned = false;
+        ApplyRemote([&] { spawned = trySpawnRecordedJiggy(pj); });
+        if (spawned && Anchor_InEarshot(pos)) {
+            playSpawnJingle(jiggyId);
+        }
     }
 }
 
