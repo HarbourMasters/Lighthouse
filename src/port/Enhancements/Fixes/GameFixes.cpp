@@ -136,7 +136,9 @@ void RegisterYumYumDrop_Init() {
     REGISTER_VB_SHOULD(VB_YUMYUM_DROP, EVENT_PRIORITY_NORMAL, {
         int actorId = va_arg(args, int);
         int maxOnGround = va_arg(args, int);
-        *should = actorArray_actorCount((enum actor_e)actorId) < maxOnGround;
+        if (actorArray_actorCount((enum actor_e)actorId) >= maxOnGround) {
+            *should = false;
+        }
     });
 }
 
@@ -169,8 +171,11 @@ static bool IsChimpyWalkOffReplay() {
 void RegisterChimpyStumpRumble_Init() {
     COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
                    { *should = !jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY); });
-    COND_VB_SHOULD(VB_MM_CHIMPY_NOISE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
-                   { *should = !IsChimpyWalkOffReplay(); });
+    COND_VB_SHOULD(VB_MM_CHIMPY_NOISE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
+        if (IsChimpyWalkOffReplay()) {
+            *should = false;
+        }
+    });
     COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
         Actor* pathWalker = va_arg(args, Actor*);
         if (pathWalker != NULL && pathWalker->actor_info != NULL && pathWalker->actor_info->actorId == ACTOR_F_CHIMPY &&

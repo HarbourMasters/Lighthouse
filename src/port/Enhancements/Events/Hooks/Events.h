@@ -164,8 +164,24 @@ typedef enum VBehaviorID {
     VB_HANDLE_PLAYER_DEATH,
     VB_JINJO_CHARGE_SOUND,
     VB_ENEMY_BECOME_BUNDLE,
+
+    // #### `result`
+    // ```c
+    // item_getCount(ITEM_D_EGGS) != 0        // blue eggs
+    // item_getCount(ITEM_F_RED_FEATHER) != 0 // red feathers
+    // ```
+    // #### `args`
+    // - `s32` (the dropped item's actor id)
+    // - `s32` (how many of them can lie on the ground)
     VB_YUMYUM_DROP,
     VB_MM_CHIMPY_STUMP_RUMBLE,
+
+    // #### `result`
+    // ```c
+    // subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId()
+    // ```
+    // #### `args`
+    // - None
     VB_MM_CHIMPY_NOISE,
     VB_SPLINE_PATH_SFX,
 
@@ -205,6 +221,13 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (this)
     VB_ACTOR_FOOTSTEP_SLOT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (this)
     VB_ACTOR_AMBIENT_PARTICLES,
 
     // #### `result`
