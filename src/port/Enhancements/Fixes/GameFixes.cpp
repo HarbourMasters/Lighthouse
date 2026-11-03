@@ -12,6 +12,7 @@
 #include "functions.h"
 extern "C" {
 #include "enums.h"
+#include "MM/ch/chimpystump.h"
 
 enum map_e gsworld_getMap(void);
 extern s32 gVoidOutReturnLocation[2];
@@ -185,6 +186,17 @@ void RegisterChimpyStumpRumble_Init() {
     });
 }
 
+// Online or not: a stump that inits once Chimpy has raised it (map flag 0) starts raised.
+void RegisterChimpyStumpRaised_Init() {
+    REGISTER_VB_SHOULD(VB_MM_CHIMPY_STUMP_START_LOWERED, EVENT_PRIORITY_NORMAL, {
+        Actor* stump = va_arg(args, Actor*);
+        if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED)) {
+            subaddie_set_state(stump, CHIMPY_STUMP_STATE_3_RAISED);
+            *should = false;
+        }
+    });
+}
+
 // Chimpy softlock prevention
 static bool sChimpyDeliveryInFlight = false;
 
@@ -271,6 +283,7 @@ static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CV
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
 static RegisterShipInitFunc initChimpyStumpRumbleFunc(RegisterChimpyStumpRumble_Init, { CVAR_STUMP_RUMBLE });
+static RegisterShipInitFunc initChimpyStumpRaisedFunc(RegisterChimpyStumpRaised_Init);
 static RegisterShipInitFunc initChimpySoftlockFunc(RegisterChimpySoftlock_Init);
 static RegisterShipInitFunc initMumboTokenIdResolveFunc(RegisterMumboTokenIdResolve_Init,
                                                         { CVAR_TOKEN_MMM, CVAR_TOKEN_CCW });

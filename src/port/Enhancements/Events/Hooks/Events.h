@@ -183,6 +183,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_MM_CHIMPY_NOISE,
+
+    // A listener that returns false skips the 134-unit drop and sets the stump's state.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the stump)
+    VB_MM_CHIMPY_STUMP_START_LOWERED,
     VB_SPLINE_PATH_SFX,
 
     // #### `result`

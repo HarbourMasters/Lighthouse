@@ -15,11 +15,7 @@ void core1_7090_initSfxSource(s32, s32, s32, f32);
 void chchimpystump_update(Actor *this);
 
 /* .data */
-enum chchimpystump_state_e {
-    CHIMPY_STUMP_STATE_1_LOWERED = 1,
-    CHIMPY_STUMP_STATE_2_RAISING,
-    CHIMPY_STUMP_STATE_3_RAISED
-};
+#include "chimpystump.h" // [port] the states moved there
 
 ActorInfo chchimpystump = {
     MARKER_95_CHIMPY_STUMP, ACTOR_C5_CHIMPY_STUMP, ASSET_3C8_MODEL_CHIMPY_STUMP,
@@ -51,11 +47,8 @@ void chchimpystump_update(Actor *this) {
         actor_collisionOff(this);
         this->initialized = true;
         this->actor_specific_1_f = this->position_y;
-        if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED)) {
-            subaddie_set_state(this, CHIMPY_STUMP_STATE_3_RAISED);
-        } else {
-            this->position_y -= 134.0f;
-        }
+//      this->position_y -= 134.0f;
+        if (EventSystem_Should(VB_MM_CHIMPY_STUMP_START_LOWERED, true, this)) this->position_y -= 134.0f;
         this->marker->propPtr->unk8_3 = 1;
     }
 
