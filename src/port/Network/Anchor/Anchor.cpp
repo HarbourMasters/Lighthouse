@@ -453,6 +453,14 @@ s32 Anchor_LevelOfMap(s32 map) {
     return (level > 0 && level < 0x20) ? level : 0;
 }
 
+// Whether the player is within range of pos, for a teammate's jingle or sound there. The default, 1800 units, is as
+// far as Croctus's mouth squeak carries; a romhack can pass another.
+bool Anchor_InEarshot(f32 pos[3], f32 range) {
+    f32 player[3];
+    player_getPosition(player);
+    return ml_vec3f_distance(pos, player) < range;
+}
+
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     // Without world sync these stores aren't used; TransientLevelState drops what's left.
     if (!IsWorldSyncActive()) {

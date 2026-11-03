@@ -331,12 +331,11 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
-    VB_CCW_FLOWER_REMOTE_GROW,  // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
-    VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
-    VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
-    VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
-    VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
-    VB_CC_RINGS_SNAP_WATER,     // CC rings water snap on run teardown: suppressed when a teammate finished the rings.
+    VB_CCW_FLOWER_REMOTE_GROW,     // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
+    VB_FP_TWINKLY_START,           // Gates FP twinkly minigame start so only one client owns a run at a time.
+    VB_SM_TUTORIAL_CHOICE_OPEN,    // True while the SM tutorial choice is still open to the local player.
+    VB_SM_MOLEHILL_ACTIVE,         // SM ability molehills stay inert until the tutorial choice is made.
+    VB_DOOR_OPEN_CAMERA,           // Suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
     VB_CCW_PODIUM_DESPAWN,    // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
                               // reveal it live.
@@ -370,6 +369,89 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_FP_SCARF_SLED_BOARD,
+
+    // A puzzle step's camera, look-at or dialog. A teammate's step replayed here goes without it.
+    // #### `result`
+    // ```c
+    // true                                  // Croctus, Tanktup's look-at
+    // (!this->unk138_23) && (!local->unk14) // Tanktup's hit dialog
+    // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
+    // actor_animationIsAt(this, 0.9f) != 0  // Tanktup's dialog
+    // ```
+    // #### `args`
+    // - `*Actor` (whose step it is)
+    VB_PLAY_PUZZLE_CUTSCENE,
+
+    // A puzzle step's jingle or sound. A teammate's step replayed here plays it only within earshot.
+    // #### `result`
+    // ```c
+    // true                                  // Croctus's ding, glitter and crunch, Tanktup's fanfare and legs
+    // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
+    // ```
+    // #### `args`
+    // - `*Actor` (whose step it is)
+    VB_PLAY_PUZZLE_JINGLE,
+
+    // A puzzle's jiggy. A teammate's step leaves it to the teammate.
+    // #### `result`
+    // ```c
+    // actor_animationIsAt(this, 0.4f) != 0 // Tanktup's
+    // ```
+    // #### `args`
+    // - `*Actor` (whose puzzle it is)
+    VB_SPAWN_PUZZLE_JIGGY,
+
+    // The first Croctus's look-at and dialog, whose callback wakes the second. A listener that returns false skips
+    // both and has to call chCroctus_activateNextCroctus.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the first Croctus)
+    VB_CROCTUS_FIRST_FEED_DIALOG,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*u8` (the round to save)
+    VB_TIPTUP_SAVE_ROUND,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CLANKER_LIFT_CLOSE_DIALOG,
+
+    // #### `result`
+    // ```c
+    // maClankerRings.currentActiveRing != 0
+    // ```
+    // #### `args`
+    // - `*u8` (the active ring)
+    VB_CC_RINGS_ACTIVE,
+
+    // #### `result`
+    // ```c
+    // !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
+    // ```
+    // #### `args`
+    // - None
+    VB_SNIPPETS_DROP_JIGGY,
+
+    // #### `result`
+    // ```c
+    // levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) // Wozza
+    // jiggyscore_isCollected(JIGGY_32_FP_WOZZA) ||
+    //     levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) // Wozza in his cave
+    // ```
+    // #### `args`
+    // - None
+    VB_WOZZA_JIGGY_DROPPED,
 
     // Romhack port gates
 

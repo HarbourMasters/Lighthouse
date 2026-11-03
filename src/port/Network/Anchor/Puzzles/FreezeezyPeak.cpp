@@ -1,0 +1,136 @@
+#include "Puzzles.h"
+#include "port/Network/Anchor/Anchor.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Enhancements/Retention/Retention.h"
+
+#include "functions.h"
+extern "C" {
+void __chSnowman_deathCallback(ActorMarker* marker, ActorMarker* other_marker);
+void chXmasTreeIce_shatterIce(ActorMarker* marker);
+}
+
+#include "port/Patches/Patches.h"
+
+struct CubPresent {
+    s32 levelFlag;
+    s32 bit;
+    s32 kind;
+    enum item_e item;
+};
+
+// Blue, green and red, in actor id order (bearcub.c's D_80391E80).
+static const CubPresent kCubPresents[] = {
+    { LEVEL_FLAG_11_FP_UNKNOWN, 0x1, ANCHOR_COLLECTIBLE_PRESENT_BLUE, ITEM_20_BLUE_PRESENT },
+    { LEVEL_FLAG_12_FP_UNKNOWN, 0x2, ANCHOR_COLLECTIBLE_PRESENT_GREEN, ITEM_1F_GREEN_PRESENT },
+    { LEVEL_FLAG_13_FP_UNKNOWN, 0x4, ANCHOR_COLLECTIBLE_PRESENT_RED, ITEM_21_RED_PRESENT },
+};
+
+// The tree's ice is shattering in vanilla's warp-in cutscene.
+static bool sTreeIceShattering = false;
+
+static void BearCubUpdate(IEvent* event) {
+    Actor* cub = ((ShouldActorUpdate*)event)->actor;
+    const CubPresent& present = kCubPresents[cub->modelCacheIndex - ACTOR_1EA_POLAR_BEAR_CUB_BLUE];
+    const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
+
+    // Before the cub sets up: our presents are the team's collected ones less the delivered, since carried presents
+    // aren't synced.
+    if (!cub->volatile_initialized) {
+        const s32 pool = port_carriedSync_collectedCount(present.kind) - ((bits & present.bit) ? 1 : 0);
+        if (pool > item_getCount(present.item)) {
+            item_adjustByDiffWithoutHud(present.item, pool - item_getCount(present.item));
+        }
+    }
+    if (levelSpecificFlags_get(present.levelFlag)) {
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_PRESENTS, present.bit);
+    } else if (bits & present.bit) {
+        // A teammate gave this cub its present.
+        levelSpecificFlags_set(present.levelFlag, true);
+        subaddie_set_state_with_direction(cub, 2, 0.001f, 1);
+    }
+}
+
+void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_1EA_POLAR_BEAR_CUB_BLUE, EVENT_PRIORITY_NORMAL, connected, BearCubUpdate);
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_1EB_POLAR_BEAR_CUB_GREEN, EVENT_PRIORITY_NORMAL, connected, BearCubUpdate);
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_1EC_POLAR_BEAR_CUB_RED, EVENT_PRIORITY_NORMAL, connected, BearCubUpdate);
+
+    // A button a teammate pressed goes down here too, and one pressed here is recorded for them.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_116_FP_SNOWMAN_BUTTON, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        Actor* button = ((ShouldActorUpdate*)event)->actor;
+        const s32 x = (s32)button->position[0];
+        const s32 y = (s32)button->position[1];
+        const s32 z = (s32)button->position[2];
+        if (button->state == 1 && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)) {
+            subaddie_set_state_with_direction(button, 2, 0.01f, 1);
+            maSnowButton_decRemaining();
+        }
+        if (button->state != 1) {
+            port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
+        }
+    });
+
+    // A Sir Slush a teammate beat goes here too: quietly if he hasn't set up, with his death if he has.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_124_SIR_SLUSH, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        Actor* slush = ev->actor;
+        if (gsworld_getMap() != MAP_27_FP_FREEZEEZY_PEAK ||
+            !port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)slush->position[0], (s32)slush->position[1],
+                                     (s32)slush->position[2])) {
+            return;
+        }
+        if (slush->volatile_initialized) {
+            __chSnowman_deathCallback(slush->marker, NULL);
+        } else {
+            maSnowy_incTotal(); // his skipped setup's count
+            maSnowy_decRemaining();
+            marker_despawn(slush->marker);
+        }
+        *ev->should = false;
+    });
+
+    // A teammate shattered the tree's ice (recorded in the tree's map): the tree lights up, and a run of ours stops.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_15F_XMAS_TREE, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        Actor* tree = ((ShouldActorUpdate*)event)->actor;
+        if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE) &&
+            (port_puzzleStep_getForMap(MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
+            levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+            if (tree->state == 4) {
+                item_set(ITEM_6_HOURGLASS, false);
+                mapSpecificFlags_set(FP_SPECIFIC_FLAG_2_XMAS_TREE_SWITCH, false);
+            }
+        }
+    });
+
+    // The tree's ice shatters here too.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_340_XMAS_TREE_ICE, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        Actor* ice = ev->actor;
+        const bool shattered = port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1;
+        if (!ice->volatile_initialized) {
+            sTreeIceShattering = false;
+            if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)) {
+                return;
+            }
+            if (shattered) {
+                levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+                marker_despawn(ice->marker);
+                *ev->should = false;
+            } else {
+                sTreeIceShattering = levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE);
+            }
+            return;
+        }
+        if (shattered && !sTreeIceShattering && ice->unk38_31 == 0) {
+            levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+            chXmasTreeIce_shatterIce(ice->marker);
+        }
+    });
+
+    // A teammate's Wozza jiggy comes out here without the level flag on a later visit.
+    COND_VB_SHOULD(VB_WOZZA_JIGGY_DROPPED, EVENT_PRIORITY_NORMAL, connected, {
+        if (jiggyscore_isSpawned(JIGGY_32_FP_WOZZA)) {
+            *should = true;
+        }
+    });
+}

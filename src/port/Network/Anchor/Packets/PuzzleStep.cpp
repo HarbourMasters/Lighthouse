@@ -340,6 +340,10 @@ void RegisterPuzzleStep_Init() {
         auto* ev = (OnPuzzleStep*)event;
         port_puzzleStep_orBits(ev->puzzleId, ev->bits);
     });
+    REGISTER_LISTENER(OnPuzzlePosMark, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnPuzzlePosMark*)event;
+        port_puzzlePos_mark(ev->puzzleId, ev->x, ev->y, ev->z);
+    });
 }
 
 static RegisterShipInitFunc initPuzzleStep(RegisterPuzzleStep_Init, {});

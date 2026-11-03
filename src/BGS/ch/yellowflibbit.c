@@ -33,20 +33,7 @@ ActorInfo gChYellowFlibbit = {
 s32 D_80390B04[3] = {0xFF, 0xB3, 0};
 f32 BGS_D_80390B10[3] = {0.0f, 0.0f, 0.0f};
 
-enum chYellowFlibbitState {
-    CH_YELLOW_FLIBBIT_STATE_0_NOT_INIT,
-    CH_YELLOW_FLIBBIT_STATE_1_IDLE_NOT_SPAWNED,
-    CH_YELLOW_FLIBBIT_STATE_2_APPEARING,
-    CH_YELLOW_FLIBBIT_STATE_3_IDLE_EXIST,
-    CH_YELLOW_FLIBBIT_STATE_4_UNK, // While jumping, check for first met dialog?
-    CH_YELLOW_FLIBBIT_STATE_5_JUMPING,
-    CH_YELLOW_FLIBBIT_STATE_6_TURN_IN_PLACE,
-    CH_YELLOW_FLIBBIT_STATE_7_HIT_PLAYER, // Either damage player or player jumps on frog
-    CH_YELLOW_FLIBBIT_STATE_8_OW,
-    CH_YELLOW_FLIBBIT_STATE_9_DIE,
-    CH_YELLOW_FLIBBIT_STATE_A_DEAD,
-    CH_YELLOW_FLIBBIT_STATE_B_DESPAWN
-};
+#include "yellowflibbit.h" // [port] the states moved there
 
 /* .code */
 void func_8038D1E0(Actor *this) {

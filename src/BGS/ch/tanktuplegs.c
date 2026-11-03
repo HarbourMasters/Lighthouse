@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 void timed_exitStaticCamera(f32);
 void func_8028E668(f32[3], f32, f32, f32);
 
@@ -67,7 +65,8 @@ void chTanktupLeg_retractLeg(ActorMarker *this, s32 arg1){
     thisActor = marker_getActor(this);
     subaddie_set_state(thisActor, 2);
     actor_playAnimationOnce(thisActor);
-    FUNC_8030E624(SFX_A_BANJO_LANDING_05, 0.8f, 32750);
+//  FUNC_8030E624(SFX_A_BANJO_LANDING_05, 0.8f, 32750);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, thisActor)) FUNC_8030E624(SFX_A_BANJO_LANDING_05, 0.8f, 32750);
 }
 
 void chTanktupLeg_despawn(ActorMarker *this, ActorMarker *other_marker){
@@ -78,7 +77,7 @@ void chTanktupLeg_despawn(ActorMarker *this, ActorMarker *other_marker){
     timedFunc_set_2(0.65f, (GenFunction_2) chTanktupLeg_retractLeg, (uintptr_t) this, (uintptr_t) other_marker);
     func_8038F51C(thisActor);
     this->collidable = false;
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12);
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12); // [port]
 }
 
 void chTanktupLeg_update(Actor *this){
@@ -87,14 +86,10 @@ void chTanktupLeg_update(Actor *this){
         this->marker->propPtr->unk8_3 = 1;
         marker_setCollisionScripts(this->marker, NULL, NULL, chTanktupLeg_despawn);
     }
-    // Anchor: teammate hit this leg remotely — replay the pull-in.
-    if(this->state == 1 && this->marker->collidable
-        && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << this->unk10_12))){
-        chTanktupLeg_despawn(this->marker, NULL);
-    }
     if(this->state == 2){
         if(anctrl_isAt(this->anctrl, 0.65f)){
-            gcsfx_play(SFX_7C_CHEBOOF);
+//          gcsfx_play(SFX_7C_CHEBOOF);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7C_CHEBOOF);
         }
         if(anctrl_isStopped(this->anctrl)){
             marker_despawn(this->marker);

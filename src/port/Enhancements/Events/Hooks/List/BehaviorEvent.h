@@ -49,3 +49,6 @@ DEFINE_EVENT(OnVileGameStateChange, s32 state;)
 DEFINE_EVENT(OnPuzzleStep, int32_t puzzleId; int32_t bits;)                         // enum AnchorPuzzle
 DEFINE_EVENT(OnBreakableBroken, int32_t markerId; int32_t x; int32_t y; int32_t z;) // marker_e
 DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;)            // 1 tutorial, 0 skip
+DEFINE_EVENT(OnPuzzlePosMark, int32_t puzzleId; int32_t x; int32_t y; int32_t z;)
+DEFINE_EVENT(OnClankerUpdate, int32_t state;) // maClankerState_e
+DEFINE_EVENT(OnWaterRise, int32_t map; int32_t waterId; int32_t targetDy; f32 duration;)

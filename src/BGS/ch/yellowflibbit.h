@@ -1,0 +1,20 @@
+// [port] yellowflibbit.c's states, moved here for the Anchor catch-up (Puzzles/BubblegloopSwamp.cpp).
+#ifndef BANJO_KAZOOIE_BGS_CH_YELLOWFLIBBIT_H
+#define BANJO_KAZOOIE_BGS_CH_YELLOWFLIBBIT_H
+
+enum chYellowFlibbitState {
+    CH_YELLOW_FLIBBIT_STATE_0_NOT_INIT,
+    CH_YELLOW_FLIBBIT_STATE_1_IDLE_NOT_SPAWNED,
+    CH_YELLOW_FLIBBIT_STATE_2_APPEARING,
+    CH_YELLOW_FLIBBIT_STATE_3_IDLE_EXIST,
+    CH_YELLOW_FLIBBIT_STATE_4_UNK, // While jumping, check for first met dialog?
+    CH_YELLOW_FLIBBIT_STATE_5_JUMPING,
+    CH_YELLOW_FLIBBIT_STATE_6_TURN_IN_PLACE,
+    CH_YELLOW_FLIBBIT_STATE_7_HIT_PLAYER, // Either damage player or player jumps on frog
+    CH_YELLOW_FLIBBIT_STATE_8_OW,
+    CH_YELLOW_FLIBBIT_STATE_9_DIE,
+    CH_YELLOW_FLIBBIT_STATE_A_DEAD,
+    CH_YELLOW_FLIBBIT_STATE_B_DESPAWN
+};
+
+#endif

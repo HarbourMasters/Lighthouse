@@ -3,9 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-#include "port/Enhancements/Retention/Retention.h"
-
 extern void func_8028E668(f32[3], f32, f32, f32);
 extern bool player_setCarryObjectPoseInHorizontalRadius(f32[3], f32, s32, Actor **);
 
@@ -49,26 +46,6 @@ Struct_FP_3E00 D_80391E80[] ={
     {LEVEL_FLAG_12_FP_UNKNOWN, MARKER_1FE_GREEN_PRESENT_COLLECTIBLE, ACTOR_1EF_GREEN_PRESENT_COLLECTIBLE, 0x1F0},
     {LEVEL_FLAG_13_FP_UNKNOWN, MARKER_1FF_RED_PRESENT_COLLECTIBLE,   ACTOR_1F1_RED_PRESENT_COLLECTIBLE,   0x1F2}
 };
-
-static const struct {
-    s32 bit;
-    s32 kind;
-    s32 item;
-} sCubPresentSync[3] = {
-    { 0x1, ANCHOR_COLLECTIBLE_PRESENT_BLUE,  ITEM_20_BLUE_PRESENT },
-    { 0x2, ANCHOR_COLLECTIBLE_PRESENT_GREEN, ITEM_1F_GREEN_PRESENT },
-    { 0x4, ANCHOR_COLLECTIBLE_PRESENT_RED,   ITEM_21_RED_PRESENT },
-};
-
-// D_80391E80 row for this cub, or -1. Same mapping the state machine derives inline (sp3C).
-static s32 __chBearcub_cubIndex(Actor *this) {
-    switch (this->marker->id) {
-        case MARKER_1FA_POLAR_BEAR_CUB_BLUE:  return 0;
-        case MARKER_1FB_POLAR_BEAR_CUB_GREEN: return 1;
-        case MARKER_1FC_POLAR_BEAR_CUB_RED:   return 2;
-    }
-    return -1;
-}
 
 /* .code */
 void func_8038A1F0(Actor **this_ptr, enum marker_e carried_obj_marker_id, enum actor_e actor_id, enum actor_e arg3){
@@ -145,36 +122,7 @@ void func_8038A384(Actor *this){
         ){
             subaddie_set_state_with_direction(this, 2, randf2(0.0f, 0.9f), 1);
         }
-
-        // Anchor: reconcile the shared present pool — carried = collected minus delivered.
-        {
-            s32 cubIdx = __chBearcub_cubIndex(this);
-            if (cubIdx >= 0) {
-                s32 netBits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
-                s32 have = item_getCount(sCubPresentSync[cubIdx].item);
-                s32 pool = port_carriedSync_collectedCount(sCubPresentSync[cubIdx].kind) -
-                           ((netBits & sCubPresentSync[cubIdx].bit) ? 1 : 0);
-                if (pool > have) {
-                    item_adjustByDiffWithoutHud(sCubPresentSync[cubIdx].item, pool - have);
-                }
-            }
-        }
     }//L8038A4E4
-
-    {
-        s32 cubIdx = __chBearcub_cubIndex(this);
-        if (cubIdx >= 0) {
-            s32 netBits;
-            if (levelSpecificFlags_get(D_80391E80[cubIdx].unk0)) {
-                port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_PRESENTS, sCubPresentSync[cubIdx].bit);
-            }
-            netBits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
-            if ((netBits & sCubPresentSync[cubIdx].bit) && !levelSpecificFlags_get(D_80391E80[cubIdx].unk0)) {
-                levelSpecificFlags_set(D_80391E80[cubIdx].unk0, 1);
-                subaddie_set_state_with_direction(this, 2, 0.001f, 1);
-            }
-        }
-    }
 
     sp34 = levelSpecificFlags_get(LEVEL_FLAG_11_FP_UNKNOWN) + levelSpecificFlags_get(LEVEL_FLAG_12_FP_UNKNOWN) + levelSpecificFlags_get(LEVEL_FLAG_13_FP_UNKNOWN);
     sp38 = (sp34 == 1) ? VER_SELECT(ASSET_C17_DIALOG_BOGGY_KIDS_PRESENT_RECEIVED_1, 0x991, 0, 0)

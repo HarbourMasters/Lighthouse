@@ -5,8 +5,6 @@
 
 #include "prop.h"
 
-#include "port/Patches/Patches.h"
-
 void timed_exitStaticCamera(f32);
 
 void func_8028E668(f32[3], f32, f32, f32);
@@ -35,11 +33,7 @@ ActorInfo gChTanktup = {
     0, 0x80, 0.0f, 0
 };
 
-enum chTanktupState {
-    CH_TANKTUP_STATE_1_UNK = 1,
-    CH_TANKTUP_STATE_2_UNK,
-    CH_TANKTUP_STATE_3_UNK,
-};
+#include "tanktup.h" // [port] the states moved there
 
 /* .code */
 void func_8038F470(ActorMarker *this, s32 arg1, enum chtanktup_leg_e leg_id){
@@ -98,10 +92,6 @@ void func_8038F610(Actor *this) {
 void func_8028F94C(s32, f32[3]);
 void func_8028F918(s32);
 
-// Anchor: set when state 2 took the head-raise look-at/freeze push; state 3 releases it.
-static s32 sTanktupCameraPushed = 0;
-static s32 sTanktupPoseCatchUp = 0;
-
 void chTanktup_update(Actor *this)
 {
     ActorLocal_TanktupBody *local = (ActorLocal_TanktupBody *) (&this->local);
@@ -130,18 +120,6 @@ void chTanktup_update(Actor *this)
         this->marker->propPtr->unk8_3 = 1;
         actor_collisionOff(this);
         this->scale = 1.0f;
-        sTanktupCameraPushed = 0;
-        // Anchor: adopt the team's already-retracted legs.
-        {
-            s32 legBits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
-            for (sp44 = 0; sp44 < 4; sp44++)
-            {
-                if (legBits & (1 << sp44))
-                {
-                    local->unk0[sp44] = 1;
-                }
-            }
-        }
         for (sp44 = 0; sp44 < 4; sp44++)
         {
             if (local->unk0[sp44] == 0)
@@ -154,13 +132,6 @@ void chTanktup_update(Actor *this)
         {
             ;
         }
-    }
-    // Anchor: team completed Tanktup but our body is still idle (state 1) — raise the head to match.
-    if (port_anchor_isWorldSyncActive() && this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
-    {
-        sTanktupPoseCatchUp = 1; // [port] pose only, no presentation
-        subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
-        actor_playAnimationOnce(this);
     }
     switch (this->state)
     {
@@ -190,7 +161,8 @@ void chTanktup_update(Actor *this)
                     }
                 }
 
-                if ((!this->unk138_23) && (!local->unk14))
+//              if ((!this->unk138_23) && (!local->unk14))
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, (!this->unk138_23) && (!local->unk14), this))
                 {
                     if (gcdialog_showDialog(VER_SELECT(ASSET_C80_DIALOG_TANKTUP_HIT, 0x9C3, 0, 0), 0, 0, 0, 0, 0))
                     {
@@ -204,9 +176,10 @@ void chTanktup_update(Actor *this)
             func_8038F610(this);
             if (actor_animationIsAt(this, 0.6f) && local->unk14)
             {
-                coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
-                func_8028F94C(2, local->unk18);
-                sTanktupCameraPushed = 1;
+//              coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+//              func_8028F94C(2, local->unk18);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028F94C(2, local->unk18);
             }
             if (actor_animationIsAt(this, 0.99f))
             {
@@ -216,7 +189,6 @@ void chTanktup_update(Actor *this)
                 }
                 else
                 {
-                    sTanktupPoseCatchUp = 0; // [port] solved for real: keep the presentation
                     subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
                     actor_playAnimationOnce(this);
                 }
@@ -224,20 +196,18 @@ void chTanktup_update(Actor *this)
             break;
 
         case CH_TANKTUP_STATE_3_UNK:
-        {
-            f32 pp[3];
-            s32 near;
-            player_getPosition(pp);
-            near = ml_vec3f_distance(local->unk18, pp) < 700.0f;
-            if (actor_animationIsAt(this, 0.1f) != 0 && near && !sTanktupPoseCatchUp)
+//          if (actor_animationIsAt(this, 0.1f) != 0)
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, actor_animationIsAt(this, 0.1f) != 0, this))
             {
                 timed_setStaticCameraToNode(0.0f, 0xD);
             }
-            if (actor_animationIsAt(this, 0.55f) != 0 && !sTanktupPoseCatchUp)
+//          if (actor_animationIsAt(this, 0.55f) != 0)
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, actor_animationIsAt(this, 0.55f) != 0, this))
             {
-                func_8030E624(0x797FF885U); // SFX_85_ROUGH_COUGH
+                func_8030E624(0x797FF885U);
             }
-            if (actor_animationIsAt(this, 0.4f) != 0 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP) == 0)
+//          if (actor_animationIsAt(this, 0.4f) != 0)
+            if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, actor_animationIsAt(this, 0.4f) != 0, this))
             {
                 f32 sp34[3];
                 vec3fArray_get_vec3f(this->marker->unk44, 6, sp34);
@@ -245,27 +215,19 @@ void chTanktup_update(Actor *this)
                 sp34[1] -= 125.0f;
                 jiggy_spawn(JIGGY_26_BGS_TANKTUP, sp34);
             }
-            if (actor_animationIsAt(this, 0.9f) != 0)
+//          if (actor_animationIsAt(this, 0.9f) != 0)
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, actor_animationIsAt(this, 0.9f) != 0, this))
             {
-                // Anchor: release the freeze/look-at if state 2 took it, independent of the proximity check below.
-                if (sTanktupCameraPushed)
+                func_8028F918(0);
+                if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
                 {
-                    func_8028F918(0);
-                    sTanktupCameraPushed = 0;
+                    gcdialog_showDialog(VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), 0xF, this->position, this->marker, func_8038F5E4, 0);
                 }
-                if (near)
+                else
                 {
-                    if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
-                    {
-                        gcdialog_showDialog(VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), 0xF, this->position, this->marker, func_8038F5E4, 0);
-                    }
-                    else
-                    {
-                        func_8038F5E4(this->marker, VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), -1);
-                    }
+                    func_8038F5E4(this->marker, VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), -1);
                 }
             }
             break;
-        }
     }
 }

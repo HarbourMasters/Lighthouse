@@ -352,7 +352,8 @@ void chTiptup_setMinigameProgress(Actor *this){
     ActorLocal_Tiptup *local;
 
     local = (ActorLocal_Tiptup *)&this->local;
-    fileProgressFlag_setN(FILEPROG_0_TIPTUP_MINIGAME_PROGRESS, local->round, 2);
+//  fileProgressFlag_setN(FILEPROG_0_TIPTUP_MINIGAME_PROGRESS, local->round, 2);
+    if (EventSystem_Should(VB_TIPTUP_SAVE_ROUND, true, &local->round)) fileProgressFlag_setN(FILEPROG_0_TIPTUP_MINIGAME_PROGRESS, local->round, 2);
     bk_vector_free(local->unk4);
 }
 

@@ -1,0 +1,14 @@
+// [port] frogminigame.c's states, moved here for the Anchor catch-up (Puzzles/BubblegloopSwamp.cpp).
+#ifndef BANJO_KAZOOIE_BGS_CH_FROGMINIGAME_H
+#define BANJO_KAZOOIE_BGS_CH_FROGMINIGAME_H
+
+enum chFrogMinigameState {
+    CH_FROG_MINIGAME_STATE_1_IDLE = 1,
+    CH_FROG_MINIGAME_STATE_2_ENTER_BATTLE,
+    CH_FROG_MINIGAME_STATE_3_BATTLE,
+    CH_FROG_MINIGAME_STATE_4_COMPLETE,
+    CH_FROG_MINIGAME_STATE_5_SPAWN_JIGGY,
+    CH_FROG_MINIGAME_STATE_6_DESPAWN
+};
+
+#endif

@@ -69,10 +69,6 @@ extern "C" int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel) {
     return it->second;
 }
 
-extern "C" void port_ccWater_broadcastRise(int32_t map, int32_t waterId, int32_t targetDy, f32 duration) {
-    Anchor::GetInstance()->SendPacket_WaterRise(map, WATERRISE_KIND_CC, waterId, targetDy, duration);
-}
-
 void Anchor::SendPacket_WaterRise(s32 map, s32 kind, s32 p1, s32 p2, f32 duration) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
@@ -116,6 +112,12 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
 
 void RegisterWaterRise_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sLairPendingLevel.clear(); });
+    // At boot, with the rest of this file: the send does nothing until a save is loaded in a syncing room.
+    REGISTER_LISTENER(OnWaterRise, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnWaterRise*)event;
+        Anchor::GetInstance()->SendPacket_WaterRise(ev->map, WATERRISE_KIND_CC, ev->waterId, ev->targetDy,
+                                                    ev->duration);
+    });
 }
 
 static RegisterShipInitFunc initWaterRise(RegisterWaterRise_Init, {});

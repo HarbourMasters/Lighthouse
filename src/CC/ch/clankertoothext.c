@@ -5,23 +5,11 @@
 
 #include <bk_math.h>
 
-#include "port/Patches/Patches.h"
-
-typedef struct{
-    s32 unk0;
-    s32 egg_count;
-    f32 unk8;
-}ActorLocal_CC_BF0;
+#include "clankertoothext.h" // [port] the typedef and states moved there
 
 void maClankerTooth_update(Actor *this);
 
 /* .data */
-enum maClankerTooth_state_e {
-    CLANKER_TOOTH_STATE_1_UPRIGHT = 1,
-    CLANKER_TOOTH_STATE_2_FALLING_OVER,
-    CLANKER_TOOTH_STATE_3_KNOCKED_OUT,
-};
-
 extern ActorInfo chClankerTokenToothExt = {
     MARKER_4C_CLANKER_TOKEN_TOOTH_EXT, ACTOR_44_CLANKER_TOKEN_TOOTH_EXTERIOR, ASSET_309_MODEL_CLANKER_TOKEN_TOOTH_EXTERIOR, 
     0, NULL,
@@ -97,19 +85,6 @@ void maClankerTooth_update(Actor *this){
             maClankerTooth_setNextState(this, CLANKER_TOOTH_STATE_3_KNOCKED_OUT);
         }
     }//L803871D8
-    if(this->state == 1){
-        s32 base = (local->unk0 - 1) * 3;
-        s32 bits = (port_puzzleStep_get(ANCHOR_PUZZLE_CC_CLANKER_TEETH) >> base) & 0x7;
-        s32 shared = (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
-        while(this->state == 1 && local->egg_count < shared){
-            local->egg_count++;
-            if(local->egg_count == 3){
-                maClankerTooth_setNextState(this, 2);
-            }else{
-                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
-            }
-        }
-    }
     player_getPosition(player_pos);
     local->unk8 += sp68;
     if(this->state == CLANKER_TOOTH_STATE_2_FALLING_OVER){
@@ -141,9 +116,7 @@ void maClankerTooth_update(Actor *this){
     if(this->state == CLANKER_TOOTH_STATE_1_UPRIGHT && D_80389F80 == local->unk0){
         D_80389F80 = 0;
         local->egg_count++;
-        // Anchor: broadcast cumulative egg progress.
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_CC_CLANKER_TEETH,
-                               ((1 << local->egg_count) - 1) << ((local->unk0 - 1) * 3));
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_CC_CLANKER_TEETH, ((1 << local->egg_count) - 1) << ((local->unk0 - 1) * 3)); // [port]
         if(local->egg_count == 3){
             maClankerTooth_setNextState(this, CLANKER_TOOTH_STATE_2_FALLING_OVER);
         }else{

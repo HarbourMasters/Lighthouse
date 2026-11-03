@@ -49,7 +49,7 @@ SpawnedJiggy& recordJiggySpawn(int32_t map, int16_t jiggyId, float x, float y, f
 }
 
 // True once the jiggy list slot's marker is linked (covers bundle-pop, unlike jiggyscore_isSpawned).
-static bool jiggyListHasObject(int16_t jiggyId) {
+bool Anchor_JiggyListHasObject(int16_t jiggyId) {
     return jiggylist_list[jiggyId - 1].unk10.marker != NULL;
 }
 
@@ -61,7 +61,7 @@ void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
     if (jiggyscore_isCollected((enum jiggy_e)pj.jiggyId)) {
         return;
     }
-    if (jiggyListHasObject(pj.jiggyId)) {
+    if (Anchor_JiggyListHasObject(pj.jiggyId)) {
         pj.inFlight = false;
         return;
     }
@@ -128,7 +128,7 @@ static void expireTimedJiggy(int16_t jiggyId) {
             return;
     }
     if (gsworld_getMap() != MAP_D_BGS_BUBBLEGLOOP_SWAMP || mapSpecificFlags_get(timerRunningFlag) ||
-        !jiggyListHasObject(jiggyId)) {
+        !Anchor_JiggyListHasObject(jiggyId)) {
         return;
     }
     func_8030E6D4(SFX_30_MAGIC_POOF);

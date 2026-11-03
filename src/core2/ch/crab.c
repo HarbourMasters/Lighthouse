@@ -201,7 +201,8 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
         && ml_vec3f_point_within_horizontal_distance(this->position, 13778.0f, 0.0f, 3000.0f)
     ) {
         this->depth_mode =  MODEL_RENDER_DEPTH_COMPARE;
-        if( !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
+//      if( !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
+        if( EventSystem_Should(VB_SNIPPETS_DROP_JIGGY, !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS))
             && ((actorArray_findClosestActorFromActorId(this->position, ACTOR_F5_MUTIE_SNIPPET, -1, &sp44) == NULL) || (3000.0f < sp44))) {
             jiggy_spawn_position[0] = 13814.0f;
             jiggy_spawn_position[1] = 3812.0f;
