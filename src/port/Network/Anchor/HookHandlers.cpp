@@ -602,6 +602,16 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
     });
 
+    // actorArray_free tears down actors and markers without firing OnActorDestroy, so the dummies detach here. Always
+    // on: dummies outlive a dropped connection until Disable frees them.
+    COND_HOOK(OnActorArrayFree, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
+            if (client.dummy != nullptr) {
+                client.dummy->dummy_detachActor();
+            }
+        }
+    });
+
     COND_HOOK(OnActorDestroy, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         OnActorDestroy* ev = reinterpret_cast<OnActorDestroy*>(event);
         Anchor::GetInstance()->OnActorDestroyed(ev->actor);

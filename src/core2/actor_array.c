@@ -444,7 +444,6 @@ void actorArray_free(void) {
 
     CALL_EVENT(OnActorArrayFree); // [port]
     port_remoteCarry_reset();
-    port_anchorDummies_onActorsFreed();
 
     if (suBaddieActorArray != NULL) {
         for(var_s0 = suBaddieActorArray->data; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
