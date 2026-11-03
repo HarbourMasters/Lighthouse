@@ -52,6 +52,7 @@ struct RoomState {
 };
 
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
+void Anchor_MarkMapFlagsRemote(uint32_t mask);
 
 class Anchor : public Network {
 private:
@@ -60,6 +61,7 @@ private:
     bool justLoadedSave = false;
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
+    bool isApplyingRemote = false;
     bool hasRequestedTeamState = false;
     bool isReconnecting = false;
     BKPlayerColorSet sentColors = {};
@@ -70,16 +72,25 @@ private:
     std::optional<nlohmann::json> heldTeamState;
     std::vector<nlohmann::json> heldIncomingPackets;
     std::atomic<bool> isHoldingTeamState{ false };
+    nlohmann::json pendingTeamState;
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
     void FlushPendingJiggySpawns();
+    void QueueAhead(std::vector<nlohmann::json>& packets);
     void UseHeldTeamState();
+    void FlushPendingTeamState();
+    void ApplyLoadedTeamState(nlohmann::json& state);
+    // Writes a teammate's value through a vanilla setter without sending its event back.
+    template <typename Write> void ApplyRemote(Write write) {
+        isApplyingRemote = true;
+        write();
+        isApplyingRemote = false;
+    }
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();
     void RegisterHooks();
     void RefreshClientActors();
-    void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
     void DrawDummies(OnPlayerDraw* event);
     void ClearDummies();
     void PopulateDummies(GameMap map);
@@ -213,7 +224,6 @@ public:
     void SendJsonToRemote(nlohmann::json packet);
     bool IsSaveLoaded();
     bool CanTeleportTo(uint32_t clientId);
-    uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
 
     bool IsGlobalRoom();
@@ -235,7 +245,8 @@ public:
     std::string GetClientName(uint32_t clientId);
     std::string GetNametagLabel(uint32_t clientId);
 
-    void SendPacket_AuthorityState(u8 activity, bool claimed);
+    void SendPacket_AuthorityState(u8 activity, bool claimed, uint32_t seq);
+    void SendPacket_AuthorityAccept(u8 activity, uint32_t claimant, uint32_t seq);
     void SendPacket_ClearTeamState(std::string teamId);
     void ClearMismatchedTeamState(std::string teamId);
     bool LocalGameMatchesRoom();
@@ -256,10 +267,10 @@ public:
     bool SendPacket_RequestTeamState(bool force = false);
     void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
-    void SendPacket_SetFlag(u8 flagSpace, s16 flag);
-    void SendPacket_SetItemCount(s16 item, s32 count);
+    void SendPacket_SetFlag(u8 flagSpace, s16 flag, u32 values = 1, s32 count = 1);
+    void SendPacket_SetItemCount(s16 item, s32 delta);
     void SendPacket_SetAbility(s16 move, u8 value);
-    void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
+    void SendPacket_ScopedFlag(u8 space, s16 index, u32 value, s32 count = 1);
     void SendPacket_RequestScopedState(GameMap map);
     void SendPacket_CollectItem(u8 kind, s32 id);
     void SendPacket_CarryThrow(s32 markerId, f32 start[3], f32 target[3]);
@@ -275,6 +286,7 @@ public:
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
+    void SendPacket_JiggyExpired(s16 jiggyId);
     void SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(uint32_t clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
@@ -288,8 +300,9 @@ public:
     void SendPacket_VileUpdate(const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 animMode);
     void OnActorDestroyed(Actor* actor);
     void RevealSwitchHoneycomb();
-    void SendToCurrentMapPlayers(nlohmann::json& payload);
-    void SendToCurrentLevelPlayers(nlohmann::json& payload);
+    void SendToCurrentMapPlayers(nlohmann::json& payload, bool teammatesOnly = true);
+    void SendToCurrentLevelPlayers(nlohmann::json& payload, bool teammatesOnly = true);
+    bool IsTeammate(uint32_t clientId);
     void SweepUnoccupiedLevelState(GameMap selfMap);
 
     static Anchor* GetInstance();

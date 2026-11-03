@@ -48,14 +48,12 @@ u32 mapSpecificFlags_getN(s32 start_index, s32 count) {
 
 bool mapSpecificFlags_getAndReset(s32 index) {
     bool ret_val = mapSpecificFlags_get(index);
-//  mapSpecificFlags_set(index, 0);
-    mapSpecificFlags_setEx(index, 0, 0);
+    mapSpecificFlags_set(index, 0);
     return ret_val;
 }
 
-void mapSpecificFlags_setEx(s32 index, s32 value, s32 triggerEvent) {
-    s32 changed = ((D_80367000 >> index) & 1) != (value ? 1 : 0);
-
+void mapSpecificFlags_set(s32 index, bool value) {
+    s32 changed = ((D_80367000 >> index) & 1) != (value ? 1 : 0); // [port]
     if (value) {
         D_80367000 |= 1 << index;
     } else {
@@ -63,14 +61,9 @@ void mapSpecificFlags_setEx(s32 index, s32 value, s32 triggerEvent) {
     }
 
     mapSpecificFlags_updateCRCs();
-
-    if (triggerEvent && changed) {
+    if (changed) { // [port]
         CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_MAP_SPECIFIC, index, value ? 1 : 0, 1);
     }
-}
-
-void mapSpecificFlags_set(s32 index, bool value) {
-    mapSpecificFlags_setEx(index, value, 1);
 }
 
 void mapSpecificFlags_setN(s32 start_index, s32 values, s32 count) {

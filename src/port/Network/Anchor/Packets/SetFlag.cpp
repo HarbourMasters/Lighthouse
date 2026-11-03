@@ -30,7 +30,8 @@ static const char* LevelOpenSeenFlagName(s16 flag) {
     return nullptr;
 }
 
-void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag) {
+// count > 1 sends a multi-bit field: values holds its bits, lowest first.
+void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag, u32 values, s32 count) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -41,6 +42,10 @@ void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag) {
     payload["addToQueue"] = true;
     payload["flagSpace"] = flagSpace;
     payload["flag"] = flag;
+    if (count > 1) {
+        payload["values"] = values;
+        payload["count"] = count;
+    }
 
     SendJsonToRemote(payload);
 }
@@ -53,17 +58,36 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     u8 flagSpace = payload.at("flagSpace").get<u8>();
     s16 flag = payload.at("flag").get<s16>();
 
+    if (payload.contains("count")) {
+        const u32 values = payload.at("values").get<u32>();
+        const s32 count = payload.at("count").get<s32>();
+        ApplyRemote([&] {
+            for (s32 i = 0; i < count; i++) {
+                const s32 bit = (values >> i) & 1;
+                if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
+                    volatileFlag_set((enum volatile_flags_e)(flag + i), bit);
+                } else {
+                    fileProgressFlag_set((enum file_progress_e)(flag + i), bit);
+                }
+            }
+        });
+        return;
+    }
+
     if (flagSpace == ANCHOR_FLAGSPACE_RANDO_INF) {
         // Non-derived rando flag; set directly.
         if (IS_RANDO && flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
             RANDO_SAVE_FLAGS[flag].flagState = 1;
         }
     } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
-        volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
+        ApplyRemote([&] { volatileFlag_set((enum volatile_flags_e)flag, 1); });
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
-        fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        port_progressFlag_remoteCue(flag);
+        ApplyRemote([&] { fileProgressFlag_set((enum file_progress_e)flag, 1); });
+        // A duplicate (two players breaking the same cobweb) would replay the cue over the one already playing.
+        if (!wasSet) {
+            port_progressFlag_remoteCue(flag);
+        }
         // Vanilla only; rando reports world access via SET_CHECK_STATUS instead.
         if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {
             if (const char* opened = LevelOpenSeenFlagName(flag)) {

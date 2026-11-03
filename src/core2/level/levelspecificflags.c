@@ -102,18 +102,14 @@ void levelSpecificFlags_clear(void){
     _levelSpecificFlags_updateCRC2();
 }
 
-void levelSpecificFlags_setEx(s32 index, s32 val, s32 triggerEvent){
-    s32 changed = bitfieldarray_getBit(D_80383320.unk8, index) != (val ? 1 : 0);
+void levelSpecificFlags_set(s32 index, s32 val){
+    s32 changed = bitfieldarray_getBit(D_80383320.unk8, index) != (val ? 1 : 0); // [port]
     bitfieldarray_setBit(D_80383320.unk8, index, val);
     _levelSpecificFlags_updateCRC1();
     _levelSpecificFlags_updateCRC2();
-    if (triggerEvent && changed) {
+    if (changed) { // [port]
         CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_LEVEL_SPECIFIC, index, val ? 1 : 0, 1);
     }
-}
-
-void levelSpecificFlags_set(s32 index, s32 val){
-    levelSpecificFlags_setEx(index, val, 1);
 }
 
 void levelSpecificFlags_setN(s32 index, s32 val, s32 n){

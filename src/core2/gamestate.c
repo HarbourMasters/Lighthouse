@@ -57,7 +57,7 @@ s32 item_getCount(enum item_e item){
 }
 
 // func_80345FB4
-s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
+s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
     // Modifies the count of an item by the diff
     // no_hud determines whether the HUD pops up during the adjustment
     s32 oldVal;
@@ -163,8 +163,8 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
             D_80385F30[ITEM_2B_UNKNOWN] += diff;
             break;
     }
-    if (triggerEvent && D_80385F30[item] != oldVal) {
-        CALL_EVENT(OnItemCountChanged, item, D_80385F30[item]);
+    if (D_80385F30[item] != oldVal) { // [port]
+        CALL_EVENT(OnItemCountChanged, item, D_80385F30[item], D_80385F30[item] - oldVal);
     }
     return D_80385F30[item];
 }
@@ -174,7 +174,7 @@ s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
 //  item_adjustByDiff(item, diff, 0);
-    return EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, &diff) ? item_adjustByDiff(item, diff, 0, 1) : D_80385F30[item];
+    return EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, &diff) ? item_adjustByDiff(item, diff, 0) : D_80385F30[item];
 }
 
 // func_803463F4
@@ -182,15 +182,11 @@ void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
 //  item_adjustByDiff(item, diff, 1);
-    if (EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, &diff)) item_adjustByDiff(item, diff, 1, 1);
-}
-
-void item_setEx(s32 item, s32 val, s32 triggerEvent){
-    item_adjustByDiff(item, val - item_getCount(item), 0, triggerEvent);
+    if (EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, &diff)) item_adjustByDiff(item, diff, 1);
 }
 
 void item_set(s32 item, s32 val){
-    item_setEx(item, val, 1);
+    item_adjustByDiffWithHud(item, val - item_getCount(item));
 }
 
 // func_80346448
@@ -473,13 +469,6 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
     *size = 0xE;
     *addr = sItemscoreNoteScores;
-}
-
-// Max-merge a level's note high score.
-void itemscore_noteScores_setLevel(enum level_e level, s32 score) {
-    if (level >= 0 && level < 0xE && score > sItemscoreNoteScores[level]) {
-        sItemscoreNoteScores[level] = score;
-    }
 }
 
 void itemscore_noteScoress_maxAll(void) {

@@ -16,8 +16,8 @@ DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
 DEFINE_EVENT(OnGameErase, int32_t gameNum;)
 // flagSpace = AnchorFlagSpace; length = 1 for single sets, bit count for setN.
 DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int32_t length;)
-// count is the resulting absolute value.
-DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
+// count is the resulting absolute value; diff is the change applied, after clamping.
+DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count; int32_t diff;)
 // kind = AnchorCollectibleSpace.
 DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
 // prop = Prop*, an egg, feather or extra life picked up.

@@ -310,6 +310,35 @@ typedef enum VBehaviorID {
                               // reveal it live.
     VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
+    // The look-at, camera and dialog around Boggy's rescue; the dialog also spawns his jiggy. A listener that returns
+    // false skips all of it.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_FP_BOGGY_RESCUE_SCENE,
+
+    // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
+    // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (Boggy)
+    VB_FP_BOGGY_WAIT_FOR_DIALOG,
+
+    // Whether Banjo can board the scarf sled he's touching.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_FP_SCARF_SLED_BOARD,
+
     // Romhack port gates
 
     // #### `result`

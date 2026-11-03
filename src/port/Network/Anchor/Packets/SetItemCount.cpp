@@ -4,16 +4,17 @@
 
 #include "functions.h"
 extern "C" {
-s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent);
+s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud);
 }
 
 /**
  * ITEM_COUNT
  *
- * Realtime sync of a spendable item count (absolute value). Not queued.
+ * Realtime sync of a change to a spendable item count. Jiggies and Mumbo tokens are queued;
+ * consumables aren't.
  */
 
-void Anchor::SendPacket_SetItemCount(s16 item, s32 count) {
+void Anchor::SendPacket_SetItemCount(s16 item, s32 delta) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -23,7 +24,10 @@ void Anchor::SendPacket_SetItemCount(s16 item, s32 count) {
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["quiet"] = true;
     payload["item"] = item;
-    payload["count"] = count;
+    payload["delta"] = delta;
+    if (item == ITEM_26_JIGGY_TOTAL || item == ITEM_1C_MUMBO_TOKEN) {
+        payload["addToQueue"] = true;
+    }
 
     SendJsonToRemote(payload);
 }
@@ -34,14 +38,13 @@ void Anchor::HandlePacket_SetItemCount(nlohmann::json& payload) {
     }
 
     s16 item = payload.at("item").get<s16>();
-    s32 count = payload.at("count").get<s32>();
+    s32 delta = payload.at("delta").get<s32>();
 
     if (item == ITEM_26_JIGGY_TOTAL) {
-        s32 delta = count - item_getCount(ITEM_26_JIGGY_TOTAL);
         s32 noHud = (delta > 0 || func_802FADD4(ITEM_2B_UNKNOWN)) ? 1 : 0;
-        item_adjustByDiff((enum item_e)item, delta, noHud, 0);
+        ApplyRemote([&] { item_adjustByDiff((enum item_e)item, delta, noHud); });
         return;
     }
 
-    item_setEx(item, count, 0);
+    ApplyRemote([&] { item_adjustByDiff((enum item_e)item, delta, 0); });
 }

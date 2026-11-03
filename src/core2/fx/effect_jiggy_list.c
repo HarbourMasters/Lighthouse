@@ -19,13 +19,7 @@ void func_80347FA4(Struct81s *, Gfx**, Mtx **, Vtx **);
 void func_80347FB8(Struct81s*);
 
 
-typedef struct {
-    void (*init)(Struct81s *);
-    void (*update)(Struct81s *);
-    void (*draw)(Struct81s *, Gfx**, Mtx **, Vtx **);
-    void (*bk_free)(Struct81s *);
-    Struct81s unk10;
-}Struct_core2_ABC00_0;
+#include "effect_jiggy_list.h" // [port] the typedef moved there
 
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
 void jiggy_free(Actor *);
@@ -265,15 +259,7 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
     }
 }
 
-// [port] Anchor: true once the jiggylist slot's marker is linked (covers bundle-pop, unlike jiggyscore_isSpawned).
-s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id) {
-    if ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) {
-        return 0;
-    }
-    return jiggylist_list[jiggy_id - 1].unk10.marker != NULL;
-}
-
-void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e jiggy_id, f32 location[3], s32 triggerEvent) {
+void codeABC00_spawnJiggyAtLocation(enum jiggy_e jiggy_id, f32 location[3]) {
     jiggy_id = ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) ? JIGGY_A_MM_CONGA : jiggy_id;
 
     jiggylist_list[jiggy_id - 1].unk10.position[0] = location[0];
@@ -281,13 +267,7 @@ void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e jiggy_id, f32 location[3], s3
     jiggylist_list[jiggy_id - 1].unk10.position[2] = location[2];
     jiggylist_list[jiggy_id - 1].init(&jiggylist_list[jiggy_id - 1].unk10);
     jiggyscore_setSpawned(jiggy_id, true);
-    if (triggerEvent) {
-        CALL_EVENT(OnJiggySpawned, jiggy_id, location[0], location[1], location[2]);
-    }
-}
-
-void codeABC00_spawnJiggyAtLocation(enum jiggy_e jiggy_id, f32 location[3]) {
-    codeABC00_spawnJiggyAtLocationEx(jiggy_id, location, 1);
+    CALL_EVENT(OnJiggySpawned, jiggy_id, location[0], location[1], location[2]); // [port]
 }
 
 void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker) {

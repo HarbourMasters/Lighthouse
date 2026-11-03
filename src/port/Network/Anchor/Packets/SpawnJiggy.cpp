@@ -10,6 +10,13 @@
 #include <vector>
 
 #include "functions.h"
+extern "C" {
+#include "core2/fx/effect_jiggy_list.h"
+extern Struct_core2_ABC00_0 jiggylist_list[];
+extern s32 s_jiggyList_level_jiggy_count;
+}
+
+extern "C" void port_jiggySpawn_remove(int32_t jiggyId);
 
 /**
  * JIGGY_SPAWN
@@ -41,11 +48,20 @@ SpawnedJiggy& recordJiggySpawn(int32_t map, int16_t jiggyId, float x, float y, f
     return list.back();
 }
 
+// True once the jiggy list slot's marker is linked (covers bundle-pop, unlike jiggyscore_isSpawned).
+static bool jiggyListHasObject(int16_t jiggyId) {
+    return jiggylist_list[jiggyId - 1].unk10.marker != NULL;
+}
+
 void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
+    // Only a mismatched or broken peer sends an id outside the jiggy list.
+    if (pj.jiggyId <= 0 || pj.jiggyId >= s_jiggyList_level_jiggy_count * 10) {
+        return;
+    }
     if (jiggyscore_isCollected((enum jiggy_e)pj.jiggyId)) {
         return;
     }
-    if (jiggylist_hasSpawnedObject((enum jiggy_e)pj.jiggyId)) {
+    if (jiggyListHasObject(pj.jiggyId)) {
         pj.inFlight = false;
         return;
     }
@@ -53,7 +69,10 @@ void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
         return;
     }
     f32 pos[3] = { pj.x, pj.y, pj.z };
-    codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)pj.jiggyId, pos, 0); // silent, no re-broadcast
+    // A recorded jiggy has no owner; Conga's or Grabba's callback from an earlier visit would write
+    // through that visit's freed marker.
+    jiggylist_list[pj.jiggyId - 1].unk10.unk14 = NULL;
+    codeABC00_spawnJiggyAtLocation((enum jiggy_e)pj.jiggyId, pos);
     pj.inFlight = true;
 }
 
@@ -78,12 +97,55 @@ void Anchor::SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z) {
     SendJsonToRemote(payload);
 }
 
+// A timed BGS jiggy that ran out on the sender; receivers drop its record and their copy.
+void Anchor::SendPacket_JiggyExpired(s16 jiggyId) {
+    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
+        return;
+    }
+
+    nlohmann::json payload;
+    payload["type"] = JIGGY_SPAWN;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    payload["addToQueue"] = true;
+    payload["jiggyId"] = jiggyId;
+    payload["expired"] = true;
+
+    SendJsonToRemote(payload);
+}
+
+// Our copy of a teammate's timed BGS jiggy goes too, unless that switch's timer is running here.
+static void expireTimedJiggy(int16_t jiggyId) {
+    s32 timerRunningFlag;
+
+    switch (jiggyId) {
+        case JIGGY_20_BGS_ELEVATED_WALKWAY:
+            timerRunningFlag = BGS_SPECIFIC_FLAG_3_WALKWAY_JIGGY_TIMER_RUNNING;
+            break;
+        case JIGGY_25_BGS_MAZE:
+            timerRunningFlag = BGS_SPECIFIC_FLAG_C_MAZE_JIGGY_TIMER_RUNNING;
+            break;
+        default:
+            return;
+    }
+    if (gsworld_getMap() != MAP_D_BGS_BUBBLEGLOOP_SWAMP || mapSpecificFlags_get(timerRunningFlag) ||
+        !jiggyListHasObject(jiggyId)) {
+        return;
+    }
+    func_8030E6D4(SFX_30_MAGIC_POOF);
+    marker_despawn(jiggylist_list[jiggyId - 1].unk10.marker);
+}
+
 void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
 
     s16 jiggyId = payload.at("jiggyId").get<s16>();
+    if (payload.value("expired", false)) {
+        port_jiggySpawn_remove(jiggyId);
+        expireTimedJiggy(jiggyId);
+        return;
+    }
     s32 map = payload.at("map").get<s32>();
     f32 x = payload.at("x").get<f32>();
     f32 y = payload.at("y").get<f32>();
@@ -92,7 +154,7 @@ void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
     SpawnedJiggy& pj = recordJiggySpawn(map, jiggyId, x, y, z);
 
     if ((s32)gsworld_getMap() == map) {
-        trySpawnRecordedJiggy(pj);
+        ApplyRemote([&] { trySpawnRecordedJiggy(pj); });
     }
 }
 
@@ -108,7 +170,7 @@ void Anchor::FlushPendingJiggySpawns() {
             list.erase(list.begin() + i);
             continue;
         }
-        trySpawnRecordedJiggy(pj);
+        ApplyRemote([&] { trySpawnRecordedJiggy(pj); });
         i++;
     }
 }
@@ -131,6 +193,10 @@ std::vector<int32_t> port_jiggySpawn_snapshot() {
 void port_jiggySpawn_restore(const std::vector<int32_t>& flat) {
     sSpawnedJiggies.clear();
     for (size_t i = 0; i + 5 <= flat.size(); i += 5) {
+        // The collect that would clear a record can sit in a queue that was never replayed.
+        if (jiggyscore_isCollected((enum jiggy_e)flat[i + 1])) {
+            continue;
+        }
         sSpawnedJiggies[flat[i]].push_back(
             { (int16_t)flat[i + 1], (float)flat[i + 2], (float)flat[i + 3], (float)flat[i + 4] });
     }

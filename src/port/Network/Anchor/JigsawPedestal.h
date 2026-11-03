@@ -19,5 +19,6 @@ void port_jigsawPedestal_release(int32_t id);
 void JigsawPedestal_ApplyRemote(int32_t id, uint32_t clientId, bool claimed);
 void JigsawPedestal_ClearClient(uint32_t clientId);
 void JigsawPedestal_ReleaseAllSelf();
+void JigsawPedestal_ResendSelf();
 void JigsawPedestal_Reset();
 #endif

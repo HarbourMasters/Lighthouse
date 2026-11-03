@@ -80,6 +80,10 @@ void Anchor::SendPacket_UpdateTeamState() {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags || !LocalGameMatchesRoom()) {
         return;
     }
+    // Nor with our file before the team's catch-up has applied to it.
+    if (!pendingTeamState.is_null()) {
+        return;
+    }
 
     json payload;
     payload["type"] = UPDATE_TEAM_STATE;
@@ -206,6 +210,21 @@ static bool TeamStateDropsProgress(nlohmann::json& state) {
     return false;
 }
 
+// Puts packets ahead of anything queued since they arrived.
+void Anchor::QueueAhead(std::vector<nlohmann::json>& packets) {
+    std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
+    std::queue<nlohmann::json> ordered;
+    for (auto& packet : packets) {
+        ordered.push(std::move(packet));
+    }
+    packets.clear();
+    while (!incomingPacketQueue.empty()) {
+        ordered.push(std::move(incomingPacketQueue.front()));
+        incomingPacketQueue.pop();
+    }
+    incomingPacketQueue.swap(ordered);
+}
+
 void Anchor::UseHeldTeamState() {
     if (!heldTeamState) {
         return;
@@ -221,18 +240,7 @@ void Anchor::UseHeldTeamState() {
     HandlePacket_UpdateTeamState(payload);
     isProcessingIncomingPacket = false;
 
-    // Held packets go ahead of anything queued since.
-    std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
-    std::queue<nlohmann::json> ordered;
-    for (auto& packet : heldIncomingPackets) {
-        ordered.push(std::move(packet));
-    }
-    heldIncomingPackets.clear();
-    while (!incomingPacketQueue.empty()) {
-        ordered.push(std::move(incomingPacketQueue.front()));
-        incomingPacketQueue.pop();
-    }
-    incomingPacketQueue.swap(ordered);
+    QueueAhead(heldIncomingPackets);
 }
 
 void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
@@ -379,72 +387,12 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             port_hutSmash_restore(state["huts"].get<std::vector<int32_t>>());
         }
 
-        // Recompute cached HUD counts the overwrites above bypassed.
+        // The reply to our file-load request lands while the map is still the file select. Finish once the
+        // save is in play, or the totals and queued packets are dropped.
         if (IsSaveLoaded()) {
-            if (state.contains("jiggies")) {
-                func_8034798C();
-            }
-            if (state.contains("honeycombs")) {
-                func_80347958();
-            }
-            if (state.contains("mumboTokens")) {
-                func_80347984();
-            }
-
-            // Saved item counts: mumbo tokens [0] and jiggy total [4] always sync; feathers
-            // [1-3] only when the room shares consumables.
-            if (state.contains("savedItems")) {
-                auto& incoming = state["savedItems"];
-                s32 size;
-                u8* addr;
-                saveditem_getSizeAndPtr(&size, &addr); // rebuilds the array from live counts
-                u8 buf[5];
-                for (s32 i = 0; i < 5; i++) {
-                    buf[i] = (i < size) ? addr[i] : 0;
-                }
-                if (incoming.size() >= 5) {
-                    buf[0] = incoming[0].get<u8>();
-                    buf[4] = incoming[4].get<u8>();
-                    if (roomState.shareConsumables) {
-                        buf[1] = incoming[1].get<u8>();
-                        buf[2] = incoming[2].get<u8>();
-                        buf[3] = incoming[3].get<u8>();
-                    }
-                    func_803479C0(buf);
-                }
-            }
-
-            // Per-level best times (truncated u16 each).
-            if (state.contains("timeScores")) {
-                auto incoming = state["timeScores"].get<std::vector<u8>>();
-                u16 ts[0xB] = { 0 };
-                size_t n = std::min(incoming.size(), sizeof(ts));
-                for (size_t i = 0; i < n; i++) {
-                    ((u8*)ts)[i] = incoming[i];
-                }
-                itemscore_timeScores_fromSaveData(ts);
-            }
-        }
-
-        // Randomizer catch-up: reconcile check records (obtain without re-granting, see
-        // AdoptRemoteCheck) and take RANDO_INF flags authoritatively.
-        if (IS_RANDO && IsSaveLoaded()) {
-            if (state.contains("randoChecks")) {
-                auto checks = state["randoChecks"].get<std::vector<u8>>();
-                s32 n = std::min((s32)checks.size(), (s32)RC_MAX);
-                for (s32 rc = RC_UNKNOWN + 1; rc < n; rc++) {
-                    if (checks[rc]) {
-                        AdoptRemoteCheck(rc);
-                    }
-                }
-            }
-            if (state.contains("randoFlags")) {
-                auto flags = state["randoFlags"].get<std::vector<int32_t>>();
-                s32 n = std::min((s32)flags.size(), (s32)RANDO_INF_MAX);
-                for (s32 i = RANDO_INF_UNKNOWN + 1; i < n; i++) {
-                    RANDO_SAVE_FLAGS[i].flagState = flags[i];
-                }
-            }
+            ApplyLoadedTeamState(state);
+        } else {
+            pendingTeamState["state"] = state;
         }
 
         SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
@@ -460,11 +408,105 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     }
 
     if (payload.contains("queue")) {
-        std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
-        for (auto& item : payload["queue"]) {
-            incomingPacketQueue.push(nlohmann::json::parse(item.get<std::string>()));
+        if (IsSaveLoaded()) {
+            std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
+            for (auto& item : payload["queue"]) {
+                incomingPacketQueue.push(nlohmann::json::parse(item.get<std::string>()));
+            }
+        } else {
+            pendingTeamState["queue"] = payload["queue"];
         }
     }
 
     isHandlingUpdateTeamState = false;
+}
+
+void Anchor::FlushPendingTeamState() {
+    if (pendingTeamState.is_null() || !IsSaveLoaded()) {
+        return;
+    }
+    if (pendingTeamState.contains("state")) {
+        ApplyLoadedTeamState(pendingTeamState["state"]);
+    }
+    // The catch-up's queue, then what arrived while it waited.
+    std::vector<nlohmann::json> packets;
+    if (pendingTeamState.contains("queue")) {
+        for (auto& item : pendingTeamState["queue"]) {
+            packets.push_back(nlohmann::json::parse(item.get<std::string>()));
+        }
+    }
+    for (auto& packet : heldIncomingPackets) {
+        packets.push_back(std::move(packet));
+    }
+    heldIncomingPackets.clear();
+    pendingTeamState = nullptr;
+    QueueAhead(packets);
+}
+
+void Anchor::ApplyLoadedTeamState(nlohmann::json& state) {
+    // Recompute cached HUD counts the team-state byte overwrites bypassed.
+    if (state.contains("jiggies")) {
+        func_8034798C();
+    }
+    if (state.contains("honeycombs")) {
+        func_80347958();
+    }
+    if (state.contains("mumboTokens")) {
+        func_80347984();
+    }
+
+    // Saved item counts: mumbo tokens [0] and jiggy total [4] always sync; eggs and
+    // feathers [1-3] only when the room shares consumables.
+    if (state.contains("savedItems")) {
+        auto& incoming = state["savedItems"];
+        s32 size;
+        u8* addr;
+        saveditem_getSizeAndPtr(&size, &addr); // rebuilds the array from live counts
+        u8 buf[5];
+        for (s32 i = 0; i < 5; i++) {
+            buf[i] = (i < size) ? addr[i] : 0;
+        }
+        if (incoming.size() >= 5) {
+            buf[0] = incoming[0].get<u8>();
+            buf[4] = incoming[4].get<u8>();
+            if (roomState.shareConsumables) {
+                buf[1] = incoming[1].get<u8>();
+                buf[2] = incoming[2].get<u8>();
+                buf[3] = incoming[3].get<u8>();
+            }
+            func_803479C0(buf);
+        }
+    }
+
+    // Per-level best times (truncated u16 each).
+    if (state.contains("timeScores")) {
+        auto incoming = state["timeScores"].get<std::vector<u8>>();
+        u16 ts[0xB] = { 0 };
+        size_t n = std::min(incoming.size(), sizeof(ts));
+        for (size_t i = 0; i < n; i++) {
+            ((u8*)ts)[i] = incoming[i];
+        }
+        itemscore_timeScores_fromSaveData(ts);
+    }
+
+    // Randomizer catch-up: reconcile check records (obtain without re-granting, see
+    // AdoptRemoteCheck) and take RANDO_INF flags authoritatively.
+    if (IS_RANDO) {
+        if (state.contains("randoChecks")) {
+            auto checks = state["randoChecks"].get<std::vector<u8>>();
+            s32 n = std::min((s32)checks.size(), (s32)RC_MAX);
+            for (s32 rc = RC_UNKNOWN + 1; rc < n; rc++) {
+                if (checks[rc]) {
+                    AdoptRemoteCheck(rc);
+                }
+            }
+        }
+        if (state.contains("randoFlags")) {
+            auto flags = state["randoFlags"].get<std::vector<int32_t>>();
+            s32 n = std::min((s32)flags.size(), (s32)RANDO_INF_MAX);
+            for (s32 i = RANDO_INF_UNKNOWN + 1; i < n; i++) {
+                RANDO_SAVE_FLAGS[i].flagState = flags[i];
+            }
+        }
+    }
 }

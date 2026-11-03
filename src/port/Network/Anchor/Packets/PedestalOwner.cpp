@@ -12,6 +12,7 @@
 void Anchor::SendPacket_PedestalOwner(s32 id, bool claimed) {
     nlohmann::json payload;
     payload["type"] = PEDESTAL_OWNER;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["id"] = id;
     payload["claimed"] = claimed;
 

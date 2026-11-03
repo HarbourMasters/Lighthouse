@@ -298,19 +298,14 @@ int jiggyscore_isSpawned(enum jiggy_e jiggy_id);
 // --- core2/honeycombscore.c ---
 bool honeycombscore_get(enum honeycomb_e indx);
 
-// --- core2/map/mapspecificflags.c ---
-void mapSpecificFlags_setEx(s32 i, s32 val, s32 triggerEvent);
-
 // --- core2/level/levelspecificflags.c ---
 s32 levelSpecificFlags_get(s32 i);
 void levelSpecificFlags_set(s32, s32);
-void levelSpecificFlags_setEx(s32 index, s32 val, s32 triggerEvent);
 void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 
 // --- core2/gamestate.c ---
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
-void item_setEx(s32 item, s32 val, s32 triggerEvent);
 
 // --- core2/game_complete.c ---
 enum AnchorFlagSpace {
@@ -334,10 +329,6 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_GOLD = 10,
     ANCHOR_COLLECTIBLE_ORANGE = 11,
 };
-
-// --- core2/flags_bitfield.c ---
-void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
-void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
 // --- core2/dialog/progressDialog.c ---
 void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0);
@@ -1000,9 +991,6 @@ void sns_load_global_data(void);
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state);
 void sns_write_payload_over_heap(void);
 
-// --- core2/abilityprogress.c ---
-void ability_setLearnedEx(s32 move, s32 val, s32 triggerEvent);
-
 // --- core2/actor_array.c ---
 void func_8032728C(f32[3], f32, s32, int(*)(Actor *));
 Struct64s* func_8032994C(void);
@@ -1488,9 +1476,6 @@ s32 func_80321960(void);
 void func_8032196C(void);
 void func_803219A8(void);
 void func_803219F4(s32 arg0);
-
-// --- core2/ba/playerposition.c ---
-void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id);
 
 // --- core2/ba/ba_recoil.c ---
 enum asset_e func_80294974(void);
@@ -2260,8 +2245,6 @@ void jiggyscore_setSpawned(s32, s32);
 
 // --- core2/fx/effect_jiggy_list.c ---
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
-void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e, f32[3], s32 triggerEvent);
-s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id);
 void func_80332E08(void);
 void func_8033301C(void);
 void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);
@@ -2859,7 +2842,6 @@ void itemscore_highNoteScores_fromSaveData(u8 *savedata);
 void itemscore_levelReset(enum level_e level);
 void notescore_getSizeAndPtr(s32 *size, void **ptr);
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr);
-void itemscore_noteScores_setLevel(enum level_e level, s32 score);
 void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 

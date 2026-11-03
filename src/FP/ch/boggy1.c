@@ -141,9 +141,11 @@ void func_8038794C(Actor *this){
                 this->has_met_before = true;
 
             if(mapSpecificFlags_get(0x1)){
-                func_8028F94C(1, this->position);
-                timed_setStaticCameraToNode(0.0f, 0x12);
-                func_80324DBC(1.0f, VER_SELECT(ASSET_C00_DIALOG_BOGGY_SAVED, 0x97A, 0, 0), 0xe, NULL, this->marker, func_80387828, func_803877A8);
+                if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)){
+                    func_8028F94C(1, this->position);
+                    timed_setStaticCameraToNode(0.0f, 0x12);
+                    func_80324DBC(1.0f, VER_SELECT(ASSET_C00_DIALOG_BOGGY_SAVED, 0x97A, 0, 0), 0xe, NULL, this->marker, func_80387828, func_803877A8);
+                }
                 func_803876A4(this);
                 break;
             }//L80387B38
@@ -161,7 +163,8 @@ void func_8038794C(Actor *this){
 
             break;
         case 2://L80387BEC
-            func_8028FC8C(this->position);
+//          func_8028FC8C(this->position);
+            if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)) func_8028FC8C(this->position);
             if(actor_animationIsAt(this, 0.1f)){
                 sfx_playFadeShorthandDefault(SFX_F6_BLUBBER_TALKING_2, 1.0f, 32000, this->position, 1250, 2500);
             }
@@ -179,17 +182,22 @@ void func_8038794C(Actor *this){
             }//L80387CF4
 
             if(actor_animationIsAt(this, 0.9999f)){
-                subaddie_set_state_with_direction(this, 3, 0.0001f, 1);
-                actor_loopAnimation(this);
+                if(EventSystem_Should(VB_FP_BOGGY_WAIT_FOR_DIALOG, true, this)){
+                    subaddie_set_state_with_direction(this, 3, 0.0001f, 1);
+                    actor_loopAnimation(this);
+                }
             }
             break;
         case 4://L80387D2C
             func_80343DEC(this);
-            func_8028FC8C(this->position);
+//          func_8028FC8C(this->position);
+            if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)) func_8028FC8C(this->position);
             if(0.99 <= this->unk48){
-                func_8028F918(0);
-                func_80324CD8(0.0f);
-                timed_exitStaticCamera(0.0f);
+                if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)){
+                    func_8028F918(0);
+                    func_80324CD8(0.0f);
+                    timed_exitStaticCamera(0.0f);
+                }
                 func_803876F8(this);
             }
             break;

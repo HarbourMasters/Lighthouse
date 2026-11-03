@@ -21,19 +21,27 @@ extern "C" ActorMarker* bacarry_getMarker(void);
  * Note: This packet is sent _a lot_, so please do not include any unnecessary data in it
  */
 
-void Anchor::SendToCurrentMapPlayers(nlohmann::json& payload) {
+bool Anchor::IsTeammate(uint32_t clientId) {
+    auto it = clients.find(clientId);
+    return it != clients.end() && it->second.teamId == CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+}
+
+// World-state packets go to teammates only; presence (player updates) to everyone.
+void Anchor::SendToCurrentMapPlayers(nlohmann::json& payload, bool teammatesOnly) {
     for (auto& [clientId, client] : clients) {
-        if (client.map == gsworld_getMap() && client.online && client.isSaveLoaded && !client.self) {
+        if (client.map == gsworld_getMap() && client.online && client.isSaveLoaded && !client.self &&
+            (!teammatesOnly || IsTeammate(clientId))) {
             payload["targetClientId"] = clientId;
             SendJsonToRemote(payload);
         }
     }
 }
 
-void Anchor::SendToCurrentLevelPlayers(nlohmann::json& payload) {
+void Anchor::SendToCurrentLevelPlayers(nlohmann::json& payload, bool teammatesOnly) {
     enum level_e myLevel = map_getLevel(gsworld_getMap());
     for (auto& [clientId, client] : clients) {
-        if (client.online && client.isSaveLoaded && !client.self && map_getLevel((enum map_e)client.map) == myLevel) {
+        if (client.online && client.isSaveLoaded && !client.self && map_getLevel((enum map_e)client.map) == myLevel &&
+            (!teammatesOnly || IsTeammate(clientId))) {
             payload["targetClientId"] = clientId;
             SendJsonToRemote(payload);
         }
@@ -50,7 +58,7 @@ void Anchor::SendPacket_PlayerSubRangeChange(f32 duration, f32 end) {
     payload["duration"] = duration;
     payload["end"] = end;
 
-    SendToCurrentMapPlayers(payload);
+    SendToCurrentMapPlayers(payload, false);
 }
 
 void Anchor::SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId) {
@@ -112,7 +120,7 @@ void Anchor::SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimCont
     payload["subrange_end"] = subrange_end;
     payload["smooth"] = smooth;
 
-    SendToCurrentMapPlayers(payload);
+    SendToCurrentMapPlayers(payload, false);
 }
 
 void Anchor::SendPacket_PlayerAnimReset() {
@@ -208,7 +216,7 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
         payload["targetClientId"] = targetClientId;
         SendJsonToRemote(payload);
     } else {
-        SendToCurrentMapPlayers(payload);
+        SendToCurrentMapPlayers(payload, false);
     }
 }
 
