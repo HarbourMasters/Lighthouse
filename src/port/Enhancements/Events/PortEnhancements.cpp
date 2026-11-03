@@ -48,6 +48,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorDrawBegin);
     REGISTER_EVENT(OnActorDrawEnd);
     REGISTER_EVENT(ShouldActorDraw);
+    REGISTER_EVENT(ShouldActorUpdate);
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);
     REGISTER_EVENT(LocalizeUiString);
@@ -295,6 +296,12 @@ extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
 extern "C" bool EventSystem_ShouldActorDraw(Actor* actor) {
     bool should = true;
     CALL_EVENT(ShouldActorDraw, actor, &should);
+    return should;
+}
+
+extern "C" bool EventSystem_ShouldActorUpdate(Actor* actor) {
+    bool should = true;
+    CALL_EVENT(ShouldActorUpdate, actor, &should);
     return should;
 }
 

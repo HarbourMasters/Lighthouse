@@ -662,6 +662,7 @@ typedef struct {
 extern "C" {
 #endif
 bool EventSystem_ShouldActorDraw(Actor* actor);
+bool EventSystem_ShouldActorUpdate(Actor* actor);
 #ifdef __cplusplus
 }
 #endif
