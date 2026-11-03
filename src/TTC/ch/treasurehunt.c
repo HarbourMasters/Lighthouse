@@ -3,8 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 extern f32 mapModel_getFloorY(f32[3]);
 // func_8028F45C declared in port_prototypes.h (returns bool)
 
@@ -18,7 +16,8 @@ static Actor *__chTreasurehunt_animFunc(ActorMarker *marker, Gfx **gfx, Mtx **mt
 extern u32 chtreasureHunt_puzzleCurrentStep;
 
 /* .data */
-static f32 sChTreasurehunt_stepPositions[6][3] = {
+//static f32 sChTreasurehunt_stepPositions[6][3] = {
+f32 sChTreasurehunt_stepPositions[6][3] = {
     {2904.0f, 2458.0f, -7351.0f},
     {-7007.0f, 2013.0f, 401.0f},
     {-3388.0f, 1519.0f, 5939.0f},
@@ -92,7 +91,8 @@ static bool __chTreasurehunt_isActiveHitboxBeakBusterHitbox(void) {
     return false;
 }
 
-static void __chTreasurehunt_spawnRedXForNextStep(void) {
+//static void __chTreasurehunt_spawnRedXForNextStep(void) {
+void __chTreasurehunt_spawnRedXForNextStep(void) {
     Actor *actor;
     ActorLocal_TreasureHunt *local;
 
@@ -104,7 +104,8 @@ static void __chTreasurehunt_spawnRedXForNextStep(void) {
     actor->state = 0;
 }
 
-static void __chTreasurehunt_spawnActorForNextStep(void) {
+//static void __chTreasurehunt_spawnActorForNextStep(void) {
+void __chTreasurehunt_spawnActorForNextStep(void) {
     Actor *actor;
     ActorLocal_TreasureHunt *local;
 
@@ -126,7 +127,7 @@ static void __chTreasurehunt_checkStepProgress(s32 currentStep){
         }
 
         chtreasureHunt_puzzleCurrentStep++;
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, (1 << chtreasureHunt_puzzleCurrentStep) - 1);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_XHUNT, (1 << chtreasureHunt_puzzleCurrentStep) - 1); // [port]
         __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
         __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
     }
@@ -176,46 +177,12 @@ void chTreasurehunt_checkStepProgress5(NodeProp *this, ActorMarker *arg1){
         timedFunc_set_1(0.1f, (GenFunction_1) gcpausemenu_80314AC8, 1);
         gcdialog_showDialog(VER_SELECT(ASSET_A17_DIALOG_BURIED_TREASURE_SPAWNED, 0x917, 0, 0), 4, NULL, NULL, NULL, NULL);
         chtreasureHunt_puzzleCurrentStep++;
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, 0x3F);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_XHUNT, 0x3F); // [port]
     }
 }
 
 void chTreasurehunt_resetProgress(void){
     chtreasureHunt_puzzleCurrentStep = 0;
-}
-
-// Anchor: replay teammates' hunt steps, one per frame; called each frame in TTC (PuzzleStep.cpp).
-void chTreasurehunt_netTick(void){
-    static f32 sNetTreasurePosition[3];
-    s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_XHUNT) & 0x3F;
-    s32 sharedStep = 0;
-
-    while(bits & 1){
-        sharedStep++;
-        bits >>= 1;
-    }
-    if((s32)chtreasureHunt_puzzleCurrentStep >= sharedStep){
-        return;
-    }
-
-    if(chtreasureHunt_puzzleCurrentStep < 5){
-        chtreasureHunt_puzzleCurrentStep++;
-        __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
-        __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
-    }
-    else{
-        chtreasureHunt_puzzleCurrentStep++;
-        if(!jiggyscore_isSpawned(JIGGY_11_TTC_RED_X) && !jiggyscore_isCollected(JIGGY_11_TTC_RED_X)){
-            sNetTreasurePosition[0] = sChTreasurehunt_stepPositions[5][0];
-            sNetTreasurePosition[1] = sChTreasurehunt_stepPositions[5][1];
-            sNetTreasurePosition[2] = sChTreasurehunt_stepPositions[5][2];
-            sNetTreasurePosition[1] = mapModel_getFloorY(sNetTreasurePosition);
-            __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_F4_BURIED_TREASURE,
-                reinterpret_cast(s32, sNetTreasurePosition[0]),
-                reinterpret_cast(s32, sNetTreasurePosition[1]),
-                reinterpret_cast(s32, sNetTreasurePosition[2]));
-        }
-    }
 }
 
 static void __chTreasurehunt_updateFunc(Actor *this){

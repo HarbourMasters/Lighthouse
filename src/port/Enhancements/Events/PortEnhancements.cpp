@@ -108,6 +108,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnWaterPyramidTimer);
     REGISTER_EVENT(OnVileHoleStateChange);
     REGISTER_EVENT(OnVileGameStateChange);
+    REGISTER_EVENT(OnPuzzleStep);
+    REGISTER_EVENT(OnBreakableBroken);
+    REGISTER_EVENT(OnBottlesTutorialAnswer);
 
     // Register game events
     REGISTER_EVENT(OnGameFlagSet);

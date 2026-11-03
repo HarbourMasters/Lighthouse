@@ -2,6 +2,7 @@
 #include "Authority.h"
 #include "VileSync.h"
 #include "FightSync.h"
+#include "Puzzles/Puzzles.h"
 #include <libultraship/libultraship.h>
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
@@ -225,6 +226,23 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
         default:
             return false;
     }
+}
+
+// Whether the SM tutorial offer is ours to answer; claims it for us when it's free.
+static bool Anchor_SmTutorialChoiceOpen() {
+    if (!Anchor_WorldSyncActive()) {
+        return true;
+    }
+    // By level, not map: a romhack's Spiral Mountain may be a different map id.
+    if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
+        (port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+        return false;
+    }
+    if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) && !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
+        return false;
+    }
+    NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
+    return true;
 }
 
 static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
@@ -738,18 +756,19 @@ void Anchor::RegisterHooks() {
 
     // SM intro Bottles: the tutorial offer is first-answer-wins for the team.
     COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            // By level, not map: a romhack's Spiral Mountain may be a different map id.
-            if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
-                (port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
-                *should = false;
-            } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) &&
-                       !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
-                *should = false;
-            } else {
-                NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
-            }
+        if (!Anchor_SmTutorialChoiceOpen()) {
+            *should = false;
         }
+    });
+
+    // An answer to a choice a teammate owns folds a skip into the tutorial. Recorded team-wide as it lands, so a
+    // second pending offer folds before any move is learned.
+    COND_HOOK(OnBottlesTutorialAnswer, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnBottlesTutorialAnswer*>(event);
+        if (*ev->answer == 0 && !Anchor_SmTutorialChoiceOpen()) {
+            *ev->answer = 1;
+        }
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_SM_TUTORIAL, 1);
     });
 
     // Ability molehills wake up only after the tutorial choice exists: the offer was
@@ -772,6 +791,8 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected,
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
+
+    AnchorPuzzles_Register(isConnected);
 
     // #endregion
 }
