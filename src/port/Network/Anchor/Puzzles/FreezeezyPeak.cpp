@@ -28,6 +28,8 @@ static const CubPresent kCubPresents[] = {
 
 // The tree's ice is shattering in vanilla's warp-in cutscene.
 static bool sTreeIceShattering = false;
+// Set while the tree's ice shatters for a teammate.
+static bool sTreeIceReplay = false;
 // Whether a teammate's Boggy rescue shows its dialog here, decided once as it starts: -1 until then.
 static s32 sBoggyDialogHere = -1;
 // Whether a snow puzzle's last step to count down was a teammate's, and where.
@@ -196,7 +198,16 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
         }
         if (shattered && !sTreeIceShattering && ice->unk38_31 == 0) {
             levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+            sTreeIceReplay = true;
             chXmasTreeIce_shatterIce(ice->marker);
+            sTreeIceReplay = false;
+        }
+    });
+    // Its glass and fanfare play only within earshot.
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, connected, {
+        Actor* actor = va_arg(args, Actor*);
+        if (sTreeIceReplay && !Anchor_InEarshot(actor->position)) {
+            *should = false;
         }
     });
 

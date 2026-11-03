@@ -365,6 +365,7 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // true                                 // Croctus, Boggy, Blubber, the snow managers, Tanktup's look-at and exit
+    // true                                 // Juju's landing shakes
     // actor_animationIsAt(this, 0.1f) != 0 // Tanktup's camera
     // ```
     // #### `args`
@@ -386,6 +387,7 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // true                                  // Croctus, Tanktup, the pink egg, Blubber, the teeth, the snow buttons
+    // true                                  // Juju, FP ice tree
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // ```
     // #### `args`
@@ -396,6 +398,7 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // true                                                                // Boggy, the pink egg, the snow managers
+    // true                                                                // Juju's, with the solve's shake
     // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
     // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
     // ```

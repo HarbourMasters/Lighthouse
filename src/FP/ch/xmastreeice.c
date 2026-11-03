@@ -65,8 +65,12 @@ void chXmasTreeIce_shatterIce(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
     chXmasTreeIce_shatterEffect(this->position, 0xA, 0x4D3);
     chXmasTreeIce_emitDust(this->position, 6, ASSET_700_SPRITE_DUST);
-    func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
-    coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+//  func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
+//  coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+        func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    }
     this->unk38_31 = 1;
     CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_FP_TREE_ICE, 0x1); // [port]
 }
