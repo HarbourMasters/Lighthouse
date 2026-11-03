@@ -17,8 +17,12 @@ void __func_80388F88(void);
 
 #include "port/Patches/Patches.h"
 
-// A teammate's last delivery is playing out on Blubber within earshot.
+// A teammate's last delivery is playing out on Blubber.
 static bool sBlubberTeammateFinish = false;
+
+static bool IsBlubberTeammateFinish(Actor* actor) {
+    return actor != NULL && actor->modelCacheIndex == ACTOR_115_BLUBBER && sBlubberTeammateFinish;
+}
 
 // The Nipper hits the team landed, one bit each.
 static s32 NipperHits() {
@@ -99,10 +103,10 @@ void AnchorPuzzles_RegisterTreasureTroveCove(bool connected) {
         if (blubber->initialized && (bits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
             auto* local = (ActorLocal_Blubber*)&blubber->local;
             mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
-            if (Anchor_InEarshot(blubber->position)) {
-                // His thanks play out here, without our camera or a second jiggy.
-                sBlubberTeammateFinish = true;
-            } else {
+            sBlubberTeammateFinish = true;
+            // Within earshot his thanks play out here, without our camera or a second jiggy; out of it he goes straight
+            // to his dance.
+            if (!Anchor_InEarshot(blubber->position)) {
                 mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
                 mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
                 subaddie_set_state(blubber, CH_BLUBBER_STATE_4_UNKNOWN);
@@ -168,15 +172,22 @@ void AnchorPuzzles_RegisterTreasureTroveCove(bool connected) {
         }
     });
 
-    // Blubber's thanks for a teammate's last delivery go without our camera, and the jiggy is theirs. Always on: a
-    // scene that starts while connected plays out if the connection drops.
+    // Blubber's thanks for a teammate's last delivery go without our camera or look-at, his dance sounds only within
+    // earshot, and the jiggy is theirs. Always on: a scene that starts while connected plays out if the connection
+    // drops.
     COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
-        if (va_arg(args, Actor*)->modelCacheIndex == ACTOR_115_BLUBBER && sBlubberTeammateFinish) {
+        if (IsBlubberTeammateFinish(va_arg(args, Actor*))) {
             *should = false;
         }
     });
     COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
-        if (va_arg(args, Actor*)->modelCacheIndex == ACTOR_115_BLUBBER && sBlubberTeammateFinish) {
+        if (IsBlubberTeammateFinish(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (IsBlubberTeammateFinish(actor) && !Anchor_InEarshot(actor->position)) {
             *should = false;
         }
     });

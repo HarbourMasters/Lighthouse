@@ -364,18 +364,19 @@ typedef enum VBehaviorID {
     // without both.
     // #### `result`
     // ```c
-    // true                                 // Croctus, Boggy, Blubber, Tanktup's look-at and exit
+    // true                                 // Croctus, Boggy, Blubber, the snow managers, Tanktup's look-at and exit
     // actor_animationIsAt(this, 0.1f) != 0 // Tanktup's camera
     // ```
     // #### `args`
-    // - `*Actor` (whose step it is)
+    // - `*Actor` (whose step it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
     VB_PLAY_PUZZLE_CUTSCENE,
 
     // A puzzle step's dialog. A teammate's step replayed here shows it only within earshot.
     // #### `result`
     // ```c
-    // true                                  // Croctus's second dialog, Boggy, Tanktup's last dialog
-    // (!this->unk138_23) && (!local->unk14) // Tanktup's hit dialog
+    // true                                       // Croctus's second dialog, Boggy, Tanktup's last dialog
+    // (!this->unk138_23) && (!local->unk14)      // Tanktup's hit dialog
+    // !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH) // a Clanker tooth's
     // ```
     // #### `args`
     // - `*Actor` (whose step it is)
@@ -384,22 +385,22 @@ typedef enum VBehaviorID {
     // A puzzle step's jingle or sound. A teammate's step replayed here plays it only within earshot.
     // #### `result`
     // ```c
-    // true                                  // Croctus's ding, glitter and crunch, Tanktup's fanfare and legs
+    // true                                  // Croctus, Tanktup, the pink egg, Blubber, the teeth, the snow buttons
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // ```
     // #### `args`
-    // - `*Actor` (whose step it is)
+    // - `*Actor` (whose step it is, or NULL from FP's snowman-button manager, which has none)
     VB_PLAY_PUZZLE_JINGLE,
 
     // A puzzle's jiggy. A teammate's step leaves it to the teammate.
     // #### `result`
     // ```c
-    // true                                                                // Boggy's
+    // true                                                                // Boggy, the pink egg, the snow managers
     // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
     // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
     // ```
     // #### `args`
-    // - `*Actor` (whose puzzle it is)
+    // - `*Actor` (whose puzzle it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
     VB_SPAWN_PUZZLE_JIGGY,
 
     // The first Croctus's dialog, whose callback wakes the second. A listener that returns false skips it and has to

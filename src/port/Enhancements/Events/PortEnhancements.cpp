@@ -112,6 +112,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBreakableBroken);
     REGISTER_EVENT(OnBottlesTutorialAnswer);
     REGISTER_EVENT(OnPuzzlePosMark);
+    REGISTER_EVENT(OnPuzzleWin);
     REGISTER_EVENT(OnClankerUpdate);
     REGISTER_EVENT(OnWaterRise);
 

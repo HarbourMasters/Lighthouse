@@ -219,13 +219,15 @@ static void __chBlubber_updateFunc(Actor *this){
             }
             
             if(actor_animationIsAt(this, 0.3f) && !gcdialog_hasCurrentTextId()){
-                FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
+//              FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
             }
 
             if(actor_animationIsAt(this, 0.28f) || 
                 (actor_animationIsAt(this, 0.78f) && !gcdialog_hasCurrentTextId())
             ){
-                FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
+//              FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
             }
             break;
 

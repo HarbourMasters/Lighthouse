@@ -56,6 +56,7 @@ void FP_func_80386BEC(Actor *this){
     coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
     FUNC_8030E624(SFX_90_SWITCH_PRESS, 1.0f, 32000);
     maSnowButton_decRemaining();
+    CALL_EVENT(OnPuzzlePosMark, ANCHOR_PUZZLE_FP_SNOWBUTTONS, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2]); // [port]
     particleEmitter_setRGB(pCtrl, D_80391B44);
     particleEmitter_setSprite(pCtrl, ASSET_700_SPRITE_DUST);
     particleEmitter_setPosition(pCtrl, plyr_pos);

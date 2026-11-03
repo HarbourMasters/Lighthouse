@@ -30,10 +30,35 @@ static const CubPresent kCubPresents[] = {
 static bool sTreeIceShattering = false;
 // Whether a teammate's Boggy rescue shows its dialog here, decided once as it starts: -1 until then.
 static s32 sBoggyDialogHere = -1;
+// Whether a snow puzzle's last step to count down was a teammate's, and where.
+struct SnowStep {
+    bool teammates;
+    f32 position[3];
+};
+// The snowman buttons' and Sir Slushes' last steps, and the one whose manager is winning. The managers' wins pass no
+// actor to the puzzle VBs, so they follow sSnowWin.
+static SnowStep sSnowButtonStep = {};
+static SnowStep sSlushStep = {};
+static SnowStep sSnowWin = {};
+// Set while a Sir Slush plays out a teammate's death, whose mark is then theirs.
+static bool sSlushReplay = false;
+
+static SnowStep& SnowStepOf(s32 puzzleId) {
+    return puzzleId == ANCHOR_PUZZLE_FP_SNOWBUTTONS ? sSnowButtonStep : sSlushStep;
+}
+
+static void NoteSnowStep(s32 puzzleId, bool teammates, f32 x, f32 y, f32 z) {
+    SnowStep& step = SnowStepOf(puzzleId);
+    step.teammates = teammates;
+    step.position[0] = x;
+    step.position[1] = y;
+    step.position[2] = z;
+}
 
 // The remote bit is 0 unless a teammate's flag landed this visit.
 static bool IsBoggyTeammateRescue(Actor* actor) {
-    return actor->modelCacheIndex == ACTOR_160_BOGGY_1 && port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN);
+    return actor != NULL && actor->modelCacheIndex == ACTOR_160_BOGGY_1 &&
+           port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN);
 }
 
 static bool BoggyDialogHere(Actor* boggy) {
@@ -78,6 +103,8 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
         const s32 z = (s32)button->position[2];
         if (button->state == 1 && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)) {
             subaddie_set_state_with_direction(button, 2, 0.01f, 1);
+            NoteSnowStep(ANCHOR_PUZZLE_FP_SNOWBUTTONS, true, button->position[0], button->position[1],
+                         button->position[2]);
             maSnowButton_decRemaining();
         }
         if (button->state != 1) {
@@ -95,13 +122,44 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
             return;
         }
         if (slush->volatile_initialized) {
+            sSlushReplay = true;
             __chSnowman_deathCallback(slush->marker, NULL);
+            sSlushReplay = false;
         } else {
+            NoteSnowStep(ANCHOR_PUZZLE_FP_SLUSHES, true, slush->position[0], slush->position[1], slush->position[2]);
             maSnowy_incTotal(); // his skipped setup's count
             maSnowy_decRemaining();
             marker_despawn(slush->marker);
         }
         *ev->should = false;
+    });
+
+    // A button press or Sir Slush death fires a mark as it counts down: ours, or a teammate's replayed here. Always on,
+    // with the hooks below that read it.
+    COND_HOOK(OnPuzzlePosMark, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnPuzzlePosMark*)event;
+        if (ev->puzzleId == ANCHOR_PUZZLE_FP_SNOWBUTTONS || ev->puzzleId == ANCHOR_PUZZLE_FP_SLUSHES) {
+            NoteSnowStep(ev->puzzleId, sSlushReplay, (f32)ev->x, (f32)ev->y, (f32)ev->z);
+        }
+    });
+    // The snow managers' wins after a teammate's last step: no camera or jiggy here, the fanfare within earshot. Always
+    // on: a win a teammate's step set off plays out if the connection drops.
+    COND_HOOK(OnPuzzleWin, EVENT_PRIORITY_NORMAL, true,
+              [](IEvent* event) { sSnowWin = SnowStepOf(((OnPuzzleWin*)event)->puzzleId); });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (va_arg(args, Actor*) == NULL && sSnowWin.teammates) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
+        if (va_arg(args, Actor*) == NULL && sSnowWin.teammates) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
+        if (va_arg(args, Actor*) == NULL && sSnowWin.teammates && !Anchor_InEarshot(sSnowWin.position)) {
+            *should = false;
+        }
     });
 
     // A teammate shattered the tree's ice (recorded in the tree's map): the tree lights up, and a run of ours stops.
@@ -176,6 +234,10 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
             *should = false;
         }
     });
-    // Always on, with the hooks that read it.
-    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sBoggyDialogHere = -1; });
+    // Always on, with the hooks that read them.
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        sBoggyDialogHere = -1;
+        sSnowButtonStep = {};
+        sSlushStep = {};
+    });
 }

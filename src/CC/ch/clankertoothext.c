@@ -34,7 +34,8 @@ void maClankerTooth_setNextState(Actor *this, s32 next_state){
     this->state = next_state;
     local->unk8 = 0.0f;
     if(this->state == CLANKER_TOOTH_STATE_2_FALLING_OVER){
-        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+//      coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
     else if(this->state == CLANKER_TOOTH_STATE_3_KNOCKED_OUT){
         if(prev_state == CLANKER_TOOTH_STATE_2_FALLING_OVER){
@@ -125,7 +126,8 @@ void maClankerTooth_update(Actor *this){
     }
     else if(this->state == CLANKER_TOOTH_STATE_2_FALLING_OVER && 1.0f <= local->unk8){
         flagCnt = levelSpecificFlags_get(LEVEL_FLAG_0_CC_TOKEN_TOOTH_OPEN) + levelSpecificFlags_get(LEVEL_FLAG_1_CC_JIGGY_TOOTH_OPEN);
-        if(!jiggyscore_isCollected(JIGGY_1B_CC_TOOTH)){
+//      if(!jiggyscore_isCollected(JIGGY_1B_CC_TOOTH)){
+        if(EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH), this)){
             gcdialog_showDialog(
                 (local->unk0 == 1)?
                     ((flagCnt == 0)?

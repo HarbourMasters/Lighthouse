@@ -38,6 +38,8 @@ static bool sTanktupDialogHere = false;
 static s32 sTanktupTeammateLegs = 0;
 // Tanktup raised his head for a teammate's solve: the pose, without the presentation.
 static bool sTanktupCatchUp = false;
+// Set while a pink egg layer plays out a teammate's break.
+static bool sPinkEggReplay = false;
 
 static bool IsCroctusTeammateFeed(Actor* croctus) {
     return sCroctusTeammateFeeds & (1 << (croctus->actorTypeSpecificField - 1));
@@ -67,9 +69,21 @@ static Actor* CroctusSoundSource(Actor* croctus) {
     return CroctusNextHead(croctus);
 }
 
+// A puzzle VB's actor id; FP's snow managers pass no actor.
+static s32 PuzzleActorId(Actor* actor) {
+    return actor != NULL ? actor->modelCacheIndex : -1;
+}
+
 static bool IsTanktupTeammateLeg(Actor* actor) {
-    return actor->modelCacheIndex >= ACTOR_E9_TANKTUP_LEG_FL && actor->modelCacheIndex <= ACTOR_EC_TANKTUP_LEG_BR &&
+    const s32 id = PuzzleActorId(actor);
+    return id >= ACTOR_E9_TANKTUP_LEG_FL && id <= ACTOR_EC_TANKTUP_LEG_BR &&
            (sTanktupTeammateLegs & (1 << actor->unk10_12));
+}
+
+static bool IsPinkEggTeammateBreak(Actor* actor) {
+    const s32 id = PuzzleActorId(actor);
+    return sPinkEggReplay &&
+           (id == ACTOR_5B_PINK_EGG_LARGEST || (id >= ACTOR_ED_PINK_EGG_LARGE && id <= ACTOR_F0_PINK_EGG_SMALLEST));
 }
 
 // A teammate broke this layer, or the whole chain.
@@ -83,7 +97,9 @@ static void PinkEggUpdate(IEvent* event) {
         marker_despawn(egg->marker);
         *ev->should = false;
     } else if (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg*)&egg->local)->actorId)) {
+        sPinkEggReplay = true;
         chPinkEgg_collision(egg->marker, NULL);
+        sPinkEggReplay = false;
         *ev->should = false;
     }
 }
@@ -167,7 +183,7 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
     // Tanktup's jiggy comes out once.
     COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, connected, {
         Actor* actor = va_arg(args, Actor*);
-        if (actor->modelCacheIndex == ACTOR_E8_TANKTUP && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP)) {
+        if (PuzzleActorId(actor) == ACTOR_E8_TANKTUP && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP)) {
             *should = false;
         }
     });
@@ -177,32 +193,32 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
     // that starts while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
-        if ((actor->modelCacheIndex == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor)) ||
-            (actor->modelCacheIndex == ACTOR_E8_TANKTUP && (sTanktupCatchUp || sTanktupReplay))) {
+        if ((PuzzleActorId(actor) == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor)) ||
+            (PuzzleActorId(actor) == ACTOR_E8_TANKTUP && (sTanktupCatchUp || sTanktupReplay))) {
             *should = false;
         }
     });
     COND_VB_SHOULD(VB_PLAY_PUZZLE_DIALOG, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
-        if ((actor->modelCacheIndex == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor) &&
+        if ((PuzzleActorId(actor) == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor) &&
              (IsCroctusArrivalFeed(actor) || !Anchor_InEarshot(CroctusNextHead(actor)->position))) ||
-            (actor->modelCacheIndex == ACTOR_E8_TANKTUP &&
+            (PuzzleActorId(actor) == ACTOR_E8_TANKTUP &&
              (sTanktupCatchUp || (sTanktupReplay && !sTanktupDialogHere)))) {
             *should = false;
         }
     });
     COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
-        if (actor->modelCacheIndex == ACTOR_E8_TANKTUP && sTanktupReplay) {
+        if ((PuzzleActorId(actor) == ACTOR_E8_TANKTUP && sTanktupReplay) || IsPinkEggTeammateBreak(actor)) {
             *should = false;
         }
     });
     COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
-        if ((actor->modelCacheIndex == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor) &&
+        if ((PuzzleActorId(actor) == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor) &&
              (IsCroctusArrivalFeed(actor) || !Anchor_InEarshot(CroctusSoundSource(actor)->position))) ||
-            (IsTanktupTeammateLeg(actor) && !Anchor_InEarshot(actor->position)) ||
-            (actor->modelCacheIndex == ACTOR_E8_TANKTUP &&
+            ((IsTanktupTeammateLeg(actor) || IsPinkEggTeammateBreak(actor)) && !Anchor_InEarshot(actor->position)) ||
+            (PuzzleActorId(actor) == ACTOR_E8_TANKTUP &&
              (sTanktupCatchUp || (sTanktupReplay && !Anchor_InEarshot(actor->position))))) {
             *should = false;
         }

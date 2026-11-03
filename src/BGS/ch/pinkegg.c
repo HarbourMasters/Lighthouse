@@ -94,7 +94,8 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     
     thisActor = marker_getActor(this);
     this->propPtr->unk8_3 = 0;
-    sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
+//  sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, thisActor)) sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
     subaddie_set_state(thisActor, CH_PINK_EGG_STATES_3_BREAKING);
     actor_playAnimationOnce(thisActor);
     this->collidable = false;
@@ -103,8 +104,10 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     if(D_803906C4[(tmp = (ActorLocal_PinkEgg *) &thisActor->local)->actorId] != 0){
         __spawnQueue_add_2((GenFunction_2)chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->actorId);
     } else {
-        jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
-        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+//      jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
+//      coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, thisActor)) jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, thisActor)) coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
 }
 
