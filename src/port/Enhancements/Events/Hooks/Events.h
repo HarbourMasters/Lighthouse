@@ -341,16 +341,6 @@ typedef enum VBehaviorID {
                               // reveal it live.
     VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
-    // The look-at, camera and dialog around Boggy's rescue; the dialog also spawns his jiggy. A listener that returns
-    // false skips all of it.
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - None
-    VB_FP_BOGGY_RESCUE_SCENE,
-
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
     // #### `result`
@@ -370,17 +360,26 @@ typedef enum VBehaviorID {
     // - None
     VB_FP_SCARF_SLED_BOARD,
 
-    // A puzzle step's camera, look-at or dialog. A teammate's step replayed here goes without it.
+    // A puzzle step's camera, and the look-at that holds the player through it. A teammate's step replayed here goes
+    // without both.
     // #### `result`
     // ```c
-    // true                                  // Croctus, Tanktup's look-at
-    // (!this->unk138_23) && (!local->unk14) // Tanktup's hit dialog
-    // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
-    // actor_animationIsAt(this, 0.9f) != 0  // Tanktup's dialog
+    // true                                 // Croctus, Boggy, Blubber, Tanktup's look-at and exit
+    // actor_animationIsAt(this, 0.1f) != 0 // Tanktup's camera
     // ```
     // #### `args`
     // - `*Actor` (whose step it is)
     VB_PLAY_PUZZLE_CUTSCENE,
+
+    // A puzzle step's dialog. A teammate's step replayed here shows it only within earshot.
+    // #### `result`
+    // ```c
+    // true                                  // Croctus's second dialog, Boggy, Tanktup's last dialog
+    // (!this->unk138_23) && (!local->unk14) // Tanktup's hit dialog
+    // ```
+    // #### `args`
+    // - `*Actor` (whose step it is)
+    VB_PLAY_PUZZLE_DIALOG,
 
     // A puzzle step's jingle or sound. A teammate's step replayed here plays it only within earshot.
     // #### `result`
@@ -395,14 +394,16 @@ typedef enum VBehaviorID {
     // A puzzle's jiggy. A teammate's step leaves it to the teammate.
     // #### `result`
     // ```c
-    // actor_animationIsAt(this, 0.4f) != 0 // Tanktup's
+    // true                                                                // Boggy's
+    // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
+    // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
     // ```
     // #### `args`
     // - `*Actor` (whose puzzle it is)
     VB_SPAWN_PUZZLE_JIGGY,
 
-    // The first Croctus's look-at and dialog, whose callback wakes the second. A listener that returns false skips
-    // both and has to call chCroctus_activateNextCroctus.
+    // The first Croctus's dialog, whose callback wakes the second. A listener that returns false skips it and has to
+    // call chCroctus_activateNextCroctus.
     // #### `result`
     // ```c
     // true
@@ -410,6 +411,16 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (the first Croctus)
     VB_CROCTUS_FIRST_FEED_DIALOG,
+
+    // After the second Croctus's dialog, the first feed's camera exits and its look-at lets go. A listener that returns
+    // false skips both, for a feed that set neither.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CROCTUS_FIRST_FEED_RELEASE,
 
     // #### `result`
     // ```c

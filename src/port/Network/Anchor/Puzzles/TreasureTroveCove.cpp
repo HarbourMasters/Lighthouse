@@ -17,6 +17,9 @@ void __func_80388F88(void);
 
 #include "port/Patches/Patches.h"
 
+// A teammate's last delivery is playing out on Blubber within earshot.
+static bool sBlubberTeammateFinish = false;
+
 // The Nipper hits the team landed, one bit each.
 static s32 NipperHits() {
     const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
@@ -89,18 +92,24 @@ void AnchorPuzzles_RegisterTreasureTroveCove(bool connected) {
         }
         if ((bits & 0x1) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
             mapSpecificFlags_set(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN, true);
-            blubber->unk138_23 = true; // the half-gold dialog belongs to the deliverer
+            // A teammate's delivery shows the half-gold dialog only live and within earshot.
+            blubber->unk138_23 = !blubber->volatile_initialized || !Anchor_InEarshot(blubber->position);
             blubber->has_met_before = true;
         }
         if (blubber->initialized && (bits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
             auto* local = (ActorLocal_Blubber*)&blubber->local;
             mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
-            mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
-            mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
-            subaddie_set_state(blubber, CH_BLUBBER_STATE_4_UNKNOWN);
-            actor_loopAnimation(blubber);
-            blubber->actor_specific_1_f = 0.0f;
-            local->unk24 = 0;
+            if (Anchor_InEarshot(blubber->position)) {
+                // His thanks play out here, without our camera or a second jiggy.
+                sBlubberTeammateFinish = true;
+            } else {
+                mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
+                mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
+                subaddie_set_state(blubber, CH_BLUBBER_STATE_4_UNKNOWN);
+                actor_loopAnimation(blubber);
+                blubber->actor_specific_1_f = 0.0f;
+                local->unk24 = 0;
+            }
         }
 
         // Before Blubber first sets up: our gold is the team's collected bars less the delivered ones, since carried
@@ -158,4 +167,19 @@ void AnchorPuzzles_RegisterTreasureTroveCove(bool connected) {
             TreasureHuntTick();
         }
     });
+
+    // Blubber's thanks for a teammate's last delivery go without our camera, and the jiggy is theirs. Always on: a
+    // scene that starts while connected plays out if the connection drops.
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (va_arg(args, Actor*)->modelCacheIndex == ACTOR_115_BLUBBER && sBlubberTeammateFinish) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
+        if (va_arg(args, Actor*)->modelCacheIndex == ACTOR_115_BLUBBER && sBlubberTeammateFinish) {
+            *should = false;
+        }
+    });
+    // Always on, with the hooks that read it.
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sBlubberTeammateFinish = false; });
 }

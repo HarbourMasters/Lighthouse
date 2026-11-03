@@ -7,6 +7,7 @@
 extern "C" {
 void __chSnowman_deathCallback(ActorMarker* marker, ActorMarker* other_marker);
 void chXmasTreeIce_shatterIce(ActorMarker* marker);
+void func_803877A8(ActorMarker* caller, enum asset_e text_id, s32 arg2);
 }
 
 #include "port/Patches/Patches.h"
@@ -27,6 +28,20 @@ static const CubPresent kCubPresents[] = {
 
 // The tree's ice is shattering in vanilla's warp-in cutscene.
 static bool sTreeIceShattering = false;
+// Whether a teammate's Boggy rescue shows its dialog here, decided once as it starts: -1 until then.
+static s32 sBoggyDialogHere = -1;
+
+// The remote bit is 0 unless a teammate's flag landed this visit.
+static bool IsBoggyTeammateRescue(Actor* actor) {
+    return actor->modelCacheIndex == ACTOR_160_BOGGY_1 && port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN);
+}
+
+static bool BoggyDialogHere(Actor* boggy) {
+    if (sBoggyDialogHere < 0) {
+        sBoggyDialogHere = Anchor_InEarshot(boggy->position);
+    }
+    return sBoggyDialogHere;
+}
 
 static void BearCubUpdate(IEvent* event) {
     Actor* cub = ((ShouldActorUpdate*)event)->actor;
@@ -133,4 +148,34 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
             *should = true;
         }
     });
+
+    // A teammate's sled crash rescues Boggy here: his animations play without our camera or look-at, his dialog shows
+    // only within earshot, and the jiggy comes through JIGGY_SPAWN. Always on, so a rescue that started as a
+    // teammate's ends that way if we disconnect mid-scene.
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (IsBoggyTeammateRescue(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_DIALOG, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (IsBoggyTeammateRescue(actor) && !BoggyDialogHere(actor)) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
+        if (IsBoggyTeammateRescue(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    // Away from a teammate's rescue no dialog ends it, so Boggy runs off once he's done coughing.
+    COND_VB_SHOULD(VB_FP_BOGGY_WAIT_FOR_DIALOG, EVENT_PRIORITY_NORMAL, true, {
+        Actor* boggy = va_arg(args, Actor*);
+        if (IsBoggyTeammateRescue(boggy) && !BoggyDialogHere(boggy)) {
+            func_803877A8(boggy->marker, (enum asset_e)0, 2);
+            *should = false;
+        }
+    });
+    // Always on, with the hooks that read it.
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sBoggyDialogHere = -1; });
 }

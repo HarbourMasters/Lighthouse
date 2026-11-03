@@ -107,15 +107,17 @@ void chCroctus_activateNextCroctus(ActorMarker *caller, enum asset_e text_id, s3
         timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, reinterpret_cast(uintptr_t, bgs_D_803907B8[this->actorTypeSpecificField]));
 //      timed_setStaticCameraToNode(0.8f, 9);
 //      func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
-        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
-            timed_setStaticCameraToNode(0.8f, 9);
-            func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
-        }
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(0.8f, 9);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
         __spawnQueue_add_2((GenFunction_2) func_80387D18, reinterpret_cast(uintptr_t, this->marker), 0x46);
     }
     else{
-        timed_exitStaticCamera(0.0f);
-        func_8028F918(0);
+//      timed_exitStaticCamera(0.0f);
+//      func_8028F918(0);
+        if (EventSystem_Should(VB_CROCTUS_FIRST_FEED_RELEASE, true)) {
+            timed_exitStaticCamera(0.0f);
+            func_8028F918(0);
+        }
     }
 }
 
@@ -160,10 +162,8 @@ void chCroctus_update(Actor *this){
             if (this->actorTypeSpecificField == 1) {
 //              func_8028F94C(2, this->position);
 //              gcdialog_showDialog(VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0xE, this->position, this->marker, chCroctus_activateNextCroctus, NULL);
-                if (EventSystem_Should(VB_CROCTUS_FIRST_FEED_DIALOG, true, this)) {
-                    func_8028F94C(2, this->position);
-                    gcdialog_showDialog(VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0xE, this->position, this->marker, chCroctus_activateNextCroctus, NULL);
-                }
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028F94C(2, this->position);
+                if (EventSystem_Should(VB_CROCTUS_FIRST_FEED_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0xE, this->position, this->marker, chCroctus_activateNextCroctus, NULL);
                 subaddie_set_state_with_direction(this, CHCROCTUS_STATE_6_DESPAWN, 0.79f, 1);
             } else {
 //              timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);

@@ -59,7 +59,8 @@ static void __chBlubber_showTextCallback(ActorMarker *caller, enum asset_e text_
 static void __chBlubber_showTextCallback2(ActorMarker *caller, enum asset_e text_id, s32 arg1){
     f32 sp24[3];
 
-    if(nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24)){
+//  if(nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24)){
+    if(EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24), marker_getActor(caller))){
         jiggy_spawn(JIGGY_14_TTC_BLUBBER, sp24);
         __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
     }
@@ -86,8 +87,12 @@ static void __chBlubber_checkJiggySpawnedTextAndAdvanceState(Actor *this){
 
     this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
     mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
-    func_8028F918(2);
-    timed_setStaticCameraToNode(0.0f, 4);
+//  func_8028F918(2);
+//  timed_setStaticCameraToNode(0.0f, 4);
+    if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
+        func_8028F918(2);
+        timed_setStaticCameraToNode(0.0f, 4);
+    }
     timedFunc_set_1(1.0f, (GenFunction_1)__chBlubber_showJiggySpawnedText, (uintptr_t)this->marker);
     subaddie_set_state_with_direction(this, CH_BLUBBER_STATE_1_UNKNOWN, 0.0f, 1);
 }
@@ -234,8 +239,12 @@ static void __chBlubber_updateFunc(Actor *this){
 static void __chBlubber_update2Func(Actor *this){
     func_80343DEC(this);
     if(0.99 <= this->unk48){
-        func_8028F918(0);
-        timed_exitStaticCamera(0.0f);
+//      func_8028F918(0);
+//      timed_exitStaticCamera(0.0f);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
+            func_8028F918(0);
+            timed_exitStaticCamera(0.0f);
+        }
         marker_despawn(this->marker);
     }
     __func_80387830(this, 0.5f, 0.97f);

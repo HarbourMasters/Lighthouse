@@ -72,7 +72,8 @@ s32 func_8038F570(s16 *arg0){
 }
 
 void func_8038F5E4(ActorMarker *marker, enum asset_e text_id, s32 arg2){
-    timed_exitStaticCamera(0.0f);
+//  timed_exitStaticCamera(0.0f);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, marker_getActor(marker))) timed_exitStaticCamera(0.0f);
 }
 
 void func_8038F610(Actor *this) {
@@ -162,7 +163,7 @@ void chTanktup_update(Actor *this)
                 }
 
 //              if ((!this->unk138_23) && (!local->unk14))
-                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, (!this->unk138_23) && (!local->unk14), this))
+                if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, (!this->unk138_23) && (!local->unk14), this))
                 {
                     if (gcdialog_showDialog(VER_SELECT(ASSET_C80_DIALOG_TANKTUP_HIT, 0x9C3, 0, 0), 0, 0, 0, 0, 0))
                     {
@@ -215,17 +216,20 @@ void chTanktup_update(Actor *this)
                 sp34[1] -= 125.0f;
                 jiggy_spawn(JIGGY_26_BGS_TANKTUP, sp34);
             }
-//          if (actor_animationIsAt(this, 0.9f) != 0)
-            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, actor_animationIsAt(this, 0.9f) != 0, this))
+            if (actor_animationIsAt(this, 0.9f) != 0)
             {
-                func_8028F918(0);
-                if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
+//              func_8028F918(0);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028F918(0);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this))
                 {
-                    gcdialog_showDialog(VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), 0xF, this->position, this->marker, func_8038F5E4, 0);
-                }
-                else
-                {
-                    func_8038F5E4(this->marker, VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), -1);
+                    if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
+                    {
+                        gcdialog_showDialog(VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), 0xF, this->position, this->marker, func_8038F5E4, 0);
+                    }
+                    else
+                    {
+                        func_8038F5E4(this->marker, VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), -1);
+                    }
                 }
             }
             break;

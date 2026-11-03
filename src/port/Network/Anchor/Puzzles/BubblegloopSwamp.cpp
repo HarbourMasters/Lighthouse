@@ -31,8 +31,9 @@ static s32 sCroctusTeammateFeeds = 0;
 static s32 sCroctusTeammateDings = 0;
 // The feeds already in the record when we arrived, which catch up without sounds or dialogs; -1 until a head updates.
 static s32 sCroctusArrivalFeeds = -1;
-// A teammate's leg is playing out on Tanktup's body.
+// A teammate's leg is playing out on Tanktup's body, until one of ours goes in, and whether its dialogs show here.
 static bool sTanktupReplay = false;
+static bool sTanktupDialogHere = false;
 // The legs a teammate knocked in, a bit per leg, for the sounds they make as they retract.
 static s32 sTanktupTeammateLegs = 0;
 // Tanktup raised his head for a teammate's solve: the pose, without the presentation.
@@ -93,6 +94,7 @@ static void TanktupLegUpdate(IEvent* event) {
         (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << leg->unk10_12))) {
         sTanktupReplay = true;
         sTanktupTeammateLegs |= 1 << leg->unk10_12;
+        sTanktupDialogHere = Anchor_InEarshot(leg->position);
         chTanktupLeg_despawn(leg->marker, NULL);
     }
 }
@@ -123,10 +125,11 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
         }
     });
 
-    // The first head's dialog leads on to the second; a teammate's feed goes straight there.
+    // The first head's dialog leads on to the second. A teammate's feed shows it within earshot, and otherwise goes
+    // straight there.
     COND_VB_SHOULD(VB_CROCTUS_FIRST_FEED_DIALOG, EVENT_PRIORITY_NORMAL, connected, {
         Actor* croctus = va_arg(args, Actor*);
-        if (IsCroctusTeammateFeed(croctus)) {
+        if (IsCroctusTeammateFeed(croctus) && (IsCroctusArrivalFeed(croctus) || !Anchor_InEarshot(croctus->position))) {
             chCroctus_activateNextCroctus(croctus->marker, ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0);
             *should = false;
         }
@@ -169,13 +172,22 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
         }
     });
 
-    // A teammate's step replayed here goes without our camera and dialogs, plays its jingles only within earshot, and
-    // leaves its jiggy to them; the catch-up's pose has no jingles either. Always on: a replay that starts while
-    // connected plays out if the connection drops.
+    // A teammate's step replayed here goes without our camera or look-at, and shows its dialogs and plays its jingles
+    // only within earshot, and leaves its jiggy to them; the catch-up's pose has no presentation. Always on: a replay
+    // that starts while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
         if ((actor->modelCacheIndex == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor)) ||
             (actor->modelCacheIndex == ACTOR_E8_TANKTUP && (sTanktupCatchUp || sTanktupReplay))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_DIALOG, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if ((actor->modelCacheIndex == ACTOR_1FA_CROCTUS && IsCroctusTeammateFeed(actor) &&
+             (IsCroctusArrivalFeed(actor) || !Anchor_InEarshot(CroctusNextHead(actor)->position))) ||
+            (actor->modelCacheIndex == ACTOR_E8_TANKTUP &&
+             (sTanktupCatchUp || (sTanktupReplay && !sTanktupDialogHere)))) {
             *should = false;
         }
     });
@@ -192,6 +204,12 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
             (IsTanktupTeammateLeg(actor) && !Anchor_InEarshot(actor->position)) ||
             (actor->modelCacheIndex == ACTOR_E8_TANKTUP &&
              (sTanktupCatchUp || (sTanktupReplay && !Anchor_InEarshot(actor->position))))) {
+            *should = false;
+        }
+    });
+    // A teammate's first feed set no camera or look-at here to release.
+    COND_VB_SHOULD(VB_CROCTUS_FIRST_FEED_RELEASE, EVENT_PRIORITY_NORMAL, true, {
+        if (sCroctusTeammateFeeds & 0x1) {
             *should = false;
         }
     });
