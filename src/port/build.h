@@ -14,6 +14,9 @@ extern u16 gBuildVersionPatch;
 extern char gGitBranch[];
 extern char gGitCommitHash[];
 extern char gGitCommitTag[];
+
+extern const char* const gContributors[];
+extern const int gContributorCount;
 extern char gBuildTeam[];
 extern char gBuildDate[];
 extern char gBuildMakeOption[];

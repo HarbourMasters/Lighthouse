@@ -11,7 +11,10 @@
 #include "port/Localization/Language.h"
 #include "port/Save/SaveConverter.h"
 #include "UIWidgets.hpp"
+#include <cmath>
+#include <fast/Fast3dGui.h>
 #include <fast/Fast3dWindow.h>
+#include <imgui_internal.h>
 #include <spdlog/fmt/fmt.h>
 
 #include "variables.h"
@@ -115,6 +118,50 @@ static void DrawResetAll(WidgetInfo& info) {
     }
 }
 
+static void DrawAbout(WidgetInfo& info) {
+    ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Gray));
+    if (gGitCommitTag[0] == 0) {
+        ImGui::Text("%s | %s | %s", (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
+    } else {
+        ImGui::Text("%s", (char*)gBuildVersion);
+    }
+    ImGui::PopStyleColor();
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
+    ImGui::SeparatorTextEx(ImGui::GetID("Thank You"), "Thank You", NULL, 25.0f + ImGui::GetStyle().ItemSpacing.x);
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+    ImTextureID jiggy =
+        std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+            ->GetTextureByName("Jiggy");
+    ImGui::Image(jiggy, ImVec2(25.0f, 25.0f));
+    ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
+                       "everyone in the larger decomp & N64 communities who make this project possible.\n\n");
+
+    if (gContributorCount > 0) {
+        ImGui::BeginChild("contributors", ImVec2(0, ImGui::GetMainViewport()->WorkSize.y / 3), 0,
+                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        constexpr int kColumns = 2;
+        const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+        const float listHeight = ((gContributorCount + kColumns - 1) / kColumns) * lineHeight;
+        ImGui::SetScrollY(fmod(ImGui::GetTime() * 1.5 * ImGui::GetFontSize(), listHeight));
+
+        const int copies = (int)ceilf(ImGui::GetWindowHeight() / listHeight) + 1;
+        for (int copy = 0; copy < copies; copy++) {
+            for (int column = 0; column < kColumns; column++) {
+                if (column > 0) {
+                    ImGui::SameLine();
+                }
+                ImGui::BeginGroup();
+                for (int i = column; i < gContributorCount; i += kColumns) {
+                    ImGui::Text("%s", gContributors[i]);
+                }
+                ImGui::EndGroup();
+            }
+        }
+        ImGui::EndChild();
+    }
+}
+
 void LighthouseMenu::AddMenuSettings() {
     // Add Settings Menu
     AddMenuEntry("Settings", CVAR_SETTING("Menu.SettingsSidebarSection"));
@@ -198,7 +245,6 @@ void LighthouseMenu::AddMenuSettings() {
                               "Authentic: Keep the authentic N64 branding\n"
                               "File Select: Skip to file select menu"));
 
-    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Save Conversion", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Save Slot", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("SaveConvertSlot"))
@@ -295,6 +341,9 @@ void LighthouseMenu::AddMenuSettings() {
         .Options(ButtonOptions()
                      .Size(Sizes::Inline)
                      .Tooltip("Pick a Banjo-Kazooie ROM and extract only its dialog into a slim language pack."));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "About", WIDGET_CUSTOM).HideInSearch(true).CustomFunction(DrawAbout);
 
     // Accessibility Options
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
