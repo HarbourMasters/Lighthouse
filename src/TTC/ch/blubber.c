@@ -3,32 +3,14 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-#include "port/Enhancements/Retention/Retention.h"
-
 extern void func_8028E668(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3);
 extern  s32 func_802E0970(s32, f32, f32, f32, s32, s32, f32[3]);
 
-typedef struct {
-    u8 unk0[0xE]; // unused?
-    s16 unkE; // some sort of index
-    f32 throw_target_position[3];
-    s32 throw_target_radius;
-    NodeProp* gold_bullion_throw_target_node_prop;
-    s32 unk24; // bullions left to collect ? (changes from 4 to 0)
-} ActorLocal_Blubber;
+#include "blubber.h" // [port] the typedef and states moved there
 
 static void __chBlubber_updateFunc(Actor *this);
 static void __chBlubber_update2Func(Actor *this);
 static Actor *__chBlubber_drawFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-
-enum ch_blubber_states_e {
-    CH_BLUBBER_STATE_1_UNKNOWN = 1, // initial state (80387A84)
-    CH_BLUBBER_STATE_2_UNKNOWN = 2, // 80387B10
-    CH_BLUBBER_STATE_3_UNKNOWN = 3,
-    CH_BLUBBER_STATE_4_UNKNOWN = 4, // 80387C04
-    CH_BLUBBER_STATE_5_UNKNOWN = 5  // 80387CD4
-};
 
 /* .data */
 ActorAnimationInfo gChBlubberAnimations[6] = {
@@ -77,7 +59,8 @@ static void __chBlubber_showTextCallback(ActorMarker *caller, enum asset_e text_
 static void __chBlubber_showTextCallback2(ActorMarker *caller, enum asset_e text_id, s32 arg1){
     f32 sp24[3];
 
-    if(nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24)){
+//  if(nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24)){
+    if(EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24), marker_getActor(caller))){
         jiggy_spawn(JIGGY_14_TTC_BLUBBER, sp24);
         __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
     }
@@ -104,8 +87,12 @@ static void __chBlubber_checkJiggySpawnedTextAndAdvanceState(Actor *this){
 
     this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
     mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
-    func_8028F918(2);
-    timed_setStaticCameraToNode(0.0f, 4);
+//  func_8028F918(2);
+//  timed_setStaticCameraToNode(0.0f, 4);
+    if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
+        func_8028F918(2);
+        timed_setStaticCameraToNode(0.0f, 4);
+    }
     timedFunc_set_1(1.0f, (GenFunction_1)__chBlubber_showJiggySpawnedText, (uintptr_t)this->marker);
     subaddie_set_state_with_direction(this, CH_BLUBBER_STATE_1_UNKNOWN, 0.0f, 1);
 }
@@ -143,50 +130,14 @@ static void __func_80387830(Actor *this , f32 arg1, f32 arg2){
 
 static void __chBlubber_updateFunc(Actor *this){
     ActorLocal_Blubber *local;
-    s32 netBits;
 
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
-
-    netBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
-    if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
-    }
-    if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
-    }
-    if (!this->volatile_initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
-        marker_despawn(this->marker);
-        return;
-    }
-    if ((netBits & 0x1) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
-        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN, true);
-        this->unk138_23  = true; // half-gold dialog belongs to the deliverer
-        this->has_met_before = true;
-    }
-    if (this->initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
-        local = (ActorLocal_Blubber *)&this->local;
-        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
-        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
-        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
-        subaddie_set_state(this, CH_BLUBBER_STATE_4_UNKNOWN);
-        actor_loopAnimation(this);
-        this->actor_specific_1_f = 0.0f;
-        local->unk24 = 0;
-    }
-
 //  if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !subaddie_playerIsWithinSphereAndActive(this, 2500))
     if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphereAndActive(this, 2500), this))
         return;
     
     if(!this->volatile_initialized){
-        // Anchor: rebuild local gold count as collected - delivered (carried gold is transient).
-        s32 goldBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
-        s32 delivered = ((goldBits & 0x1) ? 1 : 0) + ((goldBits & 0x2) ? 1 : 0);
-        s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;
-        if (pool > item_getCount(ITEM_18_GOLD_BULLIONS)) {
-            item_adjustByDiffWithoutHud(ITEM_18_GOLD_BULLIONS, pool - item_getCount(ITEM_18_GOLD_BULLIONS));
-        }
         if(this->state == CH_BLUBBER_STATE_3_UNKNOWN){
             subaddie_set_state_with_direction(this, CH_BLUBBER_STATE_2_UNKNOWN, 0.0f, 1);
         }
@@ -268,13 +219,15 @@ static void __chBlubber_updateFunc(Actor *this){
             }
             
             if(actor_animationIsAt(this, 0.3f) && !gcdialog_hasCurrentTextId()){
-                FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
+//              FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
             }
 
             if(actor_animationIsAt(this, 0.28f) || 
                 (actor_animationIsAt(this, 0.78f) && !gcdialog_hasCurrentTextId())
             ){
-                FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
+//              FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
             }
             break;
 
@@ -288,8 +241,12 @@ static void __chBlubber_updateFunc(Actor *this){
 static void __chBlubber_update2Func(Actor *this){
     func_80343DEC(this);
     if(0.99 <= this->unk48){
-        func_8028F918(0);
-        timed_exitStaticCamera(0.0f);
+//      func_8028F918(0);
+//      timed_exitStaticCamera(0.0f);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
+            func_8028F918(0);
+            timed_exitStaticCamera(0.0f);
+        }
         marker_despawn(this->marker);
     }
     __func_80387830(this, 0.5f, 0.97f);

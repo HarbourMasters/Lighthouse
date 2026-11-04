@@ -130,15 +130,22 @@ void func_803892A8(ActorMarker **ptr) {
         if (jujuPtr->animation_state != JUJU_ANIMATION_STATE_2_DESPAWNED) {
             jujuPtr->animation_state = JUJU_ANIMATION_STATE_5_DISAPPEARING;
             jujuPtr->animation_countdown = 12;
-            sfxsource_playHighPriority(0x3f6);
+//          sfxsource_playHighPriority(0x3f6);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actorPtr)) sfxsource_playHighPriority(0x3f6);
 
             if (i == 3) {
-                gcpausemenu_80314AC8(0);
-                timedFunc_set_4(1.25f, (GenFunction_4)__chjuju_solvePuzzle, (uintptr_t)(s32)jujuPtr->next_pos_x, (uintptr_t)(s32)jujuPtr->next_pos_y, (uintptr_t)(s32)jujuPtr->next_pos_z, (uintptr_t)(s32)actorPtr->yaw); // [port] float→s32→uintptr_t: avoid UB of negative float→unsigned
-                coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x6d60);
+//              gcpausemenu_80314AC8(0);
+//              timedFunc_set_4(1.25f, (GenFunction_4)__chjuju_solvePuzzle, (uintptr_t)(s32)jujuPtr->next_pos_x, (uintptr_t)(s32)jujuPtr->next_pos_y, (uintptr_t)(s32)jujuPtr->next_pos_z, (uintptr_t)(s32)actorPtr->yaw);
+//              coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x6d60);
+                if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, actorPtr)) {
+                    gcpausemenu_80314AC8(0);
+                    timedFunc_set_4(1.25f, (GenFunction_4)__chjuju_solvePuzzle, (uintptr_t)(s32)jujuPtr->next_pos_x, (uintptr_t)(s32)jujuPtr->next_pos_y, (uintptr_t)(s32)jujuPtr->next_pos_z, (uintptr_t)(s32)actorPtr->yaw); // [port] float→s32→uintptr_t: avoid UB of negative float→unsigned
+                }
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actorPtr)) coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x6d60);
             }
             else {//L80389384
-                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 0x7fff);
+//              coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 0x7fff);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actorPtr)) coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 0x7fff);
             }
 
             for (s2 = 3, j = i + 1; j < 4; s2 += 5, j++) {
@@ -251,8 +258,10 @@ void chjuju_update(Actor *this) {
 
             if (jujuPtr->next_pos_y == this->position_y) {
                 jujuPtr->animation_state = JUJU_ANIMATION_STATE_1_YAWING;
-                sfxsource_playHighPriority(SFX_3_DULL_CANNON_SHOT);
-                func_802BB3DC(0, 10.0f, 0.8f);
+//              sfxsource_playHighPriority(SFX_3_DULL_CANNON_SHOT);
+//              func_802BB3DC(0, 10.0f, 0.8f);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) sfxsource_playHighPriority(SFX_3_DULL_CANNON_SHOT);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_802BB3DC(0, 10.0f, 0.8f);
 
                 if (jujuPtr->unk18) {
                     func_80353064(this->position, 24.0f);

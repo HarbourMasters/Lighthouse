@@ -12,9 +12,6 @@
 #include <vector>
 
 #include "functions.h"
-extern "C" {
-void chTreasurehunt_netTick(void);
-}
 
 #include "port/Patches/Patches.h"
 
@@ -338,11 +335,14 @@ void RegisterPuzzleStep_Init() {
         sPuzzleCounts.clear();
         sPuzzlePos.clear();
     });
-    // Treasure hunt has no actor to poll until the first X is busted.
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE && Anchor::GetInstance()->IsWorldSyncActive()) {
-            chTreasurehunt_netTick();
-        }
+    // At boot, with the rest of this file: the records do nothing until the puzzle's sync is live.
+    REGISTER_LISTENER(OnPuzzleStep, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnPuzzleStep*)event;
+        port_puzzleStep_orBits(ev->puzzleId, ev->bits);
+    });
+    REGISTER_LISTENER(OnPuzzlePosMark, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnPuzzlePosMark*)event;
+        port_puzzlePos_mark(ev->puzzleId, ev->x, ev->y, ev->z);
     });
 }
 

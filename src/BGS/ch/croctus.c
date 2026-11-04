@@ -3,11 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
-// Anchor: set while replaying a teammate's feed; suppresses camera/dialog + rebroadcast.
-static s32 sCroctusRemote = 0;
-
 extern void func_80328748(AnimCtrl *, f32, f32);
 extern void func_8028F94C(s32, f32[3]);
 extern void func_80324CFC(f32, enum comusic_e, s32);
@@ -42,14 +37,7 @@ ActorInfo gChCroctus ={
     0, 0, 0.0f, 0
 };
 
-enum chCroctusState {
-    CHCROCTUS_STATE_1_MOUTH_CLOSED = 1,
-    CHCROCTUS_STATE_2_MOUTH_OPENING,
-    CHCROCTUS_STATE_3_MOUTH_OPEN,
-    CHCROCTUS_STATE_4_MOUTH_CLOSING,
-    CHCROCTUS_STATE_5_FED,
-    CHCROCTUS_STATE_6_DESPAWN,
-};
+#include "croctus.h" // [port] the states moved there
 
 /* .code */
 void func_80387C90(Actor *arg0){
@@ -103,23 +91,33 @@ void chCroctus_activateNextCroctus(ActorMarker *caller, enum asset_e text_id, s3
 
     if(text_id == VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0)){
         this = marker_getActor(caller);
-        timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
-        timed_playSfx(1.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
-        func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000); 
-        func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+//      timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+//      timed_playSfx(1.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+//      func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000);
+//      func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+            timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+            timed_playSfx(1.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+            func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000);
+            func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+        }
         subaddie_set_state_with_direction(this, CHCROCTUS_STATE_5_FED, 0.79f, 1);
         func_80326310(this); //did not disappear when moved, after cutscene still there with collision but broken
         bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = TRUE;
         timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, reinterpret_cast(uintptr_t, bgs_D_803907B8[this->actorTypeSpecificField]));
-        if(!sCroctusRemote){
-            timed_setStaticCameraToNode(0.8f, 9);
-            func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
-        }
+//      timed_setStaticCameraToNode(0.8f, 9);
+//      func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(0.8f, 9);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
         __spawnQueue_add_2((GenFunction_2) func_80387D18, reinterpret_cast(uintptr_t, this->marker), 0x46);
     }
     else{
-        timed_exitStaticCamera(0.0f);
-        func_8028F918(0);
+//      timed_exitStaticCamera(0.0f);
+//      func_8028F918(0);
+        if (EventSystem_Should(VB_CROCTUS_FIRST_FEED_RELEASE, true)) {
+            timed_exitStaticCamera(0.0f);
+            func_8028F918(0);
+        }
     }
 }
 
@@ -156,42 +154,28 @@ void chCroctus_update(Actor *this){
         return;
     }//L80388160
 
-    // Anchor: teammate finished the chain — despawn our heads unless mid-cutscene (state 5/6).
-    if(jiggyscore_isSpawned(JIGGY_22_CROCTUS) && this->state != 5 && this->state != 6){
-        marker_despawn(this->marker);
-        return;
-    }
-
-    // Anchor: replay a teammate's feed of the active head (field 5 handled by the despawn above).
-    if (this->actorTypeSpecificField < 5 && this->state != 5 && this->state != 6 && !this->unk38_31
-        && this->marker->propPtr->isNotFeatherEggOrNote
-        && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_CROCTUS) & (1 << (this->actorTypeSpecificField - 1)))) {
-        sCroctusRemote = 1;
-        this->unk38_31 = 1;
-    }
-
     if(this->unk38_31){
         if ((this->state != CHCROCTUS_STATE_5_FED) && (this->state != CHCROCTUS_STATE_6_DESPAWN)) {
-            if (!sCroctusRemote) {
-                port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_CROCTUS, 1 << (this->actorTypeSpecificField - 1));
-            }
-            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
+            CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_CROCTUS, 1 << (this->actorTypeSpecificField - 1)); // [port]
+//          coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
             if (this->actorTypeSpecificField == 1) {
-                // Anchor: func_8028F94C = look-at, released only by the dialog we skip; don't push when replaying.
-                if (!sCroctusRemote) {
-                    func_8028F94C(2, this->position);
-                }
-                if (sCroctusRemote) {
-                    chCroctus_activateNextCroctus(this->marker, VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0);
-                } else {
-                    gcdialog_showDialog(VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0xE, this->position, this->marker, chCroctus_activateNextCroctus, NULL);
-                }
+//              func_8028F94C(2, this->position);
+//              gcdialog_showDialog(VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0xE, this->position, this->marker, chCroctus_activateNextCroctus, NULL);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028F94C(2, this->position);
+                if (EventSystem_Should(VB_CROCTUS_FIRST_FEED_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0x9C9, 0, 0), 0xE, this->position, this->marker, chCroctus_activateNextCroctus, NULL);
                 subaddie_set_state_with_direction(this, CHCROCTUS_STATE_6_DESPAWN, 0.79f, 1);
             } else {
-                timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
-                timed_playSfx(1.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
-                func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000);
-                func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+//              timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+//              timed_playSfx(1.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+//              func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000);
+//              func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+                    timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+                    timed_playSfx(1.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000);
+                    func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000);
+                    func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+                }
                 subaddie_set_state_with_direction(this, CHCROCTUS_STATE_5_FED, 0.79f, 1);
                 if (this->actorTypeSpecificField == 5) {
                     timedFunc_set_1(0.9f, (GenFunction_1) func_80387E40, reinterpret_cast(uintptr_t, this->marker));
@@ -201,7 +185,8 @@ void chCroctus_update(Actor *this){
                 if (this->actorTypeSpecificField < 5) {
                     bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = TRUE;
                     timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, reinterpret_cast(uintptr_t, bgs_D_803907B8[this->actorTypeSpecificField]));
-                    if (!sCroctusRemote) gcStaticCamera_activate(D_803907B0[this->actorTypeSpecificField-1]);
+//                  gcStaticCamera_activate(D_803907B0[this->actorTypeSpecificField-1]);
+                    if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) gcStaticCamera_activate(D_803907B0[this->actorTypeSpecificField-1]);
                 } else {
                     timedFunc_set_1(0.8f, (GenFunction_1)chCroctus_jiggySpawn, reinterpret_cast(uintptr_t, this->marker));
                 }
@@ -209,7 +194,6 @@ void chCroctus_update(Actor *this){
             }
         }
     }//L80388348
-    sCroctusRemote = 0;
 
     switch(this->state){
         case CHCROCTUS_STATE_1_MOUTH_CLOSED:// L80388370
@@ -250,7 +234,8 @@ void chCroctus_update(Actor *this){
                 && !anctrl_isPlayedForwards(this->anctrl)
                 && func_802BB270()
             ){
-                gcsfx_playWithPitch(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
+//              gcsfx_playWithPitch(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_playWithPitch(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
             }
             break;
 

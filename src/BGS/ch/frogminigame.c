@@ -17,14 +17,7 @@ ActorInfo gChFrogMinigame = {
     0, 0, 0.0f, 0
 };
 
-enum chFrogMinigameState {
-    CH_FROG_MINIGAME_STATE_1_IDLE = 1,
-    CH_FROG_MINIGAME_STATE_2_ENTER_BATTLE,
-    CH_FROG_MINIGAME_STATE_3_BATTLE,
-    CH_FROG_MINIGAME_STATE_4_COMPLETE,
-    CH_FROG_MINIGAME_STATE_5_SPAWN_JIGGY,
-    CH_FROG_MINIGAME_STATE_6_DESPAWN
-};
+#include "frogminigame.h" // [port] the states moved there
 
 /* .bss */
 u8 D_80391240[4];

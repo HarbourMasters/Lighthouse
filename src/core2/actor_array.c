@@ -444,7 +444,6 @@ void actorArray_free(void) {
 
     CALL_EVENT(OnActorArrayFree); // [port]
     port_remoteCarry_reset();
-    port_anchorDummies_onActorsFreed();
 
     if (suBaddieActorArray != NULL) {
         for(var_s0 = suBaddieActorArray->data; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
@@ -575,7 +574,8 @@ void func_803268B4(void) {
                 }
                 if (!actor->despawn_flag) {
                     if (marker->unk2C_2) {
-                        marker->actorUpdate2Func(actor);
+//                      marker->actorUpdate2Func(actor);
+                        if (EventSystem_ShouldActorUpdate(actor)) marker->actorUpdate2Func(actor);
                         // [port] Update may have spawned actors, reallocating the array; re-fetch the slot.
                         actor = &suBaddieActorArray->data[temp_v1];
                         if (anim_ctrl != NULL) {
@@ -584,7 +584,8 @@ void func_803268B4(void) {
 //                  } else if (!temp_s1 || (temp_s1 && func_803296D8(actor, temp_s1))) {
                     } else if (!temp_s1 || (temp_s1 && EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, func_803296D8(actor, temp_s1), actor))) {
                         if ( marker->actorUpdateFunc != NULL) {
-                             marker->actorUpdateFunc(actor);
+//                           marker->actorUpdateFunc(actor);
+                             if (EventSystem_ShouldActorUpdate(actor)) marker->actorUpdateFunc(actor);
                             actor = &suBaddieActorArray->data[temp_v1]; // [port] re-fetch: see above
                             if (anim_ctrl != NULL) {
                                     actor->sound_timer = anctrl_getAnimTimer(anim_ctrl);

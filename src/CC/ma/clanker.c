@@ -55,12 +55,7 @@ struct {
     f32 unk54; // timer?
 } maClanker;
 
-enum maClankerState_e {
-    MACLANKER_STATE_0_NOT_INITIALIZED,
-    MACLANKER_STATE_1_IDLE_UNDERWATER,
-    MACLANKER_STATE_2_LIFTING,
-    MACLANKER_STATE_3_IDLE_RAISED
-};
+#include "clanker.h" // [port] the states moved there
 
 BKCollisionTriangle *__maClanker_getClankerCollisionTris(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3){ // [port] pointer-width args
     BKCollisionTriangle *collision_tris;
@@ -333,10 +328,7 @@ void maClanker_update(void){
 
     code13C0_checkCCChecksums();
     if(maClanker.currentState != MACLANKER_STATE_0_NOT_INITIALIZED && gsworld_getUnk0() == 2){
-        // Anchor: teammate raised Clanker — play the physical raise (no cutscene).
-        if(maClanker.currentState == MACLANKER_STATE_1_IDLE_UNDERWATER && jiggyscore_isSpawned(JIGGY_17_CC_CLANKER_RAISED)){
-            maClanker_raiseClanker();
-        }
+        CALL_EVENT(OnClankerUpdate, maClanker.currentState); // [port]
         player_getPosition(player_position);
         maClanker.triggerMeetDialog = (ml_vec3f_distance(player_position, maClanker.meetDialogPosition) < 200.0f);
 
@@ -380,7 +372,8 @@ void maClanker_update(void){
         }//L803891BC
 
         if(maClanker.currentState == MACLANKER_STATE_2_LIFTING){
-            func_803114D0();
+//          func_803114D0();
+            if(EventSystem_Should(VB_CLANKER_LIFT_CLOSE_DIALOG, true)) func_803114D0();
             if(1100.0f <= maClanker.position[1]){
                 maClanker_setState(MACLANKER_STATE_3_IDLE_RAISED);
             }

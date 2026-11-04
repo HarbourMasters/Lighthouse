@@ -28,7 +28,8 @@ static int __chLeaky_isCurrentModelShrapnel(Actor *this){
     return this->modelCacheIndex == ACTOR_56_SHRAPNEL;
 }
 
-static void __func_80388F88(void){
+//static void __func_80388F88(void){
+void __func_80388F88(void){
     static f32 D_8038C73C[3] = {2500.0f, 250.0f, 4600.0f};
     func_803272D0(D_8038C73C, 2000.0f, 2, __chLeaky_isCurrentModelShrapnel);
 }
@@ -55,16 +56,6 @@ static void __chLeaky_updateFunc(Actor *this) {
         } else {
             this->state = 1;
         }
-    }
-
-    // Anchor: teammate finished feeding Leaky (LEVEL_FLAG_2) - lower water here too.
-    if (this->state == 1 && this->unk38_31 < 2 && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)) {
-        Struct70s *water = func_8034C5AC(300);
-        if (water != NULL) {
-            func_8034E7B8(&water->type_73, -600, 4.0f, 2, 10.0f);
-        }
-        timedFunc_set_0(1.0f, __func_80388F88);
-        subaddie_set_state(this, 2);
     }
 
     if( this->state == 1

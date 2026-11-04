@@ -25,13 +25,7 @@ void maClankerKey_update(Actor* this);
 
 /* .data */
 
-enum maClankerKey_state_e {
-    CLANKER_KEY_STATE_1_IDLE = 1,
-    CLANKER_KEY_STATE_2_TURN_SLIGHTLY,
-    CLANKER_KEY_STATE_3_TURN_BACK,
-    CLANKER_KEY_STATE_4_FULL_ROTATION,
-    CLANKER_KEY_STATE_5_COMPLETED,
-};
+#include "clankerkey.h" // [port] the states moved there
 
 ActorInfo maClankerKey = {
     MARKER_4A_CC_KEY, ACTOR_3C_CC_KEY, ASSET_429_MODEL_CC_KEY,
@@ -135,10 +129,6 @@ void maClankerKey_update(Actor *this){
         }
     }
     else{//L80386C40
-        // Anchor: teammate raised Clanker — snap the key to finished (state 5).
-        if(this->state == 1 && jiggyscore_isSpawned(JIGGY_17_CC_CLANKER_RAISED)){
-            CC_func_80386920(this, 5);
-        }
         local->unk14 += tick;
         player_getPosition(sp58);
         if(local->unk1 && ! local->unk2){

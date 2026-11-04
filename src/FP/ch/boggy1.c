@@ -74,7 +74,8 @@ void func_803877A8(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     Actor *this = marker_getActor(caller);
     
     if(arg2 == 1){
-        jiggy_spawn(JIGGY_2A_FP_BOGGY_1, this->velocity);
+//      jiggy_spawn(JIGGY_2A_FP_BOGGY_1, this->velocity);
+        if(EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, this)) jiggy_spawn(JIGGY_2A_FP_BOGGY_1, this->velocity);
     }
     else if(arg2 == 2){
         subaddie_set_state_with_direction(this, 4, 0.0001f, 1);
@@ -141,11 +142,12 @@ void func_8038794C(Actor *this){
                 this->has_met_before = true;
 
             if(mapSpecificFlags_get(0x1)){
-                if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)){
+                if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
                     func_8028F94C(1, this->position);
                     timed_setStaticCameraToNode(0.0f, 0x12);
-                    func_80324DBC(1.0f, VER_SELECT(ASSET_C00_DIALOG_BOGGY_SAVED, 0x97A, 0, 0), 0xe, NULL, this->marker, func_80387828, func_803877A8);
                 }
+//              func_80324DBC(1.0f, VER_SELECT(ASSET_C00_DIALOG_BOGGY_SAVED, 0x97A, 0, 0), 0xe, NULL, this->marker, func_80387828, func_803877A8);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) func_80324DBC(1.0f, VER_SELECT(ASSET_C00_DIALOG_BOGGY_SAVED, 0x97A, 0, 0), 0xe, NULL, this->marker, func_80387828, func_803877A8);
                 func_803876A4(this);
                 break;
             }//L80387B38
@@ -164,7 +166,7 @@ void func_8038794C(Actor *this){
             break;
         case 2://L80387BEC
 //          func_8028FC8C(this->position);
-            if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)) func_8028FC8C(this->position);
+            if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028FC8C(this->position);
             if(actor_animationIsAt(this, 0.1f)){
                 sfx_playFadeShorthandDefault(SFX_F6_BLUBBER_TALKING_2, 1.0f, 32000, this->position, 1250, 2500);
             }
@@ -191,9 +193,9 @@ void func_8038794C(Actor *this){
         case 4://L80387D2C
             func_80343DEC(this);
 //          func_8028FC8C(this->position);
-            if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)) func_8028FC8C(this->position);
+            if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028FC8C(this->position);
             if(0.99 <= this->unk48){
-                if(EventSystem_Should(VB_FP_BOGGY_RESCUE_SCENE, true)){
+                if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
                     func_8028F918(0);
                     func_80324CD8(0.0f);
                     timed_exitStaticCamera(0.0f);

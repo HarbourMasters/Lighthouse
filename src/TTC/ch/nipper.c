@@ -3,38 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
 static void __chNipper_updateFunc(Actor *this);
 static Actor *__chNipper_animFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
-enum ch_nipper_states_e {
-    CH_NIPPER_STATE_1_UNKNOWN = 1, // L80388578
-    CH_NIPPER_STATE_2_UNKNOWN,     // L8038872C
-    CH_NIPPER_STATE_3_UNKNOWN,     // L803887B4
-    CH_NIPPER_STATE_4_DIEING,      // L80388910
-    CH_NIPPER_STATE_5_SPAWNED,     // L80388938
-    CH_NIPPER_STATE_6_DEAD,        // L803889A8
-    CH_NIPPER_STATE_7_UNKNOWN      // already dead? L80388A20
-};
-
-static s32 __chNipper_sharedHits(void) {
-    s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
-    return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
-}
-
-static s32 __chNipper_localHits(Actor *this) {
-    if (this->state == CH_NIPPER_STATE_6_DEAD || this->state == CH_NIPPER_STATE_7_UNKNOWN) {
-        return 3;
-    }
-    if (this->lifetime_value == 80.0f) {
-        return 1;
-    }
-    if (this->lifetime_value == 40.0f) {
-        return 2;
-    }
-    return 0;
-}
+#include "nipper.h" // [port] the states moved there
 
 /* .data */
 ActorAnimationInfo gChNipperAnimations[8] = {
@@ -157,7 +129,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     func_8032B4DC(this, other_marker, 7);
 
     if (this->lifetime_value == 40.0f) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x7);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x7); // [port]
         subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
         actor_playAnimationOnce(this);
         for(i = 0; i < 3; i++){
@@ -171,13 +143,13 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     }
 
     if (this->lifetime_value == 80.0f) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x3);
+        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x3); // [port]
         __chNipper_playDeathAnimation(this);
         this->lifetime_value = 40.0f;
         return;
     }
 
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x1);
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x1); // [port]
     __chNipper_playDeathAnimation(this);
     this->lifetime_value = 80.0f;
     gcdialog_showDialog(VER_SELECT(ASSET_A10_DIALOG_NIPPER_HURT, 0x910, 0, 0), 4, NULL, NULL, NULL, NULL);
@@ -224,7 +196,6 @@ static void __chNipper_updateFunc(Actor *this){
     s32 xVelocity;
     f32 playerPosition[3];
     enum bsgroup_e player_movement_group;
-    s32 sharedHits;
 
     player_getPosition(playerPosition);
     xVelocity = func_80309D58(playerPosition, 1);
@@ -247,24 +218,6 @@ static void __chNipper_updateFunc(Actor *this){
             midichannel_incOrDecCounter(true);
         }
         this->velocity_x = xVelocity;
-    }
-
-    if (this->initialized && this->state != CH_NIPPER_STATE_4_DIEING && this->state != CH_NIPPER_STATE_6_DEAD &&
-        this->state != CH_NIPPER_STATE_7_UNKNOWN) {
-        sharedHits = __chNipper_sharedHits();
-        if (__chNipper_localHits(this) < sharedHits) {
-            if (sharedHits >= 3) {
-                this->lifetime_value = 40.0f;
-                subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
-                actor_playAnimationOnce(this);
-                sfx_playFadeShorthandDefault(SFX_78_EAGLECRY, 0.7f, 20000, this->position, 1500, 3000);
-                comusic_8025AB44(COMUSIC_12_TTC_NIPPER, 0, 300);
-                func_8025AABC(COMUSIC_12_TTC_NIPPER);
-                func_8032BB88(this, -1, 300);
-            } else {
-                this->lifetime_value = (sharedHits == 1) ? 80.0f : 40.0f;
-            }
-        }
     }
 
     switch(this->state){

@@ -225,16 +225,17 @@ constexpr SpawnRewrite kGruntchSpawnRewrites[] = {
 static void Gruntch_EnableConditionalActors() {
     sConditionalActorsEnabled = true;
     HackShared_EnableSpawnRewrites(kGruntchSpawnRewrites);
-    COND_VB_SHOULD(VB_XMAS_TREE_ICE_UPDATE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, {
-        Actor* self = va_arg(args, Actor*);
-        if (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION && self != NULL && self->marker != NULL &&
-            self->marker->propPtr != NULL) {
-            bool open = fileProgressFlag_get(FILEPROG_38_RBB_OPEN) != 0;
-            self->marker->propPtr->unk8_3 = open;
-            self->unk38_31 = !open;
-            *should = false;
-        }
-    });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_340_XMAS_TREE_ICE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled,
+                 [](IEvent* event) {
+                     auto* ev = (ShouldActorUpdate*)event;
+                     Actor* self = ev->actor;
+                     if (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION) {
+                         bool open = fileProgressFlag_get(FILEPROG_38_RBB_OPEN) != 0;
+                         self->marker->propPtr->unk8_3 = open;
+                         self->unk38_31 = !open;
+                         *ev->should = false;
+                     }
+                 });
 
     // Force Boggy to be visible
     COND_VB_SHOULD(VB_BOGGY_HOME_VISIBLE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, { *should = true; });

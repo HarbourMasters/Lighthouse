@@ -329,6 +329,35 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_GOLD = 10,
     ANCHOR_COLLECTIBLE_ORANGE = 11,
 };
+// Anchor puzzles with no game flag; progress is a bitmask per puzzle.
+enum AnchorPuzzle {
+    ANCHOR_PUZZLE_BGS_TANKTUP = 1,
+    ANCHOR_PUZZLE_BGS_CROCTUS = 2,
+    ANCHOR_PUZZLE_BGS_PINKEGG = 3,
+    // CC clanker teeth: bits 0-2 = token tooth egg count, bits 3-5 = jiggy tooth.
+    ANCHOR_PUZZLE_CC_CLANKER_TEETH = 4,
+    ANCHOR_PUZZLE_GV_JINXY_DOOR = 5,
+    // MM Juju totem: bits 0-3, count of the 4 segments knocked off.
+    ANCHOR_PUZZLE_MM_JUJU = 6,
+    // TTC Nipper: bits 0-2, count of hits taken (all 3 = dead, shell open).
+    ANCHOR_PUZZLE_TTC_NIPPER = 7,
+    // TTC Blubber: bit 0 = first bullion delivered, bit 1 = second (jiggy spawned, Blubber leaves).
+    ANCHOR_PUZZLE_TTC_BLUBBER = 8,
+    // TTC treasure hunt: bits 0-5, count of beak-busted X steps (bit 5 = treasure dug up).
+    ANCHOR_PUZZLE_TTC_XHUNT = 9,
+    // FP xmas tree ice: 1 bit, set when the tree-top ice shatters. Recorded in the tree-interior
+    // map; the FP hub tree reads it via getForMap.
+    ANCHOR_PUZZLE_FP_TREE_ICE = 10,
+    // FP bear cubs' presents: bit 0 = blue, bit 1 = green, bit 2 = red delivered.
+    ANCHOR_PUZZLE_FP_PRESENTS = 11,
+    // FP snowman buttons: bit per button; all three spawns JIGGY_2D.
+    ANCHOR_PUZZLE_FP_SNOWBUTTONS = 12,
+    ANCHOR_PUZZLE_FP_SLUSHES = 13,
+    // RBB engine-room fans: 1 bit. Transient map flag 0 (enginefan.c reads it to slow the fans); persisted across reloads.
+    ANCHOR_PUZZLE_RBB_ENGINE_FANS = 14,
+    // SM intro Bottles: bit 0 = the tutorial choice has been made.
+    ANCHOR_PUZZLE_SM_TUTORIAL = 15,
+};
 
 // --- core2/dialog/progressDialog.c ---
 void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0);

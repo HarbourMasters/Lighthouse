@@ -3,12 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
-typedef struct {
-    u8 initShatter; // took the warped-in cutscene path at init; suppresses the live shatter
-} ActorLocal_XmasTreeIce;
-
 Actor *chXmasTreeIce_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chXmasTreeIce_update(Actor *this);
 
@@ -71,11 +65,14 @@ void chXmasTreeIce_shatterIce(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
     chXmasTreeIce_shatterEffect(this->position, 0xA, 0x4D3);
     chXmasTreeIce_emitDust(this->position, 6, ASSET_700_SPRITE_DUST);
-    func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
-    coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+//  func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
+//  coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+        func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    }
     this->unk38_31 = 1;
-    // Anchor: broadcast the shatter; LEVEL_FLAG_29 stays local.
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_TREE_ICE, 0x1);
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_FP_TREE_ICE, 0x1); // [port]
 }
 
 void chXmasTreeIce_returnCameraToBanjo(ActorMarker *marker){
@@ -93,12 +90,6 @@ void chXmasTreeIce_initiateShatter(Actor *this){
 }
 
 void chXmasTreeIce_update(Actor *this) {
-    ActorLocal_XmasTreeIce *local = (ActorLocal_XmasTreeIce *)&this->local;
-
-    if (!EventSystem_Should(VB_XMAS_TREE_ICE_UPDATE, true, this)) {
-        return;
-    }
-
     this->marker->propPtr->unk8_3 = true;
     actor_collisionOff(this);
 
@@ -108,22 +99,8 @@ void chXmasTreeIce_update(Actor *this) {
         if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)) {
             marker_despawn(this->marker);
         }
-        else if (port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1) {
-            if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
-                levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
-            }
-            marker_despawn(this->marker);
-        }
         else if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
-            local->initShatter = 1;
             chXmasTreeIce_initiateShatter(this);
         }
-    }
-    else if (!local->initShatter && this->unk38_31 == 0
-             && (port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
-        if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
-            levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
-        }
-        chXmasTreeIce_shatterIce(this->marker);
     }
 }

@@ -193,7 +193,8 @@ void chWozza_update(Actor *this){
             return;
         }
 
-        if (levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED)) {
+//      if (levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED)) {
+        if (EventSystem_Should(VB_WOZZA_JIGGY_DROPPED, levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED))) {
             this->unk38_31 = true;
             chWozza_caveEntranceCollision();
         }

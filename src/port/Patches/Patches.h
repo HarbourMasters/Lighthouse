@@ -135,37 +135,9 @@ void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
 int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
 void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 
-#define ANCHOR_PUZZLE_BGS_TANKTUP 1
-#define ANCHOR_PUZZLE_BGS_CROCTUS 2
-#define ANCHOR_PUZZLE_BGS_PINKEGG 3
-// CC clanker teeth: bits 0-2 = token tooth egg count, bits 3-5 = jiggy tooth.
-#define ANCHOR_PUZZLE_CC_CLANKER_TEETH 4
-#define ANCHOR_PUZZLE_GV_JINXY_DOOR 5
-// MM Juju totem: bits 0-3, count of the 4 segments knocked off.
-#define ANCHOR_PUZZLE_MM_JUJU 6
-// TTC Nipper: bits 0-2, count of hits taken (all 3 = dead, shell open).
-#define ANCHOR_PUZZLE_TTC_NIPPER 7
-// TTC Blubber: bit 0 = first bullion delivered, bit 1 = second (jiggy spawned, Blubber leaves).
-#define ANCHOR_PUZZLE_TTC_BLUBBER 8
-// TTC treasure hunt: bits 0-5, count of beak-busted X steps (bit 5 = treasure dug up).
-#define ANCHOR_PUZZLE_TTC_XHUNT 9
-// FP xmas tree ice: 1 bit, set when the tree-top ice shatters. Recorded in the tree-interior
-// map; the FP hub tree reads it via getForMap.
-#define ANCHOR_PUZZLE_FP_TREE_ICE 10
-// FP bear cubs' presents: bit 0 = blue, bit 1 = green, bit 2 = red delivered.
-#define ANCHOR_PUZZLE_FP_PRESENTS 11
-// FP snowman buttons: bit per button; all three spawns JIGGY_2D.
-#define ANCHOR_PUZZLE_FP_SNOWBUTTONS 12
-#define ANCHOR_PUZZLE_FP_SLUSHES 13
-// RBB engine-room fans: 1 bit. Transient map flag 0 (enginefan.c reads it to slow the fans); persisted across reloads.
-#define ANCHOR_PUZZLE_RBB_ENGINE_FANS 14
-// SM intro Bottles: bit 0 = the tutorial choice has been made.
-#define ANCHOR_PUZZLE_SM_TUTORIAL 15
-
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void port_remoteCarry_reset(void);
-void port_anchorDummies_onActorsFreed(void);
 
 // Connected, in a real room, syncing world state.
 int32_t port_anchor_isWorldSyncActive(void);

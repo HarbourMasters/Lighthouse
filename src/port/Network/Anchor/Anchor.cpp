@@ -368,19 +368,6 @@ extern "C" s32 port_anchor_isWorldSyncActive(void) {
     return (anchor != nullptr && anchor->IsWorldSyncActive()) ? 1 : 0;
 }
 
-// actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all.
-extern "C" void port_anchorDummies_onActorsFreed(void) {
-    Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr) {
-        return;
-    }
-    for (auto& [clientId, client] : anchor->clients) {
-        if (client.dummy != nullptr) {
-            client.dummy->dummy_detachActor();
-        }
-    }
-}
-
 void Anchor::PopulateDummies(GameMap map) {
     for (const auto& [clientId, client] : clients) {
         if (client.map == map && !client.self && !dummies.contains(clientId) && client.online) {
@@ -464,6 +451,14 @@ s32 Anchor_LevelOfMap(s32 map) {
     }
     s32 level = (s32)map_getLevel((enum map_e)map);
     return (level > 0 && level < 0x20) ? level : 0;
+}
+
+// Whether the player is within range of pos, for a teammate's sound or dialog there. The default, 1800 units, is as
+// far as Croctus's mouth squeak carries; a romhack can pass another.
+bool Anchor_InEarshot(f32 pos[3], f32 range) {
+    f32 player[3];
+    player_getPosition(player);
+    return ml_vec3f_distance(pos, player) < range;
 }
 
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {

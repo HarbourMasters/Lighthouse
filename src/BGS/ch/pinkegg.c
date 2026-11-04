@@ -3,12 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/Patches/Patches.h"
-
-typedef struct chpinkegg_s{
-    u32 actorId;
-    u32 shellsLeft;
-} ActorLocal_PinkEgg;
+#include "pinkegg.h" // [port] the typedef and states moved there
 
 Actor *chPinkEgg_draw(ActorMarker *this, Gfx ** gdl, Mtx** mptr, Vtx **vtx);
 void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker);
@@ -65,12 +60,6 @@ ActorInfo gChPinkEggSmallest = {
     0, 0x2CC, 2.0f, 0
 };
 
-enum chPinkEggStates {
-    CH_PINK_EGG_STATES_1_INIT = 1,
-    CH_PINK_EGG_STATES_2_IDLE,
-    CH_PINK_EGG_STATES_3_BREAKING
-};
-
 #define NUMBER_OF_SHELLS   5
 
 /* .code */
@@ -105,18 +94,20 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     
     thisActor = marker_getActor(this);
     this->propPtr->unk8_3 = 0;
-    sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
+//  sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, thisActor)) sfxsource_play(SFX_AA_BGS_EGG_BREAKING_1, 28000);
     subaddie_set_state(thisActor, CH_PINK_EGG_STATES_3_BREAKING);
     actor_playAnimationOnce(thisActor);
     this->collidable = false;
     thisActor->unk124_6 = 0;
-    tmp = (ActorLocal_PinkEgg *) &thisActor->local;
-    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->actorId);
-    if(D_803906C4[tmp->actorId] != 0){
+    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_PINKEGG, 1 << ((ActorLocal_PinkEgg *) &thisActor->local)->actorId); // [port]
+    if(D_803906C4[(tmp = (ActorLocal_PinkEgg *) &thisActor->local)->actorId] != 0){
         __spawnQueue_add_2((GenFunction_2)chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->actorId);
-    } else if(!jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)){
-        jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
-        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    } else {
+//      jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
+//      coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, thisActor)) jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, thisActor)) coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
 }
 
@@ -125,19 +116,6 @@ void chPinkEgg_update(Actor *this){
         this->marker->propPtr->unk8_3 = 1;
         marker_setCollisionScripts(this->marker, NULL, NULL, chPinkEgg_collision);
         this->initialized = true;
-    }
-
-    // Anchor: team finished the chain — despawn unless mid-break (state 3).
-    if(jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG) && this->state != 3){
-        marker_despawn(this->marker);
-        return;
-    }
-
-    // Anchor: replay teammates' layer breaks.
-    if((port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg *)&this->local)->actorId))
-        && this->state != 3){
-        chPinkEgg_collision(this->marker, NULL);
-        return;
     }
 
     switch(this->state){

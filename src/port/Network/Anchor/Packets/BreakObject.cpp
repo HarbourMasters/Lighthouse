@@ -107,6 +107,11 @@ extern "C" void port_breakable_despawnBrokenRestores(s32 map);
 
 void RegisterBreakObject_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBrokenObjects.clear(); });
+    // At boot, with the rest of this file: the record does nothing until world sync is live.
+    REGISTER_LISTENER(OnBreakableBroken, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnBreakableBroken*)event;
+        port_breakable_recordBreak(ev->markerId, ev->x, ev->y, ev->z);
+    });
 
     REGISTER_LISTENER(OnMapLoaded, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnMapLoaded* ev = (OnMapLoaded*)event;

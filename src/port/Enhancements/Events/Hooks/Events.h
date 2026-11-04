@@ -164,9 +164,34 @@ typedef enum VBehaviorID {
     VB_HANDLE_PLAYER_DEATH,
     VB_JINJO_CHARGE_SOUND,
     VB_ENEMY_BECOME_BUNDLE,
+
+    // #### `result`
+    // ```c
+    // item_getCount(ITEM_D_EGGS) != 0        // blue eggs
+    // item_getCount(ITEM_F_RED_FEATHER) != 0 // red feathers
+    // ```
+    // #### `args`
+    // - `s32` (the dropped item's actor id)
+    // - `s32` (how many of them can lie on the ground)
     VB_YUMYUM_DROP,
     VB_MM_CHIMPY_STUMP_RUMBLE,
+
+    // #### `result`
+    // ```c
+    // subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId()
+    // ```
+    // #### `args`
+    // - None
     VB_MM_CHIMPY_NOISE,
+
+    // A listener that returns false skips the 134-unit drop and sets the stump's state.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the stump)
+    VB_MM_CHIMPY_STUMP_START_LOWERED,
     VB_SPLINE_PATH_SFX,
 
     // #### `result`
@@ -205,6 +230,13 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (this)
     VB_ACTOR_FOOTSTEP_SLOT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (this)
     VB_ACTOR_AMBIENT_PARTICLES,
 
     // #### `result`
@@ -299,26 +331,15 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
-    VB_CCW_FLOWER_REMOTE_GROW,  // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
-    VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
-    VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
-    VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
-    VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
-    VB_CC_RINGS_SNAP_WATER,     // CC rings water snap on run teardown: suppressed when a teammate finished the rings.
+    VB_CCW_FLOWER_REMOTE_GROW,     // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
+    VB_FP_TWINKLY_START,           // Gates FP twinkly minigame start so only one client owns a run at a time.
+    VB_SM_TUTORIAL_CHOICE_OPEN,    // True while the SM tutorial choice is still open to the local player.
+    VB_SM_MOLEHILL_ACTIVE,         // SM ability molehills stay inert until the tutorial choice is made.
+    VB_DOOR_OPEN_CAMERA,           // Suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
     VB_CCW_PODIUM_DESPAWN,    // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
                               // reveal it live.
     VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
-
-    // The look-at, camera and dialog around Boggy's rescue; the dialog also spawns his jiggy. A listener that returns
-    // false skips all of it.
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - None
-    VB_FP_BOGGY_RESCUE_SCENE,
 
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
@@ -338,6 +359,114 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_FP_SCARF_SLED_BOARD,
+
+    // A puzzle step's camera, and the look-at that holds the player through it. A teammate's step replayed here goes
+    // without both.
+    // #### `result`
+    // ```c
+    // true                                 // Croctus, Boggy, Blubber, the snow managers, Tanktup's look-at and exit
+    // true                                 // Juju's landing shakes
+    // actor_animationIsAt(this, 0.1f) != 0 // Tanktup's camera
+    // ```
+    // #### `args`
+    // - `*Actor` (whose step it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
+    VB_PLAY_PUZZLE_CUTSCENE,
+
+    // A puzzle step's dialog. A teammate's step replayed here shows it only within earshot.
+    // #### `result`
+    // ```c
+    // true                                       // Croctus's second dialog, Boggy, Tanktup's last dialog
+    // (!this->unk138_23) && (!local->unk14)      // Tanktup's hit dialog
+    // !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH) // a Clanker tooth's
+    // ```
+    // #### `args`
+    // - `*Actor` (whose step it is)
+    VB_PLAY_PUZZLE_DIALOG,
+
+    // A puzzle step's jingle or sound. A teammate's step replayed here plays it only within earshot.
+    // #### `result`
+    // ```c
+    // true                                  // Croctus, Tanktup, the pink egg, Blubber, the teeth, the snow buttons
+    // true                                  // Juju, FP ice tree
+    // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
+    // ```
+    // #### `args`
+    // - `*Actor` (whose step it is, or NULL from FP's snowman-button manager, which has none)
+    VB_PLAY_PUZZLE_JINGLE,
+
+    // A puzzle's jiggy. A teammate's step leaves it to the teammate.
+    // #### `result`
+    // ```c
+    // true                                                                // Boggy, the pink egg, the snow managers
+    // true                                                                // Juju's, with the solve's shake
+    // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
+    // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
+    // ```
+    // #### `args`
+    // - `*Actor` (whose puzzle it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
+    VB_SPAWN_PUZZLE_JIGGY,
+
+    // The first Croctus's dialog, whose callback wakes the second. A listener that returns false skips it and has to
+    // call chCroctus_activateNextCroctus.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the first Croctus)
+    VB_CROCTUS_FIRST_FEED_DIALOG,
+
+    // After the second Croctus's dialog, the first feed's camera exits and its look-at lets go. A listener that returns
+    // false skips both, for a feed that set neither.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CROCTUS_FIRST_FEED_RELEASE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*u8` (the round to save)
+    VB_TIPTUP_SAVE_ROUND,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CLANKER_LIFT_CLOSE_DIALOG,
+
+    // #### `result`
+    // ```c
+    // maClankerRings.currentActiveRing != 0
+    // ```
+    // #### `args`
+    // - `*u8` (the active ring)
+    VB_CC_RINGS_ACTIVE,
+
+    // #### `result`
+    // ```c
+    // !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
+    // ```
+    // #### `args`
+    // - None
+    VB_SNIPPETS_DROP_JIGGY,
+
+    // #### `result`
+    // ```c
+    // levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) // Wozza
+    // jiggyscore_isCollected(JIGGY_32_FP_WOZZA) ||
+    //     levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) // Wozza in his cave
+    // ```
+    // #### `args`
+    // - None
+    VB_WOZZA_JIGGY_DROPPED,
 
     // Romhack port gates
 
@@ -495,7 +624,6 @@ typedef enum VBehaviorID {
     VB_SKY_UPDATE,
     VB_SKY_DRAW_BACKDROP_RECT,
     VB_CCW_SEASON_DOOR_RAISED_INIT,
-    VB_XMAS_TREE_ICE_UPDATE,
     VB_BOGGY_HOME_VISIBLE,
     VB_LAST_JIGGY_FANFARE,
     VB_JIGSAW_PODIUM_COLLIDE,
@@ -639,6 +767,7 @@ typedef struct {
 extern "C" {
 #endif
 bool EventSystem_ShouldActorDraw(Actor* actor);
+bool EventSystem_ShouldActorUpdate(Actor* actor);
 #ifdef __cplusplus
 }
 #endif

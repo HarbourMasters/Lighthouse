@@ -35,7 +35,8 @@ void chCaveWozza_update(Actor *this){
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = false;
         actor_collisionOn(this);
-        this->unk38_31 = jiggyscore_isCollected(JIGGY_32_FP_WOZZA) || levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) ? 0 : 1;
+//      this->unk38_31 = jiggyscore_isCollected(JIGGY_32_FP_WOZZA) || levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) ? 0 : 1;
+        this->unk38_31 = EventSystem_Should(VB_WOZZA_JIGGY_DROPPED, jiggyscore_isCollected(JIGGY_32_FP_WOZZA) || levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED)) ? 0 : 1;
     }//L80390714
  
     if(this->unk38_31){

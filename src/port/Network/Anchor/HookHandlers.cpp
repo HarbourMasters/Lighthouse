@@ -2,6 +2,7 @@
 #include "Authority.h"
 #include "VileSync.h"
 #include "FightSync.h"
+#include "Puzzles/Puzzles.h"
 #include <libultraship/libultraship.h>
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
@@ -21,7 +22,6 @@ void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 void func_80324CD8(f32 time);
-void func_803877A8(ActorMarker* caller, enum asset_e text_id, s32 arg2);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 }
 
@@ -227,6 +227,23 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
     }
 }
 
+// Whether the SM tutorial offer is ours to answer; claims it for us when it's free.
+static bool Anchor_SmTutorialChoiceOpen() {
+    if (!Anchor_WorldSyncActive()) {
+        return true;
+    }
+    // By level, not map: a romhack's Spiral Mountain may be a different map id.
+    if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
+        (port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+        return false;
+    }
+    if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) && !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
+        return false;
+    }
+    NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
+    return true;
+}
+
 static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
     switch (item) {
         // Progress counters, not consumables; the caller already gates on syncItemsAndFlags.
@@ -403,25 +420,8 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // A teammate's sled crash rescues Boggy here as animation only; the camera and dialog stay theirs, and the jiggy
-    // comes through JIGGY_SPAWN. This and the two hooks below register always, so a rescue that started as a
-    // teammate's ends that way if we disconnect mid-scene. The remote bits are 0 unless a teammate's flag landed this
-    // visit.
-    COND_VB_SHOULD(VB_FP_BOGGY_RESCUE_SCENE, EVENT_PRIORITY_NORMAL, true, {
-        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
-            *should = false;
-        }
-    });
-    // No dialog ends a teammate's rescue, so Boggy runs off once he's done coughing.
-    COND_VB_SHOULD(VB_FP_BOGGY_WAIT_FOR_DIALOG, EVENT_PRIORITY_NORMAL, true, {
-        Actor* boggy = va_arg(args, Actor*);
-        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
-            func_803877A8(boggy->marker, (enum asset_e)0, 2);
-            *should = false;
-        }
-    });
     // Our ride ended in a crash, so the sled's claim goes. After a teammate rescued Boggy the crash plays no scene, and
-    // the scene is what releases the ride's camera.
+    // the scene is what releases the ride's camera. Always on, since the rescue can land before a disconnect.
     COND_ID_HOOK(OnActorDestroy, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         Actor* sled = reinterpret_cast<OnActorDestroy*>(event)->actor;
         if (sled->state != 2) {
@@ -466,12 +466,6 @@ void Anchor::RegisterHooks() {
         auto* ev = reinterpret_cast<ShouldActorDraw*>(event);
         if (ev->actor->state != 2 && !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED)) {
             *ev->should = false;
-        }
-    });
-
-    COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            *should = false;
         }
     });
 
@@ -582,6 +576,16 @@ void Anchor::RegisterHooks() {
     COND_HOOK(OnPlayerAnimSubRangeChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         OnPlayerAnimSubRangeChange* ev = reinterpret_cast<OnPlayerAnimSubRangeChange*>(event);
         Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
+    });
+
+    // actorArray_free tears down actors and markers without firing OnActorDestroy, so the dummies detach here. Always
+    // on: dummies outlive a dropped connection until Disable frees them.
+    COND_HOOK(OnActorArrayFree, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
+            if (client.dummy != nullptr) {
+                client.dummy->dummy_detachActor();
+            }
+        }
     });
 
     COND_HOOK(OnActorDestroy, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
@@ -738,18 +742,19 @@ void Anchor::RegisterHooks() {
 
     // SM intro Bottles: the tutorial offer is first-answer-wins for the team.
     COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            // By level, not map: a romhack's Spiral Mountain may be a different map id.
-            if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
-                (port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
-                *should = false;
-            } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) &&
-                       !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
-                *should = false;
-            } else {
-                NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
-            }
+        if (!Anchor_SmTutorialChoiceOpen()) {
+            *should = false;
         }
+    });
+
+    // An answer to a choice a teammate owns folds a skip into the tutorial. Recorded team-wide as it lands, so a
+    // second pending offer folds before any move is learned.
+    COND_HOOK(OnBottlesTutorialAnswer, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnBottlesTutorialAnswer*>(event);
+        if (*ev->answer == 0 && !Anchor_SmTutorialChoiceOpen()) {
+            *ev->answer = 1;
+        }
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_SM_TUTORIAL, 1);
     });
 
     // Ability molehills wake up only after the tutorial choice exists: the offer was
@@ -772,6 +777,8 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected,
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
+
+    AnchorPuzzles_Register(isConnected);
 
     // #endregion
 }
