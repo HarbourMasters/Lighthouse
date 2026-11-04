@@ -190,6 +190,8 @@ void LighthouseMenu::InitElement() {
 
 void LighthouseMenu::UpdateElement() {
     Ship::Menu::UpdateElement();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetOnScreenKeyboard()->SetAccentColor(
+        ColorValues.at(GetMenuThemeColor()));
 }
 
 void LighthouseMenu::Draw() {

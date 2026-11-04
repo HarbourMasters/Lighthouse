@@ -376,8 +376,9 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
         initData->Path = fontPath;
         std::shared_ptr<Ship::Font> fontData = std::static_pointer_cast<Ship::Font>(
             Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
-        font =
-            mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
+        static const ImWchar sTextRanges[] = { 0x0020, 0x017F, 0x2013, 0x2026, 0x20AC, 0x20AC, 0 };
+        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size,
+                                                     &config, sTextRanges);
     }
     float iconFontSize = size * 2.0f / 3.0f;
     static const ImWchar sIconsRanges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
