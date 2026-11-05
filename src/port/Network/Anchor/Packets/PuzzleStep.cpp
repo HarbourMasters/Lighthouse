@@ -258,7 +258,7 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
 /**
  * PUZZLE_COUNT
  *
- * Companion to PUZZLE_STEP for count-based progress (Eyrie's fed worms, Nabnut's acorns).
+ * Companion to PUZZLE_STEP for count-based progress (Eyrie's fed caterpillars, Nabnut's acorns).
  * Not home-scoped: counters never touch flag indices (keyed by the real map, applied only
  * to actor state), and scoping them would brick a relocated Eyrie/Nabnut.
  */

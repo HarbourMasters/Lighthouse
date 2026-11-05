@@ -395,7 +395,6 @@ typedef enum VBehaviorID {
     // true                                  // Napper, Jinxy, the pyramid, the GV and church doors
     // true                                  // the flower, the egg, baby Eyrie, the season doors
     // true                                  // Gnawty's boulder and its shake
-    // true                                  // a teammate's thrown caterpillar, acorn or gold landing
     // true                                  // the CC grates, the breakables
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
@@ -522,6 +521,17 @@ typedef enum VBehaviorID {
     // - `s32` (Me.state, promoted from `u8`)
     // - `*ActorMarker` (Motzhand)
     VB_ORGAN_GAME_IDLE,
+
+    // An empty honeycomb a beaten enemy drops, or a honeycomb switch pops out.
+    // #### `result`
+    // ```c
+    // this->unk38_31                                                                // the Colliwobble's
+    // this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor) // the Quarries'
+    // true                                                                          // a switch's
+    // ```
+    // #### `args`
+    // - `s32` (honeycomb_e)
+    VB_SPAWN_EMPTY_HONEYCOMB,
 
     // Romhack port gates
 

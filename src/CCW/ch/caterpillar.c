@@ -2,12 +2,9 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Retention/Retention.h"
 
 extern ActorMarker *bacarry_getMarkerWithExtraSteps(void);
 extern void func_8028F7D4(f32, f32);
-extern s32 port_remoteCarry_displayUpdate(Actor *this);
-extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
 typedef struct {
     f32 position[3];
@@ -100,10 +97,6 @@ void chcaterpillar_update(Actor *this){
     f32 sp54[3];
     int i;
 
-    if (port_remoteCarry_displayUpdate(this)) {
-        return;
-    }
-
     player_is_carrying_caterpillar = bacarry_getMarkerWithExtraSteps() == this->marker;
     time_delta = time_getDelta();
 
@@ -122,23 +115,12 @@ void chcaterpillar_update(Actor *this){
             ) {
                 chcaterpillar_setState(this, CH_CATERPILLAR_STATE_5_DESPAWN);
             } else {
-                s32 wormSuppress;
-                port_carriedSync_register(ANCHOR_COLLECTIBLE_WORM, this->marker, (s32)this->position[0],
-                                          (s32)this->position[1], (s32)this->position[2], &wormSuppress);
-                if (wormSuppress) {
-                    marker_despawn(this->marker);
-                    return;
-                }
                 chcaterpillar_setState(this, CH_CATERPILLAR_STATE_1_PULL_OUT);
             }//L8038A45C
         }
     }//L8038A45C
 
     if(this->state == CH_CATERPILLAR_STATE_1_PULL_OUT){
-        if(port_carriedSync_consumeRemoteDespawn(ANCHOR_COLLECTIBLE_WORM, this->marker)){
-            marker_despawn(this->marker);
-            return;
-        }
         skeletalAnim_getProgressRange(this->unk148, &sp64, &sp60);
         player_getPosition(sp74);
         if(ml_vec3f_distance(this->position, local->position) < 10.0f){
@@ -187,19 +169,17 @@ void chcaterpillar_update(Actor *this){
                 volatileFlag_set(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR, TRUE);
             }
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
-            port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_WORM, this->marker);
+            CALL_EVENT(OnCarriedObjectCollected, this->marker); // [port]
             marker_despawn(this->marker);
         }
     }//L8038A794
 
     if(this->state == CH_CATERPILLAR_STATE_2_HOLDING){
         if(this->unk138_21){
-            f32 throwTarget[3];
-            func_80389BD8(throwTarget);
-            port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
             bacarriedobj_decWithExtraSteps(ACTOR_2A2_CATERPILLAR);
-            port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_WORM);
             chcaterpillar_setState(this, CH_CATERPILLAR_STATE_3_TOSS);
+            func_80389BD8(local->unk18); // [port] the toss target, which the toss below fetches again
+            CALL_EVENT(OnCarryThrow, this->marker->id, local->unkC, local->unk18); // [port]
         }
         else if(!player_is_carrying_caterpillar){
             bacarriedobj_displayOnHudWithExtraSteps(ACTOR_2A2_CATERPILLAR);

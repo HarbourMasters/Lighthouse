@@ -131,8 +131,6 @@ int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
 void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
-void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
-void port_remoteCarry_reset(void);
 
 // Connected, in a real room, syncing world state.
 int32_t port_anchor_isWorldSyncActive(void);

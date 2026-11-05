@@ -23,6 +23,7 @@ int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 void func_80324CD8(f32 time);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
+extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
 }
 
 extern "C" void port_fpTwinkly_release(void) {
@@ -37,6 +38,12 @@ void Anchor_DespawnCollectedCollectibles();
 static bool Anchor_WorldSyncActive() {
     Anchor* anchor = Anchor::GetInstance();
     return anchor != nullptr && anchor->IsWorldSyncActive();
+}
+
+// The honeycomb is out, or spawned and yet to take its uid.
+static bool Anchor_HoneycombPresent(enum honeycomb_e id) {
+    return Anchor_FindHoneycombMarker(id) != nullptr ||
+           (D_8037DDC0 == id && Anchor_FindHoneycombMarker((enum honeycomb_e)0) != nullptr);
 }
 
 // True when a remote client owns the Mr. Vile minigame (our local logic must follow).
@@ -744,6 +751,12 @@ void Anchor::RegisterHooks() {
     COND_HOOK(OnHoneycombDropSpawn, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto ev = reinterpret_cast<OnHoneycombDropSpawn*>(event);
         Anchor::GetInstance()->SendPacket_SpawnHoneycomb((s16)ev->honeycombId, ev->bundleId, ev->x, ev->y, ev->z);
+    });
+
+    COND_VB_SHOULD(VB_SPAWN_EMPTY_HONEYCOMB, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive() && Anchor_HoneycombPresent((enum honeycomb_e)va_arg(args, s32))) {
+            *should = false;
+        }
     });
 
     // SM intro Bottles: the tutorial offer is first-answer-wins for the team.

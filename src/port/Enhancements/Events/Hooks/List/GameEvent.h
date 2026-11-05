@@ -25,6 +25,8 @@ DEFINE_EVENT(OnConsumableCollected, void* prop;)
 DEFINE_EVENT(OnNoteCollected, ActorMarker* marker;)
 // markerId = marker_e.
 DEFINE_EVENT(OnJinjoCollected, int32_t markerId;)
+// A carried object (an orange, gold bullion, present, caterpillar or acorn) going into the backpack.
+DEFINE_EVENT(OnCarriedObjectCollected, ActorMarker* marker;)
 // A carried actor leaving the player's hands; markerId = marker_e, start/target are f32[3].
 DEFINE_EVENT(OnCarryThrow, int32_t markerId; float* start; float* target;)
 // move = ability_e; value = 1 learned, 0 cleared.

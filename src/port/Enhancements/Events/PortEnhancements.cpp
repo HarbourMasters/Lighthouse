@@ -126,6 +126,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnConsumableCollected);
     REGISTER_EVENT(OnNoteCollected);
     REGISTER_EVENT(OnJinjoCollected);
+    REGISTER_EVENT(OnCarriedObjectCollected);
     REGISTER_EVENT(OnCarryThrow);
     REGISTER_EVENT(OnAbilityLearned);
     REGISTER_EVENT(OnJiggySpawned);

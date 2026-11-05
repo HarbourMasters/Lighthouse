@@ -184,8 +184,7 @@ void AnchorPuzzles_RegisterGobisValley(bool connected) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* gobi = ev->actor;
         if (gobi->volatile_initialized && (gobi->state == 1 || gobi->state == 2 || gobi->state == 7) &&
-            (honeycombscore_get(HONEYCOMB_C_GV_GOBI_3) ||
-             actorArray_findHoneycombMarkerById(HONEYCOMB_C_GV_GOBI_3) != NULL)) {
+            (honeycombscore_get(HONEYCOMB_C_GV_GOBI_3) || Anchor_FindHoneycombMarker(HONEYCOMB_C_GV_GOBI_3) != NULL)) {
             marker_despawn(gobi->marker);
             *ev->should = false;
         }

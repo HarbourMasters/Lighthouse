@@ -56,6 +56,8 @@ void Anchor_MarkMapFlagsRemote(uint32_t mask);
 bool Anchor_InEarshot(f32 pos[3], f32 range = 1800.0f);
 bool Anchor_WasLevelFlagSetRemotely(int32_t index);
 bool Anchor_JiggyListHasObject(int16_t jiggyId);
+ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
+ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
 
 class Anchor : public Network {
 private:

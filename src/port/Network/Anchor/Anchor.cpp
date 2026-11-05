@@ -461,6 +461,32 @@ bool Anchor_InEarshot(f32 pos[3], f32 range) {
     return ml_vec3f_distance(pos, player) < range;
 }
 
+extern "C" ActorArray* suBaddieActorArray;
+
+ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id) {
+    if (suBaddieActorArray != NULL) {
+        for (s32 i = 0; i < suBaddieActorArray->cnt; i++) {
+            Actor* actor = &suBaddieActorArray->data[i];
+            if (actor->marker->id == MARKER_53_EMPTY_HONEYCOMB && func_802CA1C4(actor) == id) {
+                return actor->marker;
+            }
+        }
+    }
+    return NULL;
+}
+
+ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id) {
+    if (suBaddieActorArray != NULL) {
+        for (s32 i = 0; i < suBaddieActorArray->cnt; i++) {
+            Actor* actor = &suBaddieActorArray->data[i];
+            if (actor->marker->id == MARKER_39_MUMBO_TOKEN && func_802E0CB0(actor) == id) {
+                return actor->marker;
+            }
+        }
+    }
+    return NULL;
+}
+
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     // Without world sync these stores aren't used; TransientLevelState drops what's left.
     if (!IsWorldSyncActive()) {
