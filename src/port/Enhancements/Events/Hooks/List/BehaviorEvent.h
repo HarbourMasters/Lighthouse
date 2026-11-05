@@ -46,9 +46,11 @@ DEFINE_EVENT(OnGeoCull, s32 type; s32 offset; const void* modelBin; const u8* ar
 // logic; followers have the originating code paths suppressed via VB_VILE_* behaviors.
 DEFINE_EVENT(OnVileHoleStateChange, ActorMarker* marker; f32 * position; s32 state; s32 pieceType;)
 DEFINE_EVENT(OnVileGameStateChange, s32 state;)
-DEFINE_EVENT(OnPuzzleStep, int32_t puzzleId; int32_t bits;)                         // enum AnchorPuzzle
-DEFINE_EVENT(OnBreakableBroken, int32_t markerId; int32_t x; int32_t y; int32_t z;) // marker_e
-DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;)            // 1 tutorial, 0 skip
+DEFINE_EVENT(OnPuzzleStep, int32_t puzzleId; int32_t bits;)                                      // enum AnchorPuzzle
+DEFINE_EVENT(OnBreakableBroken, int32_t markerId; int32_t x; int32_t y; int32_t z; bool replay;) // marker_e
+DEFINE_EVENT(OnBreakableSetUp, Actor* actor;)
+DEFINE_EVENT(OnFlowerpotRemaining, int32_t total; int32_t * remaining;)
+DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;) // 1 tutorial, 0 skip
 DEFINE_EVENT(OnPuzzlePosMark, int32_t puzzleId; int32_t x; int32_t y; int32_t z;)
 // FP's snowman-button and Sir Slush managers, just before their win calls the puzzle VBs with no actor.
 DEFINE_EVENT(OnPuzzleWin, int32_t puzzleId;)

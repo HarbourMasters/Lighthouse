@@ -211,9 +211,6 @@ void code_4C020_breakableObjectSetFlag(ActorMarker *marker, enum file_progress_e
     marker_despawn(marker);
 }
 
-extern void port_breakable_broadcastBreak(s32 markerId, s32 x, s32 y, s32 z);
-extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
-
 // collision die function for several objects in Lair
 void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *actor;
@@ -224,44 +221,62 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
         case MARKER_9F_CHURCH_GATE_LEFT_LOCK:
         case MARKER_A0_HEDGE_GATE_RIGHT_LOCK_1:
         case MARKER_FF_HEDGE_GATE_RIGHT_LOCK_2:
-            gcsfx_play(SFX_82_METAL_BREAK);
+//          gcsfx_play(SFX_82_METAL_BREAK);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_82_METAL_BREAK);
             subaddie_set_state(actor, 4);
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); } // [port]
             break;
 
         case MARKER_17D_IRON_GATE_NO_LOCK:
-            FUNC_8030E624(SFX_82_METAL_BREAK, 0.7f, 32736);
-            FUNC_8030E624(SFX_82_METAL_BREAK, 0.6f, 32736);
+//          FUNC_8030E624(SFX_82_METAL_BREAK, 0.7f, 32736);
+//          FUNC_8030E624(SFX_82_METAL_BREAK, 0.6f, 32736);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                FUNC_8030E624(SFX_82_METAL_BREAK, 0.7f, 32736);
+                FUNC_8030E624(SFX_82_METAL_BREAK, 0.6f, 32736);
+            }
             func_802D2FB0(actor, 0x14, -0x1E, 0x190, 3.0f, 0x15E, 0x50, 0x96);
             actor->lifetime_value = 1.0f;
             fileProgressFlag_set(FILEPROG_A5_LAIR_CRYPT_GATE_OPEN, 1);
             break;
 
         case MARKER_109_BREAKABLE_BRICK_WALL:
-            func_8030E6D4(SFX_114_BRICKWALL_BREAKING);
-            gcsfx_playAtSampleRate(SFX_11_WOOD_BREAKING_1, 28000);
+//          func_8030E6D4(SFX_114_BRICKWALL_BREAKING);
+//          gcsfx_playAtSampleRate(SFX_11_WOOD_BREAKING_1, 28000);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                func_8030E6D4(SFX_114_BRICKWALL_BREAKING);
+                gcsfx_playAtSampleRate(SFX_11_WOOD_BREAKING_1, 28000);
+            }
             subaddie_set_state_looped(actor, 9);
             fileProgressFlag_set((actor->actorTypeSpecificField == 1) ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN, TRUE);
             break;
 
         case MARKER_107_ENGINE_ROOM_DOOR:
-            gcsfx_play(SFX_82_METAL_BREAK);
+//          gcsfx_play(SFX_82_METAL_BREAK);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_82_METAL_BREAK);
             func_802EE278(actor, 0xE, 0xF, 0x46, 0.8f, 0.7f);
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); } // [port]
             marker_despawn(marker);
             break;
 
         case MARKER_224_BREAKABLE_FLOOR_COBWEB:
-            comusic_playTrack(COMUSIC_2B_DING_B);
-            gcsfx_playWithPitch(SFX_129_SWOOSH, (actor->scale < 0.45) ? 1.0 : 0.8, 0x7FF8);
+//          comusic_playTrack(COMUSIC_2B_DING_B);
+//          gcsfx_playWithPitch(SFX_129_SWOOSH, (actor->scale < 0.45) ? 1.0 : 0.8, 0x7FF8);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                comusic_playTrack(COMUSIC_2B_DING_B);
+                gcsfx_playWithPitch(SFX_129_SWOOSH, (actor->scale < 0.45) ? 1.0 : 0.8, 0x7FF8);
+            }
             subaddie_set_state_looped(actor, 0xC);
             func_802D2FB0(actor, 8, -0x3C, 0xC8, 2.0f, 0xFA, 0x3C, 0x64);
             fileProgressFlag_set((actor->actorTypeSpecificField== 1) ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN, 1);
             break;
 
         case MARKER_225_BREAKABLE_WALL_COBWEB:
-            comusic_playTrack(COMUSIC_2B_DING_B);
-            gcsfx_play(SFX_129_SWOOSH);
+//          comusic_playTrack(COMUSIC_2B_DING_B);
+//          gcsfx_play(SFX_129_SWOOSH);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                comusic_playTrack(COMUSIC_2B_DING_B);
+                gcsfx_play(SFX_129_SWOOSH);
+            }
             subaddie_set_state_looped(actor, 0xF);
             func_802D2FB0(actor, 0xE, -0x3C, 0xC8, 2.0f, 0xFA, 0x3C, 0x64);
             fileProgressFlag_set(FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN, 1);
@@ -270,8 +285,12 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
         case MARKER_163_CRYPT_COFFIN_LID:
             if (actor->unk10_12 == 0) {
                 actor->unk10_12 = TRUE;
-                timed_playSfx(0.5f, SFX_3F9_UNKNOWN, 1.0f, 32000);
-                FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 32000);
+//              timed_playSfx(0.5f, SFX_3F9_UNKNOWN, 1.0f, 32000);
+//              FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 32000);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                    timed_playSfx(0.5f, SFX_3F9_UNKNOWN, 1.0f, 32000);
+                    FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 32000);
+                }
             }
             break;
 
@@ -291,8 +310,12 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
                 levelSpecificFlags_set(LEVEL_FLAG_38_CCW_UNKNOWN, 1);
             }
             func_802D2FB0(actor, 5, -0x28, 0xC8, 0.85f, 0xDC, 0x3C, 0x64);
-            gcsfx_play(SFX_D_EGGSHELL_BREAKING);
-            gcsfx_play(SFX_11_WOOD_BREAKING_1);
+//          gcsfx_play(SFX_D_EGGSHELL_BREAKING);
+//          gcsfx_play(SFX_11_WOOD_BREAKING_1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                gcsfx_play(SFX_D_EGGSHELL_BREAKING);
+                gcsfx_play(SFX_11_WOOD_BREAKING_1);
+            }
             switch (marker->id) {
                 case MARKER_9E_CELLAR_HATCH:
                     func_802EE278(actor, 0xD, 9, 0x82, 0.34f, 1.0f);
@@ -323,33 +346,37 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
                     func_802EE278(actor, 7, 0x19, 0x82, 0.17f, 0.8f);
                     break;
             }
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); } // [port]
             marker_despawn(marker);
             break;
 
         case MARKER_11F_RAREWARE_BOX:
-            gcsfx_play(SFX_D9_WOODEN_CRATE_BREAKING_1);
+//          gcsfx_play(SFX_D9_WOODEN_CRATE_BREAKING_1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_D9_WOODEN_CRATE_BREAKING_1);
             func_802EE2E8(actor, 7, 9, 0x78, 0.43f, 1.3f, 3.0f);
             func_802EE2E8(actor, 3, 6, 0x78, 0.43f, 1.3f, 3.0f);
             code_4C020_breakableObjectSetFlag(marker, FILEPROG_C5_RAREWARE_BOX_BROKEN);
             break;
 
         case MARKER_11A_GRATE_TO_RBB_PUZZLE:
-            gcsfx_play(SFX_82_METAL_BREAK);
+//          gcsfx_play(SFX_82_METAL_BREAK);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_82_METAL_BREAK);
             func_802EE278(actor, 0xE, 0xD, 0x32, 0.8f, 0.9f);
             func_802EE278(actor, 0xE, 0xD, 0xAA, 0.8f, 0.9f);
             code_4C020_breakableObjectSetFlag(marker, FILEPROG_C2_GRATE_TO_RBB_PUZZLE_OPEN);
             break;
 
         case MARKER_118_GRATE_TO_LEVEL_3_WATER_SWITCH:
-            gcsfx_play(SFX_82_METAL_BREAK);
+//          gcsfx_play(SFX_82_METAL_BREAK);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_82_METAL_BREAK);
             func_802EE278(actor, 0xE, 0xD, 0x50, 1.2f, 0.9f);
             func_802EE278(actor, 0xE, 0xD, 0xB4, 1.2f, 0.9f);
             code_4C020_breakableObjectSetFlag(marker, FILEPROG_CD_GRATE_TO_WATER_SWITCH_3_OPEN);
             break;
 
         case MARKER_119_GRATE_BETWEEN_MMM_AND_RBB_PUZZLES:
-            gcsfx_play(SFX_82_METAL_BREAK);
+//          gcsfx_play(SFX_82_METAL_BREAK);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_82_METAL_BREAK);
             func_802EE278(actor, 0xE, 9, 0x50,  1.2f, 0.9f);
             func_802EE278(actor, 0xE, 9, 0xAA,  1.2f, 0.9f);
             func_802EE278(actor, 0xE, 9, 0x104, 1.2f, 0.9f);
@@ -358,10 +385,14 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
 
         case MARKER_22D_SHIP_SHADOW_WINDOW:
         case MARKER_22E_SHIP_SUNNY_WINDOW:
-            gcsfx_play(SFX_82_METAL_BREAK);
-            gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+//          gcsfx_play(SFX_82_METAL_BREAK);
+//          gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                gcsfx_play(SFX_82_METAL_BREAK);
+                gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+            }
             func_802EE278(actor, 4, 0x23, 0x1E, 0.7f, 0.6f);
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); } // [port]
             marker_despawn(marker);
             break;
 
@@ -373,17 +404,19 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
         case MARKER_237_CCW_AUTUMN_NABNUT_WINDOW:
         case MARKER_238_CCW_WINTER_NABNUT_WINDOW:
         case MARKER_239_CCW_UNKNOWN_NABNUT_WINDOW:
-            gcsfx_play(SFX_13A_GLASS_BREAKING_7);
+//          gcsfx_play(SFX_13A_GLASS_BREAKING_7);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_13A_GLASS_BREAKING_7);
             func_802EE278(actor, 4, 0x2D, 0x82, 1.0f, 1.0f);
             if (marker->id == MARKER_1F3_TALL_WINDOW) {
                 func_802EE278(actor, 4, 0x2D, 0x104, 1.0f, 1.0f);
             }
-            port_breakable_broadcastBreak(marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); } // [port]
             marker_despawn(marker);
             break;
 
         case MARKER_11E_ICE_BALL_TO_CHEATO:
-            gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+//          gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_B6_GLASS_BREAKING_1);
             func_802EE278(actor, 4, 0x32, 0x50, 1.0f, 1.4f);
             func_802EE278(actor, 4, 0x32, 0xA0, 1.0f, 1.4f);
             func_802EE278(actor, 4, 0x1E, 0xF0, 0.8f, 1.1f);
@@ -391,7 +424,8 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
             break;
 
         case MARKER_121_GLASS_EYE:
-            gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+//          gcsfx_play(SFX_B6_GLASS_BREAKING_1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_play(SFX_B6_GLASS_BREAKING_1);
             func_802EE2E8(actor, 1, 0x32, 0x14, 1.2f, 1.4f, 2.2f);
             func_802EE2E8(actor, 1, 0x3C, 0x64, 1.6f, 1.8f, 2.2f);
             func_802EE2E8(actor, 1, 0x32, 0xB4, 1.2f, 1.4f, 2.2f);
@@ -401,14 +435,20 @@ void code_4C020_breakableObjectSfx(ActorMarker *marker, ActorMarker *other_marke
         case MARKER_164_GL_GRUNTY_FLOOR_PICTURE_EYE_1:
         case MARKER_165_GL_GRUNTY_FLOOR_PICTURE_EYE_2:
             if (actor->unk1C[1] == actor->position[1]) {
-                gcsfx_playAtSampleRate(SFX_9B_BOULDER_BREAKING_1, 25000);
+//              gcsfx_playAtSampleRate(SFX_9B_BOULDER_BREAKING_1, 25000);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) gcsfx_playAtSampleRate(SFX_9B_BOULDER_BREAKING_1, 25000);
                 actor->unk1C[0] = 1.0f;
             }
             break;
 
         default:   
-            gcsfx_play(SFX_D_EGGSHELL_BREAKING);
-            gcsfx_play(SFX_11_WOOD_BREAKING_1);
+//          gcsfx_play(SFX_D_EGGSHELL_BREAKING);
+//          gcsfx_play(SFX_11_WOOD_BREAKING_1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) {
+                gcsfx_play(SFX_D_EGGSHELL_BREAKING);
+                gcsfx_play(SFX_11_WOOD_BREAKING_1);
+            }
+            { CALL_EVENT(OnBreakableBroken, marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], true); } // [port]
             marker_despawn(marker);
             break;
     }
@@ -425,114 +465,7 @@ void func_802D3CE8(Actor *this){
         marker_setCollisionScripts(this->marker, NULL, func_802D3138, code_4C020_breakableObjectSfx);
         this->marker->propPtr->unk8_3 = TRUE;
         this->initialized = TRUE;
-        if (port_breakable_isBroken((s32)gsworld_getMap(), this->marker->id, (s32)this->position[0],
-                                    (s32)this->position[1], (s32)this->position[2])) {
-            marker_despawn(this->marker);
-        }
-    }
-}
-
-extern ActorArray *suBaddieActorArray;
-
-// fieldSel picks between two markers sharing an id: 0 = any, 1 = actorTypeSpecificField==1, 2 = !=1.
-typedef struct {
-    s16 flag;
-    s16 markerId;
-    s8  fieldSel;
-} LairBreakable;
-
-static const LairBreakable D_lairBreakables[] = {
-    { FILEPROG_A5_LAIR_CRYPT_GATE_OPEN,                   0x17D,                            0 },
-    { FILEPROG_C2_GRATE_TO_RBB_PUZZLE_OPEN,              0x11A,                            0 },
-    { FILEPROG_C3_ICE_BALL_TO_CHEATO_BROKEN,             0x11E,                            0 },
-    { FILEPROG_C4_STATUE_EYE_BROKEN,                      MARKER_121_GLASS_EYE,             0 },
-    { FILEPROG_C5_RAREWARE_BOX_BROKEN,                    0x11F,                            0 },
-    { FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN,   MARKER_109_BREAKABLE_BRICK_WALL,  1 },
-    { FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN, MARKER_109_BREAKABLE_BRICK_WALL,  2 },
-    { FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN, MARKER_225_BREAKABLE_WALL_COBWEB, 0 },
-    { FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN,      MARKER_224_BREAKABLE_FLOOR_COBWEB, 1 },
-    { FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN, MARKER_224_BREAKABLE_FLOOR_COBWEB, 2 },
-    { FILEPROG_CD_GRATE_TO_WATER_SWITCH_3_OPEN,          0x118,                            0 },
-    { FILEPROG_CE_GRATE_TO_MMM_PUZZLE_OPEN,             0x119,                            0 },
-};
-
-void port_breakable_remoteBreak(s32 progressFlag) {
-    s32 i;
-    s16 markerId = -1;
-    s8 fieldSel = 0;
-
-    for (i = 0; i < (s32) (sizeof(D_lairBreakables) / sizeof(D_lairBreakables[0])); i++) {
-        if (D_lairBreakables[i].flag == progressFlag) {
-            markerId = D_lairBreakables[i].markerId;
-            fieldSel = D_lairBreakables[i].fieldSel;
-            break;
-        }
-    }
-    if (markerId < 0 || suBaddieActorArray == NULL) {
-        return;
-    }
-    for (i = 0; i < suBaddieActorArray->cnt; i++) {
-        Actor *actor = &suBaddieActorArray->data[i];
-        if (actor->marker == NULL || actor->marker->id != markerId) {
-            continue;
-        }
-        if ((fieldSel == 1 && actor->actorTypeSpecificField != 1) ||
-            (fieldSel == 2 && actor->actorTypeSpecificField == 1)) {
-            continue;
-        }
-        code_4C020_breakableObjectSfx(actor->marker, NULL);
-        return;
-    }
-}
-
-void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
-    s32 i;
-
-    if (suBaddieActorArray == NULL) {
-        return;
-    }
-    for (i = 0; i < suBaddieActorArray->cnt; i++) {
-        Actor *actor = &suBaddieActorArray->data[i];
-        if (actor->marker == NULL || actor->marker->id != markerId) {
-            continue;
-        }
-        if ((s32)actor->position[0] != x || (s32)actor->position[1] != y || (s32)actor->position[2] != z) {
-            continue;
-        }
-        code_4C020_breakableObjectSfx(actor->marker, NULL);
-        return;
-    }
-}
-
-static bool port_breakable_survivesBreak(s32 markerId) {
-    switch (markerId) {
-        case MARKER_34_CEMETARY_POT:            // flowers
-        case MARKER_66_ORANGE_PAD:              // stays, marked hit
-            return TRUE;
-        default:
-            return FALSE;
-    }
-}
-
-// [port] Iterates backward: despawn swap-removes from the end.
-void port_breakable_despawnBrokenRestores(s32 map) {
-    s32 i;
-
-    if (suBaddieActorArray == NULL) {
-        return;
-    }
-    for (i = suBaddieActorArray->cnt - 1; i >= 0; i--) {
-        Actor *actor = &suBaddieActorArray->data[i];
-        if (actor->marker == NULL || actor->despawn_flag) {
-            continue;
-        }
-        if (port_breakable_survivesBreak(actor->marker->id)) {
-            continue;
-        }
-        if (port_breakable_isBroken(map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
-                                    (s32)actor->position[2])) {
-            marker_despawn(actor->marker);
-        }
+        CALL_EVENT(OnBreakableSetUp, this); // [port]
     }
 }
 

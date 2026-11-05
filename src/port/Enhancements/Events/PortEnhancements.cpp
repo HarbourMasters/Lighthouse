@@ -110,6 +110,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnVileGameStateChange);
     REGISTER_EVENT(OnPuzzleStep);
     REGISTER_EVENT(OnBreakableBroken);
+    REGISTER_EVENT(OnBreakableSetUp);
+    REGISTER_EVENT(OnFlowerpotRemaining);
     REGISTER_EVENT(OnBottlesTutorialAnswer);
     REGISTER_EVENT(OnPuzzlePosMark);
     REGISTER_EVENT(OnPuzzleWin);

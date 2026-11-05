@@ -83,8 +83,9 @@ bool chFlowerpot_eggCollision(ActorMarker *marker) {
 
     subaddie_set_state(actor, FLOWER_POT_STATE_2_FLOWERED);
     anctrl_setPlaybackType(actor->anctrl, ANIMCTRL_ONCE);
-    CALL_EVENT(OnBreakableBroken, (s32)marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]); // [port]
+    CALL_EVENT(OnBreakableBroken, (s32)marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2], false); // [port]
     remaining = chFlowerpot_getRemaining();
+    CALL_EVENT(OnFlowerpotRemaining, NUMBER_OF_CEMETARY_POTS, &remaining); // [port]
 
     if (remaining != 0) {
         remaining--;

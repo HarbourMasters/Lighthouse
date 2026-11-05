@@ -125,6 +125,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         // RBB propeller press: the cutscene and engine-room warp play for the presser only; 0x27/0x28 carry the result.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_3_RBB_UNKNOWN,
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_4_RBB_UNKNOWN,
+        // MMM's flower-pot count (cemetarypot.c); each client counts the team's flowered pots instead.
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | 0x39,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | 0x3A,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | 0x3B,
     };
     if (excluded.contains((space << 16) | index)) {
         return true;

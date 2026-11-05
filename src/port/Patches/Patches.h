@@ -122,11 +122,6 @@ void port_leveldoor_remoteOpen(int32_t progressFlag);
 
 void port_breakable_remoteBreak(int32_t progressFlag);
 
-void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
-void port_breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
-
-void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
-
 int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
 
 int32_t port_cutsceneWarp_getReturnMap(void);

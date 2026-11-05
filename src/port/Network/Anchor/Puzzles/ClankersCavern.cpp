@@ -4,11 +4,13 @@
 
 #include "functions.h"
 extern "C" {
+#include "CC/ch/ccgrates.h"
 #include "CC/ch/clankerkey.h"
 #include "CC/ch/clankertoothext.h"
 #include "CC/ma/clanker.h"
 
 void CC_func_80386920(Actor* self, s32 next_state);
+void chCCGrate_setNextState(Actor* self, s32 next_state);
 void maClanker_raiseClanker(void);
 void maClankerRings_endMinigame(void);
 void maClankerTooth_setNextState(Actor* self, s32 next_state);
@@ -23,6 +25,7 @@ constexpr u8 kClankerRingCount = 9;
 static bool sClankerTeammateRaise = false;
 // The teeth a teammate knocked out, a bit per tooth (unk0), for the fanfare and dialog that follow.
 static s32 sClankerTeammateTeeth = 0;
+static bool sGrateReplay = false;
 
 static bool IsClankerTeammateTooth(Actor* actor) {
     if (actor == NULL || (actor->modelCacheIndex != ACTOR_44_CLANKER_TOKEN_TOOTH_EXTERIOR &&
@@ -30,6 +33,23 @@ static bool IsClankerTeammateTooth(Actor* actor) {
         return false;
     }
     return sClankerTeammateTeeth & (1 << ((ActorLocal_CC_BF0*)&actor->local)->unk0);
+}
+
+static void CCGrateUpdate(IEvent* event) {
+    auto* ev = (ShouldActorUpdate*)event;
+    Actor* grate = ev->actor;
+    if (!port_breakable_isBroken((s32)gsworld_getMap(), (s32)grate->marker->id, (s32)grate->position[0],
+                                 (s32)grate->position[1], (s32)grate->position[2])) {
+        return;
+    }
+    if (!grate->volatile_initialized) {
+        marker_despawn(grate->marker);
+        *ev->should = false;
+    } else if (grate->state == CC_GRATES_STATE_1_IDLE) {
+        sGrateReplay = true;
+        chCCGrate_setNextState(grate, *((ActorLocal_CC_3400*)&grate->local)->unk0);
+        sGrateReplay = false;
+    }
 }
 
 // A teammate's eggs in this tooth. Each tooth has three bits.
@@ -85,15 +105,19 @@ void AnchorPuzzles_RegisterClankersCavern(bool connected) {
         }
     });
 
+    // The three grates (ccgrates.c), whose actor ids have no names.
+    COND_ID_HOOK(ShouldActorUpdate, 0x28C, EVENT_PRIORITY_NORMAL, connected, CCGrateUpdate);
+    COND_ID_HOOK(ShouldActorUpdate, 0x28D, EVENT_PRIORITY_NORMAL, connected, CCGrateUpdate);
+    COND_ID_HOOK(ShouldActorUpdate, 0x28E, EVENT_PRIORITY_NORMAL, connected, CCGrateUpdate);
+
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_44_CLANKER_TOKEN_TOOTH_EXTERIOR, EVENT_PRIORITY_NORMAL, connected,
                  ClankerToothUpdate);
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_45_CLANKER_JIGGY_TOOTH_EXTERIOR, EVENT_PRIORITY_NORMAL, connected,
                  ClankerToothUpdate);
-    // A teammate's tooth plays its fanfare and shows its dialog only within earshot. Always on: a tooth that falls
-    // while connected plays out if the connection drops.
+    // Always on: a tooth that falls while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
-        if (IsClankerTeammateTooth(actor) && !Anchor_InEarshot(actor->position)) {
+        if ((sGrateReplay || IsClankerTeammateTooth(actor)) && !Anchor_InEarshot(actor->position)) {
             *should = false;
         }
     });
