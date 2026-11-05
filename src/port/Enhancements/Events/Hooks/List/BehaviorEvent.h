@@ -50,6 +50,11 @@ DEFINE_EVENT(OnPuzzleStep, int32_t puzzleId; int32_t bits;)                     
 DEFINE_EVENT(OnBreakableBroken, int32_t markerId; int32_t x; int32_t y; int32_t z; bool replay;) // marker_e
 DEFINE_EVENT(OnBreakableSetUp, Actor* actor;)
 DEFINE_EVENT(OnFlowerpotRemaining, int32_t total; int32_t * remaining;)
+DEFINE_EVENT(OnHutSetUp, Actor* actor;)
+DEFINE_EVENT(OnHutSmashed, Actor* actor; int32_t * loot;)
+DEFINE_EVENT(OnEggTollSetUp, Actor* actor;)
+DEFINE_EVENT(OnEggTollPaid, Actor* actor;)
+DEFINE_EVENT(OnCageSwitchState, Actor* actor; int32_t state;)            // chcageupswitch_state_e
 DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;) // 1 tutorial, 0 skip
 DEFINE_EVENT(OnPuzzlePosMark, int32_t puzzleId; int32_t x; int32_t y; int32_t z;)
 // FP's snowman-button and Sir Slush managers, just before their win calls the puzzle VBs with no actor.

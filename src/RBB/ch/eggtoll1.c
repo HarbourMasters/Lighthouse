@@ -5,30 +5,8 @@
 
 extern void timed_exitStaticCamera(f32);
 
-// Anchor: toll extension stage is actor-local (unk8), no flag; keyed by secondaryId.
-extern void port_eggToll_onAdvance(s32 map, s32 secondaryId, s32 stage);
-extern s32 port_eggToll_getStage(s32 map, s32 secondaryId);
-extern ActorArray *suBaddieActorArray;
-
 /* typedefs and declarations */
-typedef struct {
-    s32 eggsPaid;
-    s32 tollId;
-    s32 tollNum; // 0 for first toll; 1 for second toll
-    s32 unkC; // Either 0 or 3?
-} ActorLocal_ChRBBEggToll;
-
-typedef struct {
-    u8 cameraNode;
-    u8 eggCost1;
-    u8 eggCost2; // Only used in Toll 2
-    //u8 pad3[1];
-    f32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    //u8 padE[2];
-} chRBBEggTollInfo;
+#include "eggtoll1.h" // [port] the typedefs and states moved there
 
 
 void chRBBEggToll_setState(Actor *this, s32 next_state);
@@ -48,22 +26,7 @@ chRBBEggTollInfo chRBBEggTollInfoTable[4] = {
     {0x3, 0x8, 0x0, 4.0f, -1010,   0,    0}
 };
 
-enum chrbbeggtoll_state_e {
-    CH_RBB_EGG_TOLL_STATE_0_NOT_INIT,
-    CH_RBB_EGG_TOLL_STATE_1_AWAITING_TOLL,
-    CH_RBB_EGG_TOLL_STATE_2_FIRST_EGG_PAID,
-    CH_RBB_EGG_TOLL_STATE_3_TOLL_COMPLETE,
-    CH_RBB_EGG_TOLL_STATE_4_UNK
-};
-
 /* .code */
-static s32 eggToll_countForStage(s32 tollIdx, s32 stage) {
-    s32 count = 0;
-    if (stage >= 1) count += chRBBEggTollInfoTable[tollIdx].eggCost1;
-    if (stage >= 2) count += chRBBEggTollInfoTable[tollIdx].eggCost2;
-    return count;
-}
-
 void RBB_func_803863F0(Actor *actor, s32 arg1){
     ActorLocal_ChRBBEggToll * local = (ActorLocal_ChRBBEggToll *) &actor->local;
     void *temp_a0;
@@ -98,7 +61,8 @@ void RBB_func_803863F0(Actor *actor, s32 arg1){
         }
         if(arg1){
             func_8034DDF0(temp_a0, sp3C, sp30, chRBBEggTollInfoTable[local->tollId].unk4, 1);
-            func_8034E174(temp_a0);
+//          func_8034E174(temp_a0);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) func_8034E174(temp_a0);
         }
         else{
             func_8034DDF0(temp_a0, sp3C, sp30, 0.0f, 1);
@@ -114,11 +78,17 @@ void func_803865D0(ActorMarker *marker){
     Actor* actor = marker_getActor(marker);
     ActorLocal_ChRBBEggToll * local = (ActorLocal_ChRBBEggToll *) &actor->local;
     RBB_func_803863F0(actor, 1);
-    timed_setStaticCameraToNode(0.0f, chRBBEggTollInfoTable[local->tollId].cameraNode);
+//  timed_setStaticCameraToNode(0.0f, chRBBEggTollInfoTable[local->tollId].cameraNode);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, actor)) timed_setStaticCameraToNode(0.0f, chRBBEggTollInfoTable[local->tollId].cameraNode);
     timedFunc_set_2(0.75 * chRBBEggTollInfoTable[local->tollId].unk4, (GenFunction_2) func_803865A4, (uintptr_t)actor->marker, 4);
-    timed_exitStaticCamera(0.75 * chRBBEggTollInfoTable[local->tollId].unk4);
-    func_80324E38(0.75 * chRBBEggTollInfoTable[local->tollId].unk4, 0);
-    timed_playSfx(chRBBEggTollInfoTable[local->tollId].unk4, SFX_7F_HEAVYDOOR_SLAM, 0.8f, 0x7FD0);
+//  timed_exitStaticCamera(0.75 * chRBBEggTollInfoTable[local->tollId].unk4);
+//  func_80324E38(0.75 * chRBBEggTollInfoTable[local->tollId].unk4, 0);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, actor)) {
+        timed_exitStaticCamera(0.75 * chRBBEggTollInfoTable[local->tollId].unk4);
+        func_80324E38(0.75 * chRBBEggTollInfoTable[local->tollId].unk4, 0);
+    }
+//  timed_playSfx(chRBBEggTollInfoTable[local->tollId].unk4, SFX_7F_HEAVYDOOR_SLAM, 0.8f, 0x7FD0);
+    if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, actor)) timed_playSfx(chRBBEggTollInfoTable[local->tollId].unk4, SFX_7F_HEAVYDOOR_SLAM, 0.8f, 0x7FD0);
 }
 
 void chRBBEggToll_setState(Actor *this, s32 next_state){
@@ -132,10 +102,13 @@ void chRBBEggToll_setState(Actor *this, s32 next_state){
     }
     if(next_state == CH_RBB_EGG_TOLL_STATE_3_TOLL_COMPLETE){
         local->tollNum++;
-        port_eggToll_onAdvance((s32)gsworld_getMap(), this->secondaryId, local->tollNum);
-        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
-        func_80324E38(0.0f, 3);
-        timedFunc_set_2(0.5f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        CALL_EVENT(OnEggTollPaid, this); // [port]
+//      coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+//      func_80324E38(0.0f, 3);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_80324E38(0.0f, 3);
+//      timedFunc_set_2(0.5f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) timedFunc_set_2(0.5f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         timedFunc_set_1(1.0f,  (GenFunction_1) func_803865D0, (uintptr_t)this->marker);
     }//L803867D4
 
@@ -179,9 +152,8 @@ void chRBBEggToll_update(Actor *this){
             local->tollId = (this->secondaryId == 0x13)? 1: local->tollId;
             local->tollId = (this->secondaryId == 0x14)? 2: local->tollId;
             local->tollId = (this->secondaryId == 0x0B)? 3: local->tollId;
-            local->tollNum = port_eggToll_getStage((s32)gsworld_getMap(), this->secondaryId);
-            local->eggsPaid = eggToll_countForStage(local->tollId, local->tollNum);
             chRBBEggToll_setState(this, CH_RBB_EGG_TOLL_STATE_1_AWAITING_TOLL);
+            CALL_EVENT(OnEggTollSetUp, this); // [port]
         }
         RBB_func_803863F0(this, 0);
     }//L803869F4
@@ -190,32 +162,5 @@ void chRBBEggToll_update(Actor *this){
             chRBBEggToll_setState(this, CH_RBB_EGG_TOLL_STATE_1_AWAITING_TOLL);
         }
 
-    }
-}
-
-void port_eggToll_remoteApply(s32 map, s32 secondaryId, s32 stage) {
-    s32 i;
-    (void)map;
-
-    if (suBaddieActorArray == NULL) {
-        return;
-    }
-    for (i = 0; i < suBaddieActorArray->cnt; i++) {
-        Actor *actor = &suBaddieActorArray->data[i];
-        ActorLocal_ChRBBEggToll *local;
-        if (actor->marker == NULL || actor->marker->id != MARKER_182_RBB_EGG_TOLL) {
-            continue;
-        }
-        if (actor->secondaryId != secondaryId) {
-            continue;
-        }
-        local = (ActorLocal_ChRBBEggToll *) &actor->local;
-        if (stage > local->tollNum) {
-            local->tollNum = stage;
-            local->eggsPaid = eggToll_countForStage(local->tollId, stage);
-            RBB_func_803863F0(actor, 1);
-            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
-        }
-        return;
     }
 }

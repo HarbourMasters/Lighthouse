@@ -112,6 +112,11 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBreakableBroken);
     REGISTER_EVENT(OnBreakableSetUp);
     REGISTER_EVENT(OnFlowerpotRemaining);
+    REGISTER_EVENT(OnHutSetUp);
+    REGISTER_EVENT(OnHutSmashed);
+    REGISTER_EVENT(OnEggTollSetUp);
+    REGISTER_EVENT(OnEggTollPaid);
+    REGISTER_EVENT(OnCageSwitchState);
     REGISTER_EVENT(OnBottlesTutorialAnswer);
     REGISTER_EVENT(OnPuzzlePosMark);
     REGISTER_EVENT(OnPuzzleWin);

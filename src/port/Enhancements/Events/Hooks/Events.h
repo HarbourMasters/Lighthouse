@@ -367,6 +367,7 @@ typedef enum VBehaviorID {
     // true                                  // Juju's landing shakes
     // true                                  // Napper
     // true                                  // the flower, the egg, baby Eyrie, Nabnut, Gnawty's boulder
+    // true                                  // the crane, the egg tolls
     // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
     // ```
@@ -395,7 +396,7 @@ typedef enum VBehaviorID {
     // true                                  // Napper, Jinxy, the pyramid, the GV and church doors
     // true                                  // the flower, the egg, baby Eyrie, the season doors
     // true                                  // Gnawty's boulder and its shake
-    // true                                  // the CC grates, the breakables
+    // true                                  // the crane, the egg tolls, the CC grates, the breakables
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
@@ -532,6 +533,25 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (honeycomb_e)
     VB_SPAWN_EMPTY_HONEYCOMB,
+
+    // The crane's hourglass starting as the cage finishes rising. A listener that returns false has to hold the cage
+    // up, since chCageUpSwitch_update lowers it once the hourglass timer is empty.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (the hourglass ticks)
+    VB_RBB_CRANE_HOURGLASS_START,
+
+    // The jiggy cage's motor and slams as it rises, lowers and settles, about 3000 from its switch.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the cage's switch)
+    VB_RBB_CRANE_CAGE_SOUND,
 
     // Romhack port gates
 
@@ -710,7 +730,14 @@ typedef enum VBehaviorID {
     // - `s32` (item)
     // - `*s32` (diff)
     VB_ITEM_ADJUST_BY_DIFF,
-    VB_MM_HUT_DESPAWN_ON_SMASH,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the hut)
+    VB_MM_HUT_SPAWN_EXPLOSION,
 
     // #### `result`
     // ```c

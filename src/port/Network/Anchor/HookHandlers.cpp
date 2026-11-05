@@ -797,6 +797,7 @@ void Anchor::RegisterHooks() {
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected,
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
 
+    Anchor_RegisterHutHooks(isConnected);
     AnchorPuzzles_Register(isConnected);
 
     // #endregion

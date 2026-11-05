@@ -3,6 +3,7 @@
 #include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Network/Anchor/VileSync.h"
 #include "port/Network/Anchor/FightSync.h"
+#include "port/Network/Anchor/Puzzles/Puzzles.h"
 #include <libultraship/libultraship.h>
 #include <unordered_set>
 
@@ -186,6 +187,7 @@ void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
     }
     if (map == (int32_t)gsworld_getMap()) {
         JigsawPedestal_ResendSelf();
+        AnchorPuzzles_ResendJiggyCrane();
     }
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         ActivityState& state = sActivities[i];

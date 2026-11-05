@@ -126,10 +126,6 @@ int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_
 
 int32_t port_cutsceneWarp_getReturnMap(void);
 
-void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
-int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
-void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
-
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 
 // Connected, in a real room, syncing world state.
@@ -150,13 +146,6 @@ int32_t port_mapFlag_wasSetRemotely(int32_t index);
 
 void port_puzzleCount_add(int32_t counterId, int32_t delta);
 int32_t port_puzzleCount_get(int32_t counterId);
-
-void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
-int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
-int32_t port_hutSmash_countForCurrentLevel(int32_t localCount);
-
-void port_jiggyCrane_broadcast(int32_t stage);
-void port_jiggyCrane_remoteApply(int32_t stage);
 
 // Rate-limited: a marker reached cube_removeProp with a propPtr outside its cube.
 void port_warnPropNotInCube(int32_t index, int32_t propCnt);

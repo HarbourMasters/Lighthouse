@@ -58,6 +58,7 @@ bool Anchor_WasLevelFlagSetRemotely(int32_t index);
 bool Anchor_JiggyListHasObject(int16_t jiggyId);
 ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
 ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
+void Anchor_RegisterHutHooks(bool connected);
 
 class Anchor : public Network {
 private:
@@ -288,7 +289,7 @@ public:
     void SendPacket_PuzzleCount(s32 counterId, s32 delta, s32 map);
     void SendPacket_WaterRise(s32 map, s32 kind, s32 p1, s32 p2, f32 duration);
     void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
-    void SendPacket_JiggyCrane(s32 stage);
+    void SendPacket_JiggyCrane(s32 stage, s32 ticks = 0);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_JiggyExpired(s16 jiggyId);

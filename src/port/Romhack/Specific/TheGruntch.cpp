@@ -20,6 +20,7 @@ extern "C" {
 #include "core2/timedfunc.h"
 #include "core2/modelRender.h"
 #include "bk_time.h"
+#include "MM/ch/hut.h"
 
 extern ActorInfo gChLargeCrocodile;
 extern f32 D_8037C5B0[3];
@@ -343,7 +344,14 @@ static void Gruntch_EnableHealthRules() {
 
 static void Gruntch_EnableActorTweaks() {
     // Smashed presents don't explode
-    REGISTER_VB_SHOULD(VB_MM_HUT_DESPAWN_ON_SMASH, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_MM_HUT_SPAWN_EXPLOSION, EVENT_PRIORITY_NORMAL, { *should = false; });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_9_MM_HUT, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        if (ev->actor->state != HUT_STATE_0_INTACT) {
+            marker_despawn(ev->actor->marker);
+            *ev->should = false;
+        }
+    });
 
     // The Gruntch stops snoring when the player is caught
     REGISTER_VB_SHOULD(VB_NABNUT_SNORE_SFX, EVENT_PRIORITY_NORMAL, {
