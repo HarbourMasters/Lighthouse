@@ -62,6 +62,7 @@ ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
 ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
 void Anchor_RegisterHutHooks(bool connected);
 void Anchor_BreakLairBreakable(int32_t progressFlag);
+void Anchor_RegisterFightHooks(bool connected);
 
 class Anchor : public Network {
 private:

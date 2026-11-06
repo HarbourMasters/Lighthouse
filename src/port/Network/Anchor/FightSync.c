@@ -5,13 +5,14 @@
 #include "functions.h"
 #include "variables.h"
 #include "prop.h"
+#include "fight/chfinalboss.h"
+#include "fight/chjinjonatorbase.h"
 #include "fight/fight.h"
 
 // chfinalboss.c globals. D_803927xx = spell-spawn scratch vectors.
 extern f32 D_80392758[3];
 extern f32 D_80392768[3];
 extern f32 D_80392778[3];
-extern f32 __chFinalBossFireballFlightTime;
 extern ActorMarker* __chFinalBossFlightPadMarker;
 extern u8 __chFinalBossSpellBarrierActive;
 extern ActorArray* suBaddieActorArray;
@@ -29,6 +30,7 @@ static u8 sFightNetCatchupActive = 0;
 static u8 sFightNetCatchupSpawned[6]; // statue spawn already queued, indexed by statue id
 static u8 sFightNetCatchupPadDone = 0;
 static u8 sFightNetCatchupBarrierDone = 0;
+static f32 sFireballFlightTime = 0.0f;
 
 static bool FightSync_IsFollower(void) {
     return NetAuthority_IsClaimed(NET_ACTIVITY_FINAL_BOSS) && !NetAuthority_IsSelf(NET_ACTIVITY_FINAL_BOSS);
@@ -76,6 +78,36 @@ static void FightSync_ApplyJinjoStatueEgg(s32 statue_id) {
     }
 }
 
+// Remaining-egg count per pad for the latecomer snapshot; false if pedestal isn't up.
+static bool FightSync_GetJinjonatorPads(u8 pads[4]) {
+    Actor* base = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
+    ActorLocal_BossJinjonatorBase* local;
+    s32 i;
+
+    if (base == NULL || base->despawn_flag) {
+        for (i = 0; i < 4; i++) {
+            pads[i] = 5;
+        }
+        return false;
+    }
+    local = (ActorLocal_BossJinjonatorBase*)&base->local;
+    for (i = 0; i < 4; i++) {
+        pads[i] = local->egg_hits[i];
+    }
+    return true;
+}
+
+// A networked egg on a Jinjonator pad, through getHitByEgg(other == NULL). A collision sets unk40_31 to the pad + 1.
+static void FightSync_ApplyJinjonatorEgg(s32 pad_index) {
+    Actor* base = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
+
+    if (base == NULL || pad_index < 0 || pad_index >= 4) {
+        return;
+    }
+    base->marker->unk40_31 = pad_index + 1;
+    chjinjonatorbase_getHitByEgg(base->marker, NULL);
+}
+
 static void FightSync_ReleaseFirstStatueCutscene(void) {
     if (sFinalBossJinjoStatueActivated) {
         sFinalBossJinjoStatueActivated = 0;
@@ -84,7 +116,7 @@ static void FightSync_ReleaseFirstStatueCutscene(void) {
     }
 }
 
-// --- boss lifecycle hooks (called from chfinalboss.c) -----------------------------------------
+// --- boss lifecycle hooks (called from FightEvent.cpp) ----------------------------------------
 
 void FightSync_OnBossSpawned(void) {
     s32 i;
@@ -109,9 +141,14 @@ void FightSync_OnBossDefeated(void) {
 void FightSync_OnSpellSpawned(s32 kind) {
     if (FightSync_IsLiveAuthority()) {
         // Kind 0 (ballistic fireball) carries lead time; each follower re-aims at its own player.
-        s32 leadMs = (kind == 0) ? (s32)(__chFinalBossFireballFlightTime * 1000.0f) : 0;
+        s32 leadMs = (kind == 0) ? (s32)(sFireballFlightTime * 1000.0f) : 0;
         FightSync_SendEvent(FIGHT_EV_SPELL, kind, leadMs, D_80392758, D_80392768, D_80392778);
     }
+}
+
+// Lead time from the last local aim; followers reuse it to re-aim at their own player.
+void FightSync_OnFireballThrow(float flightTime) {
+    sFireballFlightTime = flightTime;
 }
 
 void FightSync_OnFlightPadSpawned(void) {
@@ -275,7 +312,7 @@ bool FightSync_GatherWorld(FightWorldSnapshot* snap) {
             snap->jinjoGone[i] = 0;
         }
     }
-    snap->jbase = chjinjonatorbase_netGetPads(snap->jpads) ? 1 : 0;
+    snap->jbase = FightSync_GetJinjonatorPads(snap->jpads) ? 1 : 0;
     return true;
 }
 
@@ -347,7 +384,7 @@ static void FightSync_CatchupTick(Actor* boss) {
     }
 
     if (sFightNetSnap.jbase) {
-        if (!chjinjonatorbase_netGetPads(pads)) {
+        if (!FightSync_GetJinjonatorPads(pads)) {
             if (!sFightNetCatchupSpawned[5]) {
                 sFightNetCatchupSpawned[5] = 1;
                 chfinalboss_spawnStatue(BOSSJINJO_5_JINJONATOR);
@@ -356,7 +393,7 @@ static void FightSync_CatchupTick(Actor* boss) {
         } else {
             for (i = 0; i < 4; i++) {
                 if (pads[i] > sFightNetSnap.jpads[i]) {
-                    chjinjonatorbase_netApplyEgg(i);
+                    FightSync_ApplyJinjonatorEgg(i);
                     done = 0;
                     break;
                 }
@@ -480,7 +517,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                 return;
             }
             if (a == BOSSJINJO_5_JINJONATOR) {
-                chjinjonatorbase_netApplyEgg(b);
+                FightSync_ApplyJinjonatorEgg(b);
             } else {
                 FightSync_ApplyJinjoStatueEgg(a);
             }
@@ -521,7 +558,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                 return;
             }
             if (a == BOSSJINJO_5_JINJONATOR) {
-                chjinjonatorbase_netApplyEgg(b);
+                FightSync_ApplyJinjonatorEgg(b);
             } else {
                 if (sFinalBossJinjoStatueActivated != 0) {
                     return;

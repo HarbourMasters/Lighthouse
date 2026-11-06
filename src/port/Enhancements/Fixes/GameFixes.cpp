@@ -117,8 +117,8 @@ void RegisterBoggyRaceGameOver_Init() {
 
 // Grunty fight: stop the Jinjo charge-up sound on hit (v1.1).
 void RegisterJinjoChargeSound_Init() {
-    COND_VB_SHOULD(VB_JINJO_CHARGE_SOUND, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_JINJO_SOUND, 0),
-                   { *should = false; });
+    COND_HOOK(OnBossJinjoHitUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_JINJO_SOUND, 0),
+              [](IEvent* event) { func_80324D2C(0.0f, SFX_JINJO_STATUE_POWERUP); });
 }
 
 // Grunty fight: don't let Grunty bounce when hit with wonderwing (v1.1)

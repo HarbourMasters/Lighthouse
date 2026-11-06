@@ -162,7 +162,6 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_HANDLE_PLAYER_DEATH,
-    VB_JINJO_CHARGE_SOUND,
     VB_ENEMY_BECOME_BUNDLE,
 
     // #### `result`
@@ -637,6 +636,37 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (the yumblie)
     VB_VILE_PIECE_ROLL,
+
+    // Grunty's brain in the final fight, each phase's update.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (Grunty)
+    VB_FINAL_BOSS_BRAIN,
+
+    // An egg or attack landing on Grunty in the final fight.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (local->phase, promoted from `u8`)
+    // - `*ActorMarker` (what hit her; NULL when replayed)
+    VB_FINAL_BOSS_HIT,
+
+    // An egg landing on a Jinjo statue's base in the final fight.
+    // #### `result`
+    // ```c
+    // actor_bossjinjobase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO   // a Jinjo statue's
+    // actor_jinjonatorbase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO  // the Jinjonator's
+    // ```
+    // #### `args`
+    // - `s32` (ch_bossjinjo_e, the statue)
+    // - `s32` (the pad, for the Jinjonator's)
+    // - `*ActorMarker` (the egg; NULL when replayed)
+    VB_JINJO_STATUE_EGG_HIT,
 
     // Romhack port gates
 

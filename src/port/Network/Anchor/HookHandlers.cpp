@@ -784,6 +784,7 @@ void Anchor::RegisterHooks() {
 
     Anchor_RegisterHutHooks(isConnected);
     AnchorPuzzles_Register(isConnected);
+    Anchor_RegisterFightHooks(isConnected);
 
     // #endregion
 }

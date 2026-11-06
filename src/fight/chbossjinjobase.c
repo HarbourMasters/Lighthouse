@@ -6,8 +6,6 @@
 
 #include <bk_math.h>
 
-#include "port/Network/Anchor/FightSync.h"
-
 typedef struct {
     u8 sfxsourceIdx;
 } ActorLocal_BossJinjoBase;
@@ -49,15 +47,11 @@ void chBossJinjoBase_func_8038D3DC(Actor *this, s32 arg1, f32 arg2, f32 arg3, f3
 void chBossJinjoBase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     Actor *actor_bossjinjobase = marker_getActor(this);
 
-    // Anchor: follower forwards to authority; accepted egg replays here via EGG_FED (other == NULL).
-    if (other != NULL && FightSync_ForwardEgg(actor_bossjinjobase->actorTypeSpecificField, 0)) {
-        return;
-    }
-
-    if (actor_bossjinjobase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
+//  if (actor_bossjinjobase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
+    if (EventSystem_Should(VB_JINJO_STATUE_EGG_HIT, actor_bossjinjobase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO, actor_bossjinjobase->actorTypeSpecificField, 0, other)) {
         comusic_playTrack(COMUSIC_2B_DING_B);
         actor_bossjinjobase->unk38_31++;
-        FightSync_ReplicateEgg(actor_bossjinjobase->actorTypeSpecificField, 0);
+        CALL_EVENT(OnJinjoStatueEgg, actor_bossjinjobase->actorTypeSpecificField, 0); // [port]
 
         if (actor_bossjinjobase->unk38_31 >= 3) {
             subaddie_set_state(actor_bossjinjobase, CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO);

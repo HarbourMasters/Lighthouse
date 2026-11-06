@@ -4,11 +4,7 @@
 #include "variables.h"
 #include "fight.h"
 
-#include "port/Network/Anchor/FightSync.h"
-
-typedef struct {
-    u8 egg_hits[4];
-} ActorLocal_BossJinjonatorBase;
+#include "chjinjonatorbase.h" // [port] the typedef moved there
 
 ActorInfo chJinjonatorBase = { MARKER_27F_JINJONATOR_STATUE_BASE, ACTOR_3A9_JINJONATOR_STATUE_BASE, ASSET_544_MODEL_JINJONATOR_STATUE_BASE, 1, NULL, chjinjonatorbase_update, actor_update_func_80326224, actor_draw, 0, 2048, 0.0f, 0 };
 
@@ -44,15 +40,19 @@ void chjinjonatorbase_func_8038E0D4(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f
     }
 }
 
-static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
+void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
+    Actor *actor_jinjonatorbase = marker_getActor(this);
     ActorLocal_BossJinjonatorBase *local = (ActorLocal_BossJinjonatorBase *) &actor_jinjonatorbase->local;
+    int indx = this->unk40_31 - 1;
     s32 remaining_hits;
+    f32 pad;    
 
-    if (actor_jinjonatorbase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
+//  if (actor_jinjonatorbase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
+    if (EventSystem_Should(VB_JINJO_STATUE_EGG_HIT, actor_jinjonatorbase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO, BOSSJINJO_5_JINJONATOR, indx, other)) {
         if (local->egg_hits[indx]) {
             local->egg_hits[indx]--;
             comusic_playTrack(COMUSIC_2B_DING_B);
-            FightSync_ReplicateEgg(BOSSJINJO_5_JINJONATOR, indx);
+            CALL_EVENT(OnJinjoStatueEgg, BOSSJINJO_5_JINJONATOR, indx); // [port]
 
             if (local->egg_hits[indx] <= 0) {
                 chjinjonatorbase_func_8038E0D4(actor_jinjonatorbase, indx + 0x19a, -100.0f, 0.0f, 1.2f);
@@ -68,46 +68,6 @@ static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
             chstonejinjo_breakOpen(actor_jinjonatorbase->partnerActor);
         }
     }
-}
-
-void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
-    Actor *actor_jinjonatorbase = marker_getActor(this);
-    int indx = this->unk40_31 - 1;
-
-    // Anchor: follower forwards to authority; accepted egg replays via EGG_FED.
-    if (other != NULL && FightSync_ForwardEgg(BOSSJINJO_5_JINJONATOR, indx)) {
-        return;
-    }
-
-    __chjinjonatorbase_applyEgg(actor_jinjonatorbase, indx);
-}
-
-// Anchor: remaining-egg count per pad for the latecomer snapshot; false if pedestal isn't up.
-bool chjinjonatorbase_netGetPads(u8 pads[4]) {
-    Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
-    ActorLocal_BossJinjonatorBase *local;
-    s32 i;
-
-    if (actor_jinjonatorbase == NULL || actor_jinjonatorbase->despawn_flag) {
-        for (i = 0; i < 4; i++) {
-            pads[i] = 5;
-        }
-        return false;
-    }
-    local = (ActorLocal_BossJinjonatorBase *) &actor_jinjonatorbase->local;
-    for (i = 0; i < 4; i++) {
-        pads[i] = local->egg_hits[i];
-    }
-    return true;
-}
-
-void chjinjonatorbase_netApplyEgg(s32 pad_index) {
-    Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
-
-    if (actor_jinjonatorbase == NULL || pad_index < 0 || pad_index >= 4) {
-        return;
-    }
-    __chjinjonatorbase_applyEgg(actor_jinjonatorbase, pad_index);
 }
 
 
