@@ -87,9 +87,12 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
     f32 dur = payload.value("dur", 0.0f);
 
     if (kind == WATERRISE_KIND_LAIR) {
-        int32_t cur = sLairPendingLevel.count(map) ? sLairPendingLevel[map] : 0;
-        if (p1 > cur) {
-            sLairPendingLevel[map] = p1;
+        // The switch cutscene plays in one of the three water rooms; all three share the water.
+        for (int32_t waterMap : { MAP_76_GL_640_NOTE_DOOR, MAP_77_GL_RBB_LOBBY, MAP_78_GL_RBB_AND_MMM_PUZZLE }) {
+            int32_t cur = sLairPendingLevel.count(waterMap) ? sLairPendingLevel[waterMap] : 0;
+            if (p1 > cur) {
+                sLairPendingLevel[waterMap] = p1;
+            }
         }
     } else if (kind == WATERRISE_KIND_CC) {
         // Only replay while in the water's map; on later entry func_80388104 snaps it on its own.
@@ -133,6 +136,15 @@ void RegisterWaterRise_Init() {
     // nothing until a save is loaded in a syncing room.
     COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sLairPendingLevel.clear(); });
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sLairWaterMap = -1; });
+    // A water-level flag landing settles a pending rise in all three rooms, wherever we are: outside them, switch 3's
+    // flag clears again at once, and its rise would otherwise wait for us forever.
+    COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnGameFlagSet*)event;
+        const int32_t level = lairLevelForFlag(ev->index);
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_FILE_PROGRESS && ev->value != 0 && level != 0) {
+            std::erase_if(sLairPendingLevel, [level](const auto& kv) { return kv.second <= level; });
+        }
+    });
     COND_HOOK(OnLairWaterLevel, EVENT_PRIORITY_NORMAL, true, LairWaterLevel);
     // If the flag the cutscene will set is a water-level flag, broadcast the rise now.
     COND_HOOK(OnCutsceneWarp, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {

@@ -210,13 +210,22 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     return false;
 }
 
+// Every map outside the three water rooms resets water switch 3 (func_802D5260); a teammate's reset would drain
+// ours while we stand in one.
+static bool Anchor_LairWaterSwitch3Reset() {
+    const s32 map = (s32)gsworld_getMap();
+    return map != MAP_76_GL_640_NOTE_DOOR && map != MAP_77_GL_RBB_LOBBY && map != MAP_78_GL_RBB_AND_MMM_PUZZLE;
+}
+
 // Clears that stay local. The flags' sets still sync.
 static bool Anchor_LocalFlagClear(s32 space, s32 index) {
     switch (space) {
         case ANCHOR_FLAGSPACE_FILE_PROGRESS:
             // Each beanstalk and Gobi reset it (beanstalk.c, ccwgobi.c); a teammate's would unwater our flower
             // while the waterer's jiggy is on its way.
-            return index == FILEPROG_E5_CCW_FLOWER_AUTUMN;
+            return index == FILEPROG_E5_CCW_FLOWER_AUTUMN ||
+                   ((index == FILEPROG_26_WATER_SWITCH_3_PRESSED || index == FILEPROG_27_LAIR_WATER_LEVEL_3) &&
+                    Anchor_LairWaterSwitch3Reset());
         case ANCHOR_FLAGSPACE_MAP_SPECIFIC:
             // An idle flibbit clears the call-up as it answers (yellowflibbit.c); a teammate's clear cancels ours.
             if (gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
@@ -241,7 +250,9 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             return gsworld_getMap() == MAP_31_RBB_RUSTY_BUCKET_BAY && index == RBB_MAIN_SPECIFIC_FLAG_4_ANCHOR_LIFTING;
         case ANCHOR_FLAGSPACE_LEVEL_SPECIFIC:
             // The propeller timer clears these when it stops (propellorctrl.c); a teammate leaving RBB restarts ours.
-            return index == LEVEL_FLAG_27_RBB_UNKNOWN || index == LEVEL_FLAG_28_RBB_UNKNOWN;
+            return index == LEVEL_FLAG_27_RBB_UNKNOWN || index == LEVEL_FLAG_28_RBB_UNKNOWN ||
+                   ((index == LEVEL_FLAG_3C_LAIR_UNKNOWN || index == LEVEL_FLAG_3D_LAIR_UNKNOWN) &&
+                    Anchor_LairWaterSwitch3Reset());
         default:
             return false;
     }
