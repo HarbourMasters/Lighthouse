@@ -409,6 +409,20 @@ void AnchorPuzzles_RegisterLair(bool connected) {
         }
     });
 
+    // FNV-1a, so every platform's build agrees on the team's pattern.
+    COND_VB_SHOULD(VB_FF_PATTERN_ROLL, EVENT_PRIORITY_NORMAL, connected, {
+        if (Anchor::GetInstance()->IsWorldSyncActive()) {
+            const std::string key = std::string(CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "")) + "/" +
+                                    CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+            uint32_t hash = 2166136261u;
+            for (unsigned char c : key) {
+                hash = (hash ^ c) * 16777619u;
+            }
+            fileProgressFlag_setN(FILEPROG_D3_FF_PATTERN, hash & 0xFF, 8);
+            *should = false;
+        }
+    });
+
     // The FP witch switch's press is a volatile flag, which a teammate's earlier session or a reload loses; its jiggy
     // flag lasts.
     COND_VB_SHOULD(VB_FP_WITCH_SWITCH_PRESSED, EVENT_PRIORITY_NORMAL, connected, {

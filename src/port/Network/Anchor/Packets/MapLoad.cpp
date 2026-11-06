@@ -5,7 +5,6 @@
 
 #include "variables.h"
 #include "functions.h"
-#include "port/Patches/Patches.h"
 
 /**
  * MAP_LOAD
@@ -19,7 +18,7 @@ void Anchor::SendPacket_MapLoad(GameMap map, s32 exit) {
     payload["type"] = MAP_LOAD;
     payload["map"] = map;
     payload["exit"] = exit;
-    payload["returnMap"] = port_cutsceneWarp_getReturnMap();
+    payload["returnMap"] = D_80367694;
     SendJsonToRemote(payload);
 }
 

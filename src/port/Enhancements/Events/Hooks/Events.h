@@ -622,6 +622,16 @@ typedef enum VBehaviorID {
     // - `*Actor` (the podium)
     VB_JIGSAW_PODIUM_ENTER,
 
+    // Furnace Fun's question pattern, rolled the first time Brentilda sets up. A listener that returns false has to set
+    // FILEPROG_D3_FF_PATTERN.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_FF_PATTERN_ROLL,
+
     // Romhack port gates
 
     // #### `result`
@@ -666,7 +676,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (progress_flag)
     VB_PROGRESS_FLAG_DIALOG,
-    VB_LAIR_GRUNTY_TAUNTS,  // Grunty's random lair taunt timer block: false = skip entirely.
+
+    // Grunty's random lair taunts.
+    // #### `result`
+    // ```c
+    // level_get() == LEVEL_6_LAIR
+    // ```
+    // #### `args`
+    // - None
+    VB_LAIR_GRUNTY_TAUNTS,
     VB_AMBIENCE_MAP_UPDATE, // Per-map ambience/chan-mask switch: false = a listener replaced it.
 
     // A listener that returns false skips the Stop 'N' Swop display and can draw a different one.
@@ -774,6 +792,15 @@ typedef enum VBehaviorID {
     // - None
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
+
+    // What Brentilda says after her hint: her offer to heal, or ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED when
+    // there's nothing to heal.
+    // #### `result`
+    // ```c
+    // text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2
+    // ```
+    // #### `args`
+    // - None
     VB_BRENTILDA_HEAL_DIALOG,
     VB_SKY_UPDATE,
     VB_SKY_DRAW_BACKDROP_RECT,
@@ -815,7 +842,6 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*ActorMarker` (Nabnut)
     VB_NABNUT_SNORE_SFX,
-    VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
 
     VB_COUNT,
 } VBehaviorID;

@@ -385,7 +385,8 @@ static void Gruntch_EnableCosmetics() {
     });
 
     // Play a sound when pressing this switch
-    REGISTER_VB_SHOULD(VB_MM_WITCH_SWITCH_JIGGY_FLUSH, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_LISTENER(OnMmWitchSwitchCutscene, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { timedFunc_set_1(1.9f, (GenFunction_1)gcsfx_play, SFX_92_TOILET_FLUSH); });
 
     REGISTER_LISTENER(OnCrocMaxWalkVelocity, EVENT_PRIORITY_NORMAL,
                       [](IEvent* event) { *((OnCrocMaxWalkVelocity*)event)->velocity = 450.0f; });

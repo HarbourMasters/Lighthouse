@@ -17,6 +17,7 @@
 extern "C" {
 #include "prop.h"
 #include "variables.h"
+extern s32 D_80367694; // quiz/game.c: the map a switch's cutscene warp returns to
 }
 
 typedef struct {

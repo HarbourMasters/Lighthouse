@@ -31,6 +31,8 @@ enum { WATERRISE_KIND_LAIR = 0, WATERRISE_KIND_CC = 1 };
 
 // map -> pending target level for the lair water (remote only; cleared once the flag reaches it).
 static std::map<int32_t, int32_t> sLairPendingLevel;
+// Map the lair water was last leveled for, so re-entry snaps instead of ramping.
+static s32 sLairWaterMap = -1;
 
 static int32_t lairLevelForFlag(int32_t levelFlag) {
     switch (levelFlag) {
@@ -45,19 +47,9 @@ static int32_t lairLevelForFlag(int32_t levelFlag) {
     }
 }
 
-// Called from func_802D6264 (the lair switch/cutscene trigger). If the flag the cutscene will set is
-// a water-level flag, broadcast the rise now.
-extern "C" void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag) {
-    int32_t level = lairLevelForFlag(levelFlag);
-    if (level == 0) {
-        return; // not a water switch (doors, witch switches, etc. use this same trigger)
-    }
-    Anchor::GetInstance()->SendPacket_WaterRise(waterMap, WATERRISE_KIND_LAIR, level, 0, 0.0f);
-}
-
-// func_802D5260 asks for the effective target level: max(flag-derived level, pending level from a
-// teammate's in-flight rise). Clears the pending once the real flag catches up.
-extern "C" int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel) {
+// The effective target level: max(flag-derived level, pending level from a teammate's in-flight rise).
+// Clears the pending once the real flag catches up.
+static int32_t lairTargetLevel(int32_t map, int32_t flagLevel) {
     auto it = sLairPendingLevel.find(map);
     if (it == sLairPendingLevel.end() || !Anchor::GetInstance()->IsWorldSyncActive()) {
         return flagLevel;
@@ -110,10 +102,47 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
     }
 }
 
+// A teammate's rise levels our water to its pending level, and while synced the water ramps there rather than
+// jumping. Draining stays vanilla.
+static void LairWaterLevel(IEvent* event) {
+    auto* ev = (OnLairWaterLevel*)event;
+    const s32 map = (s32)gsworld_getMap();
+    const bool draining = levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN);
+    if (!draining) {
+        const s32 flagLevel = fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)   ? 3
+                              : fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2) ? 2
+                              : fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1) ? 1
+                                                                                     : 0;
+        *ev->height = ev->levels[lairTargetLevel(map, flagLevel)];
+    }
+    if (sLairWaterMap != map || draining || !Anchor::GetInstance()->IsWorldSyncActive()) {
+        sLairWaterMap = map;
+        return;
+    }
+    const f32 step = 240.0f * time_getDelta();
+    const f32 diff = *ev->height - ev->current;
+    if (diff > step) {
+        *ev->height = ev->current + step;
+    } else if (diff < -step) {
+        *ev->height = ev->current - step;
+    }
+}
+
 void RegisterWaterRise_Init() {
-    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sLairPendingLevel.clear(); });
-    // At boot, with the rest of this file: the send does nothing until a save is loaded in a syncing room.
-    REGISTER_LISTENER(OnWaterRise, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    // At boot, with the rest of this file: a teammate's rise counts only while world sync is live, and the sends do
+    // nothing until a save is loaded in a syncing room.
+    COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sLairPendingLevel.clear(); });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sLairWaterMap = -1; });
+    COND_HOOK(OnLairWaterLevel, EVENT_PRIORITY_NORMAL, true, LairWaterLevel);
+    // If the flag the cutscene will set is a water-level flag, broadcast the rise now.
+    COND_HOOK(OnCutsceneWarp, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnCutsceneWarp*)event;
+        const int32_t level = lairLevelForFlag(ev->progressFlag);
+        if (level != 0) {
+            Anchor::GetInstance()->SendPacket_WaterRise(ev->map, WATERRISE_KIND_LAIR, level, 0, 0.0f);
+        }
+    });
+    COND_HOOK(OnWaterRise, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         auto* ev = (OnWaterRise*)event;
         Anchor::GetInstance()->SendPacket_WaterRise(ev->map, WATERRISE_KIND_CC, ev->waterId, ev->targetDy,
                                                     ev->duration);

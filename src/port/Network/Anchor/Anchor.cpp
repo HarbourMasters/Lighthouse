@@ -438,7 +438,6 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
-extern "C" s32 port_cutsceneWarp_getReturnMap(void);
 extern void port_breakable_clearForLevel(int32_t levelId);
 extern void port_hutSmash_clearForLevel(int32_t levelId);
 extern void port_eggToll_clearForLevel(int32_t levelId);
@@ -506,7 +505,7 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
         }
     };
     markOccupied((s32)selfMap);
-    markOccupied(port_cutsceneWarp_getReturnMap());
+    markOccupied(D_80367694);
     for (auto& [clientId, client] : clients) {
         if (!client.self && client.online && client.isSaveLoaded) {
             markOccupied((s32)client.map);

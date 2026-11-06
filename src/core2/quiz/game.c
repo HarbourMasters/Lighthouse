@@ -14,10 +14,6 @@ extern void func_802F9D38(s32);
 extern void func_802EE2E8(Actor *arg0, s32 arg1, s32 cnt, s32 arg3, f32 arg4, f32 arg5, f32 arg6);
 extern void gcquiz_func_80319EA4(void);
 
-extern void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag);
-extern int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel);
-extern s32 port_anchor_isWorldSyncActive(void);
-
 void chMMMBreakableWooden_update(Actor *this);
 void gWorldExitPad_update(Actor *this);
 Actor *gWorldExitPad_draw(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3);
@@ -467,10 +463,6 @@ void func_802D3CE8(Actor *this){
         this->initialized = TRUE;
         CALL_EVENT(OnBreakableSetUp, this); // [port]
     }
-}
-
-s32 port_cutsceneWarp_getReturnMap(void) {
-    return D_80367694;
 }
 
 void chMMMBreakableWooden_update(Actor *this){
@@ -940,9 +932,6 @@ void func_802D520C(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
-// [port] Map the lair water was last levelled for, so re-entry snaps instead of ramping.
-static s32 sLairWaterMap = -1;
-
 void func_802D5260(void) {
     s32 sp3C;
     Struct70s *sp38;
@@ -955,7 +944,6 @@ void func_802D5260(void) {
          : -1;
 
     if (sp3C == -1) {
-        sLairWaterMap = -1; // [port] see above
         levelSpecificFlags_set(LEVEL_FLAG_3C_LAIR_UNKNOWN, false);
         fileProgressFlag_set(FILEPROG_26_WATER_SWITCH_3_PRESSED, false);
         fileProgressFlag_set(FILEPROG_27_LAIR_WATER_LEVEL_3,     false);
@@ -1002,24 +990,12 @@ void func_802D5260(void) {
         if (levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) != false) {
             sp34 = D_803679C8[sp3C].unk6 + D_803676A4;
         } else {
-            s32 lvl = (fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) ? 3
-                    : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
-                    : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
-                    : 0;
-            lvl = port_lairWater_targetLevel(gsworld_getMap(), lvl);
-            sp34 = ((s16 *)&D_803679C8[sp3C])[lvl];
+            sp34 = ((s16 *)&D_803679C8[sp3C])[(fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) ? 3 
+                     : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
+                     : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
+                     : 0];
         }
-        s32 curMap = gsworld_getMap();
-        if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) || !port_anchor_isWorldSyncActive()) {
-            sLairWaterMap = curMap;
-        } else {
-            f32 curY = sp38->type_6D.unk8;
-            f32 step = 240.0f * time_getDelta();
-            f32 diff = sp34 - curY;
-            if (diff > step)       sp34 = curY + step;
-            else if (diff < -step) sp34 = curY - step;
-            // within a step of the target: let sp34 stand.
-        }
+        CALL_EVENT(OnLairWaterLevel, (s16 *)&D_803679C8[sp3C], sp38->type_6D.unk8, &sp34); // [port]
         func_8034DEB4(&sp38->type_6D, sp34);
         player_getPosition(sp28);
 
@@ -1072,9 +1048,7 @@ void func_802D5628(void){
             case 0x1: // L802D57C8
                 if(!D_80367690){
                     timedFunc_set_2(0.4f, (GenFunction_2) func_802D4D3C, 0x34, 0x205);
-                    if (EventSystem_Should(VB_MM_WITCH_SWITCH_JIGGY_FLUSH, false)) {
-                        timedFunc_set_1(1.9f, (GenFunction_1) gcsfx_play, SFX_92_TOILET_FLUSH);
-                    }
+                    CALL_EVENT(OnMmWitchSwitchCutscene); // [port]
                     D_80367690++;
                 }
                 break;
@@ -1194,8 +1168,8 @@ void func_802D5628(void){
                 }
             }
         }//L802D5E18
-        // [port] Romhack gate: false = skip Grunty's random lair-taunt timer entirely.
-        if(level_get() == LEVEL_6_LAIR && EventSystem_Should(VB_LAIR_GRUNTY_TAUNTS, true)){
+//      if(level_get() == LEVEL_6_LAIR){
+        if(EventSystem_Should(VB_LAIR_GRUNTY_TAUNTS, level_get() == LEVEL_6_LAIR)){
             if( getGameMode() == GAME_MODE_3_NORMAL
                 || func_802E4A08()
             ){
@@ -1308,7 +1282,7 @@ void func_802D6264(f32 delay, enum map_e map_id, s32 arg2, s32 arg3, s32 arg4, e
     D_8036769C = arg5;
     D_803676A0 = 0;
 
-    port_lairWater_onRiseTrigger(map_id, arg5);
+    CALL_EVENT(OnCutsceneWarp, map_id, arg5); // [port]
 
     if(map_id != D_80367694){
         timedFunc_set_1(delay, (GenFunction_1) func_802D61FC, map_id);

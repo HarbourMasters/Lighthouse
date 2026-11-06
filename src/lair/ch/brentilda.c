@@ -40,8 +40,8 @@ void func_8038BADC(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
     Actor *this;  
 
     this = marker_getActor(marker);
-    if (text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2
-        && EventSystem_Should(VB_BRENTILDA_HEAL_DIALOG, true)) {
+//  if (text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2) {
+    if (EventSystem_Should(VB_BRENTILDA_HEAL_DIALOG, text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2)) {
         if (!fileProgressFlag_get(this->actorTypeSpecificField - 1 + FILEPROG_E9_HEALED_BY_BRENTILDA_1)) {
             if (item_getCount(ITEM_14_HEALTH) < item_getCount(ITEM_15_HEALTH_TOTAL)) {
                 gcdialog_showDialog(ASSET_10A2_DIALOG_BRENTILDA_HEAL, 0xF, this->position, this->marker, func_8038BADC, healDuoToFull);
@@ -104,7 +104,8 @@ void chBrentilda_update(Actor *this) {
         actor_collisionOff(this);
         this->unk10_12 = 2;
         if (!fileProgressFlag_get(FILEPROG_5C_FF_PATTERN_SET)) {
-            fileProgressFlag_setN(FILEPROG_D3_FF_PATTERN, randi2(0, 0x100), 8);
+//          fileProgressFlag_setN(FILEPROG_D3_FF_PATTERN, randi2(0, 0x100), 8);
+            if (EventSystem_Should(VB_FF_PATTERN_ROLL, true)) fileProgressFlag_setN(FILEPROG_D3_FF_PATTERN, randi2(0, 0x100), 8);
             fileProgressFlag_set(FILEPROG_5C_FF_PATTERN_SET, true);
         }
         gzquiz_initGruntyQuestions();

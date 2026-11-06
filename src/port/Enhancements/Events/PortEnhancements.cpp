@@ -117,6 +117,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnEggTollSetUp);
     REGISTER_EVENT(OnEggTollPaid);
     REGISTER_EVENT(OnCageSwitchState);
+    REGISTER_EVENT(OnLairWaterLevel);
+    REGISTER_EVENT(OnCutsceneWarp);
+    REGISTER_EVENT(OnMmWitchSwitchCutscene);
     REGISTER_EVENT(OnBottlesTutorialAnswer);
     REGISTER_EVENT(OnPuzzlePosMark);
     REGISTER_EVENT(OnPuzzleWin);
