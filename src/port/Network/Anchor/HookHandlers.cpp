@@ -17,7 +17,6 @@ extern "C" {
 
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
-s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 void func_80324CD8(f32 time);
@@ -67,7 +66,7 @@ static void Anchor_UpdateVileSync() {
     Actor* vile = actorArray_findClosestActorFromActorId(origin, ACTOR_13A_MR_VILE, -1, &dist);
     if (vile != nullptr) {
         Anchor::GetInstance()->SendPacket_VileUpdate(vile->position, vile->pitch, vile->yaw, vile->roll,
-                                                     (u8)chMrVile_netGetAnimMode(vile));
+                                                     VileSync_VileAnimMode(vile));
     }
 
     static u32 sSnapshotTimer = 0;
@@ -535,27 +534,29 @@ void Anchor::RegisterHooks() {
             *should = false;
         }
     });
-    COND_VB_SHOULD(VB_VILE_GAME_UPDATE, EVENT_PRIORITY_NORMAL, true, {
-        if (Anchor_IsVileFollower()) {
-            *should = false;
-        }
-    });
-    COND_VB_SHOULD(VB_VILE_CPU_AI, EVENT_PRIORITY_NORMAL, true, {
-        if (Anchor_IsVileFollower()) {
+    COND_VB_SHOULD(VB_VILE_PIECE_ROLL, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (VileSync_ForcePieceType(va_arg(args, Actor*))) {
             *should = false;
         }
     });
 
     // Followers: a local chomp becomes an eat request; the authority validates and the
     // resulting eaten state comes back as a VILE_HOLE_STATE packet.
-    COND_VB_SHOULD(VB_VILE_PLAYER_EAT_PIECE, EVENT_PRIORITY_NORMAL, true, {
-        if (Anchor_IsVileFollower()) {
-            f32* piecePos = va_arg(args, f32*);
-            VileHoleId hole = VileHoles_IdFromPosition(piecePos[0], piecePos[2]);
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_138_VILE_GAME_CTRL, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        if (ev->actor->volatile_initialized && Anchor_IsVileFollower()) {
+            const int32_t hole = VileSync_FollowerGameUpdate(ev->actor);
             if (hole != VILE_HOLE_NONE) {
                 Anchor::GetInstance()->SendPacket_VileEatRequest((u8)hole);
             }
-            *should = false;
+            *ev->should = false;
+        }
+    });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_13A_MR_VILE, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        if (ev->actor->volatile_initialized && Anchor_IsVileFollower()) {
+            VileSync_FollowerVileUpdate(ev->actor);
+            *ev->should = false;
         }
     });
 

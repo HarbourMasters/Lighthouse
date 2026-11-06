@@ -10,28 +10,11 @@ extern void actor_postdrawMethod(ActorMarker *);
 extern f32 randf (void);
 extern BKModelBin *chMrVileMinigame_getGrumblieModel(ActorMarker *marker);
 
-enum chyumblie_state_e{
-    YUMBLIE_STATE_1_UNDER_GROUND = 1,
-    YUMBLIE_STATE_2_APPEAR,
-    YUMBLIE_STATE_3_ABOVE_GROUND,
-    YUMBLIE_STATE_4_DISAPPEAR,
-    YUMBLIE_STATE_5_BEING_EATEN
-};
-
-typedef struct chyumblie_s{
-    f32 animTimer;
-    u8  isGrumblie;
-    u8  pad7[3];
-    f32 waitTimer;
-    ActorMarker *game_marker;
-} ActorLocal_Yumblie;
+#include "yumblie.h" // [port] the typedef and states moved there
 
 void chYumblie_setState(Actor*, enum chyumblie_state_e);
 void chYumblie_update(Actor *);
 Actor *chYumblie_draw(ActorMarker *this, Gfx **gfx, Mtx** mtx, Vtx **vtx);
-
-// [port] Anchor: while applying network state, overrides the random piece type roll.
-static s32 sNetForcedPieceType = -1;
 
 /* .data */
 ActorInfo gChYumblie = {
@@ -70,7 +53,8 @@ void chYumblie_setState(Actor* this, enum chyumblie_state_e next_state){
      
     if(next_state == YUMBLIE_STATE_2_APPEAR){
         this->yaw = randf2(0.0f, 360.0f);
-        local->isGrumblie = (sNetForcedPieceType >= 0) ? (u8)sNetForcedPieceType : chYumblie_isGrumblie(this);
+//      local->isGrumblie = chYumblie_isGrumblie(this);
+        if (EventSystem_Should(VB_VILE_PIECE_ROLL, true, this)) local->isGrumblie = chYumblie_isGrumblie(this);
         chMrVileMinigame_newPiece(local->game_marker, this->marker, this->position, local->isGrumblie);
         skeletalAnim_set(this->unk148, (local->isGrumblie)? ASSET_128_ANIM_GRUMBLIE_APPEAR : ASSET_125_ANIM_YUMBLIE_APPEAR, 0.0f, 1.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
@@ -97,8 +81,7 @@ void chYumblie_setState(Actor* this, enum chyumblie_state_e next_state){
         func_8030E878((local->isGrumblie)? SFX_C4_TWINKLY_MUNCHER_GRR: SFX_C3_HEGH, 1.4f, 32000, this->position, 500.0f, 3000.0f);
     }
     this->state = next_state;
-    // [port] Anchor: the minigame authority broadcasts hole state changes from this event
-    CALL_EVENT(OnVileHoleStateChange, this->marker, this->position, next_state, local->isGrumblie);
+    CALL_EVENT(OnVileHoleStateChange, this->marker, this->position, next_state, local->isGrumblie); // [port]
 }
 
 bool chyumblie_is_edible(ActorMarker * arg0){
@@ -147,31 +130,6 @@ bool func_8038B684(ActorMarker * arg0){
     }
 
     return FALSE;
-}
-
-// [port] Anchor sync entry points.
-// Drives this yumblie from an authoritative packet, forcing the piece type instead of
-// rolling it locally.
-void chyumblie_netApplyState(Actor *this, s32 state, s32 piece_type){
-    ActorLocal_Yumblie *local = (ActorLocal_Yumblie *)&this->local;
-    f32 dist;
-
-    // A packet can arrive before this actor's first update tick has resolved the
-    // controller marker that chYumblie_setState relies on.
-    if(local->game_marker == NULL){
-        local->game_marker = actorArray_findClosestActorFromActorId(this->position, ACTOR_138_VILE_GAME_CTRL, -1, &dist)->marker;
-    }
-    sNetForcedPieceType = piece_type;
-    chYumblie_setState(this, state);
-    sNetForcedPieceType = -1;
-}
-
-// Reads state + piece type for snapshot gathering.
-s32 chyumblie_netGetState(Actor *this, s32 *piece_type){
-    ActorLocal_Yumblie *local = (ActorLocal_Yumblie *)&this->local;
-
-    *piece_type = local->isGrumblie;
-    return this->state;
 }
 
 void chYumblie_update(Actor *this){

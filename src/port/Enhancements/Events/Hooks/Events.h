@@ -328,9 +328,6 @@ typedef enum VBehaviorID {
     // Anchor
     VB_VILE_YUMBLIE_EMERGE,
     VB_VILE_YUMBLIE_HIDE,
-    VB_VILE_PLAYER_EAT_PIECE,
-    VB_VILE_GAME_UPDATE,
-    VB_VILE_CPU_AI,
     VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
     VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
     VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
@@ -631,6 +628,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_FF_PATTERN_ROLL,
+
+    // A yumblie hole's piece, rolled as it appears. A listener that returns false has to set isGrumblie.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the yumblie)
+    VB_VILE_PIECE_ROLL,
 
     // Romhack port gates
 

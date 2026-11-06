@@ -14,19 +14,7 @@ extern BKCollisionTriangle *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32)
 
 extern bool chMrVileMinigame_findClosestPiece(ActorMarker *, f32[3], f32, f32[3]);
 
-typedef struct chmrvile_s{
-    u8 playerWithinRange; // can be 2 for some reason?
-    // u8  pad1[0x3];
-    BKModelBin *yumblieModel;
-    ActorMarker *game_marker;
-    u8  action;
-    // u8  padD[0x3];
-    f32 movementSpeed;
-    f32 eatingTimer;
-    f32 target_position[3];
-    f32 animationSpeed;
-    f32 rotation[3];
-} ActorLocal_MrVile;
+#include "mrvile.h" // [port] the typedef and states moved there
 
 /* .data */
 ActorInfo gChVile = {
@@ -37,15 +25,6 @@ ActorInfo gChVile = {
 };
                             // ROUND NUM   XX |  1  |  2  |  3  |  4  |   5  |  6  |
 f32 chMrVileRubberbandingMultiplier[7] = {0.0f, 0.8f, 0.9f, 1.0f, 0.9f, 0.95f, 1.0f};
-
-enum chMrVileState {
-    CH_MR_VILE_STATE_1_IDLE_STILL = 1,
-    CH_MR_VILE_STATE_2_TALKING,
-    CH_MR_VILE_STATE_3_MINIGAME,
-    CH_MR_VILE_STATE_4_ATTACK_PLAYER,
-    CH_MR_VILE_STATE_5_IDLE_WALKING,
-    CH_MR_VILE_STATE_6_RUN_FROM_PLAYER
-};
 
 enum chMrVileAction {
     CH_MR_VILE_ACTION_100_NOT_INIT = 100,
@@ -376,14 +355,6 @@ void chMrVile_update(Actor *this) {
     if (local->game_marker == NULL) {
         local->game_marker = actorArray_findClosestActorFromActorId(this->position, 0x138, -1, &distance_from_player)->marker;
     }
-    // [port] Anchor: followers receive Mr. Vile's transform/anim from the network; keep
-    // only his body collision running locally.
-    if (!EventSystem_Should(VB_VILE_CPU_AI, true)) {
-        if (this->state != 4) {
-            func_8028E668(this->position, 100.0f, -50.0f, 120.0f);
-        }
-        return;
-    }
     player_getPosition(player_position);
     distance_from_player = ml_vec3f_distance(this->position, player_position);
     if (distance_from_player <= 300.0f) {
@@ -490,26 +461,4 @@ void chMrVile_update(Actor *this) {
     if (this->state != CH_MR_VILE_STATE_4_ATTACK_PLAYER) {
         func_8028E668(this->position, 100.0f, -50.0f, 120.0f);
     }
-}
-
-// [port] Anchor sync entry points.
-// Applies a streamed transform + anim mode from the minigame authority.
-void chMrVile_netApplyUpdate(Actor *this, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode){
-    ActorLocal_MrVile *local = (ActorLocal_MrVile *)&this->local;
-
-    this->position[0] = position[0];
-    this->position[1] = position[1];
-    this->position[2] = position[2];
-    this->pitch = pitch;
-    this->yaw = yaw;
-    this->roll = roll;
-    if (local->action != anim_mode) {
-        chMrVile_setAction(this, anim_mode);
-    }
-}
-
-s32 chMrVile_netGetAnimMode(Actor *this){
-    ActorLocal_MrVile *local = (ActorLocal_MrVile *)&this->local;
-
-    return local->action;
 }

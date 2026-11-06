@@ -73,6 +73,16 @@ bool VileSync_GatherGameSnapshot(VileGameSnapshot* dst);
 // Force local minigame state to match an authoritative snapshot.
 void VileSync_ApplyGameSnapshot(const VileGameSnapshot* src);
 
+struct actor_s;
+
+bool VileSync_ForcePieceType(struct actor_s* yumblie);
+
+int32_t VileSync_FollowerGameUpdate(struct actor_s* controller);
+
+void VileSync_FollowerVileUpdate(struct actor_s* vile);
+
+uint8_t VileSync_VileAnimMode(struct actor_s* vile);
+
 #ifdef __cplusplus
 }
 #endif
