@@ -11,30 +11,31 @@ static bool JigsawPedestal_SyncActive() {
     return anchor != nullptr && anchor->IsWorldSyncActive();
 }
 
-int32_t port_jigsawPedestal_tryClaim(int32_t id) {
+bool JigsawPedestal_TryClaim(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
-        return 1;
+        return true;
     }
     auto it = sPedestalOwner.find(id);
     if (it != sPedestalOwner.end() && it->second != anchor->ownClientId) {
-        return 0;
+        return false;
     }
     sPedestalOwner[id] = anchor->ownClientId;
     anchor->SendPacket_PedestalOwner(id, true);
-    return 1;
+    return true;
 }
 
-int32_t port_jigsawPedestal_isSelf(int32_t id) {
+// True if we may drive this podium (unowned/self/offline), false if another owns it.
+bool JigsawPedestal_IsSelf(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
-        return 1;
+        return true;
     }
     auto it = sPedestalOwner.find(id);
-    return (it == sPedestalOwner.end() || it->second == anchor->ownClientId) ? 1 : 0;
+    return it == sPedestalOwner.end() || it->second == anchor->ownClientId;
 }
 
-void port_jigsawPedestal_release(int32_t id) {
+void JigsawPedestal_Release(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
         return;

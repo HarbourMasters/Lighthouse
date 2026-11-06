@@ -1,21 +1,36 @@
 #include "Puzzles.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include <algorithm>
 
 #include "functions.h"
 extern "C" {
+#include "lair/jigsawpicture.h"
+
 extern ActorArray* suBaddieActorArray;
+void addOrRemovePieceFromDisplay(Actor* self, s32 arg1, bool arg2);
 enum file_progress_e chWarpCauldron_getPairedFileProgressFlagIndex(Actor* self);
 void func_80324CFC(f32, enum comusic_e, s32);
 void func_8038A96C(Actor* self, s32 arg1);
+s32 getPicturePiecePosition(Actor* self);
+void gruntyLaughCallback(ActorMarker* marker, enum asset_e text_id, s32 arg2);
+void jigsawPicture_setState(Actor* self, s32 next_state);
 }
+
+// The jigsaw podiums' two actors (JIGSAW_PICTURE_ACTOR and _2).
+constexpr s32 kJigsawPodium = 0x3B7;
+constexpr s32 kJigsawPodium2 = 0x3BC;
+constexpr s32 kCcwPodiumField = 9;
 
 static u32 sNoteDoorReplay = 0;
 static s32 sLevelDoorReplay = 0;
 static u32 sCauldronReplay = 0;
 static bool sStatueHatReplay = false;
+static bool sCcwPodiumHidden = false;
+static bool sCcwPodiumTeammateReveal = false;
+static s32 sBuzzedPodium = 0;
 
 static bool IsTeammateStep(Actor* actor) {
     if (actor == NULL) {
@@ -91,6 +106,82 @@ static void BreakableUpdate(IEvent* event) {
     actor->volatile_initialized = true;
     if (fileProgressFlag_get(BreakableFlag(actor))) {
         marker_despawn(actor->marker);
+        *ev->should = false;
+    }
+}
+
+static void JigsawPodiumUpdate(IEvent* event) {
+    auto* ev = (ShouldActorUpdate*)event;
+    Actor* podium = ev->actor;
+    const s32 field = podium->actorTypeSpecificField;
+    if (!podium->volatile_initialized) {
+        if (field == kCcwPodiumField) {
+            sCcwPodiumHidden = false;
+        }
+        return;
+    }
+
+    if (field == kCcwPodiumField && sCcwPodiumHidden) {
+        if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
+            *ev->should = false;
+            return;
+        }
+        sCcwPodiumHidden = false;
+        podium->marker->propPtr->unk8_3 = true;
+        if (!fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
+            __bundle_spawnFromFirstActor(BUNDLE_20__UNKNOWN, podium);
+            if (!sCcwPodiumTeammateReveal || Anchor_InEarshot(podium->position)) {
+                func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
+                func_80324D2C(2.1f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+                func_8030E6D4(SFX_113_PAD_APPEARS);
+            }
+        }
+        sCcwPodiumTeammateReveal = false;
+    }
+
+    // A teammate's pieces land as the picture's flags: ours fade in or out (jigsawPicture_setState's states 5 and 8).
+    // Within earshot we hear them, and a finished picture plays state 7's jingle and Grunty's line a second on, when
+    // state 7 would start.
+    auto* local = (ActorLocal_lair_86F0*)&podium->local;
+    const s32 placed = fileProgressFlag_getN((enum file_progress_e)PICTURE_INFO[field - 1].progress_flag,
+                                             PICTURE_INFO[field - 1].size_bits);
+    if (Anchor::GetInstance()->IsWorldSyncActive() && local->unk4 != placed) {
+        const bool heard = Anchor_InEarshot(podium->position);
+        if (heard) {
+            comusic_playTrack(placed > local->unk4 ? COMUSIC_67_INSERTING_JIGGY : SFX_REMOVE_JIGGY);
+        }
+        while (local->unk4 < placed) {
+            local->unk4++;
+            const s32 piece = getPicturePiecePosition(podium);
+            addOrRemovePieceFromDisplay(podium, piece, true);
+            local->unk0 |= 1 << piece;
+        }
+        while (local->unk4 > placed) {
+            const s32 piece = getPicturePiecePosition(podium);
+            addOrRemovePieceFromDisplay(podium, piece, false);
+            local->unk4--;
+            local->unk0 &= ~(1 << piece);
+        }
+        if (heard && jigsawPicture_isJigsawPictureComplete(field)) {
+            timedFunc_set_1(1.0f, (GenFunction_1)comusic_playTrack, COMUSIC_65_WORLD_OPENING_B);
+            if (field == 1 || field == 0xA) {
+                func_80324DBC(2.0f, (enum asset_e)(field == 1 ? 0xF7E : 0xFAC), 4, NULL, podium->marker,
+                              gruntyLaughCallback, NULL);
+            }
+        }
+    }
+
+    if (podium->state != JIGSAW_PICTURE_LEAVE_PODIUM && !JigsawPedestal_IsSelf(field)) {
+        jigsawPicture_setState(podium, JIGSAW_PICTURE_LEAVE_PODIUM);
+        *ev->should = false;
+    } else if (podium->state == JIGSAW_PICTURE_LEAVE_PODIUM) {
+        JigsawPedestal_Release(field);
+    }
+}
+
+static void JigsawPodiumDraw(IEvent* event) {
+    auto* ev = (ShouldActorDraw*)event;
+    if (ev->actor->actorTypeSpecificField == kCcwPodiumField && sCcwPodiumHidden) {
         *ev->should = false;
     }
 }
@@ -197,6 +288,10 @@ void AnchorPuzzles_ReplayLairFlag(int32_t progressFlag) {
             break;
         }
 
+        case FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED:
+            sCcwPodiumTeammateReveal = true;
+            break;
+
         default:
             break;
     }
@@ -215,6 +310,40 @@ void AnchorPuzzles_RegisterLair(bool connected) {
                  BreakableUpdate);
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_21F_GRATE_BETWEEN_MMM_AND_RBB_PUZZLES, EVENT_PRIORITY_NORMAL, connected,
                  BreakableUpdate);
+
+    // Always on: a podium hidden while connected still shows when its switch lands after a disconnect. The rest
+    // checks world sync.
+    COND_ID_HOOK(ShouldActorUpdate, kJigsawPodium, EVENT_PRIORITY_NORMAL, true, JigsawPodiumUpdate);
+    COND_ID_HOOK(ShouldActorUpdate, kJigsawPodium2, EVENT_PRIORITY_NORMAL, true, JigsawPodiumUpdate);
+    COND_ID_HOOK(ShouldActorDraw, kJigsawPodium, EVENT_PRIORITY_NORMAL, true, JigsawPodiumDraw);
+    COND_ID_HOOK(ShouldActorDraw, kJigsawPodium2, EVENT_PRIORITY_NORMAL, true, JigsawPodiumDraw);
+
+    // Anchor suppresses the despawn: a despawned podium only comes back when the cube re-streams, which would strand a
+    // teammate standing here when the flag arrives.
+    COND_VB_SHOULD(VB_CCW_PODIUM_DESPAWN, EVENT_PRIORITY_NORMAL, connected, {
+        Actor* podium = va_arg(args, Actor*);
+        if (Anchor::GetInstance()->IsWorldSyncActive()) {
+            *should = false;
+            sCcwPodiumHidden = true;
+            podium->marker->propPtr->unk8_3 = false;
+        }
+    });
+
+    // One podium, one player: stepping on one a teammate holds buzzes once instead.
+    COND_VB_SHOULD(VB_JIGSAW_PODIUM_ENTER, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 field = va_arg(args, Actor*)->actorTypeSpecificField;
+        if (!*should) {
+            if (sBuzzedPodium == field) {
+                sBuzzedPodium = 0;
+            }
+        } else if (!JigsawPedestal_TryClaim(field)) {
+            *should = false;
+            if (sBuzzedPodium != field) {
+                comusic_playTrack(COMUSIC_2C_BUZZER);
+                sBuzzedPodium = field;
+            }
+        }
+    });
 
     // A teammate's press delivers its map flag and file progress flag in the same packet drain; while we're here to
     // watch, the rise wins over the setup.
@@ -261,6 +390,7 @@ void AnchorPuzzles_RegisterLair(bool connected) {
         sLevelDoorReplay = 0;
         sCauldronReplay = 0;
         sStatueHatReplay = false;
+        sCcwPodiumTeammateReveal = false;
     });
 
     // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off

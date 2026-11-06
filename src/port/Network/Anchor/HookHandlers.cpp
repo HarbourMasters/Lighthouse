@@ -481,20 +481,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Vanilla despawns the CCW podium until its switch is pressed, and only rebuilds it when the cube
-    // re-streams. Keep the actor alive (hidden) instead, so a teammate's press reveals it in place.
-    COND_VB_SHOULD(VB_CCW_PODIUM_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            *should = false;
-        }
-    });
-
-    COND_VB_SHOULD(VB_JIGSAW_PICTURE_RESYNC, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            *should = true;
-        }
-    });
-
     COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
         if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
             *should = false;

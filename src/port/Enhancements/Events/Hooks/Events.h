@@ -335,9 +335,6 @@ typedef enum VBehaviorID {
     VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
     VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
     VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
-    VB_CCW_PODIUM_DESPAWN,      // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
-                                // reveal it live.
-    VB_JIGSAW_PICTURE_RESYNC,   // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
@@ -604,6 +601,26 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_FP_WITCH_SWITCH_PRESSED,
+
+    // CCW's puzzle podium, set up before its switch is pressed. A listener that returns false keeps it and has to hide
+    // it.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the podium)
+    VB_CCW_PODIUM_DESPAWN,
+
+    // The player stepping onto a jigsaw podium.
+    // #### `result`
+    // ```c
+    // isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) &&
+    //     (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
+    // ```
+    // #### `args`
+    // - `*Actor` (the podium)
+    VB_JIGSAW_PODIUM_ENTER,
 
     // Romhack port gates
 

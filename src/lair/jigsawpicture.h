@@ -1,5 +1,11 @@
 // BanjoDecomp: lair/jigsawpicture.h
-// [port] jigsawpicture.c's typedef, moved here for port code, and a declaration of PICTURE_INFO.
+// [port] jigsawpicture.c's typedefs, moved here for port code, and a declaration of PICTURE_INFO.
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+}ActorLocal_lair_86F0;
+
 typedef struct {
     u8 cost;
     u8 size_bits;
