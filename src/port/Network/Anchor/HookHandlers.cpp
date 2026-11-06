@@ -20,7 +20,6 @@ float OTRGetDimensionFromRightEdge(float v);
 s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
-int32_t port_mapFlag_wasSetRemotely(int32_t index);
 void func_80324CD8(f32 time);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
@@ -441,7 +440,7 @@ void Anchor::RegisterHooks() {
             return;
         }
         NetAuthority_Release(NET_ACTIVITY_FP_SCARF_SLED);
-        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+        if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             func_80324CD8(0.0f);
             timed_exitStaticCamera(0.0f);
         }
@@ -466,7 +465,7 @@ void Anchor::RegisterHooks() {
         const bool heldByTeammate = !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED);
         sled->marker->collidable = !heldByTeammate;
         sled->marker->propPtr->unk8_3 = !heldByTeammate;
-        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+        if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             marker_despawn(sled->marker);
         } else if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_SCARF_SLED) &&
                    NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED) &&
@@ -496,18 +495,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off
-    // visual state (fully open == 0x1B) instead. Other lair doors stay flag-based.
-    COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            s32 doorActorId = va_arg(args, s32);
-            s32 doorState = va_arg(args, s32);
-            if (doorActorId == ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE) {
-                *should = (doorState == 0x1B);
-            }
-        }
-    });
-
     COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
         if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
             *should = false;
@@ -521,19 +508,19 @@ void Anchor::RegisterHooks() {
         s32 doorId = va_arg(args, s32);
         switch (doorId) {
             case GV_DOOR_CAM_SUN:
-                *should = !port_mapFlag_wasSetRemotely(3);
+                *should = !Anchor_WasMapFlagSetRemotely(3);
                 break;
             case GV_DOOR_CAM_STAR:
-                *should = !port_mapFlag_wasSetRemotely(5);
+                *should = !Anchor_WasMapFlagSetRemotely(5);
                 break;
             case GV_DOOR_CAM_KAZOOIE:
-                *should = !port_mapFlag_wasSetRemotely(6);
+                *should = !Anchor_WasMapFlagSetRemotely(6);
                 break;
             case GV_DOOR_CAM_JINXY:
-                *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                *should = !(Anchor_WasMapFlagSetRemotely(0) && Anchor_WasMapFlagSetRemotely(1));
                 break;
             case MMM_DOOR_CAM_CHURCH:
-                *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                *should = !Anchor_WasMapFlagSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
                 break;
             default:
                 break;

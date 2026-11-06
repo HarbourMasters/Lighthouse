@@ -331,14 +331,13 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
-    VB_FP_TWINKLY_START,           // Gates FP twinkly minigame start so only one client owns a run at a time.
-    VB_SM_TUTORIAL_CHOICE_OPEN,    // True while the SM tutorial choice is still open to the local player.
-    VB_SM_MOLEHILL_ACTIVE,         // SM ability molehills stay inert until the tutorial choice is made.
-    VB_DOOR_OPEN_CAMERA,           // Suppresses door-open camera lock when the flag came from a teammate, not us.
-    VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
-    VB_CCW_PODIUM_DESPAWN,    // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
-                              // reveal it live.
-    VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
+    VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
+    VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
+    VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
+    VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
+    VB_CCW_PODIUM_DESPAWN,      // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
+                                // reveal it live.
+    VB_JIGSAW_PICTURE_RESYNC,   // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
@@ -368,8 +367,11 @@ typedef enum VBehaviorID {
     // true                                  // Napper
     // true                                  // the flower, the egg, baby Eyrie, Nabnut, Gnawty's boulder
     // true                                  // the crane, the egg tolls
+    // true                                  // the lair's grate and third pipe, a note door's end
+    // true                                  // a warp cauldron's look-at
     // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
+    // this->modelCacheIndex == 0x215        // the CC lobby pipes' camera
     // ```
     // #### `args`
     // - `*Actor` (whose step it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
@@ -397,6 +399,7 @@ typedef enum VBehaviorID {
     // true                                  // the flower, the egg, baby Eyrie, the season doors
     // true                                  // Gnawty's boulder and its shake
     // true                                  // the crane, the egg tolls, the CC grates, the breakables
+    // true                                  // the lair's grate, pipes, level doors, Door of Grunty and statue hat
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
@@ -552,6 +555,55 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (the cage's switch)
     VB_RBB_CRANE_CAGE_SOUND,
+
+    // The BGS puzzle grate or a CC lobby pipe set up already up: the grate despawns and the pipe stays raised.
+    // #### `result`
+    // ```c
+    // fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN)
+    // fileProgressFlag_get(this->modelCacheIndex == 0x215 ? FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED
+    //                                                     : FILEPROG_20_CC_LOBBY_PIPE_2_RAISED)
+    // fileProgressFlag_get(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED)
+    // ```
+    // #### `args`
+    // - `*Actor` (the grate or pipe)
+    VB_LAIR_GRATE_OR_PIPE_ALREADY_UP,
+
+    // A note door still closed, which shows the note count and opens on enough notes.
+    // #### `result`
+    // ```c
+    // !fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) &&
+    //     player_isAbilityUnlocked(ABILITY_13_1ST_NOTEDOOR)
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    VB_NOTEDOOR_CLOSED,
+
+    // #### `result`
+    // ```c
+    // itemscore_noteScores_getTotal() >= D_8039347C[this->actorTypeSpecificField - 1]
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    VB_NOTEDOOR_ENOUGH_NOTES,
+
+    // A level door opening in the cutscene after its jigsaw.
+    // #### `result`
+    // ```c
+    // func_802D677C(-1) && (func_802D677C(-1) == gsworld_getMap()) && (func_802D67AC(-1) >= 8) &&
+    //     (func_802D67AC(-1) < 0x12) && (func_802D67DC(-1) == this->modelCacheIndex)
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    VB_LEVELDOOR_OPENING,
+
+    // FP's witch switch pressed, which its lair door waits on.
+    // #### `result`
+    // ```c
+    // volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)
+    // ```
+    // #### `args`
+    // - None
+    VB_FP_WITCH_SWITCH_PRESSED,
 
     // Romhack port gates
 

@@ -103,7 +103,6 @@ float port_getSfxVolume(void);
 
 // Note doors (NoteDoorNumbers.cpp)
 
-int port_getNoteDoorCost(int doorIdx);
 void port_enableNoteDoorComposer(void);
 
 // Attract-demo audio hold
@@ -114,13 +113,6 @@ int port_audioHeld(void);
 void port_noteMainLoopAlive(void);
 int port_audioStallHold(void);
 int32_t port_audioPumpShouldWait(void);
-
-// One-shot cues when a teammate's file-progress flag arrives
-void port_progressFlag_remoteCue(int32_t progressFlag);
-void port_notedoor_remoteOpen(int32_t progressFlag);
-void port_leveldoor_remoteOpen(int32_t progressFlag);
-
-void port_breakable_remoteBreak(int32_t progressFlag);
 
 int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
 
@@ -141,8 +133,6 @@ void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 
 void port_fpTwinkly_release(void);
-
-int32_t port_mapFlag_wasSetRemotely(int32_t index);
 
 void port_puzzleCount_add(int32_t counterId, int32_t delta);
 int32_t port_puzzleCount_get(int32_t counterId);

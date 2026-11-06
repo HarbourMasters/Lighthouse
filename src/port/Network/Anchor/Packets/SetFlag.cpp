@@ -3,6 +3,7 @@
 #include <libultraship/libultraship.h>
 
 #include "functions.h"
+#include "port/Network/Anchor/Puzzles/Puzzles.h"
 
 #include "port/Patches/Patches.h"
 #include "port/Rando/Rando.h"
@@ -86,7 +87,7 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
         ApplyRemote([&] { fileProgressFlag_set((enum file_progress_e)flag, 1); });
         // A duplicate (two players breaking the same cobweb) would replay the cue over the one already playing.
         if (!wasSet) {
-            port_progressFlag_remoteCue(flag);
+            AnchorPuzzles_ReplayLairFlag(flag);
         }
         // Vanilla only; rando reports world access via SET_CHECK_STATUS instead.
         if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {

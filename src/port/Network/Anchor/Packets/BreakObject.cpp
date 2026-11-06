@@ -53,7 +53,7 @@ static void remoteBreak(Actor* actor) {
     sBreakReplay = false;
 }
 
-extern "C" void port_breakable_remoteBreak(int32_t progressFlag) {
+void Anchor_BreakLairBreakable(int32_t progressFlag) {
     const LairBreakable* entry = nullptr;
     for (const LairBreakable& b : kLairBreakables) {
         if (b.flag == progressFlag) {

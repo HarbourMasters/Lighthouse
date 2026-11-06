@@ -11,8 +11,8 @@
 static uint32_t sMapFlagSetRemotely = 0;
 static uint64_t sLevelFlagSetRemotely = 0;
 
-extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
-    return (index >= 0 && index < 32 && (sMapFlagSetRemotely & (1u << index))) ? 1 : 0;
+bool Anchor_WasMapFlagSetRemotely(int32_t index) {
+    return index >= 0 && index < 32 && (sMapFlagSetRemotely & (1u << index));
 }
 
 bool Anchor_WasLevelFlagSetRemotely(int32_t index) {
