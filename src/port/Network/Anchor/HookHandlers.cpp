@@ -21,11 +21,8 @@ void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 void func_80324CD8(f32 time);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
+bool __chAttackTutorial_areLearnableAbilitiesUnlocked(void);
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
-}
-
-extern "C" void port_fpTwinkly_release(void) {
-    NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
 }
 
 s32 Anchor_LevelOfMap(s32 map);
@@ -256,6 +253,8 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             return false;
     }
 }
+
+static bool sAttackTutorialMovesKnown = false;
 
 // Whether the SM tutorial offer is ours to answer; claims it for us when it's free.
 static bool Anchor_SmTutorialChoiceOpen() {
@@ -491,13 +490,18 @@ void Anchor::RegisterHooks() {
         }
     });
 
+    // Only one client may run FP's Twinkly minigame at a time: claim it or block if already held.
     COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
-            *should = false;
-        } else {
-            NetAuthority_Claim(NET_ACTIVITY_FP_TWINKLY);
+        if (*should) {
+            if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
+                *should = false;
+            } else {
+                NetAuthority_Claim(NET_ACTIVITY_FP_TWINKLY);
+            }
         }
     });
+    COND_HOOK(OnFpTwinklyMinigameEnd, EVENT_PRIORITY_NORMAL, isConnected,
+              [](IEvent* event) { NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY); });
 
     // Always on: a door that opens while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, true, {
@@ -744,10 +748,28 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // SM intro Bottles: the tutorial offer is first-answer-wins for the team.
+    // SM intro Bottles: the tutorial offer is first-answer-wins for the team. An offer a teammate holds or has
+    // answered sets SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES on ours.
     COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (!Anchor_SmTutorialChoiceOpen()) {
+        Actor* bottles = va_arg(args, Actor*);
+        if (*should && bottles->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO && !Anchor_SmTutorialChoiceOpen()) {
+            mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
             *should = false;
+        }
+    });
+
+    // The attack tutorial ends on the moves known when it spawned, or once the SM set completes (a skip, or a
+    // teammate's last move), not on each move a teammate learns. Always on: a tutorial that spawned before we connected
+    // keeps its latch.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_167_ATTACK_TUTORIAL, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (!((ShouldActorUpdate*)event)->actor->initialized) {
+            sAttackTutorialMovesKnown = __chAttackTutorial_areLearnableAbilitiesUnlocked();
+        }
+    });
+    COND_HOOK(OnSmMovesCompleted, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sAttackTutorialMovesKnown = true; });
+    COND_VB_SHOULD(VB_ATTACK_TUTORIAL_MOVES_KNOWN, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive()) {
+            *should = sAttackTutorialMovesKnown || (func_802E4A08() && *should);
         }
     });
 
@@ -764,7 +786,9 @@ void Anchor::RegisterHooks() {
     // Ability molehills wake up only after the tutorial choice exists: the offer was
     // answered (synced bit) or a move is already known (covers skip-tutorial saves).
     COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive() && !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
+        const s32 mole = va_arg(args, Actor*)->actorTypeSpecificField;
+        if (mole != CH_SM_MOLE_ID_1_INTRO && mole != CH_SM_MOLE_ID_8_BRIDGE && Anchor_WorldSyncActive() &&
+            !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
             !(port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
         }

@@ -327,10 +327,7 @@ typedef enum VBehaviorID {
     // Anchor
     VB_VILE_YUMBLIE_EMERGE,
     VB_VILE_YUMBLIE_HIDE,
-    VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
-    VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
-    VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
-    VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
+    VB_DOOR_OPEN_CAMERA, // Suppresses door-open camera lock when the flag came from a teammate, not us.
 
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
@@ -667,6 +664,44 @@ typedef enum VBehaviorID {
     // - `s32` (the pad, for the Jinjonator's)
     // - `*ActorMarker` (the egg; NULL when replayed)
     VB_JINJO_STATUE_EGG_HIT,
+
+    // The intro or bridge Bottles in Spiral Mountain, with the player close enough to talk. A listener that returns
+    // false for the intro has to set SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES.
+    // #### `result`
+    // ```c
+    // ((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && player_isStableWithExtraSteps()) ||
+    //     mapSpecificFlags_get(SM_SPECIFIC_FLAG_10)
+    // ```
+    // #### `args`
+    // - `*Actor` (the Bottles)
+    VB_SM_TUTORIAL_CHOICE_OPEN,
+
+    // A Spiral Mountain Bottles in reach of the player, who can wake him.
+    // #### `result`
+    // ```c
+    // subaddie_playerIsWithinSphereAndActive(this, 250)
+    // ```
+    // #### `args`
+    // - `*Actor` (the Bottles)
+    VB_SM_MOLEHILL_ACTIVE,
+
+    // The attack tutorial finding the claw swipe, roll and rat-a-tat rap already known, which ends it.
+    // #### `result`
+    // ```c
+    // __chAttackTutorial_areLearnableAbilitiesUnlocked()
+    // ```
+    // #### `args`
+    // - `*Actor` (the attack tutorial)
+    VB_ATTACK_TUTORIAL_MOVES_KNOWN,
+
+    // FP's Twinkly box, hit to start its minigame.
+    // #### `result`
+    // ```c
+    // this->state == 1 || this->state == 2
+    // ```
+    // #### `args`
+    // - `*Actor` (the box)
+    VB_FP_TWINKLY_START,
 
     // Romhack port gates
 

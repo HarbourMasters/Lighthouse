@@ -130,8 +130,6 @@ int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId);
 void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 
-void port_fpTwinkly_release(void);
-
 void port_puzzleCount_add(int32_t counterId, int32_t delta);
 int32_t port_puzzleCount_get(int32_t counterId);
 

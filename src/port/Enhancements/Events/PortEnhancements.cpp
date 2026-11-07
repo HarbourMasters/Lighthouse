@@ -105,6 +105,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnJinjoStatueSlam);
     REGISTER_EVENT(OnJinjoStatueEgg);
     REGISTER_EVENT(OnBossJinjoHitUpdate);
+    REGISTER_EVENT(OnSmMovesCompleted);
+    REGISTER_EVENT(OnFpTwinklyMinigameEnd);
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnJigsawPodiumInput);
