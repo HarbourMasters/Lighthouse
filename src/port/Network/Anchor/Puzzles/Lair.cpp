@@ -31,6 +31,7 @@ static bool sStatueHatReplay = false;
 static bool sCcwPodiumHidden = false;
 static bool sCcwPodiumTeammateReveal = false;
 static s32 sBuzzedPodium = 0;
+static bool sWitchEyesRubbed = false;
 
 static bool IsTeammateStep(Actor* actor) {
     if (actor == NULL) {
@@ -107,6 +108,23 @@ static void BreakableUpdate(IEvent* event) {
     if (fileProgressFlag_get(BreakableFlag(actor))) {
         marker_despawn(actor->marker);
         *ev->should = false;
+    }
+}
+
+// A teammate's CC witch switch press raises the eyes while we're in the room. Vanilla plays the rubbing only as the eye
+// sets up after a press, so a rise that starts later plays it here, within earshot.
+static void WitchSwitchEyeUpdate(IEvent* event) {
+    Actor* eye = ((ShouldActorUpdate*)event)->actor;
+    const bool pressed = volatileFlag_get(VOLATILE_FLAG_BC_WITCH_SWITCH_PRESSED_CC);
+    if (!eye->volatile_initialized) {
+        sWitchEyesRubbed = pressed;
+        return;
+    }
+    if (pressed && !sWitchEyesRubbed && !fileProgressFlag_get(FILEPROG_9B_LAIR_CC_WITCH_SWITCH_EYES_ACTIVE)) {
+        sWitchEyesRubbed = true;
+        if (Anchor_InEarshot(eye->position)) {
+            FUNC_8030E624(SFX_3F6_RUBBING, 0.75f, 30000);
+        }
     }
 }
 
@@ -292,6 +310,25 @@ void AnchorPuzzles_ReplayLairFlag(int32_t progressFlag) {
             sCcwPodiumTeammateReveal = true;
             break;
 
+        // A teammate busted a CC witch switch eye, which sinks here on its flag: its thud, and on the second eye the
+        // fanfare func_80387F78 plays for the buster, within earshot. The jiggy is theirs.
+        case FILEPROG_9C_LAIR_CC_WITCH_SWITCH_LEFT_EYE_PRESSED:
+        case FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED: {
+            Actor* eye = FindActor(progressFlag == FILEPROG_9C_LAIR_CC_WITCH_SWITCH_LEFT_EYE_PRESSED
+                                       ? ACTOR_259_GL_GRUNTY_FLOOR_PICTURE_EYE_1
+                                       : ACTOR_25A_GL_GRUNTY_FLOOR_PICTURE_EYE_2,
+                                   -1);
+            if (eye != NULL && Anchor_InEarshot(eye->position)) {
+                gcsfx_playAtSampleRate(SFX_9B_BOULDER_BREAKING_1, 25000);
+                if (fileProgressFlag_get(FILEPROG_9C_LAIR_CC_WITCH_SWITCH_LEFT_EYE_PRESSED) &&
+                    fileProgressFlag_get(FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED) &&
+                    !jiggyscore_isSpawned(JIGGY_35_LAIR_CC_WITCH_SWITCH)) {
+                    coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+                }
+            }
+            break;
+        }
+
         default:
             break;
     }
@@ -310,6 +347,9 @@ void AnchorPuzzles_RegisterLair(bool connected) {
                  BreakableUpdate);
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_21F_GRATE_BETWEEN_MMM_AND_RBB_PUZZLES, EVENT_PRIORITY_NORMAL, connected,
                  BreakableUpdate);
+
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_259_GL_GRUNTY_FLOOR_PICTURE_EYE_1, EVENT_PRIORITY_NORMAL, connected,
+                 WitchSwitchEyeUpdate);
 
     // Always on: a podium hidden while connected still shows when its switch lands after a disconnect. The rest
     // checks world sync.
