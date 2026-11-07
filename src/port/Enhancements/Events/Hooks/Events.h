@@ -514,6 +514,35 @@ typedef enum VBehaviorID {
     // - `s32` (the Tumblar's state, promoted from `u8`)
     VB_TUMBLAR_BREAK,
 
+    // Tumblar's game starting as Banjo stands on him. It's asked every frame once the game is set up, whatever its
+    // state, and a listener that returns false keeps it waiting.
+    // #### `result`
+    // ```c
+    // MMM_D_8038C510.unk8 == 1 && MMM_D_8038C510.unkC != NULL &&
+    //     chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
+    // ```
+    // #### `args`
+    // - `s32` (the game's state, promoted from `u8`)
+    VB_TUMBLAR_GAME_START,
+
+    // Banjo riding Tumblar, which steers him.
+    // #### `result`
+    // ```c
+    // chTumblar_isBanjoAbove(arg0, arg1)
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_RIDE,
+
+    // Tumblar moving by his velocity. A listener that returns false can set his position instead.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*f32` (position)
+    VB_TUMBLAR_MOVE,
+
     // A listener that returns true has to end the game.
     // #### `result`
     // ```c

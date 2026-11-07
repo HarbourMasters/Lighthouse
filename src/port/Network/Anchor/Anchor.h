@@ -61,6 +61,7 @@ bool Anchor_JiggyListHasObject(int16_t jiggyId);
 ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
 ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
 void Anchor_RegisterHutHooks(bool connected);
+void Anchor_RegisterTumblarHooks(bool connected);
 void Anchor_BreakLairBreakable(int32_t progressFlag);
 void Anchor_RegisterFightHooks(bool connected);
 
@@ -150,6 +151,7 @@ private:
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
     void HandlePacket_SpawnHoneycomb(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
+    void HandlePacket_TumblarUpdate(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
     void HandlePacket_UpdateClientState(nlohmann::json& payload);
     void HandlePacket_UpdateRoomState(nlohmann::json& payload);
@@ -206,6 +208,7 @@ public:
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
     inline static const std::string HONEYCOMB_SPAWN = "HONEYCOMB_SPAWN";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
+    inline static const std::string TUMBLAR_UPDATE = "TUMBLAR_UPDATE";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
     inline static const std::string UPDATE_ROOM_STATE = "UPDATE_ROOM_STATE";
@@ -299,6 +302,7 @@ public:
     void SendPacket_JiggyExpired(s16 jiggyId);
     void SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(uint32_t clientId);
+    void SendPacket_TumblarUpdate(const f32 position[3]);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();
     void SendPacket_UpdateRoomState();

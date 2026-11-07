@@ -807,6 +807,7 @@ void Anchor::RegisterHooks() {
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
 
     Anchor_RegisterHutHooks(isConnected);
+    Anchor_RegisterTumblarHooks(isConnected);
     AnchorPuzzles_Register(isConnected);
     Anchor_RegisterFightHooks(isConnected);
 

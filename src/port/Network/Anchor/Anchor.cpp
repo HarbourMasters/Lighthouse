@@ -285,6 +285,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_SpawnHoneycomb(payload);
             else if (packetType == TELEPORT_TO)
                 HandlePacket_TeleportTo(payload);
+            else if (packetType == TUMBLAR_UPDATE)
+                HandlePacket_TumblarUpdate(payload);
             else if (packetType == UNSET_FLAG)
                 HandlePacket_UnsetFlag(payload);
             else if (packetType == MAP_LOAD)

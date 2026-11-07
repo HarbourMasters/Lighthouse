@@ -252,9 +252,11 @@ void func_8038AA44(void){
     if(MMM_D_8038C510.unk8 == 0) return;
 
     func_8038A750();
-    if( MMM_D_8038C510.unk8 == 1
+//  if( MMM_D_8038C510.unk8 == 1
+    if( EventSystem_Should(VB_TUMBLAR_GAME_START, MMM_D_8038C510.unk8 == 1
         && MMM_D_8038C510.unkC != NULL
-        && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
+//      && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
+        && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10), MMM_D_8038C510.unk8)
     ){
         if (!levelSpecificFlags_get(LEVEL_FLAG_2F_MMM_UNKNOWN)) {
             levelSpecificFlags_set(LEVEL_FLAG_2F_MMM_UNKNOWN, true);
