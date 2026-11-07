@@ -66,6 +66,18 @@ endif()
 
 set(CMAKE_PROJECT_GIT_COMMIT_TAG "${GIT_COMMIT_TAG}" CACHE STRING "Git commit tag" FORCE)
 
+execute_process(
+    COMMAND git shortlog -sn --group=author --group=trailer:co-authored-by --since=2025-06-01 HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_SHORTLOG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# Each "   426<tab>Name" line becomes a C string
+string(REPLACE "\\" "\\\\" GIT_CONTRIBUTORS "${GIT_SHORTLOG}")
+string(REPLACE "\"" "\\\"" GIT_CONTRIBUTORS "${GIT_CONTRIBUTORS}")
+string(REGEX REPLACE " *[0-9]+\t([^\n]*)\n?" "\"\\1\", " GIT_CONTRIBUTORS "${GIT_CONTRIBUTORS}")
+
 # Set the minimum version of CMake and the deployment target for macOS
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 

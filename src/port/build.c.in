@@ -10,6 +10,9 @@ const char gGitBranch[] = "@CMAKE_PROJECT_GIT_BRANCH@";
 const char gGitCommitHash[] = "@CMAKE_PROJECT_GIT_COMMIT_HASH@";
 const char gGitCommitTag[] = "@CMAKE_PROJECT_GIT_COMMIT_TAG@";
 
+const char* const gContributors[] = { @GIT_CONTRIBUTORS@NULL };
+const int gContributorCount = sizeof(gContributors) / sizeof(gContributors[0]) - 1;
+
 const char gBuildTeam[] = "@PROJECT_TEAM@";
 const char gBuildDate[] = __DATE__ " " __TIME__;
 const char gBuildMakeOption[] = "";

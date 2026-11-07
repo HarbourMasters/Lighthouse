@@ -66,6 +66,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+      - name: Fetch commit history
+        run: git fetch --unshallow --no-tags --no-recurse-submodules origin
       - name: Build
         run: |
           cmake -S . -B "build/x64" -G "Visual Studio 17 2022" -T v143 -A x64
@@ -94,11 +96,13 @@ jobs:
 
   build-macos:
     needs: generate-port-o2r
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+      - name: Fetch commit history
+        run: git fetch --unshallow --no-tags --no-recurse-submodules origin
       - uses: melusina-org/setup-macports@v1
         with:
           parameters: '.github/macports.yml'
@@ -136,6 +140,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+      - name: Fetch commit history
+        run: git fetch --unshallow --no-tags --no-recurse-submodules origin
       - name: Update machine
         run: sudo apt update
       - name: Install dependencies
