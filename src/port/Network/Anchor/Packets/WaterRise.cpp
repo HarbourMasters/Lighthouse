@@ -47,6 +47,13 @@ static int32_t lairLevelForFlag(int32_t levelFlag) {
     }
 }
 
+static int32_t lairFlagLevel() {
+    return fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)   ? 3
+           : fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2) ? 2
+           : fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1) ? 1
+                                                                  : 0;
+}
+
 // The effective target level: max(flag-derived level, pending level from a teammate's in-flight rise).
 // Clears the pending once the real flag catches up.
 static int32_t lairTargetLevel(int32_t map, int32_t flagLevel) {
@@ -88,11 +95,24 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
 
     if (kind == WATERRISE_KIND_LAIR) {
         // The switch cutscene plays in one of the three water rooms; all three share the water.
+        const s32 here = (s32)gsworld_getMap();
+        bool risesHere = false;
         for (int32_t waterMap : { MAP_76_GL_640_NOTE_DOOR, MAP_77_GL_RBB_LOBBY, MAP_78_GL_RBB_AND_MMM_PUZZLE }) {
             int32_t cur = sLairPendingLevel.count(waterMap) ? sLairPendingLevel[waterMap] : 0;
             if (p1 > cur) {
                 sLairPendingLevel[waterMap] = p1;
+                risesHere |= waterMap == here;
             }
+        }
+        // The cutscene's rumble (func_802D5628's cases 5 to 7) plays for a rise in the room we're in. The water fills
+        // the room, so being here is earshot.
+        if (risesHere && p1 <= 3 && p1 > lairFlagLevel() && IsWorldSyncActive() &&
+            !levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)) {
+            static const f32 kLength[] = { 2.2f, 6.2f, 2.7f };
+            static const f32 kFade[] = { 0.7f, 0.5f, 0.5f };
+            const s32 rumble = func_802F9AA8(SFX_3EC_CCW_DOOR_OPENING);
+            func_802FA060(rumble, 20000, 20000, 0.0f);
+            func_802F9F80(rumble, 0.0f, kLength[p1 - 1], kFade[p1 - 1]);
         }
     } else if (kind == WATERRISE_KIND_CC) {
         // Only replay while in the water's map; on later entry func_80388104 snaps it on its own.
@@ -112,11 +132,7 @@ static void LairWaterLevel(IEvent* event) {
     const s32 map = (s32)gsworld_getMap();
     const bool draining = levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN);
     if (!draining) {
-        const s32 flagLevel = fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)   ? 3
-                              : fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2) ? 2
-                              : fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1) ? 1
-                                                                                     : 0;
-        *ev->height = ev->levels[lairTargetLevel(map, flagLevel)];
+        *ev->height = ev->levels[lairTargetLevel(map, lairFlagLevel())];
     }
     if (sLairWaterMap != map || draining || !Anchor::GetInstance()->IsWorldSyncActive()) {
         sLairWaterMap = map;
