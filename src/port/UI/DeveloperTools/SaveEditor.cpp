@@ -42,6 +42,7 @@ extern struct {
 
 extern u8 sHoneycombScore[3];
 extern u8 sMumboTokenScore[16];
+extern ActorArray* suBaddieActorArray;
 }
 
 std::vector<std::string> warpCauldronList = {
@@ -69,6 +70,12 @@ std::unordered_map<int32_t, int32_t> progressToLevelMap = {
     { FILEPROG_35_FP_OPEN, LEVEL_5_FREEZEEZY_PEAK },       { FILEPROG_36_GV_OPEN, LEVEL_7_GOBIS_VALLEY },
     { FILEPROG_37_MMM_OPEN, LEVEL_A_MAD_MONSTER_MANSION }, { FILEPROG_38_RBB_OPEN, LEVEL_9_RUSTY_BUCKET_BAY },
     { FILEPROG_39_CCW_OPEN, LEVEL_8_CLICK_CLOCK_WOOD },
+};
+
+std::vector<actor_e> worldEntranceDoors = {
+    ACTOR_20E_MM_ENTRANCE_DOOR,  ACTOR_211_TTC_ENTRANCE_CHEST_LID, ACTOR_212_CC_ENTRANCE_BARS,
+    ACTOR_210_BGS_ENTRANCE_DOOR, ACTOR_235_FP_ENTRANCE_DOOR_LEFT,  ACTOR_226_GV_ENTRANCE,
+    ACTOR_228_MMM_ENTRANCE_DOOR, ACTOR_20F_RBB_ENTRANCE_DOOR,      ACTOR_234_CCW_ENTRANCE_DOOR,
 };
 
 std::vector<level_e> levelOrder = {
@@ -184,6 +191,12 @@ void SaveEditor_DrawUnlocks() {
                             fileProgressFlag_set((file_progress_e)i, false);
                         } else {
                             fileProgressFlag_set((file_progress_e)i, true);
+                        }
+                        if (suBaddieActorArray != nullptr) {
+                            Actor* door = actorArray_findActorFromActorId(worldEntranceDoors[i - FILEPROG_31_MM_OPEN]);
+                            if (door != nullptr) {
+                                door->volatile_initialized = false;
+                            }
                         }
                     });
                 }
