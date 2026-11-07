@@ -347,6 +347,15 @@ typedef enum VBehaviorID {
     // - `*Actor` (Boggy)
     VB_FP_BOGGY_WAIT_FOR_DIALOG,
 
+    // Whether the sled race just won is the bear race, which picks Boggy's dialog and his jiggy.
+    // #### `result`
+    // ```c
+    // jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2) || jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)
+    // ```
+    // #### `args`
+    // - `*Actor` (Boggy)
+    VB_FP_BOGGY_RACE_BEAR_WIN,
+
     // Whether Banjo can board the scarf sled he's touching.
     // #### `result`
     // ```c

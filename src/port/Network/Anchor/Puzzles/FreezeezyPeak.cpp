@@ -5,6 +5,8 @@
 
 #include "functions.h"
 extern "C" {
+#include "FP/ch/boggy2.h"
+
 void __chSnowman_deathCallback(ActorMarker* marker, ActorMarker* other_marker);
 void chXmasTreeIce_shatterIce(ActorMarker* marker);
 void func_803877A8(ActorMarker* caller, enum asset_e text_id, s32 arg2);
@@ -243,6 +245,24 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
         if (IsBoggyTeammateRescue(boggy) && !BoggyDialogHere(boggy)) {
             func_803877A8(boggy->marker, (enum asset_e)0, 2);
             *should = false;
+        }
+    });
+    // Vanilla tells the bear race's win by the walrus race's jiggy being out, which a teammate's walrus win can put out
+    // while ours runs. Always on: our race can end after a disconnect with their jiggy out.
+    COND_VB_SHOULD(VB_FP_BOGGY_RACE_BEAR_WIN, EVENT_PRIORITY_NORMAL, true, {
+        Actor* boggy = va_arg(args, Actor*);
+        if (boggy != NULL && ((ActorLocal_FP_2350*)&boggy->local)->unk19 == 1) {
+            *should = false;
+        }
+    });
+    // A teammate's walrus race jiggy is out, so the walrus race's Boggy waits to be replaced, as he does when we arrive
+    // with it out.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_C8_BOGGY_2, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        Actor* boggy = ((ShouldActorUpdate*)event)->actor;
+        if (boggy->volatile_initialized && boggy->state == 1 && ((ActorLocal_FP_2350*)&boggy->local)->unk19 == 1 &&
+            jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)) {
+            boggy->unk38_31 = 2;
+            subaddie_set_state_with_direction(boggy, 11, 0.0001f, 1);
         }
     });
     // Always on, with the hooks that read them.

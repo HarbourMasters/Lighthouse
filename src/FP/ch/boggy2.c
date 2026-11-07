@@ -8,16 +8,7 @@ extern Actor *func_80328230(enum actor_e id, f32 pos[3], f32 rot[3]);
 extern NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e, s32[3]);
 extern f32 maSlalom_compareBoggyToPlayer(f32 arg0[3]);
 
-typedef struct {
-    ParticleEmitter *unk0;
-    ParticleEmitter *unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    u8  unk18;
-    u8  unk19;
-}ActorLocal_FP_2350;
+#include "boggy2.h" // [port] the typedef moved there
 
 typedef struct {
     s32 unk0;

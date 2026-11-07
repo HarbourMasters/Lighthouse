@@ -358,7 +358,8 @@ void maSlalom_update(void){
             }
             pntBoggy->unk38_31 = 2;
             timed_playSfx(1.0f, SFX_8D_BOGGY_OHWW, 1.0f, 32000);
-            if(jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2) || jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)){
+//          if(jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2) || jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)){
+            if(EventSystem_Should(VB_FP_BOGGY_RACE_BEAR_WIN, jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2) || jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2), pntBoggy)){
                 func_80324DBC(2.0f, VER_SELECT(ASSET_C0D_DIALOG_BOGGY_SLED_BEAR_COMPLETE, 0x987, 0, 0), 0x2a, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
             }
             else{
