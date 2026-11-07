@@ -1163,12 +1163,18 @@ void func_803880BC(Actor *this)
 
     if (!this->volatile_initialized)
     {
+        bool restored = this->initialized; // [port]
         func_802D3CE8(this);
 
         this->volatile_initialized = true;
 
-        this->unk1C[1] = this->position_y;
-        this->position_y -= 51.f;
+        // [port] A room restore keeps the eye's spawn height and its drop below the floor; redoing them buries it.
+//      this->unk1C[1] = this->position_y;
+//      this->position_y -= 51.f;
+        if (!restored) {
+            this->unk1C[1] = this->position_y;
+            this->position_y -= 51.f;
+        }
         this->unk1C[0] = 0;
 
         __spawnQueue_add_1((GenFunction_1)func_80387E94, (uintptr_t)this->marker);
