@@ -2,58 +2,13 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Patches/Patches.h"
 
-typedef struct {
-    f32 unk0;
-    s16 unk4;
-    f32 unk8;
-    s16 unkC;
-} Eyrie_Baby_SFX;
-
-typedef struct {
-    s16 map_id;
-    s16 requiredFileProgress;
-    s16 unlocksFileProgress;
-    s16 waitingAnimation;
-    Eyrie_Baby_SFX *waitingSFX;
-    s16 nextStateWhenComplete; // Probably only used for Spring
-    s16 yawningAnimation;
-    Eyrie_Baby_SFX *yawnSFX;
-    s16 goingToSleepAnimation;
-    // u8 pad16[2];
-    Eyrie_Baby_SFX *goingToSleepSFX;
-    s16 sleepingAnimation;
-    // u8 pad1E[0x2];
-    Eyrie_Baby_SFX *sleepingSFX;
-    u8 cameraNode;
-    u8 caterpillarRequirement;
-    s16 eatingAnimation;
-    s16 meetDialog;
-    // u8 pad2A[2];
-} Eyrie_Baby_Dialog;
-
-typedef struct {
-    Eyrie_Baby_Dialog *progression;
-    u8 eatenCount;
-    //u8 pad5[3];
-    Eyrie_Baby_SFX *sfx;
-    s32 unkC[3]; // something about player position?
-} ActorLocal_CCW_3310;
+#include "eyrie_baby.h" // [port] the typedefs and states moved there
 
 Actor *chEyrieBaby_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chEyrieBaby_update(Actor *this);
 
 /* .data */
-enum cheyriebaby_state_e {
-    CH_EYRIE_BABY_STATE_0_NOT_HATCHED,
-    CH_EYRIE_BABY_STATE_1_IDLE,
-    CH_EYRIE_BABY_STATE_2_YAWNING,
-    CH_EYRIE_BABY_STATE_3_GOING_TO_SLEEP,
-    CH_EYRIE_BABY_STATE_4_SLEEPING,
-    CH_EYRIE_BABY_STATE_5_EATING_CATERPILLARS
-};
-
 Eyrie_Baby_SFX chEyrieBabyWaitingSFX[] = {
     {0.11f, SFX_4A_CLUCKER_AHH, 1.1f, 25000},
     {0.22f, SFX_4A_CLUCKER_AHH, 1.1f, 25000},
@@ -186,7 +141,8 @@ void chEyrieBaby_setState(Actor *this, s32 next_state) {
         fileProgressFlag_set(local->progression->unlocksFileProgress, true);
     }
     if (next_state == CH_EYRIE_BABY_STATE_5_EATING_CATERPILLARS) {
-        func_8028F784(1);
+//      func_8028F784(1);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028F784(1);
         skeletalAnim_set(this->unk148, local->progression->eatingAnimation, 0.2f, 2.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         local->sfx = &chEyrieBabyEatingSFX[0];
@@ -195,10 +151,16 @@ void chEyrieBaby_setState(Actor *this, s32 next_state) {
     if (next_state == CH_EYRIE_BABY_STATE_2_YAWNING) {
         skeletalAnim_set(this->unk148, local->progression->yawningAnimation, 0.2f, 8.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        func_80324E38(0.5f, 3);
-        timed_setStaticCameraToNode(0.5f, local->progression->cameraNode);
-        timed_exitStaticCamera(16.5f);
-        func_80324E38(16.5f, 0);
+//      func_80324E38(0.5f, 3);
+//      timed_setStaticCameraToNode(0.5f, local->progression->cameraNode);
+//      timed_exitStaticCamera(16.5f);
+//      func_80324E38(16.5f, 0);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
+            func_80324E38(0.5f, 3);
+            timed_setStaticCameraToNode(0.5f, local->progression->cameraNode);
+            timed_exitStaticCamera(16.5f);
+            func_80324E38(16.5f, 0);
+        }
         local->sfx = local->progression->yawnSFX;
     }
     if (next_state == CH_EYRIE_BABY_STATE_3_GOING_TO_SLEEP) {
@@ -206,14 +168,18 @@ void chEyrieBaby_setState(Actor *this, s32 next_state) {
         skeletalAnim_set(this->unk148, local->progression->goingToSleepAnimation, 0.5f, 8.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         if (local->progression->map_id == MAP_43_CCW_SPRING) {
-            gcdialog_showDialog(VER_SELECT(ASSET_CD6_DIALOG_BABY_EYRIE_HATCH, 0x09EB, 0, 0), 4, NULL, NULL, NULL, NULL);
-            skeletalAnim_setCallback_0(this->unk148, 0.65f, &chEyrieBaby_saysMama);
+//          gcdialog_showDialog(VER_SELECT(ASSET_CD6_DIALOG_BABY_EYRIE_HATCH, 0x09EB, 0, 0), 4, NULL, NULL, NULL, NULL);
+//          skeletalAnim_setCallback_0(this->unk148, 0.65f, &chEyrieBaby_saysMama);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_CD6_DIALOG_BABY_EYRIE_HATCH, 0x09EB, 0, 0), 4, NULL, NULL, NULL, NULL);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) skeletalAnim_setCallback_0(this->unk148, 0.65f, &chEyrieBaby_saysMama);
         }
         if (local->progression->map_id == MAP_44_CCW_SUMMER) {
-            gcdialog_showDialog(VER_SELECT(ASSET_CD9_DIALOG_BABY_EYRIE_COMPLETE_SUMMER, 0x09EE, 0, 0), 4, NULL, NULL, NULL, NULL);
+//          gcdialog_showDialog(VER_SELECT(ASSET_CD9_DIALOG_BABY_EYRIE_COMPLETE_SUMMER, 0x09EE, 0, 0), 4, NULL, NULL, NULL, NULL);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_CD9_DIALOG_BABY_EYRIE_COMPLETE_SUMMER, 0x09EE, 0, 0), 4, NULL, NULL, NULL, NULL);
         }
         if (local->progression->map_id == MAP_45_CCW_AUTUMN) {
-            gcdialog_showDialog(VER_SELECT(ASSET_CDB_DIALOG_BABY_EYRIE_COMPLETE_FALL, 0x09F0, 0, 0), 4, NULL, NULL, NULL, NULL);
+//          gcdialog_showDialog(VER_SELECT(ASSET_CDB_DIALOG_BABY_EYRIE_COMPLETE_FALL, 0x09F0, 0, 0), 4, NULL, NULL, NULL, NULL);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_CDB_DIALOG_BABY_EYRIE_COMPLETE_FALL, 0x09F0, 0, 0), 4, NULL, NULL, NULL, NULL);
         }
         local->sfx = local->progression->goingToSleepSFX;
     }
@@ -276,7 +242,7 @@ void chEyrieBaby_update(Actor *this) {
         chEyrieBabyThrowPosition[1] = this->position[1];
         chEyrieBabyThrowPosition[2] = this->position[2];
         if (this->state == CH_EYRIE_BABY_STATE_0_NOT_HATCHED) {
-            local->eatenCount = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
+            local->eatenCount = 0;
         }
         local->progression = &chEyrieBabyProgression[0];
         while(local->progression->map_id != NULL && gsworld_getMap() != local->progression->map_id){
@@ -340,8 +306,8 @@ void chEyrieBaby_update(Actor *this) {
                 {
                     gcdialog_showDialog(VER_SELECT(ASSET_CD8_DIALOG_BABY_EYRIE_CHECK_SUMMER, 0x09ED, 0, 0), 4, NULL, NULL, NULL, NULL);
                 }
-//              local->eatenCount++;
-                local->eatenCount = (u32)port_puzzleCount_add(ANCHOR_COUNT_CCW_EYRIE_FED, (s32)local->eatenCount, 1);
+                local->eatenCount++;
+                CALL_EVENT(OnPuzzleCountAdd, ANCHOR_COUNT_CCW_EYRIE_FED, 1); // [port]
                 if (local->eatenCount < local->progression->caterpillarRequirement) {
                     chEyrieBaby_setState(this, CH_EYRIE_BABY_STATE_5_EATING_CATERPILLARS);
                 } else {
@@ -349,19 +315,8 @@ void chEyrieBaby_update(Actor *this) {
                 }
             }
         }
-        // Anchor: teammate fed a worm — play the interim eat animation; final feed handled below.
-        if (this->state == CH_EYRIE_BABY_STATE_1_IDLE) {
-            s32 sharedFed = port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
-            if (sharedFed > (s32)local->eatenCount) {
-                local->eatenCount = (u32)sharedFed;
-                if ((s32)local->eatenCount < (s32)local->progression->caterpillarRequirement) {
-                    chEyrieBaby_setState(this, CH_EYRIE_BABY_STATE_5_EATING_CATERPILLARS);
-                }
-            }
-        }
-        if (this->state == CH_EYRIE_BABY_STATE_1_IDLE && fileProgressFlag_get(local->progression->unlocksFileProgress)) {
-            // Anchor: fed flag synced from a teammate — skip to sleep state (spring keeps its hatch cutscene).
-            chEyrieBaby_setState(this, (local->progression->map_id == MAP_43_CCW_SPRING) ? local->progression->nextStateWhenComplete : CH_EYRIE_BABY_STATE_4_SLEEPING);
+        if (fileProgressFlag_get(local->progression->unlocksFileProgress)) {
+            chEyrieBaby_setState(this, local->progression->nextStateWhenComplete);
         }
     }
     if ((this->state == CH_EYRIE_BABY_STATE_2_YAWNING)

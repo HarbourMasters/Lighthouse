@@ -2,28 +2,12 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Patches/Patches.h"
 
-// Anchor: set during a remote completion replay; skips the finisher's camera/dialog.
-static s32 sNabnutRemote = 0;
-
-typedef struct {
-    s32 returned_acorn_count;
-}ActorLocal_ChAutumnNabnutPosition;
+#include "outsideautumnnabnut.h" // [port] the typedef and states moved there
 
 void chAutumnOutsideNabnut_setState(Actor *this, s32 next_state);
 Actor *__chAutumnOutsideNabnut_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chAutumnOutsideNabnut_update(Actor *this);
-
-enum chautumnoutdoornabnut_state_e{
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_0_NOT_INIT,
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_1_SAD,
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_2_WAIT,
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_3_BACKFLIP,
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_4_THANK_PLAYER,
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_5_EXIT,
-    CH_AUTUMN_OUTDOOR_NABNUT_STATE_6_DESPAWN
-};
 
 /* .data */
 f32 chAutumnOutdoorNabnutPosition[3] = {0.0f, 0.0f, 0.0f}; // updates on init
@@ -60,9 +44,17 @@ void chAutumnOutsideNabnut_setState(Actor *this, s32 next_state) {
         this->marker->propPtr->unk8_3 = false;
         skeletalAnim_set(this->unk148, ASSET_22D_ANIM_NABNUT_BACKFLIP, 0.2f, 3.13f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        if (!sNabnutRemote) {
+//      func_80324E38(0.0f, 3);
+//      timed_setStaticCameraToNode(0.0f, 0xB);
+//      gcdialog_showDialog(
+//          VER_SELECT(ASSET_CCC_DIALOG_NABNUT_ACORN_COMPLETE, 0x09E1, 0, 0),
+//          0x20, this->position,
+//          NULL, NULL, NULL);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
             func_80324E38(0.0f, 3);
             timed_setStaticCameraToNode(0.0f, 0xB);
+        }
+        if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) {
             gcdialog_showDialog(
                 VER_SELECT(ASSET_CCC_DIALOG_NABNUT_ACORN_COMPLETE, 0x09E1, 0, 0),
                 0x20, this->position,
@@ -74,9 +66,8 @@ void chAutumnOutsideNabnut_setState(Actor *this, s32 next_state) {
         skeletalAnim_set(this->unk148, ASSET_22E_ANIM_NABNUT_STAND, 0.2f, 3.53f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_1_LOOP);
         bundle_setYaw(this->yaw - 40.0f);
-        if (!jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT)) {
-            jiggy_spawn(JIGGY_4A_CCW_NABNUT, this->position);
-        }
+//      jiggy_spawn(JIGGY_4A_CCW_NABNUT, this->position);
+        if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, this)) jiggy_spawn(JIGGY_4A_CCW_NABNUT, this->position);
     }
 
     if (next_state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_5_EXIT) {
@@ -84,7 +75,9 @@ void chAutumnOutsideNabnut_setState(Actor *this, s32 next_state) {
     }
 
     if (next_state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_6_DESPAWN) {
-        if (!sNabnutRemote) {
+//      func_80324E38(0.0f, 0);
+//      timed_exitStaticCamera(0.0f);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
             func_80324E38(0.0f, 0);
             timed_exitStaticCamera(0.0f);
         }
@@ -144,8 +137,7 @@ void chAutumnOutsideNabnut_update(Actor *this) {
         chAutumnOutdoorNabnutPosition[2] = this->position[2];
         if (this->state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_0_NOT_INIT) {
             this->has_met_before = false;
-            local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
-            sNabnutRemote = 0;
+            local->returned_acorn_count = 0;
         }
         chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_1_SAD);
         if(jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT)) {
@@ -182,25 +174,15 @@ void chAutumnOutsideNabnut_update(Actor *this) {
                 && player_throwCarriedObject())
             {
                 player_setThrowTargetPosition(chAutumnOutdoorNabnutPosition);
-//              local->returned_acorn_count++;
-                local->returned_acorn_count = port_puzzleCount_add(ANCHOR_COUNT_CCW_NABNUT_ACORNS, local->returned_acorn_count, 1);
-                if (local->returned_acorn_count >= AUTUMN_NABNUT_ACORN_COUNT) {
+                local->returned_acorn_count++;
+                CALL_EVENT(OnPuzzleCountAdd, ANCHOR_COUNT_CCW_NABNUT_ACORNS, 1); // [port]
+                if (local->returned_acorn_count == AUTUMN_NABNUT_ACORN_COUNT) {
                     chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_2_WAIT);
                 } else if (item_getCount(ITEM_23_ACORNS) == 1) {
                     gcdialog_showDialog(
                         VER_SELECT(ASSET_CCB_DIALOG_NABNUT_ACORN_CHECK, 0x09E0, 0, 0),
                         0x20, this->position,
                         NULL, NULL, NULL);
-                }
-            }
-        }
-        if (this->state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_1_SAD) {
-            s32 sharedReturned = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
-            if (sharedReturned > local->returned_acorn_count) {
-                local->returned_acorn_count = sharedReturned;
-                if (sharedReturned >= AUTUMN_NABNUT_ACORN_COUNT) {
-                    sNabnutRemote = 1;
-                    chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_2_WAIT);
                 }
             }
         }
@@ -217,7 +199,8 @@ void chAutumnOutsideNabnut_update(Actor *this) {
     }
     if (this->state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_5_EXIT) {
         actor_update_func_80326224(this);
-        func_8028FC8C(this->position);
+//      func_8028FC8C(this->position);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028FC8C(this->position);
         if (0.99 < this->unk48) {
             chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_6_DESPAWN);
         }

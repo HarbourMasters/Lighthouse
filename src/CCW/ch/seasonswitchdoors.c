@@ -86,13 +86,7 @@ ActorInfo chCCWWinterSwitch = {
     0, 0, 0.0f, 0
 };
 
-enum chCCWSeasonSwitchDoor_State_e {
-    CH_CCW_SEASON_SWITCH_DOOR_STATE_0_NOT_INIT,
-    CH_CCW_SEASON_SWITCH_DOOR_STATE_1_LOWERED,
-    CH_CCW_SEASON_SWITCH_DOOR_STATE_2_OPENING,
-    CH_CCW_SEASON_SWITCH_DOOR_STATE_3_RAISED,
-    CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION
-};
+#include "seasonswitchdoors.h" // [port] the states moved there
 
 /* .code */
 s32 chCCWSwitchAndDoor_getSeason(Actor *this){
@@ -150,14 +144,6 @@ void chSeasonSwitch_update(Actor *this) {
         }
         this->unk38_0 = false;
         this->volatile_initialized = true;
-    }
-    // Anchor: teammate pressed this switch (flag synced) — drop it to match; unk38_0 stays false.
-    if( this->state != CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION
-        && fileProgressFlag_get(this->unk10_12 + FILEPROG_8B_CCW_SPRING_OPEN)
-    ){
-        actor_playAnimationOnce(this);
-        subaddie_set_state_with_direction(this, CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION, 0.999f, 1);
-        actor_collisionOff(this);
     }
     if( (this->state == CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION)
         && this->unk38_0
@@ -226,8 +212,12 @@ void chSeasonSwitchDoors_update(Actor *this) {
     switch (this->state) {                              /* irregular */
         case CH_CCW_SEASON_SWITCH_DOOR_STATE_1_LOWERED:
             if (levelSpecificFlags_get(this->unk10_12 + 7)) {
-                timedFunc_set_1(0.05f, (GenFunction_1)chSeasonSwitchDoors_doorOpening, (uintptr_t)this->marker);
-                timedFunc_set_1(4.0f, (GenFunction_1)chSeasonSwitchDoors_doorOpened, (uintptr_t)this->marker);
+//              timedFunc_set_1(0.05f, (GenFunction_1)chSeasonSwitchDoors_doorOpening, (uintptr_t)this->marker);
+//              timedFunc_set_1(4.0f, (GenFunction_1)chSeasonSwitchDoors_doorOpened, (uintptr_t)this->marker);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+                    timedFunc_set_1(0.05f, (GenFunction_1)chSeasonSwitchDoors_doorOpening, (uintptr_t)this->marker);
+                    timedFunc_set_1(4.0f, (GenFunction_1)chSeasonSwitchDoors_doorOpened, (uintptr_t)this->marker);
+                }
                 subaddie_set_state(this, CH_CCW_SEASON_SWITCH_DOOR_STATE_2_OPENING);
             }
             break;

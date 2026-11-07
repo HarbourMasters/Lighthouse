@@ -71,7 +71,8 @@ void chGnawtySummer_setState(Actor *this, s32 next_state) {
         this->marker->propPtr->unk8_3 = false;
         skeletalAnim_set(this->unk148, ASSET_1A7_ANIM_GNAWTY_CHEERING, 0.2f, 3.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        gcdialog_showDialog(VER_SELECT(ASSET_CD0_DIALOG_GNAWTY_COMPLETE_SUMMER, 0x9E5, 0, 0), 0x24, NULL, NULL, NULL, NULL);
+//      gcdialog_showDialog(VER_SELECT(ASSET_CD0_DIALOG_GNAWTY_COMPLETE_SUMMER, 0x9E5, 0, 0), 0x24, NULL, NULL, NULL, NULL);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_CD0_DIALOG_GNAWTY_COMPLETE_SUMMER, 0x9E5, 0, 0), 0x24, NULL, NULL, NULL, NULL);
     }
     if (next_state == CH_GNAWTY_SUMMER_STATE_3_RUNNING) {
         skeletalAnim_set(this->unk148, ASSET_1A8_ANIM_GNAWTY_RUNNING, 0.2f, 0.5f);

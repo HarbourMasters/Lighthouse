@@ -89,17 +89,7 @@ ParticleSettingsVelocityAccelerationPosition D_80390CA8 = {
     { {-10.0f, -10.0f, -10.0f}, {10.0f, 10.0f, 10.0f} }
 };
 
-enum chbossboombox_state_e {
-    CH_BOSS_BOOM_BOX_STATE_0_NOT_INIT,
-    CH_BOSS_BOOM_BOX_STATE_1_WAITING_FOR_PLAYER,
-    CH_BOSS_BOOM_BOX_STATE_2_HIDES_JIGGY,
-    CH_BOSS_BOOM_BOX_STATE_3_ATTACK_PLAYER,
-    CH_BOSS_BOOM_BOX_STATE_4_PUSH_BACK,
-    CH_BOSS_BOOM_BOX_STATE_5_BREAKING,
-    CH_BOSS_BOOM_BOX_STATE_6_COMPLETE,
-    CH_BOSS_BOOM_BOX_STATE_7_UNK,
-    CH_BOSS_BOOM_BOX_STATE_8_FF_TIMER_RUN_OUT
-};
+#include "bossboombox.h" // [port] the states moved there
 
 /* .bss */
 u8 D_80391280;

@@ -36,13 +36,7 @@ Struct_CCW_4530_0 chEyrieAdultSFX[] = {
     0
 };
 
-enum chEyrieAdult_State_e {
-    CH_EERYIE_ADULT_STATE_0_NOT_INIT,
-    CH_EERYIE_ADULT_STATE_1_WAITING,
-    CH_EERYIE_ADULT_STATE_2_MEET_DIALOG,
-    CH_EERYIE_ADULT_STATE_3_FLIGHT_TAKE_OFF,
-    CH_EERYIE_ADULT_STATE_4_DESPAWN
-};
+#include "adulteyrie.h" // [port] the states moved there
 
 /* .code */
 void chEyrieAdult_setMarkerToState3(ActorMarker* marker, enum asset_e text_id, s32 arg2) {

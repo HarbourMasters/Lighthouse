@@ -247,12 +247,12 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
         landY = (--this->unk38_31 < 4) ? this->unk1C[1] : this->position[1];
         if (this->position[1] < landY) {
             if (this->modelCacheIndex == ACTOR_2A2_CATERPILLAR || this->modelCacheIndex == ACTOR_2A9_ACORN) {
-                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                 marker_despawn(this->marker);
                 return 1;
             }
             if (this->modelCacheIndex == ACTOR_2A_GOLD_BULLION) {
-                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 32000);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 32000);
             }
             if (this->marker->id != MARKER_36_ORANGE_COLLECTIBLE) {
                 sfx_playFadeShorthandDefault(SFX_21_EGG_BOUNCE_1, 0.76f, 25000, this->position, 1000, 2000);

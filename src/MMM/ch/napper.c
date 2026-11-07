@@ -45,11 +45,13 @@ void __chnapper_setState(Actor *this, s32 next_state){
     if(next_state == 3){
         skeletalAnim_set(this->unk148, ASSET_A5_ANIM_NAPPER_WALK, 0.2f, 1.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        sfxsource_playHighPriority(SFX_41_MUMBO_ERGHHH);
+//      sfxsource_playHighPriority(SFX_41_MUMBO_ERGHHH);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) sfxsource_playHighPriority(SFX_41_MUMBO_ERGHHH);
     }
 
     if(next_state == 4){
-        sfxsource_playHighPriority(SFX_C_TAKING_FLIGHT_LIFTOFF);
+//      sfxsource_playHighPriority(SFX_C_TAKING_FLIGHT_LIFTOFF);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) sfxsource_playHighPriority(SFX_C_TAKING_FLIGHT_LIFTOFF);
         func_803895B0(0);
     }
     

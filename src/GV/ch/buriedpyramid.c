@@ -3,10 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-typedef struct{
-    f32 transistion_timer;
-    s32 raised_state;
-}ActorLocal_chBuriedPyramid;
+#include "buriedpyramid.h" // [port] the typedef moved there
 
 void chBuriedPyramid_update(Actor *this);
 Actor *chBuriedPyramid_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -23,10 +20,16 @@ void __chBuriedPyramid_setState(Actor *this, s32 next_state){
     s32 sp1C;
     
     if(next_state == 2){
-        sp1C = func_802F9AA8(SFX_3EC_CCW_DOOR_OPENING);
-        func_802F9DB8(sp1C, 0.7f, 0.9f, 0.03f);
-        func_802F9F80(sp1C, 0.3f, 2.4f, 0.3f);
-        func_802FA060(sp1C, 32000, 32000, 0.0f);
+//      sp1C = func_802F9AA8(SFX_3EC_CCW_DOOR_OPENING);
+//      func_802F9DB8(sp1C, 0.7f, 0.9f, 0.03f);
+//      func_802F9F80(sp1C, 0.3f, 2.4f, 0.3f);
+//      func_802FA060(sp1C, 32000, 32000, 0.0f);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)){
+            sp1C = func_802F9AA8(SFX_3EC_CCW_DOOR_OPENING);
+            func_802F9DB8(sp1C, 0.7f, 0.9f, 0.03f);
+            func_802F9F80(sp1C, 0.3f, 2.4f, 0.3f);
+            func_802FA060(sp1C, 32000, 32000, 0.0f);
+        }
     }
     this->state = next_state;
 }
@@ -66,13 +69,6 @@ void chBuriedPyramid_update(Actor *this){
         this->position_z = 400.0f;
         __chBuriedPyramid_setState(this, 1);
     }//L8038FE48
-
-    if(this->state == 1){
-        s32 flagState = fileProgressFlag_getN(FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, 2);
-        if(flagState > local->raised_state){
-            chBuriedPyramid_setRaisedAmount(this->marker, flagState);
-        }
-    }
 
     if(this->state == 2){
         local->transistion_timer += time_getDelta()/3.0f;

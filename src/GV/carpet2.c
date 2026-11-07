@@ -101,11 +101,13 @@ void func_8038D47C(Actor *this){
                 || actor_animationIsAt(this, 0.45f)
                 || actor_animationIsAt(this, 0.8f)
             ){
-                FUNC_8030E624(SFX_D4_JINXIE_SNIFFLING_2, 0.8f, 32000);
+//              FUNC_8030E624(SFX_D4_JINXIE_SNIFFLING_2, 0.8f, 32000);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_D4_JINXIE_SNIFFLING_2, 0.8f, 32000);
             }
             if( actor_animationIsAt(this, 0.99f) ){
                 if(--this->unk38_31 == 0){
-                    gcdialog_showDialog(VER_SELECT(ASSET_A7C_DIALOG_JINXY_ONE_EGG, 0x938, 0, 0), 4, NULL, NULL, NULL, NULL);
+//                  gcdialog_showDialog(VER_SELECT(ASSET_A7C_DIALOG_JINXY_ONE_EGG, 0x938, 0, 0), 4, NULL, NULL, NULL, NULL);
+                    if(EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_A7C_DIALOG_JINXY_ONE_EGG, 0x938, 0, 0), 4, NULL, NULL, NULL, NULL);
                     mapSpecificFlags_set(0x14, TRUE);
                     subaddie_set_state_forward(this, 1);
                 }
@@ -115,13 +117,16 @@ void func_8038D47C(Actor *this){
             if( actor_animationIsAt(this, 0.135f)
                 || actor_animationIsAt(this, 0.3f)
             ){
-                FUNC_8030E624(SFX_D4_JINXIE_SNIFFLING_2, 0.8f, 32000);
+//              FUNC_8030E624(SFX_D4_JINXIE_SNIFFLING_2, 0.8f, 32000);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_D4_JINXIE_SNIFFLING_2, 0.8f, 32000);
             }
             if(actor_animationIsAt(this, 0.63f)){
-                FUNC_8030E624(SFX_D5_JINXIE_SNEEZING, 0.8f, 32750);
+//              FUNC_8030E624(SFX_D5_JINXIE_SNEEZING, 0.8f, 32750);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_D5_JINXIE_SNEEZING, 0.8f, 32750);
             }
             if(actor_animationIsAt(this, 0.83f)){
-                FUNC_8030E624(SFX_D6_UGH, 0.8f, 32750);
+//              FUNC_8030E624(SFX_D6_UGH, 0.8f, 32750);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_D6_UGH, 0.8f, 32750);
             }
             if(actor_animationIsAt(this, 0.94f)){
                 if(!volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)){

@@ -352,11 +352,8 @@ static void Gruntch_EnableActorTweaks() {
         }
     });
 
-    REGISTER_VB_SHOULD(VB_NAPPER_WAKE_SFX, EVENT_PRIORITY_NORMAL, {
-        s32* sfx = va_arg(args, s32*);
-        *sfx = SFX_142_GRUNTY_LAUGH_3;
-        (void)should;
-    });
+    REGISTER_LISTENER(OnNapperWakeSfx, EVENT_PRIORITY_NORMAL,
+                      [](IEvent* event) { *((OnNapperWakeSfx*)event)->sfx = SFX_142_GRUNTY_LAUGH_3; });
 }
 
 // Storybook opens on a black fade-in and closes on a black fade-out; the jiggy wipe does the rest

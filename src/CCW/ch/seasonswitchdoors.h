@@ -1,0 +1,13 @@
+// [port] seasonswitchdoors.c's states, moved here for the Anchor catch-up (Puzzles/ClickClockWood.cpp).
+#ifndef BANJO_KAZOOIE_CCW_CH_SEASONSWITCHDOORS_H
+#define BANJO_KAZOOIE_CCW_CH_SEASONSWITCHDOORS_H
+
+enum chCCWSeasonSwitchDoor_State_e {
+    CH_CCW_SEASON_SWITCH_DOOR_STATE_0_NOT_INIT,
+    CH_CCW_SEASON_SWITCH_DOOR_STATE_1_LOWERED,
+    CH_CCW_SEASON_SWITCH_DOOR_STATE_2_OPENING,
+    CH_CCW_SEASON_SWITCH_DOOR_STATE_3_RAISED,
+    CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION
+};
+
+#endif

@@ -368,7 +368,8 @@ void maOrgan_update(void){
     f32 plyr_pos[3];
     Actor *motzhand_2;
 
-    if (Me.state == 0) {
+//  if (Me.state == 0) {
+    if (EventSystem_Should(VB_ORGAN_GAME_IDLE, Me.state == 0, Me.state, Me.motzhand_marker)) {
         return;
     }
 

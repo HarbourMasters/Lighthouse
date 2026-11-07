@@ -149,7 +149,8 @@ void gv_matchingGame_update(void){
     f32 pad34;
 
     dt = time_getDelta();
-    if(!matchingGame.state)
+//  if(!matchingGame.state)
+    if(EventSystem_Should(VB_MATCHING_GAME_IDLE, !matchingGame.state, matchingGame.state))
         return;
 
     if(matchingGame.mummy_marker && !matchingGame.mummy_marker->unk5C){

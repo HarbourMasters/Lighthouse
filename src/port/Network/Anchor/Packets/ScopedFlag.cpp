@@ -9,9 +9,14 @@
 #include "functions.h"
 
 static uint32_t sMapFlagSetRemotely = 0;
+static uint64_t sLevelFlagSetRemotely = 0;
 
 extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
     return (index >= 0 && index < 32 && (sMapFlagSetRemotely & (1u << index))) ? 1 : 0;
+}
+
+bool Anchor_WasLevelFlagSetRemotely(int32_t index) {
+    return index >= 0 && index < 64 && (sLevelFlagSetRemotely & (1ull << index));
 }
 
 void Anchor_MarkMapFlagsRemote(uint32_t mask) {
@@ -64,7 +69,13 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
         if ((s32)map_getLevel(gsworld_getMap()) == ctx) {
             ApplyRemote([&] {
                 for (s32 i = 0; i < count; i++) {
-                    levelSpecificFlags_set(index + i, (values >> i) & 1);
+                    const s32 bit = index + i;
+                    const u8 value = (values >> i) & 1;
+                    const bool wasSet = bit >= 0 && bit < 64 && levelSpecificFlags_get(bit);
+                    levelSpecificFlags_set(bit, value);
+                    if (value && !wasSet && bit >= 0 && bit < 64) {
+                        sLevelFlagSetRemotely |= (1ull << bit);
+                    }
                 }
             });
         }
@@ -88,13 +99,28 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
 }
 
 void RegisterScopedFlag_Init() {
+    // A flag we set is ours. Clearing one keeps the mark, since a door that shuts on its own asks who opened it.
     REGISTER_LISTENER(OnGameFlagSet, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
-        if (ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC && ev->index >= 0 && ev->index < 32) {
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC && ev->index >= 0 && ev->index < 32 && ev->value) {
             sMapFlagSetRemotely &= ~(1u << ev->index);
         }
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
+            for (s32 i = 0; i < ev->length; i++) {
+                const s32 bit = ev->index + i;
+                if (((ev->value >> i) & 1) && bit >= 0 && bit < 64) {
+                    sLevelFlagSetRemotely &= ~(1ull << bit);
+                }
+            }
+        }
     });
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sMapFlagSetRemotely = 0; });
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnMapLoad*)event;
+        sMapFlagSetRemotely = 0;
+        if (map_getLevel((enum map_e)ev->prevMap) != map_getLevel((enum map_e)ev->nextMap)) {
+            sLevelFlagSetRemotely = 0;
+        }
+    });
 }
 
 static RegisterShipInitFunc initScopedFlag(RegisterScopedFlag_Init, {});

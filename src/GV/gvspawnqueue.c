@@ -7,8 +7,6 @@
 
 #include <libultra/r4300.h>
 
-#include "port/Patches/Patches.h"
-
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void chMMMBreakableWooden_update(Actor *this);
 extern void func_802D3D74(Actor *this);
@@ -177,23 +175,15 @@ void func_8038E430(Actor *this){
 
 void func_8038E460(Actor *this){//banjo_door
     func_802D3D74(this);
-    // Anchor: flag 0x10 is transient, doesn't survive reload.
-    if(mapSpecificFlags_get(0x10)){
-        if(!(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1)){
-            port_puzzleStep_orBits(ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
-        }
-    } else if(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1){
-        mapSpecificFlags_set(0x10, true);
-        mapSpecificFlags_set(2, true);
-    }
     if(mapSpecificFlags_get(0x10)){
         func_8038E430(this);
         if(!mapSpecificFlags_get(2)){
             mapSpecificFlags_set(2, true);
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_JINXY)){
                 func_8028F918(0);
-                func_80324DBC(4.0f, VER_SELECT(ASSET_A7D_DIALOG_JINXY_HELPED, 0x939, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
+//          func_80324DBC(4.0f, VER_SELECT(ASSET_A7D_DIALOG_JINXY_HELPED, 0x939, 0, 0), 4, NULL, NULL, NULL, NULL);
+            if(EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) func_80324DBC(4.0f, VER_SELECT(ASSET_A7D_DIALOG_JINXY_HELPED, 0x939, 0, 0), 4, NULL, NULL, NULL, NULL);
         }
     }
 }
@@ -248,7 +238,8 @@ void func_8038E648(Actor *this){
                 if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_STAR))
                     gcStaticCamera_activate(2);
                 subaddie_set_state(this, 6);
-                core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
+//              core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
                 s32 pyramidTimer = 25;
                 CALL_EVENT(OnWaterPyramidTimer, &pyramidTimer); // [port] may extend timer
                 this->unk38_31 = pyramidTimer * 24; // [port] door duration derived from HUD timer (vanilla ratio 600:25)
@@ -262,7 +253,8 @@ void func_8038E648(Actor *this){
             if(90.0f <= this->pitch){
                 subaddie_set_state(this, 7);
                 this->pitch = 90.0f;
-                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//              gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 core1_7090_freeSfxSource(0);
             }
             break;
@@ -271,7 +263,8 @@ void func_8038E648(Actor *this){
             this->unk38_31 -= time_getDelta();
             if(this->unk38_31 == 0){
                 subaddie_set_state(this, 8);
-                core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
+//              core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
             }
             break;
 
@@ -280,10 +273,12 @@ void func_8038E648(Actor *this){
             if(this->pitch <= 0.0f){
                 subaddie_set_state(this, 1);
                 this->pitch = 0.0f;
-                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//              gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 mapSpecificFlags_set(5, false);
                 core1_7090_freeSfxSource(0);
-                progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
+//              progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
             }
             break;
     }//L8038E904:
@@ -347,11 +342,13 @@ void chKazooieDoor_update(Actor *this){
     switch(this->state){
         case 1: //L8038EB98
             if(mapSpecificFlags_get(6)){
-                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
+//              coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
                 if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_KAZOOIE))
                     gcStaticCamera_activate(3);
                 subaddie_set_state(this, 6);
-                core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
+//              core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
                 this->unk1C[1] = this->position_y + 210.0f;
                 this->unk1C[0] = this->position_y;
             }
@@ -362,7 +359,8 @@ void chKazooieDoor_update(Actor *this){
             this->position_z -= 1.3319999999999999;
             if(this->unk1C[1] <= this->position_y){
                 subaddie_set_state(this, 7);
-                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//              gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 core1_7090_freeSfxSource(1);
                 this->unk38_31 = 450;
             }
@@ -372,7 +370,8 @@ void chKazooieDoor_update(Actor *this){
             this->unk38_31--;
             if(this->unk38_31 == 0){
                 subaddie_set_state(this, 8);
-                core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
+//              core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
             }
             break;
 
@@ -382,7 +381,8 @@ void chKazooieDoor_update(Actor *this){
             if(this->position_y <= this->unk1C[0]){
                 this->position_y = this->unk1C[0];
                 subaddie_set_state(this, 1);
-                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//              gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+                if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 core1_7090_freeSfxSource(1);
                 mapSpecificFlags_set(6, false);
             }

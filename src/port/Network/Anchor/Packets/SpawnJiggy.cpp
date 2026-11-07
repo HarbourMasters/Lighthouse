@@ -146,7 +146,9 @@ static void expireTimedJiggy(int16_t jiggyId) {
         !Anchor_JiggyListHasObject(jiggyId)) {
         return;
     }
-    func_8030E6D4(SFX_30_MAGIC_POOF);
+    if (Anchor_InEarshot(jiggylist_list[jiggyId - 1].unk10.position)) {
+        func_8030E6D4(SFX_30_MAGIC_POOF);
+    }
     marker_despawn(jiggylist_list[jiggyId - 1].unk10.marker);
 }
 

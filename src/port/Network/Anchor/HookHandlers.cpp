@@ -187,6 +187,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN || index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
+    // Eyrie's flight ending starts the flyer's cutscene (cutsceneadulteyrie.c); the jiggy syncs via JIGGY_SPAWN.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_46_CCW_WINTER &&
+        index == CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT) {
+        return true;
+    }
     // SM map flags are entirely Bottles-tutorial choreography;
     // syncing any of them runs someone else's state machine.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
@@ -210,6 +215,11 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             }
             // The sun door clears 3 and 4 when its cycle ends (gvspawnqueue.c); a teammate's clear halts our open door.
             if (gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY && (index == 3 || index == 4)) {
+                return true;
+            }
+            // The star hatch and the church door each close on their own timer (gvspawnqueue.c, mmmspawnqueue.c).
+            if ((gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY && index == 5) ||
+                (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION && index == MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
                 return true;
             }
             // The Tee-Hees clear 3 and 4 as they wake and leave (ghost.c); a teammate's clear can land with the set.
@@ -412,14 +422,6 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_VileHoleState((u8)hole, (u8)ev->state, (u8)ev->pieceType, VILE_EATER_MR_VILE);
     });
 
-    // Followers: suppress local random logic; network state drives these instead.
-    COND_VB_SHOULD(VB_CCW_FLOWER_REMOTE_GROW, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            s32 stageFlag = va_arg(args, s32);
-            *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
-        }
-    });
-
     // Our ride ended in a crash, so the sled's claim goes. After a teammate rescued Boggy the crash plays no scene, and
     // the scene is what releases the ride's camera. Always on, since the rescue can land before a disconnect.
     COND_ID_HOOK(OnActorDestroy, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
@@ -503,31 +505,31 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            s32 doorId = va_arg(args, s32);
-            switch (doorId) {
-                case GV_DOOR_CAM_SUN:
-                    *should = !port_mapFlag_wasSetRemotely(3);
-                    break;
-                case GV_DOOR_CAM_STAR:
-                    *should = !port_mapFlag_wasSetRemotely(5);
-                    break;
-                case GV_DOOR_CAM_KAZOOIE:
-                    *should = !port_mapFlag_wasSetRemotely(6);
-                    break;
-                case GV_DOOR_CAM_JINXY:
-                    *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
-                    break;
-                case MMM_DOOR_CAM_CHURCH:
-                    *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
-                    break;
-                default:
-                    break;
-            }
+    // Always on: a door that opens while connected plays out if the connection drops.
+    COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, true, {
+        s32 doorId = va_arg(args, s32);
+        switch (doorId) {
+            case GV_DOOR_CAM_SUN:
+                *should = !port_mapFlag_wasSetRemotely(3);
+                break;
+            case GV_DOOR_CAM_STAR:
+                *should = !port_mapFlag_wasSetRemotely(5);
+                break;
+            case GV_DOOR_CAM_KAZOOIE:
+                *should = !port_mapFlag_wasSetRemotely(6);
+                break;
+            case GV_DOOR_CAM_JINXY:
+                *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                break;
+            case MMM_DOOR_CAM_CHURCH:
+                *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                break;
+            default:
+                break;
         }
     });
 
+    // Followers: suppress local random logic; network state drives these instead.
     COND_VB_SHOULD(VB_VILE_YUMBLIE_EMERGE, EVENT_PRIORITY_NORMAL, true, {
         if (Anchor_IsVileFollower()) {
             *should = false;

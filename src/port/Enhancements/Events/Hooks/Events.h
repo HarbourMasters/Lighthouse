@@ -331,7 +331,6 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
-    VB_CCW_FLOWER_REMOTE_GROW,     // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
     VB_FP_TWINKLY_START,           // Gates FP twinkly minigame start so only one client owns a run at a time.
     VB_SM_TUTORIAL_CHOICE_OPEN,    // True while the SM tutorial choice is still open to the local player.
     VB_SM_MOLEHILL_ACTIVE,         // SM ability molehills stay inert until the tutorial choice is made.
@@ -364,9 +363,12 @@ typedef enum VBehaviorID {
     // without both.
     // #### `result`
     // ```c
-    // true                                 // Croctus, Boggy, Blubber, the snow managers, Tanktup's look-at and exit
-    // true                                 // Juju's landing shakes
-    // actor_animationIsAt(this, 0.1f) != 0 // Tanktup's camera
+    // true                                  // Croctus, Boggy, Blubber, the snow managers, Tanktup's look-at and exit
+    // true                                  // Juju's landing shakes
+    // true                                  // Napper
+    // true                                  // the flower, the egg, baby Eyrie, Nabnut, Gnawty's boulder
+    // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
+    // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
     // ```
     // #### `args`
     // - `*Actor` (whose step it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
@@ -376,6 +378,8 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // true                                       // Croctus's second dialog, Boggy, Tanktup's last dialog
+    // true                                       // Napper, Jinxy, the GV and church doors
+    // true                                       // baby Eyrie, Nabnut, Gnawty
     // (!this->unk138_23) && (!local->unk14)      // Tanktup's hit dialog
     // !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH) // a Clanker tooth's
     // ```
@@ -388,7 +392,13 @@ typedef enum VBehaviorID {
     // ```c
     // true                                  // Croctus, Tanktup, the pink egg, Blubber, the teeth, the snow buttons
     // true                                  // Juju, FP ice tree
+    // true                                  // Napper, Jinxy, the pyramid, the GV and church doors
+    // true                                  // the flower, the egg, baby Eyrie, the season doors
+    // true                                  // Gnawty's boulder and its shake
+    // true                                  // a teammate's thrown caterpillar, acorn or gold landing
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
+    // !this->unk38_31                       // the church door shutting
+    // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
     // ```
     // #### `args`
     // - `*Actor` (whose step it is, or NULL from FP's snowman-button manager, which has none)
@@ -399,6 +409,7 @@ typedef enum VBehaviorID {
     // ```c
     // true                                                                // Boggy, the pink egg, the snow managers
     // true                                                                // Juju's, with the solve's shake
+    // true                                                                // the flower and Nabnut
     // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
     // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
     // ```
@@ -467,6 +478,49 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_WOZZA_JIGGY_DROPPED,
+
+    // #### `result`
+    // ```c
+    // !this->initialized
+    // ```
+    // #### `args`
+    // - `*Actor` (the Ancient One)
+    VB_ANCIENT_ONE_UNSEEN,
+
+    // A listener that returns true has to end the game.
+    // #### `result`
+    // ```c
+    // !matchingGame.state
+    // ```
+    // #### `args`
+    // - `s32` (matchingGame.state, promoted from `u8`)
+    VB_MATCHING_GAME_IDLE,
+
+    // #### `result`
+    // ```c
+    // arg0->jiggy_marker != NULL
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_HOLDS_JIGGY,
+
+    // #### `result`
+    // ```c
+    // arg0->state == TUMBLAR_STATE_1_CONGRATULATING && mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)
+    // ```
+    // #### `args`
+    // - `s32` (the Tumblar's state, promoted from `u8`)
+    VB_TUMBLAR_BREAK,
+
+    // A listener that returns true has to end the game.
+    // #### `result`
+    // ```c
+    // Me.state == 0
+    // ```
+    // #### `args`
+    // - `s32` (Me.state, promoted from `u8`)
+    // - `*ActorMarker` (Motzhand)
+    VB_ORGAN_GAME_IDLE,
 
     // Romhack port gates
 
@@ -646,8 +700,14 @@ typedef enum VBehaviorID {
     // - `*s32` (diff)
     VB_ITEM_ADJUST_BY_DIFF,
     VB_MM_HUT_DESPAWN_ON_SMASH,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ActorMarker` (Nabnut)
     VB_NABNUT_SNORE_SFX,
-    VB_NAPPER_WAKE_SFX,
     VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
 
     VB_COUNT,
