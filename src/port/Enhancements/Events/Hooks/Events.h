@@ -162,6 +162,14 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_HANDLE_PLAYER_DEATH,
+
+    // A hit enemy dropping its bundle.
+    // #### `result`
+    // ```c
+    // sp6C != 0
+    // ```
+    // #### `args`
+    // - `s32` (the enemy's actor id, promoted from `s16`)
     VB_ENEMY_BECOME_BUNDLE,
 
     // #### `result`
