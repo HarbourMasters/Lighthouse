@@ -31,6 +31,47 @@ static const char* LevelOpenSeenFlagName(s16 flag) {
     return nullptr;
 }
 
+static const char* WitchSwitchLevelName(s16 flag) {
+    static const enum level_e kWitchSwitchLevels[] = {
+        LEVEL_1_MUMBOS_MOUNTAIN,  LEVEL_A_MAD_MONSTER_MANSION, LEVEL_2_TREASURE_TROVE_COVE,
+        LEVEL_9_RUSTY_BUCKET_BAY, LEVEL_8_CLICK_CLOCK_WOOD,    LEVEL_5_FREEZEEZY_PEAK,
+        LEVEL_3_CLANKERS_CAVERN,  LEVEL_4_BUBBLEGLOOP_SWAMP,   LEVEL_7_GOBIS_VALLEY,
+    };
+    // The flag each switch's cutscene sets as it ends. A pressed switch sets its volatile flag again after a load
+    // (func_802D4AC0).
+    static const enum file_progress_e kWitchSwitchDone[] = {
+        FILEPROG_18_MM_WITCH_SWITCH_JIGGY_PRESSED,  FILEPROG_19_MMM_WITCH_SWITCH_JIGGY_PRESSED,
+        FILEPROG_1A_TTC_WITCH_SWITCH_JIGGY_PRESSED, FILEPROG_1C_RBB_WITCH_SWITCH_JIGGY_PRESSED,
+        FILEPROG_46_CCW_WITCH_SWITCH_JIGGY_PRESSED, FILEPROG_47_FP_WITCH_SWITCH_JIGGY_PRESSED,
+        FILEPROG_9A_CC_WITCH_SWITCH_PRESSED,        FILEPROG_9F_BGS_WITCH_SWITCH_JIGGY_PRESSED,
+        FILEPROG_A0_GV_WITCH_SWITCH_JIGGY_PRESSED,
+    };
+    if (flag >= VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM && flag <= VOLATILE_FLAG_BE_WITCH_SWITCH_PRESSED_GV) {
+        const s32 i = flag - VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM;
+        return fileProgressFlag_get(kWitchSwitchDone[i]) ? nullptr : port_levelName(kWitchSwitchLevels[i]);
+    }
+    return nullptr;
+}
+
+static std::string ProgressFlagNews(s16 flag) {
+    if (flag >= FILEPROG_3A_NOTE_DOOR_50_OPEN && flag <= FILEPROG_45_NOTE_DOOR_882_OPEN) {
+        return "opened the " + std::to_string(NoteDoorNumbers_GetCost(flag - FILEPROG_3A_NOTE_DOOR_50_OPEN)) +
+               " note door";
+    }
+    switch (flag) {
+        case FILEPROG_22_WATER_SWITCH_1_PRESSED:
+            return std::string("hit water switch 1 in ") + port_levelName(LEVEL_6_LAIR);
+        case FILEPROG_24_WATER_SWITCH_2_PRESSED:
+            return std::string("hit water switch 2 in ") + port_levelName(LEVEL_6_LAIR);
+        case FILEPROG_26_WATER_SWITCH_3_PRESSED:
+            return std::string("hit water switch 3 in ") + port_levelName(LEVEL_6_LAIR);
+        case FILEPROG_B9_DOUBLE_HEALTH:
+            return "unlocked double health";
+        default:
+            return "";
+    }
+}
+
 // count > 1 sends a multi-bit field: values holds its bits, lowest first.
 void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag, u32 values, s32 count) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
@@ -81,7 +122,16 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
             RANDO_SAVE_FLAGS[flag].flagState = 1;
         }
     } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
+        bool wasSet = volatileFlag_get((enum volatile_flags_e)flag) != 0;
         ApplyRemote([&] { volatileFlag_set((enum volatile_flags_e)flag, 1); });
+        if (!wasSet && ShouldShowNotifications()) {
+            if (const char* where = WitchSwitchLevelName(flag)) {
+                Notification::Emit({
+                    .prefix = GetClientName(payload.value("clientId", 0u)),
+                    .message = std::string("hit the witch switch in ") + where,
+                });
+            }
+        }
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
         ApplyRemote([&] { fileProgressFlag_set((enum file_progress_e)flag, 1); });
@@ -95,6 +145,15 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
                 Notification::Emit({
                     .prefix = GetClientName(payload.value("clientId", 0u)),
                     .message = std::string("opened ") + opened,
+                });
+            }
+        }
+        if (!wasSet && ShouldShowNotifications()) {
+            const std::string news = ProgressFlagNews(flag);
+            if (!news.empty()) {
+                Notification::Emit({
+                    .prefix = GetClientName(payload.value("clientId", 0u)),
+                    .message = news,
                 });
             }
         }

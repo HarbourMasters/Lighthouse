@@ -18,6 +18,12 @@ extern "C" {
 extern s16 D_8039347C[12];
 }
 
+// The hack's cost for a door (0 to 11), or vanilla's.
+extern "C" int NoteDoorNumbers_GetCost(int doorIdx) {
+    const int cost = port_getRomhackNoteDoor(doorIdx);
+    return cost >= 0 ? cost : D_8039347C[doorIdx];
+}
+
 namespace {
 
 constexpr s32 kNoteDoorCount = 12;
@@ -33,12 +39,6 @@ constexpr s32 kDigitVertexCmd = 12;              // the first quad's G_VTX in th
 constexpr s32 kDigitTexture[9] = { 2, 4, 5, 6, 7, 8, 9, 10, 11 };
 constexpr s32 kSixTexture = 9;
 constexpr size_t kDigitBytes = 32 * 32 * 4; // RGBA32 32x32
-
-// The hack's cost for a door, or vanilla's.
-int NoteDoorCost(int doorIdx) {
-    const int cost = port_getRomhackNoteDoor(doorIdx);
-    return cost >= 0 ? cost : D_8039347C[doorIdx];
-}
 
 bool sComposeNoteDoors = false;
 bool sNoteDoorsComposed = false;
@@ -174,7 +174,7 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
         memcpy(composed, gfxList, bytes);
         // Each door's list becomes a call to its composed number and an end; the geo selectors don't change
         for (s32 door = 0; door < kNoteDoorCount; door++) {
-            BuildNoteDoorNumberList(sNoteDoorNumberLists[door], gfxList->list, (u16)NoteDoorCost(door));
+            BuildNoteDoorNumberList(sNoteDoorNumberLists[door], gfxList->list, (u16)NoteDoorNumbers_GetCost(door));
             gSPDisplayList(&composed->list[kNoteDoorNumberList[door]], sNoteDoorNumberLists[door]);
             gSPEndDisplayList(&composed->list[kNoteDoorNumberList[door] + 1]);
         }
@@ -188,7 +188,7 @@ void ApplyNoteDoorNumbers() {
     // Doors open at the hack's costs
     COND_VB_SHOULD(VB_NOTEDOOR_ENOUGH_NOTES, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
         Actor* door = va_arg(args, Actor*);
-        *should = itemscore_noteScores_getTotal() >= NoteDoorCost(door->actorTypeSpecificField - 1);
+        *should = itemscore_noteScores_getTotal() >= NoteDoorNumbers_GetCost(door->actorTypeSpecificField - 1);
     });
 
     // Hide the baked number mesh on doors the hack retunes

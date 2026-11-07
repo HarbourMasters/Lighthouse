@@ -104,6 +104,7 @@ float port_getSfxVolume(void);
 // Note doors (NoteDoorNumbers.cpp)
 
 void port_enableNoteDoorComposer(void);
+int NoteDoorNumbers_GetCost(int doorIdx);
 
 // Attract-demo audio hold
 
