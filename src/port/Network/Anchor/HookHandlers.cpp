@@ -183,6 +183,13 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == MMM_SPECIFIC_FLAG_2_UNKNOWN || index == MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)) {
         return true;
     }
+    // The shed's Tee-Hee flags go out only from the player running Tumblar's game. A watcher's Tee-Hee sets the wake
+    // flag to respawn after a kill (ghost.c), and the runner's would come back the moment they next kill it.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_24_MMM_TUMBLARS_SHED &&
+        (index == MMM_SPECIFIC_FLAG_3_UNKNOWN || index == MMM_SPECIFIC_FLAG_4_UNKNOWN) &&
+        !(NetAuthority_IsClaimed(NET_ACTIVITY_MMM_TUMBLAR) && NetAuthority_IsSelf(NET_ACTIVITY_MMM_TUMBLAR))) {
+        return true;
+    }
     // Per-frame scratch for the local player (quiz/game.c, its only writer).
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && index == 0x1F) {
         return true;
