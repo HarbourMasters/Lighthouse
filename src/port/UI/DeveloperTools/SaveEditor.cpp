@@ -87,6 +87,15 @@ bool SaveEditor_IsHoneycombCollected(honeycomb_e honeycombId) {
     return (sHoneycombScore[(honeycombId - 1) / 8] & (1 << (honeycombId & 7))) != 0;
 }
 
+void SaveEditor_SetHoneycomb(honeycomb_e honeycombId, bool collected) {
+    const s32 healthTotal = item_getCount(ITEM_15_HEALTH_TOTAL);
+    honeycombscore_set(honeycombId, collected);
+    func_8034789C();
+    const bool gained = item_getCount(ITEM_15_HEALTH_TOTAL) > healthTotal;
+    item_adjustByDiffWithoutHud(ITEM_14_HEALTH,
+                                gained ? item_getCount(ITEM_15_HEALTH_TOTAL) - item_getCount(ITEM_14_HEALTH) : 0);
+}
+
 bool SaveEditor_IsMumboTokenCollected(mumbotoken_e tokenId) {
     return (sMumboTokenScore[(tokenId - 1) / 8] & (1 << (tokenId & 7))) != 0;
 }
@@ -122,7 +131,7 @@ void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
             item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, itemIncr);
             break;
         case RI_EMPTY_HONEYCOMB:
-            honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
+            SaveEditor_SetHoneycomb((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
             break;
         case RI_MOLEHILL:
             if (randoSaveCheck.obtained) {
@@ -433,11 +442,10 @@ void SaveEditor_DrawProgressTab() {
                                                     .LabelPosition(UIWidgets::LabelPositions::None)
                                                     .Tooltip(SaveEditor_GetHoneycombTooltip((honeycomb_e)combId)))) {
                             Lighthouse::RunOnGameThread([combId] {
-                                if (SaveEditor_IsHoneycombCollected((honeycomb_e)combId)) {
-                                    honeycombscore_set((honeycomb_e)combId, false);
-                                } else {
-                                    honeycombscore_set((honeycomb_e)combId, true);
-                                }
+                                SaveEditor_SetHoneycomb((honeycomb_e)combId,
+                                                        !SaveEditor_IsHoneycombCollected((honeycomb_e)combId));
+                                item_adjustByDiffWithHud(ITEM_13_EMPTY_HONEYCOMB, 0);
+                                item_adjustByDiffWithHud(ITEM_14_HEALTH, 0);
                             });
                         }
                     }
