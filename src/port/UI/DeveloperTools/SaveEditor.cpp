@@ -4,6 +4,7 @@
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Enhancements/Retention/Retention.h"
 #include "port/FrameHost.h"
 #include "port/GameStatus.h"
 #include "port/Network/Anchor/Anchor.h"
@@ -344,8 +345,10 @@ void SaveEditor_DrawProgressTab() {
                     ImGui::SameLine();
                     if (UIWidgets::Checkbox(noteLabel.c_str(), &hasAllNotes,
                                             { .labelPosition = UIWidgets::LabelPositions::None })) {
-                        Lighthouse::RunOnGameThread(
-                            [level, hasAllNotes] { sItemscoreNoteScores[level] = hasAllNotes ? 100 : 0; });
+                        Lighthouse::RunOnGameThread([level, hasAllNotes] {
+                            sItemscoreNoteScores[level] = hasAllNotes ? 100 : 0;
+                            retention::setLevelNotesCollected(level, hasAllNotes);
+                        });
                     }
                     ImGui::TableNextColumn();
                 }
