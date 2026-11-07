@@ -4,6 +4,7 @@
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Enhancements/Retention/Retention.h"
 #include "port/FrameHost.h"
 #include "port/GameStatus.h"
 #include "port/Network/Anchor/Anchor.h"
@@ -41,6 +42,7 @@ extern struct {
 
 extern u8 sHoneycombScore[3];
 extern u8 sMumboTokenScore[16];
+extern ActorArray* suBaddieActorArray;
 }
 
 std::vector<std::string> warpCauldronList = {
@@ -70,6 +72,12 @@ std::unordered_map<int32_t, int32_t> progressToLevelMap = {
     { FILEPROG_39_CCW_OPEN, LEVEL_8_CLICK_CLOCK_WOOD },
 };
 
+std::vector<actor_e> worldEntranceDoors = {
+    ACTOR_20E_MM_ENTRANCE_DOOR,  ACTOR_211_TTC_ENTRANCE_CHEST_LID, ACTOR_212_CC_ENTRANCE_BARS,
+    ACTOR_210_BGS_ENTRANCE_DOOR, ACTOR_235_FP_ENTRANCE_DOOR_LEFT,  ACTOR_226_GV_ENTRANCE,
+    ACTOR_228_MMM_ENTRANCE_DOOR, ACTOR_20F_RBB_ENTRANCE_DOOR,      ACTOR_234_CCW_ENTRANCE_DOOR,
+};
+
 std::vector<level_e> levelOrder = {
     LEVEL_B_SPIRAL_MOUNTAIN,     LEVEL_6_LAIR,
     LEVEL_1_MUMBOS_MOUNTAIN,     LEVEL_2_TREASURE_TROVE_COVE,
@@ -85,6 +93,15 @@ bool SaveEditor_IsJiggyCollected(jiggy_e jiggyId) {
 
 bool SaveEditor_IsHoneycombCollected(honeycomb_e honeycombId) {
     return (sHoneycombScore[(honeycombId - 1) / 8] & (1 << (honeycombId & 7))) != 0;
+}
+
+void SaveEditor_SetHoneycomb(honeycomb_e honeycombId, bool collected) {
+    const s32 healthTotal = item_getCount(ITEM_15_HEALTH_TOTAL);
+    honeycombscore_set(honeycombId, collected);
+    func_8034789C();
+    const bool gained = item_getCount(ITEM_15_HEALTH_TOTAL) > healthTotal;
+    item_adjustByDiffWithoutHud(ITEM_14_HEALTH,
+                                gained ? item_getCount(ITEM_15_HEALTH_TOTAL) - item_getCount(ITEM_14_HEALTH) : 0);
 }
 
 bool SaveEditor_IsMumboTokenCollected(mumbotoken_e tokenId) {
@@ -122,7 +139,7 @@ void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
             item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, itemIncr);
             break;
         case RI_EMPTY_HONEYCOMB:
-            honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
+            SaveEditor_SetHoneycomb((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
             break;
         case RI_MOLEHILL:
             if (randoSaveCheck.obtained) {
@@ -174,6 +191,12 @@ void SaveEditor_DrawUnlocks() {
                             fileProgressFlag_set((file_progress_e)i, false);
                         } else {
                             fileProgressFlag_set((file_progress_e)i, true);
+                        }
+                        if (suBaddieActorArray != nullptr) {
+                            Actor* door = actorArray_findActorFromActorId(worldEntranceDoors[i - FILEPROG_31_MM_OPEN]);
+                            if (door != nullptr) {
+                                door->volatile_initialized = false;
+                            }
                         }
                     });
                 }
@@ -335,8 +358,10 @@ void SaveEditor_DrawProgressTab() {
                     ImGui::SameLine();
                     if (UIWidgets::Checkbox(noteLabel.c_str(), &hasAllNotes,
                                             { .labelPosition = UIWidgets::LabelPositions::None })) {
-                        Lighthouse::RunOnGameThread(
-                            [level, hasAllNotes] { sItemscoreNoteScores[level] = hasAllNotes ? 100 : 0; });
+                        Lighthouse::RunOnGameThread([level, hasAllNotes] {
+                            sItemscoreNoteScores[level] = hasAllNotes ? 100 : 0;
+                            retention::setLevelNotesCollected(level, hasAllNotes);
+                        });
                     }
                     ImGui::TableNextColumn();
                 }
@@ -433,11 +458,10 @@ void SaveEditor_DrawProgressTab() {
                                                     .LabelPosition(UIWidgets::LabelPositions::None)
                                                     .Tooltip(SaveEditor_GetHoneycombTooltip((honeycomb_e)combId)))) {
                             Lighthouse::RunOnGameThread([combId] {
-                                if (SaveEditor_IsHoneycombCollected((honeycomb_e)combId)) {
-                                    honeycombscore_set((honeycomb_e)combId, false);
-                                } else {
-                                    honeycombscore_set((honeycomb_e)combId, true);
-                                }
+                                SaveEditor_SetHoneycomb((honeycomb_e)combId,
+                                                        !SaveEditor_IsHoneycombCollected((honeycomb_e)combId));
+                                item_adjustByDiffWithHud(ITEM_13_EMPTY_HONEYCOMB, 0);
+                                item_adjustByDiffWithHud(ITEM_14_HEALTH, 0);
                             });
                         }
                     }

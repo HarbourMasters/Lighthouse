@@ -75,6 +75,7 @@ uint8_t collectedBits(int32_t level);
 namespace retention {
 // False during demos, Bottles bonus games, and rando files.
 bool systemActive();
+void setLevelNotesCollected(int32_t level, bool collected);
 } // namespace retention
 #endif
 

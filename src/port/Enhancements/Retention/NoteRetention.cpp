@@ -16,6 +16,7 @@
 #include "port/Save/SaveManager.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Rando/Rando.h"
+#include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
 #include <vector>
@@ -235,6 +236,43 @@ extern "C" void port_noteRetention_requestReseed(void) {
         return;
     }
     sPendingSeedLevel = (int32_t)level_get();
+}
+
+// Retention numbers a map's notes from 0 as they spawn, and the rando logic lists every note check
+// by map, so counting those covers each map's notes.
+void retention::setLevelNotesCollected(int32_t level, bool collected) {
+    NoteRetentionSaveData* s = store();
+    if (s == nullptr || !systemActive()) {
+        return;
+    }
+    std::unordered_map<int32_t, int32_t> notesPerMap;
+    for (const auto& [regionId, region] : Rando::Logic::Regions) {
+        if (region.mapId <= 0 || (int32_t)map_getLevel((enum map_e)region.mapId) != level) {
+            continue;
+        }
+        for (const auto& [checkId, check] : region.checks) {
+            auto it = Rando::StaticData::Checks.find(checkId);
+            if (it != Rando::StaticData::Checks.end() && it->second.randoCheckType == RCTYPE_MUSIC_NOTE) {
+                notesPerMap[region.mapId]++;
+            }
+        }
+    }
+    for (const auto& [mapId, count] : notesPerMap) {
+        for (int32_t index = 0; index < count && indexInRange(mapId, index); index++) {
+            const uint8_t bit = (uint8_t)(1 << (index & 7));
+            uint8_t& byte = s->collected[mapId][index >> 3];
+            byte = collected ? (uint8_t)(byte | bit) : (uint8_t)(byte & ~bit);
+            auto live = activeNoteSet.find(noteKey(mapId, index));
+            if (collected && applyEnabled() && live != activeNoteSet.end()) {
+                ActorMarker* marker = live->second;
+                activeNoteSet.erase(live);
+                if (marker != nullptr) {
+                    marker_despawn(marker);
+                }
+            }
+        }
+    }
+    port_noteRetention_requestReseed();
 }
 
 extern "C" void port_noteRetention_setForced(int32_t forced) {
