@@ -62,8 +62,10 @@ ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
 ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
 void Anchor_RegisterHutHooks(bool connected);
 void Anchor_RegisterTumblarHooks(bool connected);
+bool TumblarUpdate_IsGameRunning();
 void Anchor_BreakLairBreakable(int32_t progressFlag);
 void Anchor_RegisterFightHooks(bool connected);
+bool ChallengeTimer_IsShowing();
 
 class Anchor : public Network {
 private:
@@ -306,6 +308,7 @@ public:
     void SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(uint32_t clientId);
     void SendPacket_TumblarUpdate(const f32 position[3]);
+    void SendPacket_TumblarTile(s32 tile);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();
     void SendPacket_UpdateRoomState();

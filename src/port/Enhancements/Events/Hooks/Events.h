@@ -561,6 +561,34 @@ typedef enum VBehaviorID {
     // - `*f32` (position)
     VB_TUMBLAR_MOVE,
 
+    // Tumblar's game putting its full 75 seconds on the hourglass as it starts. A listener that returns false keeps
+    // the time already on it.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_HOURGLASS_RESET,
+
+    // Tumblar stepping onto a tile in his game, which lights it and checks its letter.
+    // #### `result`
+    // ```c
+    // sp24 && sp24->unk3 == 2 && sp24 != MMM_D_8038C510.unk4
+    // ```
+    // #### `args`
+    // - `s32` (the tile's mesh)
+    VB_TUMBLAR_TILE_STEP,
+
+    // An X tile knocking Banjo off Tumblar.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_KNOCK_OFF,
+
     // A listener that returns true has to end the game.
     // #### `result`
     // ```c
