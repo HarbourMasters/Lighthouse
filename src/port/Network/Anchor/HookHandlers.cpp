@@ -20,6 +20,7 @@ float OTRGetDimensionFromRightEdge(float v);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 void func_80324CD8(f32 time);
+void __chScarfSled_setState(Actor* self, s32 next_state);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 bool __chAttackTutorial_areLearnableAbilitiesUnlocked(void);
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
@@ -298,6 +299,12 @@ static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
 }
 
 static s32 sScarfSledBoardTime = 0;
+static bool sScarfSledRidePending = false;
+static bool sScarfSledReplay = false;
+
+static bool Anchor_IsTeammateSledRide(Actor* actor) {
+    return sScarfSledReplay && actor != nullptr && actor->modelCacheIndex == ACTOR_181_SCARF_SLED;
+}
 
 void Anchor::RegisterHooks() {
 
@@ -457,6 +464,10 @@ void Anchor::RegisterHooks() {
         if (sled->state != 2) {
             return;
         }
+        if (sScarfSledReplay) {
+            sScarfSledReplay = false;
+            return;
+        }
         NetAuthority_Release(NET_ACTIVITY_FP_SCARF_SLED);
         if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             func_80324CD8(0.0f);
@@ -473,8 +484,8 @@ void Anchor::RegisterHooks() {
             *should = false;
         }
     });
-    // Despawns the sled once a teammate's ride has rescued Boggy, and releases a claim we stepped away from without
-    // boarding. While a teammate holds the sled, it isn't solid or touchable.
+    // Despawns the sled once a teammate's ride has rescued Boggy, starts our copy of a teammate's ride, and releases a
+    // claim we stepped away from without boarding. While a teammate holds the sled, it isn't solid or touchable.
     COND_ID_HOOK(OnActorTick, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         Actor* sled = reinterpret_cast<OnActorTick*>(event)->actor;
         if (sled->state != 1) {
@@ -485,6 +496,10 @@ void Anchor::RegisterHooks() {
         sled->marker->propPtr->unk8_3 = !heldByTeammate;
         if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             marker_despawn(sled->marker);
+        } else if (sScarfSledRidePending && heldByTeammate) {
+            sScarfSledRidePending = false;
+            sScarfSledReplay = true;
+            __chScarfSled_setState(sled, 2);
         } else if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_SCARF_SLED) &&
                    NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED) &&
                    globalTimer_getTime() - sScarfSledBoardTime > 15) { // frames
@@ -497,6 +512,42 @@ void Anchor::RegisterHooks() {
         if (ev->actor->state != 2 && !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED)) {
             *ev->should = false;
         }
+    });
+    // A teammate's flag 0xB starts our copy of their ride (OnActorTick above). One already underway when we arrive
+    // comes in with scoped state, which fires no event, so it doesn't replay.
+    COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnGameFlagSet*>(event);
+        if (Anchor::GetInstance()->isApplyingRemote && ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC &&
+            ev->index == FP_SPECIFIC_FLAG_B_UNKNOWN && ev->value && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK) {
+            sScarfSledRidePending = true;
+        }
+    });
+    // Always on: a ride that starts while connected plays out if the connection drops.
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsTeammateSledRide(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (Anchor_IsTeammateSledRide(actor) && !Anchor_InEarshot(actor->position)) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (Anchor_IsTeammateSledRide(actor) && !Anchor_InEarshot(actor->position)) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_FP_SCARF_SLED_RIDER, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsTeammateSledRide(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        sScarfSledRidePending = false;
+        sScarfSledReplay = false;
     });
 
     // Only one client may run FP's Twinkly minigame at a time: claim it or block if already held.

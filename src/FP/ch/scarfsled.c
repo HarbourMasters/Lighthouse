@@ -25,18 +25,34 @@ void __chScarfSled_setState(Actor *this, s32 next_state){
     
     if(next_state == 2){
         mapSpecificFlags_set(0xB, true);
-        timed_setStaticCameraToNode(0.0f, 0x27);
-        timed_playSfx(0.6f, SFX_52_BANJO_YAH_OH, 1.0f, 28000);
-        timed_playSfx(1.25f, SFX_31_BANJO_OHHWAAOOO, 1.0f, 28000);
+//      timed_setStaticCameraToNode(0.0f, 0x27);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(0.0f, 0x27);
+//      timed_playSfx(0.6f, SFX_52_BANJO_YAH_OH, 1.0f, 28000);
+//      timed_playSfx(1.25f, SFX_31_BANJO_OHHWAAOOO, 1.0f, 28000);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)){
+            timed_playSfx(0.6f, SFX_52_BANJO_YAH_OH, 1.0f, 28000);
+            timed_playSfx(1.25f, SFX_31_BANJO_OHHWAAOOO, 1.0f, 28000);
+        }
 
-        timed_setStaticCameraToNode(1.5f, 0x26);
-        timed_setStaticCameraToNode(2.75f, 0x25);
-        timed_playSfx(3.5f, SFX_63_BANJO_UWAAAAOOH, 1.0f, 28000);
+//      timed_setStaticCameraToNode(1.5f, 0x26);
+//      timed_setStaticCameraToNode(2.75f, 0x25);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)){
+            timed_setStaticCameraToNode(1.5f, 0x26);
+            timed_setStaticCameraToNode(2.75f, 0x25);
+        }
+//      timed_playSfx(3.5f, SFX_63_BANJO_UWAAAAOOH, 1.0f, 28000);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) timed_playSfx(3.5f, SFX_63_BANJO_UWAAAAOOH, 1.0f, 28000);
 
-        timed_setStaticCameraToNode(3.75f, 0x24);
-        timed_playSfx(4.25f, SFX_A7_WOODEN_SWOSH, 1.2f, 18000);
-        timed_playSfx(4.45f, SFX_C1_BUZZBOMB_ATTACK, 1.0f, 0x7fff);
-        timed_setStaticCameraToNode(4.75f, 0x23);
+//      timed_setStaticCameraToNode(3.75f, 0x24);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(3.75f, 0x24);
+//      timed_playSfx(4.25f, SFX_A7_WOODEN_SWOSH, 1.2f, 18000);
+//      timed_playSfx(4.45f, SFX_C1_BUZZBOMB_ATTACK, 1.0f, 0x7fff);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)){
+            timed_playSfx(4.25f, SFX_A7_WOODEN_SWOSH, 1.2f, 18000);
+            timed_playSfx(4.45f, SFX_C1_BUZZBOMB_ATTACK, 1.0f, 0x7fff);
+        }
+//      timed_setStaticCameraToNode(4.75f, 0x23);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(4.75f, 0x23);
     }
 }
 
@@ -60,7 +76,8 @@ void __chScarfSled_func_8038655C(Actor *this){
     this->unk10_12 = false;
     if(!tmp_bool){
         if(tmp != 0){
-            gcsfx_playWithPitch(SFX_19_BANJO_LANDING_08, func_8030E200(this->unk44_31), 0x55f0);
+//          gcsfx_playWithPitch(SFX_19_BANJO_LANDING_08, func_8030E200(this->unk44_31), 0x55f0);
+            if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_playWithPitch(SFX_19_BANJO_LANDING_08, func_8030E200(this->unk44_31), 0x55f0);
         }
     }
     else{
@@ -69,7 +86,8 @@ void __chScarfSled_func_8038655C(Actor *this){
             func_8030E0FC(this->unk44_31, 0.9f, 1.5f, 1.2f);
         }
         this->unk10_12 = true;
-        sfxSource_func_8030E2C4(*((u8*)this + 0x44));
+//      sfxSource_func_8030E2C4(*((u8*)this + 0x44));
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) sfxSource_func_8030E2C4(*((u8*)this + 0x44));
     }
 }
 
@@ -110,15 +128,22 @@ void __chScarfSled_func_80386630(Actor *this){
     }//L80386724
 
     if(1.0 == this->unk48){
-        mapSpecificFlags_set(1, true);
-        FUNC_8030E624(SFX_103_FLOTSAM_DEATH, 1.0f, 30000);
-        FUNC_8030E624(SFX_11_WOOD_BREAKING_1, 0.8f, 25000);
-        FUNC_8030E624(SFX_D_EGGSHELL_BREAKING, 1.0f, 25000);
+//      mapSpecificFlags_set(1, true);
+        if(EventSystem_Should(VB_FP_SCARF_SLED_RIDER, true, this)) mapSpecificFlags_set(1, true);
+//      FUNC_8030E624(SFX_103_FLOTSAM_DEATH, 1.0f, 30000);
+//      FUNC_8030E624(SFX_11_WOOD_BREAKING_1, 0.8f, 25000);
+//      FUNC_8030E624(SFX_D_EGGSHELL_BREAKING, 1.0f, 25000);
+        if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)){
+            FUNC_8030E624(SFX_103_FLOTSAM_DEATH, 1.0f, 30000);
+            FUNC_8030E624(SFX_11_WOOD_BREAKING_1, 0.8f, 25000);
+            FUNC_8030E624(SFX_D_EGGSHELL_BREAKING, 1.0f, 25000);
+        }
 
         sp7C[0] = -1000.0f;
         sp7C[1] = 1727.0f;
         sp7C[2] = 6218.0f;
-        func_8028F490(sp7C);
+//      func_8028F490(sp7C);
+        if(EventSystem_Should(VB_FP_SCARF_SLED_RIDER, true, this)) func_8028F490(sp7C);
         marker_despawn(this->marker);
     }//L803867AC
 }

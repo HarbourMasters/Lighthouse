@@ -374,6 +374,16 @@ typedef enum VBehaviorID {
     // - None
     VB_FP_SCARF_SLED_BOARD,
 
+    // The rider's part of the scarf sled's crash: map flag 1, which rescues Boggy, and the bounce off the sled. A
+    // teammate's ride replayed here skips both.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the sled)
+    VB_FP_SCARF_SLED_RIDER,
+
     // A puzzle step's camera, and the look-at that holds the player through it. A teammate's step replayed here goes
     // without both.
     // #### `result`
@@ -385,6 +395,7 @@ typedef enum VBehaviorID {
     // true                                  // the crane, the egg tolls
     // true                                  // the lair's grate and third pipe, a note door's end
     // true                                  // a warp cauldron's look-at
+    // true                                  // the scarf sled's ride
     // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
     // this->modelCacheIndex == 0x215        // the CC lobby pipes' camera
@@ -416,6 +427,7 @@ typedef enum VBehaviorID {
     // true                                  // Gnawty's boulder and its shake
     // true                                  // the crane, the egg tolls, the CC grates, the breakables
     // true                                  // the lair's grate, pipes, level doors, Door of Grunty and statue hat
+    // true                                  // the scarf sled's yells, landings, slide and crash
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
