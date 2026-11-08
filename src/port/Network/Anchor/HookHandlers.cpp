@@ -569,6 +569,14 @@ void Anchor::RegisterHooks() {
     COND_HOOK(OnFpTwinklyMinigameEnd, EVENT_PRIORITY_NORMAL, isConnected,
               [](IEvent* event) { NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY); });
 
+    // Exit the camera manually; 0x30 (MM) and 0x40 (Door of Grunty) schedule their own exit. Always on.
+    COND_HOOK(OnCutsceneWarpEnd, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnCutsceneWarpEnd*>(event);
+        if (ev->returnMap == (s32)gsworld_getMap() && ev->cameraScript != 0x30 && ev->cameraScript != 0x40) {
+            ncStaticCamera_exit();
+        }
+    });
+
     // Always on: a door that opens while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, true, {
         s32 doorId = va_arg(args, s32);
