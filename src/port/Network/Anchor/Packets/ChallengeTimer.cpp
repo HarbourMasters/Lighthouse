@@ -39,6 +39,9 @@ static bool ChallengeTimer_ReaderArmed() {
         case MAP_D_BGS_BUBBLEGLOOP_SWAMP:
             return mapSpecificFlags_get(BGS_SPECIFIC_FLAG_3_WALKWAY_JIGGY_TIMER_RUNNING) ||
                    mapSpecificFlags_get(BGS_SPECIFIC_FLAG_C_MAZE_JIGGY_TIMER_RUNNING);
+        case MAP_22_CC_INSIDE_CLANKER:
+            // Ring 1 only arms the game; passing it starts the hourglass.
+            return maClankerRings_isMinigameActive() >= 2;
         default:
             return true;
     }

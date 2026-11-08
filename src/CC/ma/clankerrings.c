@@ -26,6 +26,7 @@ void func_80387F80(void){
 void maClankerRings_startMinigame(void){
     item_set(ITEM_0_HOURGLASS_TIMER, RINGS_TIMER * 60 - 1);
     item_set(ITEM_6_HOURGLASS, 1);
+    CALL_EVENT(OnChallengeTimerSet, JIGGY_1C_CC_RINGS); // [port]
     maClankerRings.isMinigameActive = 1;
 }
 
