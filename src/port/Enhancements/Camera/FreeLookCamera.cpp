@@ -14,7 +14,11 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
-extern "C" int globalTimer_getTime(void);
+extern "C" {
+#include "enums.h"
+int globalTimer_getTime(void);
+int getGameMode(void);
+}
 
 namespace {
 using namespace PortCamera;
@@ -160,6 +164,12 @@ bool MouseMovedThisFrame() {
 
 // --- entering and leaving ---------------------------------------------------------------------
 
+// Free look only starts while the player is playing: not in the attract demo behind "Press Start"
+// or the file select playback, where the game is moving Banjo, nor in the pause menu.
+bool Playing() {
+    return getGameMode() == GAME_MODE_3_NORMAL;
+}
+
 bool Everywhere() {
     return CVarGetInteger(CVAR_FREELOOK_EVERYWHERE, 1) != 0;
 }
@@ -205,6 +215,11 @@ bool HandleInput() {
         return false;
     }
 
+    if (!Playing()) {
+        ClearMouse();
+        return sActive;   // paused mid-orbit: keep it for when play resumes, but never start one
+    }
+
     int state = ncDynamicCamera_getState();
 
     if (sActive) {
@@ -246,7 +261,7 @@ bool HandleInput() {
 // before they take the camera. True while free look holds the camera, or when the stick or mouse
 // asks for it this frame, so they leave it to free look. A C-button camera control hands it back.
 bool TakesOverFixedCamera() {
-    if (!port_freeLook_isEnabled() || !Everywhere()) {
+    if (!port_freeLook_isEnabled() || !Everywhere() || !Playing()) {
         return false;
     }
     if (sActive && ncDynamicCamera_getState() == FREELOOK_CAM_STATE) {
