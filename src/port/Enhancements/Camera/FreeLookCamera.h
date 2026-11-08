@@ -15,6 +15,10 @@
 // tracks the vanilla zoom level (shared with the modern-scheme camera), so the
 // zoom controls re-zoom in place. Returns to the normal camera when the player
 // rotates or enters first-person via a C-button camera control.
+//
+// The mouse can turn it too (Free Look Mouse), and with Free Look Everywhere it can also take over
+// from the underwater camera and the fixed cameras of camera-node areas (VB_CAMERA_FIXED_NODE,
+// VB_CAMERA_UNDERWATER).
 
 #define FREELOOK_CAM_STATE 0x14
 

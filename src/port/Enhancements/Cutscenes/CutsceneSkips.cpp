@@ -9,6 +9,10 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
+#include <atomic>
+#include <chrono>
+#include <imgui.h>
+
 extern "C" {
 #include "enums.h"
 int getGameMode(void);
@@ -28,6 +32,37 @@ s32 globalTimer_getTime(void);
 #define CVAR_SKIP_CLUCKER_CUTSCENE CVAR_ENHANCEMENT("Cutscenes.SkipCluckerCutscene")
 #define CVAR_SKIP_NOTEDOOR_DANCE CVAR_ENHANCEMENT("Cutscenes.SkipNoteDoorDance")
 #define CVAR_TRIGGER_FF_PARADE CVAR_DEVELOPER_TOOLS("TriggerFFParade")
+#define CVAR_SKIP_DIALOGUE CVAR_ENHANCEMENT("Cutscenes.SkipDialogueWithReturn")
+
+// Skip Dialogue: Return skips the rest of the dialogue on screen, the way the game's own B skip does
+// for dialogue it lets you skip: up to the next question, or to the end. The key comes from the
+// window (Engine.cpp, like the save state keys); dialog_update (dialog.c) takes it on the game
+// thread. A press that no dialogue takes soon after is dropped, so it can't skip a later one.
+namespace {
+std::atomic<int64_t> sSkipPressedAt{ 0 };
+
+int64_t NowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
+} // namespace
+
+extern "C" void port_dialogueSkipKey(void) {
+    if (CVarGetInteger(CVAR_SKIP_DIALOGUE, 0) == 0) {
+        return;
+    }
+    // Not while using the menus.
+    if (ImGui::GetCurrentContext() != nullptr && ImGui::GetIO().WantCaptureKeyboard) {
+        return;
+    }
+    sSkipPressedAt = NowMs();
+}
+
+extern "C" int port_dialogueSkipPressed(void) {
+    const int64_t at = sSkipPressedAt.exchange(0);
+    return at != 0 && NowMs() - at < 300 ? 1 : 0;
+}
 
 // Vanilla holds back Start-to-skip on the Rareware logo at first boot. This lets it through 30 frames after boot.
 void RegisterSkipBootLogos_Init() {

@@ -53,6 +53,7 @@ void gsworld_draw(Gfx** gfx, Mtx **mtx, Vtx **vtx) {
     core2_34790_getClipDistances(&near, &far);
     viewport_setNearAndFar(near, far);
     viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
+    FrameInterpolation_WorldRelativePush(); // [port] see FrameInterpolation.cpp
 
     if (mapModel_has_xlu_bin()) {
         FrameInterpolation_RecordOpenChild("map_opa", 0);
@@ -133,6 +134,7 @@ void gsworld_draw(Gfx** gfx, Mtx **mtx, Vtx **vtx) {
     if (!game_is_frozen()) {
         func_802BBD0C(gfx, mtx, vtx);
     }
+    FrameInterpolation_WorldRelativePop();
 
     spawnQueue_lock();
 }
