@@ -147,6 +147,7 @@ private:
     void HandlePacket_WaterRise(nlohmann::json& payload);
     void HandlePacket_HutSmash(nlohmann::json& payload);
     void HandlePacket_JiggyCrane(nlohmann::json& payload);
+    void HandlePacket_ChallengeTimer(nlohmann::json& payload);
     void HandlePacket_PedestalOwner(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
     void HandlePacket_SpawnHoneycomb(nlohmann::json& payload);
@@ -204,6 +205,7 @@ public:
     inline static const std::string WATER_RISE = "WATER_RISE";
     inline static const std::string HUT_SMASH = "HUT_SMASH";
     inline static const std::string JIGGY_CRANE = "JIGGY_CRANE";
+    inline static const std::string CHALLENGE_TIMER = "CHALLENGE_TIMER";
     inline static const std::string PEDESTAL_OWNER = "PEDESTAL_OWNER";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
     inline static const std::string HONEYCOMB_SPAWN = "HONEYCOMB_SPAWN";
@@ -297,6 +299,7 @@ public:
     void SendPacket_WaterRise(s32 map, s32 kind, s32 p1, s32 p2, f32 duration);
     void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
     void SendPacket_JiggyCrane(s32 stage, s32 ticks = 0);
+    void SendPacket_ChallengeTimer(s32 ticks);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_JiggyExpired(s16 jiggyId);

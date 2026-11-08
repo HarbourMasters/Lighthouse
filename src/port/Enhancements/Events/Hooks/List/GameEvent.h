@@ -34,6 +34,8 @@ DEFINE_EVENT(OnAbilityLearned, int32_t move; int32_t value;)
 DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
 DEFINE_EVENT(OnHoneycombDropSpawn, int32_t honeycombId; int32_t bundleId; float x; float y; float z;)
 DEFINE_EVENT(OnTimedJiggyExpired, int32_t jiggyId;)
+// A timed challenge started or reset its hourglass.
+DEFINE_EVENT(OnChallengeTimerSet, int32_t jiggyId;)
 DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)
 DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)

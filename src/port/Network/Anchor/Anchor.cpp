@@ -277,6 +277,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_HutSmash(payload);
             else if (packetType == JIGGY_CRANE)
                 HandlePacket_JiggyCrane(payload);
+            else if (packetType == CHALLENGE_TIMER)
+                HandlePacket_ChallengeTimer(payload);
             else if (packetType == PEDESTAL_OWNER)
                 HandlePacket_PedestalOwner(payload);
             else if (packetType == JIGGY_SPAWN)

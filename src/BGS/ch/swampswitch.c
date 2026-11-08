@@ -61,6 +61,7 @@ void chLongSwampSwitch_update(Actor *this){
             || (item_getCount(ITEM_0_HOURGLASS_TIMER) > 0))
         {
             code_4C020_setHourglassTimer(BGS_WALKWAY_JIGGY_TIMER);
+            CALL_EVENT(OnChallengeTimerSet, JIGGY_20_BGS_ELEVATED_WALKWAY); // [port]
         }
     }
     if(!mapSpecificFlags_get(5)){
@@ -87,6 +88,7 @@ void chLongSwampSwitch_update(Actor *this){
         mapSpecificFlags_set(BGS_SPECIFIC_FLAG_3_WALKWAY_JIGGY_TIMER_RUNNING, TRUE);
         code_4C020_setHourglassTimer(BGS_WALKWAY_JIGGY_TIMER);
         item_set(ITEM_6_HOURGLASS, 1);
+        CALL_EVENT(OnChallengeTimerSet, JIGGY_20_BGS_ELEVATED_WALKWAY); // [port]
     } //L8038EFB4
 }
 
@@ -114,6 +116,7 @@ void chShortSwampSwitch_update(Actor *this){
             || (item_getCount(ITEM_0_HOURGLASS_TIMER) > 0))
         {
             code_4C020_setHourglassTimer(BGS_MAZE_JIGGY_TIMER);
+            CALL_EVENT(OnChallengeTimerSet, JIGGY_25_BGS_MAZE); // [port]
         }
     }
     if(!mapSpecificFlags_get(9)){
@@ -139,5 +142,6 @@ void chShortSwampSwitch_update(Actor *this){
         mapSpecificFlags_set(BGS_SPECIFIC_FLAG_C_MAZE_JIGGY_TIMER_RUNNING, TRUE);
         code_4C020_setHourglassTimer(BGS_MAZE_JIGGY_TIMER);
         item_set(ITEM_6_HOURGLASS,1);
+        CALL_EVENT(OnChallengeTimerSet, JIGGY_25_BGS_MAZE); // [port]
     } //L8038EFB4
 }
