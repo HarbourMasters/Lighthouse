@@ -345,10 +345,6 @@ void __chfinalboss_dropHealth(ActorMarker *marker) {
 }
 
 void chfinalboss_despawnFlightPad(void) {
-    // Anchor: a follower that joined late never spawned one.
-    if (__chFinalBossFlightPadMarker == NULL) {
-        return;
-    }
     marker_despawn(__chFinalBossFlightPadMarker);
     __chFinalBossFlightPadMarker = NULL;
     CALL_EVENT(OnFinalBossFlightPad, false); // [port]
@@ -1370,7 +1366,8 @@ void chfinalboss_phase3_update(ActorMarker *marker) {
             }
             if (actor_animationIsAt(this, 0.9999f)) {
                 func_80324D2C(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER);
-                chfinalboss_despawnFlightPad();
+//              chfinalboss_despawnFlightPad();
+                if (EventSystem_Should(VB_FINAL_BOSS_DESPAWN_FLIGHT_PAD, true, this)) chfinalboss_despawnFlightPad();
                 chfinalboss_phase3_setState(this, FINALBOSS_STATE_1B_PHASE3_WAIT_FOR_TEXT);
             }
             break;

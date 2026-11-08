@@ -748,6 +748,15 @@ typedef enum VBehaviorID {
     // - `*ActorMarker` (what hit her; NULL when replayed)
     VB_FINAL_BOSS_HIT,
 
+    // The flight pad despawning as Grunty finishes casting phase 3's spell barrier.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (Grunty)
+    VB_FINAL_BOSS_DESPAWN_FLIGHT_PAD,
+
     // An egg landing on a Jinjo statue's base in the final fight.
     // #### `result`
     // ```c

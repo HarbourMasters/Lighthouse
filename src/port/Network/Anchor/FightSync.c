@@ -163,6 +163,11 @@ void FightSync_OnFlightPadDespawned(void) {
     }
 }
 
+// A follower that joined late never spawned one.
+bool FightSync_HasFlightPad(void) {
+    return __chFinalBossFlightPadMarker != NULL;
+}
+
 void FightSync_OnBarrierSpawned(void) {
     if (FightSync_IsLiveAuthority()) {
         FightSync_SendEvent(FIGHT_EV_BARRIER, 0, 0, NULL, NULL, NULL);
@@ -492,7 +497,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             break;
 
         case FIGHT_EV_PAD_DESPAWN:
-            if (!FightSync_IsFollower()) {
+            if (!FightSync_IsFollower() || !FightSync_HasFlightPad()) {
                 return;
             }
             chfinalboss_despawnFlightPad();
