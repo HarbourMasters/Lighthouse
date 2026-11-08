@@ -11,6 +11,7 @@
 #include "functions.h"
 extern "C" {
 #include "variables.h"
+extern f32 D_803676A4; // quiz/game.c: water switch 3's drain offset
 // func_8034C5AC: xform-3 water group. func_8034E78C: animate its dy.
 }
 
@@ -171,12 +172,18 @@ void RegisterWaterRise_Init() {
         if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC && ev->index == LEVEL_FLAG_3D_LAIR_UNKNOWN) {
             sSwitch3CountdownOurs = ev->value != 0 && !Anchor::GetInstance()->IsApplyingRemote();
         }
+        // The drain offset resets as each drain ends, so a teammate's 3C, live or in scoped state, starts ours from the
+        // top of the water. func_802D5260 resets it only when ours starts.
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC && ev->index == LEVEL_FLAG_3C_LAIR_UNKNOWN && !ev->value) {
+            D_803676A4 = 0.0f;
+        }
     });
     // A level change clears the level flags without an event.
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         auto* ev = (OnMapLoad*)event;
         if (map_getLevel((enum map_e)ev->prevMap) != map_getLevel((enum map_e)ev->nextMap)) {
             sSwitch3CountdownOurs = false;
+            D_803676A4 = 0.0f;
         }
     });
     COND_VB_SHOULD(VB_LAIR_WATER_DRAIN_START, EVENT_PRIORITY_NORMAL, true, {
