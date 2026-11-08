@@ -90,7 +90,8 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                 marker_despawn(m);
             }
             if (sameMap) {
-                if (id == JIGGY_20_BGS_ELEVATED_WALKWAY || id == JIGGY_25_BGS_MAZE) {
+                // The walkway and maze switches share one hourglass, so it hides only while it's counting this jiggy.
+                if ((id == JIGGY_20_BGS_ELEVATED_WALKWAY || id == JIGGY_25_BGS_MAZE) && ChallengeTimer_IsOurs(id)) {
                     func_802D6924();
                 }
                 if (id == JIGGY_5D_MMM_NAPPER) {

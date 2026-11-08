@@ -65,6 +65,10 @@ static void ChallengeTimer_Hide() {
     sShownClient = 0;
 }
 
+bool ChallengeTimer_IsOurs(s32 jiggyId) {
+    return sOwnJiggy == jiggyId && !item_empty(ITEM_6_HOURGLASS);
+}
+
 void Anchor::SendPacket_ChallengeTimer(s32 ticks) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags || GetCurrentMapPlayers() == 0) {
         return;
