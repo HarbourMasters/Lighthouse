@@ -337,6 +337,15 @@ typedef enum VBehaviorID {
     VB_VILE_YUMBLIE_HIDE,
     VB_DOOR_OPEN_CAMERA, // Suppresses door-open camera lock when the flag came from a teammate, not us.
 
+    // A GV door's countdown on the hourglass as it opens. The door shuts on a separate counter.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (DoorCameraId, the door)
+    VB_GV_DOOR_HOURGLASS_START,
+
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
     // #### `result`
