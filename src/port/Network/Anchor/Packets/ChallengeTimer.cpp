@@ -5,6 +5,7 @@
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Network/Anchor/Authority.h"
 #include "port/Romhack/RomhackConfig.h"
 
 #include "functions.h"
@@ -42,6 +43,9 @@ static bool ChallengeTimer_ReaderArmed() {
         case MAP_22_CC_INSIDE_CLANKER:
             // Ring 1 only arms the game; passing it starts the hourglass.
             return maClankerRings_isMinigameActive() >= 2;
+        case MAP_24_MMM_TUMBLARS_SHED:
+            // Ours waits while a teammate holds Tumblar's game.
+            return !NetAuthority_IsClaimed(NET_ACTIVITY_MMM_TUMBLAR) || NetAuthority_IsSelf(NET_ACTIVITY_MMM_TUMBLAR);
         default:
             return true;
     }

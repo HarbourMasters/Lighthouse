@@ -86,6 +86,7 @@ void func_8038A140(s32 arg0) {
         }
         item_set(ITEM_0_HOURGLASS_TIMER, 75*FRAMERATE - 1);
         item_set(6, 1);
+        CALL_EVENT(OnChallengeTimerSet, JIGGY_62_MMM_TUMBLAR); // [port]
     }
     if (MMM_D_8038C510.unk8 == 3) {
         item_set(6, 0);
