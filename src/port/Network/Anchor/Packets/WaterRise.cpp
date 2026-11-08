@@ -33,6 +33,7 @@ enum { WATERRISE_KIND_LAIR = 0, WATERRISE_KIND_CC = 1 };
 static std::map<int32_t, int32_t> sLairPendingLevel;
 // Map the lair water was last leveled for, so re-entry snaps instead of ramping.
 static s32 sLairWaterMap = -1;
+static bool sSwitch3CountdownOurs = false;
 
 static int32_t lairLevelForFlag(int32_t levelFlag) {
     switch (levelFlag) {
@@ -162,6 +163,32 @@ void RegisterWaterRise_Init() {
         }
     });
     COND_HOOK(OnLairWaterLevel, EVENT_PRIORITY_NORMAL, true, LairWaterLevel);
+    // A teammate's water switch 3 countdown (LEVEL_FLAG_3D) can land with its rise, or come in with scoped state as we
+    // arrive, so ours never started. The drain check starts ours instead of draining at once, if our water rose.
+    // Theirs usually runs out first; if they pause, leave the rooms or drop, ours drains both.
+    COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnGameFlagSet*)event;
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC && ev->index == LEVEL_FLAG_3D_LAIR_UNKNOWN) {
+            sSwitch3CountdownOurs = ev->value != 0 && !Anchor::GetInstance()->IsApplyingRemote();
+        }
+    });
+    // A level change clears the level flags without an event.
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = (OnMapLoad*)event;
+        if (map_getLevel((enum map_e)ev->prevMap) != map_getLevel((enum map_e)ev->nextMap)) {
+            sSwitch3CountdownOurs = false;
+        }
+    });
+    COND_VB_SHOULD(VB_LAIR_WATER_DRAIN_START, EVENT_PRIORITY_NORMAL, true, {
+        if (*should && !sSwitch3CountdownOurs && Anchor::GetInstance()->IsWorldSyncActive()) {
+            if (fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) {
+                code_4C020_setHourglassTimer(30);
+                item_set(ITEM_6_HOURGLASS, true);
+                sSwitch3CountdownOurs = true;
+            }
+            *should = false;
+        }
+    });
     // If the flag the cutscene will set is a water-level flag, broadcast the rise now.
     COND_HOOK(OnCutsceneWarp, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         auto* ev = (OnCutsceneWarp*)event;

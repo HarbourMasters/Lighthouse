@@ -653,6 +653,16 @@ typedef enum VBehaviorID {
     // - `*Actor` (the grate or pipe)
     VB_LAIR_GRATE_OR_PIPE_ALREADY_UP,
 
+    // Lair water switch 3's drain starting as its countdown runs out. A listener that returns false keeps the water up.
+    // #### `result`
+    // ```c
+    // levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN) && !levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) &&
+    //     item_getCount(ITEM_6_HOURGLASS) == false
+    // ```
+    // #### `args`
+    // - None
+    VB_LAIR_WATER_DRAIN_START,
+
     // A note door still closed, which shows the note count and opens on enough notes.
     // #### `result`
     // ```c

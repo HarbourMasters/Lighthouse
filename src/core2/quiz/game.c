@@ -959,9 +959,11 @@ void func_802D5260(void) {
         item_set(ITEM_6_HOURGLASS, true);
         levelSpecificFlags_set(LEVEL_FLAG_3D_LAIR_UNKNOWN, true);
     }
-    if( levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
+//  if( levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
+    if( EventSystem_Should(VB_LAIR_WATER_DRAIN_START, levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
         && !levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)
-        && item_getCount(ITEM_6_HOURGLASS) == false
+//      && item_getCount(ITEM_6_HOURGLASS) == false
+        && item_getCount(ITEM_6_HOURGLASS) == false)
     ) {
         levelSpecificFlags_set(LEVEL_FLAG_3C_LAIR_UNKNOWN, true);
         levelSpecificFlags_set(LEVEL_FLAG_3D_LAIR_UNKNOWN, false);

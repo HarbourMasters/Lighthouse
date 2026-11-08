@@ -251,6 +251,10 @@ public:
     // exactly like single player, so only dummy players are allowed past this.
     bool IsWorldSyncActive();
 
+    bool IsApplyingRemote() const {
+        return isApplyingRemote;
+    }
+
     // Presence/position/plumbing packets, the only ones allowed through when the room
     // is not syncing game state. Anything absent is treated as world state and dropped
     // at the send and receive choke points, so a new packet type is unsynced by default.
