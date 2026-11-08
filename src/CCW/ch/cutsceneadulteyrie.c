@@ -27,21 +27,17 @@ Struct_CCW_4960_0 chCutsceneAdultEyrieSFX[] = {
     0
 };
 
-enum chCutsceneAdultEyrie_State_e {
-    CH_CUTSCENE_ADULT_EYRIE_STATE_0_NOT_INIT,
-    CH_CUTSCENE_ADULT_EYRIE_STATE_1_UNK,
-    CH_CUTSCENE_ADULT_EYRIE_STATE_2_UNK,
-    CH_CUTSCENE_ADULT_EYRIE_STATE_3_UNK,
-    CH_CUTSCENE_ADULT_EYRIE_STATE_4_UNK
-};
+#include "cutsceneadulteyrie.h" // [port] the states moved there
 
 /* .code */
 void chCutsceneAdultEyrie_setNextState(Actor *this, s32 next_state) {
     if (next_state == CH_CUTSCENE_ADULT_EYRIE_STATE_2_UNK) {
-        gcdialog_showDialog(VER_SELECT(ASSET_CDD_DIALOG_ADULT_EYRIE_COMPLETE_WINTER, 0x09F2, 0, 0), 0, NULL, NULL, NULL, NULL);
+//      gcdialog_showDialog(VER_SELECT(ASSET_CDD_DIALOG_ADULT_EYRIE_COMPLETE_WINTER, 0x09F2, 0, 0), 0, NULL, NULL, NULL, NULL);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) gcdialog_showDialog(VER_SELECT(ASSET_CDD_DIALOG_ADULT_EYRIE_COMPLETE_WINTER, 0x09F2, 0, 0), 0, NULL, NULL, NULL, NULL);
         if (this->state == CH_CUTSCENE_ADULT_EYRIE_STATE_1_UNK) {
             mapSpecificFlags_set(CCW_WINTER_SPECIFIC_FLAG_6_CUTSCENE_EEYRIE_ADULT, 0);
-            timed_setStaticCameraToNode(0.0f, 1);
+//          timed_setStaticCameraToNode(0.0f, 1);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(0.0f, 1);
         }
         skeletalAnim_set(this->unk148, ASSET_21D_ANIM_ADULT_EYRIE_UNK, 0.2f, 0.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_1_LOOP);
@@ -51,8 +47,12 @@ void chCutsceneAdultEyrie_setNextState(Actor *this, s32 next_state) {
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
     }
     if (next_state == CH_CUTSCENE_ADULT_EYRIE_STATE_4_UNK) {
-        timed_exitStaticCamera(0.0f);
-        func_80324E38(0.0f, 0);
+//      timed_exitStaticCamera(0.0f);
+//      func_80324E38(0.0f, 0);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
+            timed_exitStaticCamera(0.0f);
+            func_80324E38(0.0f, 0);
+        }
         marker_despawn(this->marker);
     }
     this->state = next_state;
@@ -105,7 +105,8 @@ void chCutsceneAdultEyrie_update(Actor *this) {
         actor_update_func_80326224(this);
         skeletalAnim_getProgressRange(this->unk148, &sp30, &sp2C);
         if ((sp30 <= 0.5) && (sp2C >= 0.5) && !jiggyscore_isCollected(JIGGY_49_CCW_EYRIE)) {
-            jiggy_spawn(JIGGY_49_CCW_EYRIE, this->position);
+//          jiggy_spawn(JIGGY_49_CCW_EYRIE, this->position);
+            if (EventSystem_Should(VB_SPAWN_PUZZLE_JIGGY, true, this)) jiggy_spawn(JIGGY_49_CCW_EYRIE, this->position);
         }
         if (skeletalAnim_getLoopCount(this->unk148) > 0) {
             chCutsceneAdultEyrie_setNextState(this, CH_CUTSCENE_ADULT_EYRIE_STATE_2_UNK);

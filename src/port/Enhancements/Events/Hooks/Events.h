@@ -395,7 +395,7 @@ typedef enum VBehaviorID {
     // true                                  // the crane, the egg tolls
     // true                                  // the lair's grate and third pipe, a note door's end
     // true                                  // a warp cauldron's look-at
-    // true                                  // the scarf sled's ride
+    // true                                  // the scarf sled's ride, Eyrie's flight and its end
     // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
     // this->modelCacheIndex == 0x215        // the CC lobby pipes' camera
@@ -409,7 +409,7 @@ typedef enum VBehaviorID {
     // ```c
     // true                                       // Croctus's second dialog, Boggy, Tanktup's last dialog
     // true                                       // Napper, Jinxy, the GV and church doors
-    // true                                       // baby Eyrie, Nabnut, Gnawty
+    // true                                       // baby Eyrie, Nabnut, Gnawty, Eyrie's flight
     // (!this->unk138_23) && (!local->unk14)      // Tanktup's hit dialog
     // !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH) // a Clanker tooth's
     // ```
@@ -441,7 +441,7 @@ typedef enum VBehaviorID {
     // ```c
     // true                                                                // Boggy, the pink egg, the snow managers
     // true                                                                // Juju's, with the solve's shake
-    // true                                                                // the flower and Nabnut
+    // true                                                                // the flower, Nabnut, Eyrie's flight
     // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
     // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
     // ```

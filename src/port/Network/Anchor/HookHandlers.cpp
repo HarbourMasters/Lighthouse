@@ -203,9 +203,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN || index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
-    // Eyrie's flight ending starts the flyer's cutscene (cutsceneadulteyrie.c); the jiggy syncs via JIGGY_SPAWN.
+    // Every copy of Eyrie's flight raises the drop flag from its path (cutsceneadulteyrie.c); a teammate's would drop
+    // ours a second time.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_46_CCW_WINTER &&
-        index == CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT) {
+        index == CCW_WINTER_SPECIFIC_FLAG_6_CUTSCENE_EEYRIE_ADULT) {
         return true;
     }
     // SM map flags are entirely Bottles-tutorial choreography;
@@ -250,6 +251,11 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             // The Tee-Hees clear 3 and 4 as they wake and leave (ghost.c); a teammate's clear can land with the set.
             if (gsworld_getMap() == MAP_24_MMM_TUMBLARS_SHED &&
                 (index == MMM_SPECIFIC_FLAG_3_UNKNOWN || index == MMM_SPECIFIC_FLAG_4_UNKNOWN)) {
+                return true;
+            }
+            // The flyer clears 5 as it takes off and the adult as it sets up (cutsceneadulteyrie.c, adulteyrie.c); a
+            // teammate's clear can land with the set.
+            if (gsworld_getMap() == MAP_46_CCW_WINTER && index == CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT) {
                 return true;
             }
             // Snorkel clears the anchor cue as it leaves (dolphin.c); a teammate's clear warps a lagging presser early.
