@@ -3,9 +3,6 @@
 #include <libultraship/libultraship.h>
 
 #include "functions.h"
-extern "C" {
-void chSmBottles_netApplyTutorialComplete(void);
-}
 
 /**
  * SET_ABILITY
@@ -39,10 +36,16 @@ void Anchor::HandlePacket_SetAbility(nlohmann::json& payload) {
     ApplyRemote([&] { ability_setLearned((enum ability_e)move, value); });
 
     // A remote unlock just completed the SM tutorial set while we're standing in Spiral
-    // Mountain with a pre-completion world. Apply the completion state live.
+    // Mountain with a pre-completion world. Apply the completion state live, the state the
+    // molehills' setup derives from abilities at map load.
     if (value && (s32)gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN &&
         !mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) &&
         chmole_learnedAllSpiralMountainAbilities()) {
-        chSmBottles_netApplyTutorialComplete();
+        mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+        mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
+        mapSpecificFlags_set(SM_SPECIFIC_FLAG_2, true);
+        mapSpecificFlags_set(SM_SPECIFIC_FLAG_C, true);
+        mapSpecificFlags_set(SM_SPECIFIC_FLAG_F, true);
+        CALL_EVENT(OnSmMovesCompleted);
     }
 }

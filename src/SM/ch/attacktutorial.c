@@ -8,10 +8,6 @@
 extern void timed_exitStaticCamera(f32 time);
 extern void func_8028F918(s32);
 
-// [port] Spare actor bit repurposed: the claw/roll/rap trio was already known when this
-// actor spawned (or a local opt-out just unlocked it).
-#define movesKnownAtSpawn unk38_0
-
 enum ch_attack_tutorial_states {
     CH_ATTACK_TUTORIAL_STATE_1_UNKNOWN = 0x1,           // L80387610
     CH_ATTACK_TUTORIAL_STATE_2_APPLY_LEARNED_MOVE,      // L803873E0
@@ -130,20 +126,11 @@ static void __chAttackTutorial_setState(Actor* this, enum ch_attack_tutorial_sta
     subaddie_set_state(this, state);
 }
 
-static bool __chAttackTutorial_areLearnableAbilitiesUnlocked() {
+//static bool __chAttackTutorial_areLearnableAbilitiesUnlocked() {
+bool __chAttackTutorial_areLearnableAbilitiesUnlocked() {
     return player_isAbilityUnlocked(ABILITY_4_CLAW_SWIPE)
         && player_isAbilityUnlocked(ABILITY_C_ROLL)
         && player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP);
-}
-
-// [port] A local tutorial opt-out unlocks every move mid-session; re-arm the spawn latch.
-bool func_802E4A08(void); // non-interactive demo/playback modes
-
-void chAttackTutorial_onTutorialSkipped(void) {
-    Actor *tutorial = actorArray_findActorFromActorId(ACTOR_167_ATTACK_TUTORIAL);
-    if (tutorial != NULL) {
-        tutorial->movesKnownAtSpawn = 1;
-    }
 }
 
 static void __chAttackTutorial_update(Actor *this) {
@@ -167,9 +154,6 @@ static void __chAttackTutorial_update(Actor *this) {
           ? 1
           : 0;
 
-        // [port] Latch "moves already known" at spawn.
-        this->movesKnownAtSpawn = __chAttackTutorial_areLearnableAbilitiesUnlocked();
-
         this->initialized = true;
     }
 
@@ -177,9 +161,8 @@ static void __chAttackTutorial_update(Actor *this) {
         case CH_ATTACK_TUTORIAL_STATE_1_UNKNOWN:
             if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_4))
                 __chAttackTutorial_setState(this, CH_ATTACK_TUTORIAL_STATE_5_SHOW_LEARN_MOVE_DIALOG);
-            if (this->movesKnownAtSpawn
-                || (func_802E4A08() && __chAttackTutorial_areLearnableAbilitiesUnlocked())
-                || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
+//          if (__chAttackTutorial_areLearnableAbilitiesUnlocked() || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
+            if (EventSystem_Should(VB_ATTACK_TUTORIAL_MOVES_KNOWN, __chAttackTutorial_areLearnableAbilitiesUnlocked(), this) || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
                 __chAttackTutorial_setState(this, CH_ATTACK_TUTORIAL_STATE_4_TUTORIAL_COMPLETED);
             break;
 

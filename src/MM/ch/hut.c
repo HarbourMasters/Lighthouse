@@ -8,8 +8,6 @@
 
 #include <bk_math.h>
 
-#include "port/Patches/Patches.h"
-
 /* extern function declarations */
 
 void bundle_setYaw(f32);
@@ -23,11 +21,7 @@ void chhut_update(Actor *);
 extern s32 mm_hut_smash_count; //mm_hut_smash_count
 
 /* .data */
-enum chhut_state_e {
-    HUT_STATE_0_INTACT,
-    HUT_STATE_1_DAMAGED,
-    HUT_STATE_2_DESTROYED
-};
+#include "hut.h" // [port] the states moved there
 
 ActorAnimationInfo chhutAnimations[3] = {
     {0,                          0.0f},
@@ -54,45 +48,18 @@ void __chhut_spawnExplosion(ActorMarker *this) {
     if (this);
 }
 
-static enum bundle_e mm_hut_bundles[6] = {
-    BUNDLE_0_MM_HUT_MUSIC_NOTE,
-    BUNDLE_1_MM_HUT_BLUE_EGG,
-    BUNDLE_2_MM_HUT_GRUBLIN,
-    BUNDLE_3_MM_HUT_JINJO_GREEN,
-    BUNDLE_6_MM_HUT_EXTRA_LIFE,
-    BUNDLE_4_MM_HUT_JIGGY
-};
-
-static void chhut_dropRecordedBundle(Actor *this, s32 loot, s32 fullBundle) {
-    f32 pos[3];
-    if (loot < 0 || loot >= 5) {
-        return; // jiggy / out of range
-    }
-    if (!fullBundle && (loot == 0 || loot == 3)) {
-        return; // note / jinjo: skip on reload
-    }
-    pos[0] = this->position_x;
-    pos[1] = this->position_y + 125.0f;
-    pos[2] = this->position_z;
-    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[loot], *(s32 *)(&pos[0]), *(s32 *)(&pos[1]), *(s32 *)(&pos[2]));
-}
-
-static void chhut_replaySmash(Actor *this, s32 loot) {
-    sfxsource_playHighPriority(SFX_5B_HEAVY_STUFF_FALLING);
-    subaddie_set_state(this, HUT_STATE_1_DAMAGED);
-    actor_playAnimationOnce(this);
-    if (!EventSystem_Should(VB_MM_HUT_DESPAWN_ON_SMASH, false, this)) {
-        __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
-    }
-    bundle_setYaw(this->yaw);
-    chhut_dropRecordedBundle(this, loot, 1);
-}
-
 void chhut_update(Actor *this) {
+    static enum bundle_e D_803898D8[6] = {
+        BUNDLE_0_MM_HUT_MUSIC_NOTE,
+        BUNDLE_1_MM_HUT_BLUE_EGG,
+        BUNDLE_2_MM_HUT_GRUBLIN,
+        BUNDLE_3_MM_HUT_JINJO_GREEN,
+        BUNDLE_6_MM_HUT_EXTRA_LIFE,
+        BUNDLE_4_MM_HUT_JIGGY
+    };
+
     f32 diff_pos[3];
     f32 plyr_pos[3];
-    s32 loot;
-    s32 smashIndex;
 
     if (gsworld_getUnk0() != 2) {
         return;
@@ -101,17 +68,7 @@ void chhut_update(Actor *this) {
     if (!this->initialized) {
         this->marker->collidable = false;
         this->initialized = true;
-        loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
-        if (loot >= 0) {
-            chhut_dropRecordedBundle(this, loot, 0);
-            if (EventSystem_Should(VB_MM_HUT_DESPAWN_ON_SMASH, false, this)) {
-                marker_despawn(this->marker);
-                return;
-            }
-            subaddie_set_state(this, HUT_STATE_2_DESTROYED);
-            this->position_y -= 160.0f;
-            return;
-        }
+        CALL_EVENT(OnHutSetUp, this); // [port]
     }
 
     switch (this->state) {
@@ -134,36 +91,25 @@ void chhut_update(Actor *this) {
                 sfxsource_playHighPriority(SFX_5B_HEAVY_STUFF_FALLING);
                 subaddie_set_state(this, HUT_STATE_1_DAMAGED);
                 actor_playAnimationOnce(this);
-                if (!EventSystem_Should(VB_MM_HUT_DESPAWN_ON_SMASH, false, this)) {
+//              __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
+                if (EventSystem_Should(VB_MM_HUT_SPAWN_EXPLOSION, true, this)) {
                     __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
                 }
                 bundle_setYaw(this->yaw);
 
-//              if (mmhut_smashCount < 5) {
-                smashIndex = port_hutSmash_countForCurrentLevel(mm_hut_smash_count);
-                if (smashIndex < 5) {
-                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
+                CALL_EVENT(OnHutSmashed, this, &mm_hut_smash_count); // [port]
+                if (mm_hut_smash_count < 5) {
+                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_803898D8[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
                 else {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);
                 }
 
                 mm_hut_smash_count = (mm_hut_smash_count + 1) % 6;
-                port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
-            }
-            else {
-                loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
-                if (loot >= 0) {
-                    chhut_replaySmash(this, loot);
-                }
             }
             break;
 
         case HUT_STATE_1_DAMAGED:
-            if (EventSystem_Should(VB_MM_HUT_DESPAWN_ON_SMASH, false, this)) {
-                marker_despawn(this->marker);
-                return;
-            }
             if (anctrl_getAnimTimer(this->anctrl) > 0.99) {
                 anctrl_setTransitionDuration(this->anctrl, 0.0f);
                 subaddie_set_state(this, HUT_STATE_2_DESTROYED);

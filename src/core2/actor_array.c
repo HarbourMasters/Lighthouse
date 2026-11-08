@@ -443,7 +443,6 @@ void actorArray_free(void) {
     Actor *var_s0;
 
     CALL_EVENT(OnActorArrayFree); // [port]
-    port_remoteCarry_reset();
 
     if (suBaddieActorArray != NULL) {
         for(var_s0 = suBaddieActorArray->data; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
@@ -2258,36 +2257,6 @@ ActorMarker *func_8032B16C(enum jiggy_e jiggy_id) {
     }
 }
 
-ActorMarker *actorArray_findHoneycombMarkerById(enum honeycomb_e id) {
-    Actor* base;
-    Actor* var_s0;
-
-    if (suBaddieActorArray != NULL) {
-        base = &suBaddieActorArray->data[0];
-        for (var_s0 = base; (var_s0 - base) < suBaddieActorArray->cnt; var_s0++) {
-            if ((var_s0->marker->id == MARKER_53_EMPTY_HONEYCOMB) && (func_802CA1C4(var_s0) == id)) {
-                return var_s0->marker;
-            }
-        }
-    }
-    return NULL;
-}
-
-ActorMarker *actorArray_findMumboTokenMarkerById(enum mumbotoken_e id) {
-    Actor* base;
-    Actor* var_s0;
-
-    if (suBaddieActorArray != NULL) {
-        base = &suBaddieActorArray->data[0];
-        for (var_s0 = base; (var_s0 - base) < suBaddieActorArray->cnt; var_s0++) {
-            if ((var_s0->marker->id == MARKER_39_MUMBO_TOKEN) && (func_802E0CB0(var_s0) == id)) {
-                return var_s0->marker;
-            }
-        }
-    }
-    return NULL;
-}
-
 void func_8032B258(Actor *this, enum collision_e arg1) {
     f32 sp44;
     f32 sp38[3];
@@ -2386,7 +2355,8 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
                 sp6C /= 2;
             }
         }
-        if (sp6C != 0 && EventSystem_Should(VB_ENEMY_BECOME_BUNDLE, true, this->actor_info->actorId)) {
+//      if (sp6C != 0) {
+        if (EventSystem_Should(VB_ENEMY_BECOME_BUNDLE, sp6C != 0, this->actor_info->actorId)) {
             bundle_setYaw(func_80257204(arg0->propPtr->position_x, arg0->propPtr->position_z, arg1->propPtr->position_x, arg1->propPtr->position_z) + 90.0f);
             D_8036E564 = sp6C;
             if (this->unk138_25) {

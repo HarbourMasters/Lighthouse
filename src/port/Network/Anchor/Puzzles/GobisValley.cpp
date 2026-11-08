@@ -27,13 +27,13 @@ static bool IsTeammateStep(Actor* actor) {
         case ACTOR_31D_SANDYBUTT_PYRAMID:
             return sPyramidReplay;
         case ACTOR_1F7_JINXY:
-            return port_mapFlag_wasSetRemotely(0) || port_mapFlag_wasSetRemotely(1);
+            return Anchor_WasMapFlagSetRemotely(0) || Anchor_WasMapFlagSetRemotely(1);
         case ACTOR_6D_GV_BANJO_DOOR:
-            return port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1);
+            return Anchor_WasMapFlagSetRemotely(0) && Anchor_WasMapFlagSetRemotely(1);
         case ACTOR_142_GV_STAR_HATCH:
-            return port_mapFlag_wasSetRemotely(5);
+            return Anchor_WasMapFlagSetRemotely(5);
         case ACTOR_143_GV_KAZOOIE_DOOR:
-            return port_mapFlag_wasSetRemotely(6);
+            return Anchor_WasMapFlagSetRemotely(6);
         default:
             return false;
     }
@@ -96,7 +96,7 @@ void AnchorPuzzles_RegisterGobisValley(bool connected) {
                 D_80390C28[ring]->propPtr->isNotFeatherEggOrNote = true;
             }
             // Only a ring found live sounds: flags 7 to 0xB, one per ring, marked when a teammate's lands.
-            if (port_mapFlag_wasSetRemotely(6 + ring) && Anchor_InEarshot(one->position)) {
+            if (Anchor_WasMapFlagSetRemotely(6 + ring) && Anchor_InEarshot(one->position)) {
                 if (ring < 5) {
                     coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                 } else {
@@ -184,8 +184,7 @@ void AnchorPuzzles_RegisterGobisValley(bool connected) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* gobi = ev->actor;
         if (gobi->volatile_initialized && (gobi->state == 1 || gobi->state == 2 || gobi->state == 7) &&
-            (honeycombscore_get(HONEYCOMB_C_GV_GOBI_3) ||
-             actorArray_findHoneycombMarkerById(HONEYCOMB_C_GV_GOBI_3) != NULL)) {
+            (honeycombscore_get(HONEYCOMB_C_GV_GOBI_3) || Anchor_FindHoneycombMarker(HONEYCOMB_C_GV_GOBI_3) != NULL)) {
             marker_despawn(gobi->marker);
             *ev->should = false;
         }

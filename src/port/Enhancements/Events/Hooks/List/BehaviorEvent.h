@@ -25,6 +25,18 @@ DEFINE_EVENT(OnLairRelease)
 DEFINE_EVENT(OnRollInit)
 DEFINE_EVENT(OnRollUpdate, s32* nextState;)
 DEFINE_EVENT(OnGruntyJinjonatorComplete)
+DEFINE_EVENT(OnFinalBossSpawned)
+DEFINE_EVENT(OnFinalBossDefeated)
+DEFINE_EVENT(OnFinalBossSpell, int32_t kind;) // 0 fireball, 1 final-spell fireball, 2 green blast
+DEFINE_EVENT(OnFinalBossFireballThrow, float flightTime;)
+DEFINE_EVENT(OnFinalBossFlightPad, bool spawned;)
+DEFINE_EVENT(OnFinalBossBarrier)
+DEFINE_EVENT(OnJinjoStatueSpawned, int32_t statueId;)
+DEFINE_EVENT(OnJinjoStatueSlam, int32_t statueId;)
+DEFINE_EVENT(OnJinjoStatueEgg, int32_t statueId; int32_t padIndex;)
+DEFINE_EVENT(OnBossJinjoHitUpdate, Actor* jinjo;)
+DEFINE_EVENT(OnSmMovesCompleted)
+DEFINE_EVENT(OnFpTwinklyMinigameEnd)
 DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)
 DEFINE_EVENT(OnMiscCutscenesCheck, bool* skipMiscCutscenes;)
 DEFINE_EVENT(OnJigsawPodiumInput, s32 podiumId;)
@@ -43,12 +55,23 @@ DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
 DEFINE_EVENT(OnGeoCull, s32 type; s32 offset; const void* modelBin; const u8* areaIds; s32 areaCount; s32 detail0;
              s32 detail1; s32 drawnVanilla; bool* forceDraw;)
 // Mr. Vile minigame (Anchor sync). Fired only on the client actually running the local
-// logic; followers have the originating code paths suppressed via VB_VILE_* behaviors.
+// logic; followers have the originating code paths suppressed via ShouldActorUpdate listeners
+// and VB_VILE_* behaviors.
 DEFINE_EVENT(OnVileHoleStateChange, ActorMarker* marker; f32 * position; s32 state; s32 pieceType;)
 DEFINE_EVENT(OnVileGameStateChange, s32 state;)
-DEFINE_EVENT(OnPuzzleStep, int32_t puzzleId; int32_t bits;)                         // enum AnchorPuzzle
-DEFINE_EVENT(OnBreakableBroken, int32_t markerId; int32_t x; int32_t y; int32_t z;) // marker_e
-DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;)            // 1 tutorial, 0 skip
+DEFINE_EVENT(OnPuzzleStep, int32_t puzzleId; int32_t bits;)                                      // enum AnchorPuzzle
+DEFINE_EVENT(OnBreakableBroken, int32_t markerId; int32_t x; int32_t y; int32_t z; bool replay;) // marker_e
+DEFINE_EVENT(OnBreakableSetUp, Actor* actor;)
+DEFINE_EVENT(OnFlowerpotRemaining, int32_t total; int32_t * remaining;)
+DEFINE_EVENT(OnHutSetUp, Actor* actor;)
+DEFINE_EVENT(OnHutSmashed, Actor* actor; int32_t * loot;)
+DEFINE_EVENT(OnEggTollSetUp, Actor* actor;)
+DEFINE_EVENT(OnEggTollPaid, Actor* actor;)
+DEFINE_EVENT(OnCageSwitchState, Actor* actor; int32_t state;) // chcageupswitch_state_e
+DEFINE_EVENT(OnLairWaterLevel, int16_t* levels; float current; float* height;)
+DEFINE_EVENT(OnCutsceneWarp, int32_t map; int32_t progressFlag;)
+DEFINE_EVENT(OnMmWitchSwitchCutscene)
+DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;) // 1 tutorial, 0 skip
 DEFINE_EVENT(OnPuzzlePosMark, int32_t puzzleId; int32_t x; int32_t y; int32_t z;)
 // FP's snowman-button and Sir Slush managers, just before their win calls the puzzle VBs with no actor.
 DEFINE_EVENT(OnPuzzleWin, int32_t puzzleId;)

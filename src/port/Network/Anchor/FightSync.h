@@ -43,7 +43,7 @@ typedef struct FightWorldSnapshot {
 extern "C" {
 #endif
 
-// --- hooks called by the FINALE actors (implemented in FightSync.c) --------------------
+// --- hooks called by FightEvent.cpp's listeners (implemented in FightSync.c) -----------
 
 // Boss lifecycle: spawn resets sync state; defeat drops every client to local simulation.
 void FightSync_OnBossSpawned(void);
@@ -65,10 +65,7 @@ void FightSync_OnBarrierSpawned(void);
 void FightSync_OnStatueSpawned(int32_t statue_id);
 void FightSync_OnJinjoSlam(int32_t statue_id);
 
-// --- FINALE entry points used by FightSync.c (implemented in the decomp actors) --------
-
-void chjinjonatorbase_netApplyEgg(int32_t pad_index);
-bool chjinjonatorbase_netGetPads(uint8_t pads[4]);
+void FightSync_OnFireballThrow(float flightTime);
 
 // --- C -> network (bridges implemented in the packet .cpp files) -----------------------
 

@@ -11,14 +11,26 @@
 #include <vector>
 
 #include "functions.h"
+extern "C" {
+#include "RBB/ch/eggtoll1.h"
 
-#include "port/Patches/Patches.h"
+extern ActorArray* suBaddieActorArray;
+extern chRBBEggTollInfo chRBBEggTollInfoTable[4];
+void chRBBEggToll_setState(Actor* self, s32 next_state);
+}
 
 /**
  * EGG_TOLL
  */
 
 std::map<std::array<int32_t, 2>, int32_t> sStages;
+// The tolls a teammate paid, by tollId bit, until we pay one ourselves.
+static u32 sTollReplay = 0;
+
+static bool IsTollReplay(Actor* actor) {
+    return actor != NULL && actor->modelCacheIndex == ACTOR_172_RBB_EGG_TOLL &&
+           (sTollReplay & (1 << ((ActorLocal_ChRBBEggToll*)&actor->local)->tollId));
+}
 
 void recordStage(int32_t map, int32_t secondaryId, int32_t stage) {
     std::array<int32_t, 2> key = { map, secondaryId };
@@ -28,7 +40,7 @@ void recordStage(int32_t map, int32_t secondaryId, int32_t stage) {
     }
 }
 
-extern "C" int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId) {
+static int32_t getStage(int32_t map, int32_t secondaryId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return 0;
     }
@@ -36,12 +48,45 @@ extern "C" int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId) {
     return it != sStages.end() ? it->second : 0;
 }
 
-extern "C" void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage) {
-    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+static s32 countForStage(s32 tollIdx, s32 stage) {
+    s32 count = 0;
+    if (stage >= 1) {
+        count += chRBBEggTollInfoTable[tollIdx].eggCost1;
+    }
+    if (stage >= 2) {
+        count += chRBBEggTollInfoTable[tollIdx].eggCost2;
+    }
+    return count;
+}
+
+// A paid stage plays out through state 3 to state 4, which re-arms a two-stage toll or stays paid. A toll yet to set up
+// takes its stage in OnEggTollSetUp, and one just restored snaps to it as its update runs.
+static void remoteApply(s32 secondaryId, s32 stage) {
+    if (suBaddieActorArray == NULL) {
         return;
     }
-    recordStage(map, secondaryId, stage);
-    Anchor::GetInstance()->SendPacket_EggToll((s16)secondaryId, stage, map);
+    for (s32 i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor* actor = &suBaddieActorArray->data[i];
+        if (actor->marker == NULL || actor->marker->id != MARKER_182_RBB_EGG_TOLL) {
+            continue;
+        }
+        if (actor->secondaryId != secondaryId) {
+            continue;
+        }
+        auto* local = (ActorLocal_ChRBBEggToll*)&actor->local;
+        if (actor->state != CH_RBB_EGG_TOLL_STATE_0_NOT_INIT && stage > local->tollNum) {
+            local->eggsPaid = countForStage(local->tollId, stage);
+            if (actor->volatile_initialized) {
+                local->tollNum = stage - 1;
+                sTollReplay |= 1 << local->tollId;
+                chRBBEggToll_setState(actor, CH_RBB_EGG_TOLL_STATE_3_TOLL_COMPLETE);
+            } else {
+                local->tollNum = stage;
+                chRBBEggToll_setState(actor, CH_RBB_EGG_TOLL_STATE_4_UNK);
+            }
+        }
+        return;
+    }
 }
 
 void Anchor::SendPacket_EggToll(s16 secondaryId, s32 stage, s32 map) {
@@ -71,7 +116,7 @@ void Anchor::HandlePacket_EggToll(nlohmann::json& payload) {
 
     recordStage(map, secondaryId, stage);
     if ((s32)gsworld_getMap() == map) {
-        port_eggToll_remoteApply(map, secondaryId, stage);
+        remoteApply(secondaryId, stage);
     }
 }
 
@@ -99,16 +144,59 @@ void port_eggToll_clearForLevel(int32_t levelId) {
 }
 
 void RegisterEggToll_Init() {
-    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sStages.clear(); });
+    // At boot, with the rest of this file: the stages do nothing until world sync is live, and a replay that starts
+    // while connected plays out if the connection drops.
+    COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sStages.clear(); });
 
-    REGISTER_LISTENER(OnMapLoaded, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    // A toll's paid stage has no flag, so the team keeps it by secondaryId. A teammate's stage was recorded as it
+    // landed, so its replay sends nothing.
+    COND_HOOK(OnEggTollPaid, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        Actor* toll = ((OnEggTollPaid*)event)->actor;
+        auto* local = (ActorLocal_ChRBBEggToll*)&toll->local;
+        const s32 map = (s32)gsworld_getMap();
+        const s32 stage = local->tollNum;
+        if (stage <= getStage(map, toll->secondaryId)) {
+            return;
+        }
+        sTollReplay &= ~(1 << local->tollId);
+        if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+            return;
+        }
+        recordStage(map, toll->secondaryId, stage);
+        Anchor::GetInstance()->SendPacket_EggToll((s16)toll->secondaryId, stage, map);
+    });
+
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (IsTollReplay(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (IsTollReplay(actor) && !Anchor_InEarshot(actor->position)) {
+            *should = false;
+        }
+    });
+
+    COND_HOOK(OnEggTollSetUp, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        Actor* toll = ((OnEggTollSetUp*)event)->actor;
+        auto* local = (ActorLocal_ChRBBEggToll*)&toll->local;
+        const s32 stage = getStage((s32)gsworld_getMap(), toll->secondaryId);
+        if (stage > 0) {
+            local->tollNum = stage;
+            local->eggsPaid = countForStage(local->tollId, stage);
+            chRBBEggToll_setState(toll, CH_RBB_EGG_TOLL_STATE_4_UNK);
+        }
+    });
+
+    COND_HOOK(OnMapLoaded, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         OnMapLoaded* ev = (OnMapLoaded*)event;
         if (!Anchor::GetInstance()->IsWorldSyncActive()) {
             return;
         }
         for (const auto& [key, stage] : sStages) {
             if (key[0] == (int32_t)ev->nextMap) {
-                port_eggToll_remoteApply(key[0], key[1], stage);
+                remoteApply(key[1], stage);
             }
         }
     });

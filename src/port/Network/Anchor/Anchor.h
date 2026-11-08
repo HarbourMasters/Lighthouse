@@ -17,6 +17,7 @@
 extern "C" {
 #include "prop.h"
 #include "variables.h"
+extern s32 D_80367694; // quiz/game.c: the map a switch's cutscene warp returns to
 }
 
 typedef struct {
@@ -54,8 +55,14 @@ struct RoomState {
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
 void Anchor_MarkMapFlagsRemote(uint32_t mask);
 bool Anchor_InEarshot(f32 pos[3], f32 range = 1800.0f);
+bool Anchor_WasMapFlagSetRemotely(int32_t index);
 bool Anchor_WasLevelFlagSetRemotely(int32_t index);
 bool Anchor_JiggyListHasObject(int16_t jiggyId);
+ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
+ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
+void Anchor_RegisterHutHooks(bool connected);
+void Anchor_BreakLairBreakable(int32_t progressFlag);
+void Anchor_RegisterFightHooks(bool connected);
 
 class Anchor : public Network {
 private:
@@ -286,7 +293,7 @@ public:
     void SendPacket_PuzzleCount(s32 counterId, s32 delta, s32 map);
     void SendPacket_WaterRise(s32 map, s32 kind, s32 p1, s32 p2, f32 duration);
     void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
-    void SendPacket_JiggyCrane(s32 stage);
+    void SendPacket_JiggyCrane(s32 stage, s32 ticks = 0);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_JiggyExpired(s16 jiggyId);

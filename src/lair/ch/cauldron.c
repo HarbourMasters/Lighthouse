@@ -327,7 +327,8 @@ void chWarpCauldron_update(Actor *this) {
             if (actor_animationIsAt(this, 0.95f)) {
                 func_8038A704(this);
                 fileProgressFlag_set(chWarpCauldron_getFileProgressFlagIndex(this), 1);
-                func_8028F918(0);
+//              func_8028F918(0);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) func_8028F918(0);
                 this->unk1C[2] = 4.0f;
             }
             break;

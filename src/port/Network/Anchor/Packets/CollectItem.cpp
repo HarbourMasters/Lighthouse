@@ -21,7 +21,7 @@ void Anchor_DespawnCollectedCollectibles() {
     }
     for (s32 id = 1; id < 0x19; id++) { // HONEYCOMB_COUNT
         if (port_honeycombscore_getRaw((enum honeycomb_e)id)) {
-            ActorMarker* m = actorArray_findHoneycombMarkerById((enum honeycomb_e)id);
+            ActorMarker* m = Anchor_FindHoneycombMarker((enum honeycomb_e)id);
             if (m != nullptr) {
                 marker_despawn(m);
             }
@@ -29,7 +29,7 @@ void Anchor_DespawnCollectedCollectibles() {
     }
     for (s32 id = 1; id < 126; id++) { // MUMBO_TOKEN_COUNT
         if (mumboscore_get((enum mumbotoken_e)id)) {
-            ActorMarker* m = actorArray_findMumboTokenMarkerById((enum mumbotoken_e)id);
+            ActorMarker* m = Anchor_FindMumboTokenMarker((enum mumbotoken_e)id);
             if (m != nullptr) {
                 marker_despawn(m);
             }
@@ -107,7 +107,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                 }
             }
             if (sameMap) {
-                ActorMarker* m = actorArray_findHoneycombMarkerById((enum honeycomb_e)id);
+                ActorMarker* m = Anchor_FindHoneycombMarker((enum honeycomb_e)id);
                 if (m != nullptr) {
                     marker_despawn(m);
                 }
@@ -118,7 +118,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                 mumboscore_set((enum mumbotoken_e)id, true);
             }
             if (sameMap) {
-                ActorMarker* m = actorArray_findMumboTokenMarkerById((enum mumbotoken_e)id);
+                ActorMarker* m = Anchor_FindMumboTokenMarker((enum mumbotoken_e)id);
                 if (m != nullptr) {
                     marker_despawn(m);
                 }
@@ -130,7 +130,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_JINJO:
             port_jinjoRetention_applyRemoteCollect(map, id, sameMap ? 1 : 0);
             break;
-        case ANCHOR_COLLECTIBLE_WORM:
+        case ANCHOR_COLLECTIBLE_CATERPILLAR:
         case ANCHOR_COLLECTIBLE_ACORN:
         case ANCHOR_COLLECTIBLE_PRESENT_BLUE:
         case ANCHOR_COLLECTIBLE_PRESENT_GREEN:
@@ -139,7 +139,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_ORANGE: {
             enum item_e item;
             switch (kind) {
-                case ANCHOR_COLLECTIBLE_WORM:
+                case ANCHOR_COLLECTIBLE_CATERPILLAR:
                     item = ITEM_22_CATERPILLAR;
                     break;
                 case ANCHOR_COLLECTIBLE_ACORN:

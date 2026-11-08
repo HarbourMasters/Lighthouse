@@ -17,16 +17,12 @@ extern "C" {
 
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
-s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
-int32_t port_mapFlag_wasSetRemotely(int32_t index);
 void func_80324CD8(f32 time);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
-}
-
-extern "C" void port_fpTwinkly_release(void) {
-    NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
+bool __chAttackTutorial_areLearnableAbilitiesUnlocked(void);
+extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
 }
 
 s32 Anchor_LevelOfMap(s32 map);
@@ -37,6 +33,12 @@ void Anchor_DespawnCollectedCollectibles();
 static bool Anchor_WorldSyncActive() {
     Anchor* anchor = Anchor::GetInstance();
     return anchor != nullptr && anchor->IsWorldSyncActive();
+}
+
+// The honeycomb is out, or spawned and yet to take its uid.
+static bool Anchor_HoneycombPresent(enum honeycomb_e id) {
+    return Anchor_FindHoneycombMarker(id) != nullptr ||
+           (D_8037DDC0 == id && Anchor_FindHoneycombMarker((enum honeycomb_e)0) != nullptr);
 }
 
 // True when a remote client owns the Mr. Vile minigame (our local logic must follow).
@@ -61,7 +63,7 @@ static void Anchor_UpdateVileSync() {
     Actor* vile = actorArray_findClosestActorFromActorId(origin, ACTOR_13A_MR_VILE, -1, &dist);
     if (vile != nullptr) {
         Anchor::GetInstance()->SendPacket_VileUpdate(vile->position, vile->pitch, vile->yaw, vile->roll,
-                                                     (u8)chMrVile_netGetAnimMode(vile));
+                                                     VileSync_VileAnimMode(vile));
     }
 
     static u32 sSnapshotTimer = 0;
@@ -125,6 +127,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         // RBB propeller press: the cutscene and engine-room warp play for the presser only; 0x27/0x28 carry the result.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_3_RBB_UNKNOWN,
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_4_RBB_UNKNOWN,
+        // MMM's flower-pot count (cemetarypot.c); each client counts the team's flowered pots instead.
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | 0x39,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | 0x3A,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | 0x3B,
     };
     if (excluded.contains((space << 16) | index)) {
         return true;
@@ -200,13 +206,22 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     return false;
 }
 
+// Every map outside the three water rooms resets water switch 3 (func_802D5260); a teammate's reset would drain
+// ours while we stand in one.
+static bool Anchor_LairWaterSwitch3Reset() {
+    const s32 map = (s32)gsworld_getMap();
+    return map != MAP_76_GL_640_NOTE_DOOR && map != MAP_77_GL_RBB_LOBBY && map != MAP_78_GL_RBB_AND_MMM_PUZZLE;
+}
+
 // Clears that stay local. The flags' sets still sync.
 static bool Anchor_LocalFlagClear(s32 space, s32 index) {
     switch (space) {
         case ANCHOR_FLAGSPACE_FILE_PROGRESS:
             // Each beanstalk and Gobi reset it (beanstalk.c, ccwgobi.c); a teammate's would unwater our flower
             // while the waterer's jiggy is on its way.
-            return index == FILEPROG_E5_CCW_FLOWER_AUTUMN;
+            return index == FILEPROG_E5_CCW_FLOWER_AUTUMN ||
+                   ((index == FILEPROG_26_WATER_SWITCH_3_PRESSED || index == FILEPROG_27_LAIR_WATER_LEVEL_3) &&
+                    Anchor_LairWaterSwitch3Reset());
         case ANCHOR_FLAGSPACE_MAP_SPECIFIC:
             // An idle flibbit clears the call-up as it answers (yellowflibbit.c); a teammate's clear cancels ours.
             if (gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
@@ -231,11 +246,15 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             return gsworld_getMap() == MAP_31_RBB_RUSTY_BUCKET_BAY && index == RBB_MAIN_SPECIFIC_FLAG_4_ANCHOR_LIFTING;
         case ANCHOR_FLAGSPACE_LEVEL_SPECIFIC:
             // The propeller timer clears these when it stops (propellorctrl.c); a teammate leaving RBB restarts ours.
-            return index == LEVEL_FLAG_27_RBB_UNKNOWN || index == LEVEL_FLAG_28_RBB_UNKNOWN;
+            return index == LEVEL_FLAG_27_RBB_UNKNOWN || index == LEVEL_FLAG_28_RBB_UNKNOWN ||
+                   ((index == LEVEL_FLAG_3C_LAIR_UNKNOWN || index == LEVEL_FLAG_3D_LAIR_UNKNOWN) &&
+                    Anchor_LairWaterSwitch3Reset());
         default:
             return false;
     }
 }
+
+static bool sAttackTutorialMovesKnown = false;
 
 // Whether the SM tutorial offer is ours to answer; claims it for us when it's free.
 static bool Anchor_SmTutorialChoiceOpen() {
@@ -430,7 +449,7 @@ void Anchor::RegisterHooks() {
             return;
         }
         NetAuthority_Release(NET_ACTIVITY_FP_SCARF_SLED);
-        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+        if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             func_80324CD8(0.0f);
             timed_exitStaticCamera(0.0f);
         }
@@ -455,7 +474,7 @@ void Anchor::RegisterHooks() {
         const bool heldByTeammate = !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED);
         sled->marker->collidable = !heldByTeammate;
         sled->marker->propPtr->unk8_3 = !heldByTeammate;
-        if (port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
+        if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             marker_despawn(sled->marker);
         } else if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_SCARF_SLED) &&
                    NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED) &&
@@ -471,58 +490,37 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Vanilla despawns the CCW podium until its switch is pressed, and only rebuilds it when the cube
-    // re-streams. Keep the actor alive (hidden) instead, so a teammate's press reveals it in place.
-    COND_VB_SHOULD(VB_CCW_PODIUM_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            *should = false;
-        }
-    });
-
-    COND_VB_SHOULD(VB_JIGSAW_PICTURE_RESYNC, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            *should = true;
-        }
-    });
-
-    // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off
-    // visual state (fully open == 0x1B) instead. Other lair doors stay flag-based.
-    COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
-            s32 doorActorId = va_arg(args, s32);
-            s32 doorState = va_arg(args, s32);
-            if (doorActorId == ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE) {
-                *should = (doorState == 0x1B);
+    // Only one client may run FP's Twinkly minigame at a time: claim it or block if already held.
+    COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (*should) {
+            if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
+                *should = false;
+            } else {
+                NetAuthority_Claim(NET_ACTIVITY_FP_TWINKLY);
             }
         }
     });
-
-    COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
-            *should = false;
-        } else {
-            NetAuthority_Claim(NET_ACTIVITY_FP_TWINKLY);
-        }
-    });
+    COND_HOOK(OnFpTwinklyMinigameEnd, EVENT_PRIORITY_NORMAL, isConnected,
+              [](IEvent* event) { NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY); });
 
     // Always on: a door that opens while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, true, {
         s32 doorId = va_arg(args, s32);
         switch (doorId) {
             case GV_DOOR_CAM_SUN:
-                *should = !port_mapFlag_wasSetRemotely(3);
+                *should = !Anchor_WasMapFlagSetRemotely(3);
                 break;
             case GV_DOOR_CAM_STAR:
-                *should = !port_mapFlag_wasSetRemotely(5);
+                *should = !Anchor_WasMapFlagSetRemotely(5);
                 break;
             case GV_DOOR_CAM_KAZOOIE:
-                *should = !port_mapFlag_wasSetRemotely(6);
+                *should = !Anchor_WasMapFlagSetRemotely(6);
                 break;
             case GV_DOOR_CAM_JINXY:
-                *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                *should = !(Anchor_WasMapFlagSetRemotely(0) && Anchor_WasMapFlagSetRemotely(1));
                 break;
             case MMM_DOOR_CAM_CHURCH:
-                *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                *should = !Anchor_WasMapFlagSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
                 break;
             default:
                 break;
@@ -540,27 +538,29 @@ void Anchor::RegisterHooks() {
             *should = false;
         }
     });
-    COND_VB_SHOULD(VB_VILE_GAME_UPDATE, EVENT_PRIORITY_NORMAL, true, {
-        if (Anchor_IsVileFollower()) {
-            *should = false;
-        }
-    });
-    COND_VB_SHOULD(VB_VILE_CPU_AI, EVENT_PRIORITY_NORMAL, true, {
-        if (Anchor_IsVileFollower()) {
+    COND_VB_SHOULD(VB_VILE_PIECE_ROLL, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (VileSync_ForcePieceType(va_arg(args, Actor*))) {
             *should = false;
         }
     });
 
     // Followers: a local chomp becomes an eat request; the authority validates and the
     // resulting eaten state comes back as a VILE_HOLE_STATE packet.
-    COND_VB_SHOULD(VB_VILE_PLAYER_EAT_PIECE, EVENT_PRIORITY_NORMAL, true, {
-        if (Anchor_IsVileFollower()) {
-            f32* piecePos = va_arg(args, f32*);
-            VileHoleId hole = VileHoles_IdFromPosition(piecePos[0], piecePos[2]);
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_138_VILE_GAME_CTRL, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        if (ev->actor->volatile_initialized && Anchor_IsVileFollower()) {
+            const int32_t hole = VileSync_FollowerGameUpdate(ev->actor);
             if (hole != VILE_HOLE_NONE) {
                 Anchor::GetInstance()->SendPacket_VileEatRequest((u8)hole);
             }
-            *should = false;
+            *ev->should = false;
+        }
+    });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_13A_MR_VILE, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* ev = (ShouldActorUpdate*)event;
+        if (ev->actor->volatile_initialized && Anchor_IsVileFollower()) {
+            VileSync_FollowerVileUpdate(ev->actor);
+            *ev->should = false;
         }
     });
 
@@ -742,10 +742,34 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_SpawnHoneycomb((s16)ev->honeycombId, ev->bundleId, ev->x, ev->y, ev->z);
     });
 
-    // SM intro Bottles: the tutorial offer is first-answer-wins for the team.
-    COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (!Anchor_SmTutorialChoiceOpen()) {
+    COND_VB_SHOULD(VB_SPAWN_EMPTY_HONEYCOMB, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive() && Anchor_HoneycombPresent((enum honeycomb_e)va_arg(args, s32))) {
             *should = false;
+        }
+    });
+
+    // SM intro Bottles: the tutorial offer is first-answer-wins for the team. An offer a teammate holds or has
+    // answered sets SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES on ours.
+    COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
+        Actor* bottles = va_arg(args, Actor*);
+        if (*should && bottles->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO && !Anchor_SmTutorialChoiceOpen()) {
+            mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+            *should = false;
+        }
+    });
+
+    // The attack tutorial ends on the moves known when it spawned, or once the SM set completes (a skip, or a
+    // teammate's last move), not on each move a teammate learns. Always on: a tutorial that spawned before we connected
+    // keeps its latch.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_167_ATTACK_TUTORIAL, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        if (!((ShouldActorUpdate*)event)->actor->initialized) {
+            sAttackTutorialMovesKnown = __chAttackTutorial_areLearnableAbilitiesUnlocked();
+        }
+    });
+    COND_HOOK(OnSmMovesCompleted, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sAttackTutorialMovesKnown = true; });
+    COND_VB_SHOULD(VB_ATTACK_TUTORIAL_MOVES_KNOWN, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive()) {
+            *should = sAttackTutorialMovesKnown || (func_802E4A08() && *should);
         }
     });
 
@@ -762,7 +786,9 @@ void Anchor::RegisterHooks() {
     // Ability molehills wake up only after the tutorial choice exists: the offer was
     // answered (synced bit) or a move is already known (covers skip-tutorial saves).
     COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive() && !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
+        const s32 mole = va_arg(args, Actor*)->actorTypeSpecificField;
+        if (mole != CH_SM_MOLE_ID_1_INTRO && mole != CH_SM_MOLE_ID_8_BRIDGE && Anchor_WorldSyncActive() &&
+            !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
             !(port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
         }
@@ -780,7 +806,9 @@ void Anchor::RegisterHooks() {
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected,
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
 
+    Anchor_RegisterHutHooks(isConnected);
     AnchorPuzzles_Register(isConnected);
+    Anchor_RegisterFightHooks(isConnected);
 
     // #endregion
 }

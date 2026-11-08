@@ -4,8 +4,6 @@
 #include "variables.h"
 #include "prop.h"
 #include "actor.h"
-#include "port/Romhack/RomhackConfig.h"
-#include "port/Patches/Patches.h"
 
 extern void func_8028F918(s32);
 extern void func_802D2FB0(Actor *, s32, s32, s32, f32, s32, s32, s32);
@@ -17,7 +15,6 @@ extern void func_80324CFC(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void modelRender_setAppendageVisibility(s32, s32);
-extern ActorArray *suBaddieActorArray;
 
 
 
@@ -500,26 +497,11 @@ s32 D_80393504[4] = {0x87, 0x87, 0x87, 0xB4};
 //chcobweb
 void chFloorCobweb_update(Actor *this)
 {
-    enum file_progress_e brokenFlag = (this->actorTypeSpecificField == 1)
-                                          ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN
-                                          : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN;
-
     if(!this->initialized)
     {
         func_802D3CE8(this);
 
-        if (fileProgressFlag_get(brokenFlag))
-        {
-            marker_despawn(this->marker);
-            return;
-        }
-    }
-
-    // Anchor: re-check on scene-return restore, which resets volatile_initialized but not initialized.
-    if (!this->volatile_initialized)
-    {
-        this->volatile_initialized = true;
-        if (fileProgressFlag_get(brokenFlag))
+        if (fileProgressFlag_get(this->actorTypeSpecificField == 1 ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN))
         {
             marker_despawn(this->marker);
             return;
@@ -550,17 +532,6 @@ void chWallCobweb_update(Actor *this)
         }
     }
 
-    // [port] Re-check on scene-return restore (see chFloorCobweb_update).
-    if (!this->volatile_initialized)
-    {
-        this->volatile_initialized = true;
-        if (fileProgressFlag_get(FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN))
-        {
-            marker_despawn(this->marker);
-            return;
-        }
-    }
-
     if (this->state == 0xF)
     {
         if (actor_animationIsAt(this, 0.9f))
@@ -573,26 +544,11 @@ void chWallCobweb_update(Actor *this)
 
 void lair_func_80386550(Actor *this)
 {
-    enum file_progress_e brokenFlag = (this->actorTypeSpecificField == 1)
-                                          ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN
-                                          : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN;
-
     if (!this->initialized)
     {
         func_802D3CE8(this);
 
-        if (fileProgressFlag_get(brokenFlag))
-        {
-            marker_despawn(this->marker);
-            return;
-        }
-    }
-
-    // [port] Re-check on scene-return restore (see chFloorCobweb_update).
-    if (!this->volatile_initialized)
-    {
-        this->volatile_initialized = true;
-        if (fileProgressFlag_get(brokenFlag))
+        if (fileProgressFlag_get(this->actorTypeSpecificField == 1 ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN))
         {
             marker_despawn(this->marker);
             return;
@@ -938,10 +894,8 @@ void func_803875F0(Actor * this)
 
     if (!this->volatile_initialized)
     {
-        // [port] Anchor: a teammate's press delivers map flag 0 and FILEPROG_1E in the same
-        // packet drain; while we're here to watch, the rise wins over the despawn.
 //      if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN))
-        if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN) && !port_mapFlag_wasSetRemotely(0))
+        if (EventSystem_Should(VB_LAIR_GRATE_OR_PIPE_ALREADY_UP, fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN), this))
         {
             marker_despawn(this->marker);
             return;
@@ -950,10 +904,8 @@ void func_803875F0(Actor * this)
         if (mapSpecificFlags_get(0))
         {
             this->unk1C_y = this->position_y;
-            // A remote press shouldn't steal our camera.
-            if (!port_mapFlag_wasSetRemotely(0)) {
-                gcStaticCamera_activate(0x2A);
-            }
+//          gcStaticCamera_activate(0x2A);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) gcStaticCamera_activate(0x2A);
             fileProgressFlag_set(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN, true);
             this->volatile_initialized = true;
             this->unk38_31 = 0x0C;
@@ -968,7 +920,8 @@ void func_803875F0(Actor * this)
             if (this->unk38_31)
                 return;
 
-            func_802D4830(this, 0x9A, 0.5f);
+//          func_802D4830(this, 0x9A, 0.5f);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) func_802D4830(this, 0x9A, 0.5f);
         }
 
         this->position_y += 4.0f;
@@ -976,7 +929,8 @@ void func_803875F0(Actor * this)
         if (this->position_y > this->unk1C_y + 380.0f)
         {
             func_802D48B8(this);
-            FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
+//          FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
             marker_despawn(this->marker);
         }
     }
@@ -991,13 +945,10 @@ void func_80387730(Actor *this) {
     f32 sp90[3];
     f32 sp84[3];
     s32 i;
-    s32 doorIdx;
-    s32 noteThreshold;
     f32 phi_f20;
     s32 phi_s4;
     s32 sp6C[3];
     f32 sp60[3];
-    s32 forceOpen;
 
     func_802D3D74(this);
     if (!this->volatile_initialized) {
@@ -1024,17 +975,14 @@ void func_80387730(Actor *this) {
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
     }
-    // Anchor: unk1C[0] set by port_notedoor_remoteOpen = a teammate opened this door.
-    forceOpen = (this->unk1C[0] != 0.0f);
-    if (forceOpen ||
-        (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && player_isAbilityUnlocked(ABILITY_13_1ST_NOTEDOOR))) {
+//  if (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && player_isAbilityUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
+    if (EventSystem_Should(VB_NOTEDOOR_CLOSED, !fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && player_isAbilityUnlocked(ABILITY_13_1ST_NOTEDOOR), this)) {
         player_getPosition(spAC);
-        if (!forceOpen && (ml_vec3f_distance(spAC, this->position) < 500.0f) && (gcdialog_getCurrentTextId() != 0xF64)) {
+        if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (gcdialog_getCurrentTextId() != 0xF64)) {
             code_73640_printItemCount(0xC);
         }
-        doorIdx = this->actorTypeSpecificField - 1;
-        noteThreshold = port_getNoteDoorCost(doorIdx);
-        if (forceOpen || itemscore_noteScores_getTotal() >= noteThreshold) {
+//      if (itemscore_noteScores_getTotal() >= D_8039347C[this->actorTypeSpecificField - 1]) {
+        if (EventSystem_Should(VB_NOTEDOOR_ENOUGH_NOTES, itemscore_noteScores_getTotal() >= D_8039347C[this->actorTypeSpecificField - 1], this)) {
             if (this->marker->unk14_21) {
                 func_8032BC60(this, 5, sp90);
                 func_8032BC60(this, 6, sp84);
@@ -1047,13 +995,11 @@ void func_80387730(Actor *this) {
                 phi_f20 = 290.0f;
             }
             sp9C[1] = this->position[1];
-            if (forceOpen || (ml_vec3f_distance(spAC, sp9C) < phi_f20) || (this->alpha_124_19 != 0xFF)) {
+            if ((ml_vec3f_distance(spAC, sp9C) < phi_f20) || (this->alpha_124_19 != 0xFF)) {
                 if (this->alpha_124_19 == 0xFF) {
                     func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 32700);
                     func_80324D2C(2.4f, COMUSIC_43_ENTER_LEVEL_GLITTER);
-                    if (!forceOpen) {
-                        func_8028F918(2);
-                    }
+                    func_8028F918(2);
                 }
                 if (this->alpha_124_19 < 7U) {
                     this->alpha_124_19 = 0;
@@ -1061,11 +1007,11 @@ void func_80387730(Actor *this) {
                     this->alpha_124_19 -= 7;
                 }
                 if (this->alpha_124_19 == 0) {
-                    if (!forceOpen) {
-                        fileProgressFlag_set(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN, true);
-                    }
+                    fileProgressFlag_set(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN, true);
                     marker_despawn(this->marker);
-                    if (!forceOpen) {
+//                  func_8028F918(0);
+//                  func_8028F66C(BS_INTR_35);
+                    if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) {
                         func_8028F918(0);
                         func_8028F66C(BS_INTR_35);
                     }
@@ -1097,86 +1043,6 @@ void func_80387730(Actor *this) {
         } else if ((this->actorTypeSpecificField >= 2) && (ml_vec3f_distance(spAC, this->position) < 290.0f)) {
             progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_B0_NOT_ENOUGH_NOTES);
         }
-    }
-}
-
-// A live actor by id (and actorTypeSpecificField when >= 0), or NULL.
-static Actor *__lair_findActor(s32 actorId, s32 typeField) {
-    s32 i;
-
-    if (suBaddieActorArray == NULL) {
-        return NULL;
-    }
-    for (i = 0; i < suBaddieActorArray->cnt; i++) {
-        Actor *actor = &suBaddieActorArray->data[i];
-        if (actor->marker != NULL && actor->modelCacheIndex == actorId &&
-            (typeField < 0 || actor->actorTypeSpecificField == typeField)) {
-            return actor;
-        }
-    }
-    return NULL;
-}
-
-// [port] Anchor: one-shot cues for a teammate's file-progress flag.
-void port_progressFlag_remoteCue(s32 progressFlag) {
-    Actor *actor;
-
-    port_notedoor_remoteOpen(progressFlag);
-    port_leveldoor_remoteOpen(progressFlag);
-    port_breakable_remoteBreak(progressFlag);
-
-    switch (progressFlag) {
-        // Circular grate over the BGS puzzle: rise + slam (func_803875F0).
-        case FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN:
-            actor = __lair_findActor(ACTOR_213_GL_BGS_PUZZLE_GRATE, -1);
-            if (actor != NULL && !actor->volatile_initialized) {
-                actor->unk1C_y = actor->position_y;
-                actor->volatile_initialized = TRUE;
-                actor->unk38_31 = 0x0C;
-            }
-            break;
-
-        // CC lobby pipes: rise + slam (func_80388FC8 / lair_func_80389204).
-        case FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED:
-        case FILEPROG_20_CC_LOBBY_PIPE_2_RAISED:
-        case FILEPROG_21_CC_LOBBY_PIPE_3_RAISED: {
-            s32 pipeId = (progressFlag == FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED)
-                             ? ACTOR_215_GL_CC_ENTRANCE_LONG_PIPE_GREEN
-                         : (progressFlag == FILEPROG_20_CC_LOBBY_PIPE_2_RAISED)
-                             ? ACTOR_216_GL_CC_ENTRANCE_LONG_PIPE_BLUE
-                             : ACTOR_218_GL_CC_ENTRANCE_SHORT_PIPE;
-            actor = __lair_findActor(pipeId, -1);
-            // initialized = rise base captured; lifetime_value != 0 = already raised.
-            if (actor != NULL && actor->initialized && actor->lifetime_value == 0.0f &&
-                !actor->volatile_initialized) {
-                actor->volatile_initialized = TRUE;
-                actor->unk38_31 = 12;
-            }
-            break;
-        }
-
-        // Grunty statue hat
-        case FILEPROG_A1_STATUE_HAT_OPEN:
-            actor = __lair_findActor(ACTOR_21B_GRUNTY_STATUE_BREAKABLE_HAT_TOP, -1);
-            if (actor != NULL && actor->volatile_initialized && actor->unk1C[0] == 0.0f) {
-                actor->unk1C[0] = 1.0f;
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-
-void port_notedoor_remoteOpen(s32 progressFlag) {
-    Actor *actor;
-
-    if (progressFlag < FILEPROG_3A_NOTE_DOOR_50_OPEN || progressFlag > FILEPROG_45_NOTE_DOOR_882_OPEN) {
-        return;
-    }
-    actor = __lair_findActor(ACTOR_203_NOTE_DOOR, progressFlag - FILEPROG_39_CCW_OPEN);
-    if (actor != NULL) {
-        actor->unk1C[0] = 1.0f; // picked up by func_80387730 next update
     }
 }
 
@@ -1297,12 +1163,18 @@ void func_803880BC(Actor *this)
 
     if (!this->volatile_initialized)
     {
+        bool restored = this->initialized; // [port]
         func_802D3CE8(this);
 
         this->volatile_initialized = true;
 
-        this->unk1C[1] = this->position_y;
-        this->position_y -= 51.f;
+        // [port] A room restore keeps the eye's spawn height and its drop below the floor; redoing them buries it.
+//      this->unk1C[1] = this->position_y;
+//      this->position_y -= 51.f;
+        if (!restored) {
+            this->unk1C[1] = this->position_y;
+            this->position_y -= 51.f;
+        }
         this->unk1C[0] = 0;
 
         __spawnQueue_add_1((GenFunction_1)func_80387E94, (uintptr_t)this->marker);
@@ -1379,10 +1251,8 @@ void func_803882B0(Actor *this)
         this->lifetime_value = 0;
     }
 
-    // Anchor: also honor persistent FILEPROG_47; VOLATILE_FLAG_BB is transient.
-    if (this->pitch == 90.f
-        || !(volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)
-             || fileProgressFlag_get(FILEPROG_47_FP_WITCH_SWITCH_JIGGY_PRESSED)))
+//  if (this->pitch == 90.f || !volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP))
+    if (this->pitch == 90.f || !EventSystem_Should(VB_FP_WITCH_SWITCH_PRESSED, volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)))
         return;
 
     if (this->pitch == 0)
@@ -1407,46 +1277,14 @@ void func_803882B0(Actor *this)
     }
 }
 
-void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s32 a3)
+//void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s32 a3)
+void func_80388404(Actor *this, enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s32 a3)
 {
     if (fileProgressFlag_get(progress_flag) == false)
-        gcsfx_playWithPitch(sfx, a2, a3);
+//      gcsfx_playWithPitch(sfx, a2, a3);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_playWithPitch(sfx, a2, a3);
 
     fileProgressFlag_set(progress_flag, true);
-}
-
-static s32 sRemoteOpenDoorActor = 0;
-
-static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
-    switch (actorId) {
-        case ACTOR_20E_MM_ENTRANCE_DOOR:       return FILEPROG_31_MM_OPEN;
-        case ACTOR_211_TTC_ENTRANCE_CHEST_LID: return FILEPROG_32_TTC_OPEN;
-        case ACTOR_212_CC_ENTRANCE_BARS:       return FILEPROG_33_CC_OPEN;
-        case ACTOR_210_BGS_ENTRANCE_DOOR:      return FILEPROG_34_BGS_OPEN;
-        case ACTOR_235_FP_ENTRANCE_DOOR_LEFT:  return FILEPROG_35_FP_OPEN;
-        case ACTOR_226_GV_ENTRANCE:            return FILEPROG_36_GV_OPEN;
-        case ACTOR_228_MMM_ENTRANCE_DOOR:      return FILEPROG_37_MMM_OPEN;
-        case ACTOR_20F_RBB_ENTRANCE_DOOR:      return FILEPROG_38_RBB_OPEN;
-        case ACTOR_234_CCW_ENTRANCE_DOOR:      return FILEPROG_39_CCW_OPEN;
-        case ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE:         return FILEPROG_E2_DOOR_OF_GRUNTY_OPEN;
-        default:                               return 0;
-    }
-}
-
-void port_leveldoor_remoteOpen(s32 progressFlag) {
-    switch (progressFlag) {
-        case 0x28: sRemoteOpenDoorActor = ACTOR_20E_MM_ENTRANCE_DOOR; break;
-        case 0x29: sRemoteOpenDoorActor = ACTOR_211_TTC_ENTRANCE_CHEST_LID; break;
-        case 0x2A: sRemoteOpenDoorActor = ACTOR_212_CC_ENTRANCE_BARS; break;
-        case 0x2B: sRemoteOpenDoorActor = ACTOR_210_BGS_ENTRANCE_DOOR; break;
-        case 0x2C: sRemoteOpenDoorActor = ACTOR_235_FP_ENTRANCE_DOOR_LEFT; break;
-        case 0x2D: sRemoteOpenDoorActor = ACTOR_226_GV_ENTRANCE; break;
-        case 0x2E: sRemoteOpenDoorActor = ACTOR_228_MMM_ENTRANCE_DOOR; break;
-        case 0x2F: sRemoteOpenDoorActor = ACTOR_20F_RBB_ENTRANCE_DOOR; break;
-        case 0x30: sRemoteOpenDoorActor = ACTOR_234_CCW_ENTRANCE_DOOR; break;
-        case 0xE2: sRemoteOpenDoorActor = ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE; break;
-        default: break;
-    }
 }
 
 void func_80388450(Actor *actor1, Actor *actor2)
@@ -1478,23 +1316,14 @@ void func_80388524(Actor *this) {
     ParticleEmitter *sp2C;
     Actor *sp28;
 
-    sp34 = func_802D677C(-1)
+//  sp34 = func_802D677C(-1)
+    sp34 = EventSystem_Should(VB_LEVELDOOR_OPENING, func_802D677C(-1)
              && (func_802D677C(-1) == gsworld_getMap())
              && (func_802D67AC(-1) >= 8)
              && (func_802D67AC(-1) < 0x12)
              && (func_802D67DC(-1) == this->modelCacheIndex)
-             ;
-
-    if (!sp34 && this->modelCacheIndex == sRemoteOpenDoorActor) {
-        bool alreadyOpen = EventSystem_Should(VB_LEVELDOOR_REMOTE_OPEN_DONE,
-                                              fileProgressFlag_get(__leveldoor_persistentFlag(this->modelCacheIndex)) != 0,
-                                              this->modelCacheIndex, this->state);
-        if (alreadyOpen) {
-            sRemoteOpenDoorActor = 0;
-        } else {
-            sp34 = true;
-        }
-    }
+//           ;
+             , this);
 
     func_802D3D74(this);
     if (!this->initialized) {
@@ -1653,20 +1482,24 @@ void func_80388524(Actor *this) {
                 switch (this->state) {
                     case 0x19: //L80388B34
                         subaddie_set_state_with_direction(this, 0x1A, 0.0f, 1);
-                        coMusicPlayer_playMusic(JINGLE_END_OF_INTRO, -1);
+//                      coMusicPlayer_playMusic(JINGLE_END_OF_INTRO, -1);
+                        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) coMusicPlayer_playMusic(JINGLE_END_OF_INTRO, -1);
                         break;
 
                     case 26: //L80388B54
                         if (actor_animationIsAt(this, 0.4f)) {
-                            FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32675);
+//                          FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32675);
+                            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32675);
                         }
                         if (actor_animationIsAt(this, 0.42f)) {
-                            func_8030E6D4(SFX_1B_EXPLOSION_1);
+//                          func_8030E6D4(SFX_1B_EXPLOSION_1);
+                            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) func_8030E6D4(SFX_1B_EXPLOSION_1);
                         }
                         if (actor_animationIsAt(this, 0.97f)) {
                             subaddie_set_state_with_direction(this, 0x1B, 0.999f, 1);
                             fileProgressFlag_set(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN, 1);
-                            func_8030E6D4(SFX_6C_LOCKUP_CLOSING);
+//                          func_8030E6D4(SFX_6C_LOCKUP_CLOSING);
+                            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) func_8030E6D4(SFX_6C_LOCKUP_CLOSING);
                         }
                         if (anctrl_getAnimTimer(this->anctrl) < 0.68) {
                             sp2C = partEmitMgr_newEmitter(3U);
@@ -1689,14 +1522,16 @@ void func_80388524(Actor *this) {
                 this->yaw += 1.4;
                 if (this->yaw > 270.0f) {
                     this->yaw = 270.0f;
-                    func_80388404(0x31, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+//                  func_80388404(0x31, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+                    func_80388404(this, 0x31, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
                 }
                 break;
 
             case 0x226://L80388CDC
                 this->position[1] += 5.0f;
                 if (this->unk1C[1] < this->position[1]) {
-                    func_80388404(0x36, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+//                  func_80388404(0x36, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+                    func_80388404(this, 0x36, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
                     lair_func_80388278(this);
                     marker_despawn(this->marker);
                 }
@@ -1705,7 +1540,8 @@ void func_80388524(Actor *this) {
             case 0x212://L80388D34
                 this->position[1] += 5.0f;
                 if (this->unk1C[1] < this->position[1]) {
-                    func_80388404(0x33, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
+//                  func_80388404(0x33, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
+                    func_80388404(this, 0x33, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
                     lair_func_80388278(this);
                     marker_despawn(this->marker);
                 }
@@ -1715,7 +1551,8 @@ void func_80388524(Actor *this) {
                 this->pitch += 1.4;
                 if (this->pitch > 90.0f) {
                     this->pitch = 90.0f;
-                    func_80388404(0x32, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+//                  func_80388404(0x32, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+                    func_80388404(this, 0x32, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
                 }
                 break;
 
@@ -1723,14 +1560,16 @@ void func_80388524(Actor *this) {
                 this->yaw += 1.4;
                 if (this->yaw > 90.0f) {
                     this->yaw = 90.0f;
-                    func_80388404(0x34, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+//                  func_80388404(0x34, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
+                    func_80388404(this, 0x34, SFX_6C_LOCKUP_CLOSING, 1.0f, 15000);
                 }
                 break;
 
             case 0x20f://L80388E2C
                 this->position[1] += 5.0f;
                 if (this->unk1C[1] < this->position[1]) {
-                    func_80388404(0x38, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
+//                  func_80388404(0x38, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
+                    func_80388404(this, 0x38, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
                     lair_func_80388278(this);
                     marker_despawn(this->marker);
                 }
@@ -1740,14 +1579,16 @@ void func_80388524(Actor *this) {
                 this->yaw += 1.4;
                 if (this->yaw > 90.0f) {
                     this->yaw = 90.0f;
-                    func_80388404(0x37, SFX_6C_LOCKUP_CLOSING, 1.0f, 20000);
+//                  func_80388404(0x37, SFX_6C_LOCKUP_CLOSING, 1.0f, 20000);
+                    func_80388404(this, 0x37, SFX_6C_LOCKUP_CLOSING, 1.0f, 20000);
                 }
                 break;
 
             case ACTOR_234_CCW_ENTRANCE_DOOR://L80388ED4
                 this->position[1] += 3.2;
                 if (this->unk1C[1] <= this->position[1]) {
-                    func_80388404(FILEPROG_39_CCW_OPEN, SFX_6C_LOCKUP_CLOSING, 1.0f, 20000);
+//                  func_80388404(FILEPROG_39_CCW_OPEN, SFX_6C_LOCKUP_CLOSING, 1.0f, 20000);
+                    func_80388404(this, FILEPROG_39_CCW_OPEN, SFX_6C_LOCKUP_CLOSING, 1.0f, 20000);
                     lair_func_80388278(this);
                     marker_despawn(this->marker);
                 }
@@ -1798,7 +1639,8 @@ void func_80388FC8(Actor *this)
 
     if (!this->volatile_initialized)
     {
-        if (fileProgressFlag_get(this->modelCacheIndex == 0x215 ? FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED : FILEPROG_20_CC_LOBBY_PIPE_2_RAISED))
+//      if (fileProgressFlag_get(this->modelCacheIndex == 0x215 ? FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED : FILEPROG_20_CC_LOBBY_PIPE_2_RAISED))
+        if (EventSystem_Should(VB_LAIR_GRATE_OR_PIPE_ALREADY_UP, fileProgressFlag_get(this->modelCacheIndex == 0x215 ? FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED : FILEPROG_20_CC_LOBBY_PIPE_2_RAISED), this))
         {
             this->position_y = this->unk1C[1];
             return;
@@ -1806,8 +1648,8 @@ void func_80388FC8(Actor *this)
 
         if (mapSpecificFlags_get(1))
         {
-            // [port] Anchor: a remote press shouldn't steal our camera.
-            if (this->modelCacheIndex == 0x215 && !port_mapFlag_wasSetRemotely(1))
+//          if (this->modelCacheIndex == 0x215)
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, this->modelCacheIndex == 0x215, this))
             {
                 gcStaticCamera_activate(0x2B);
                 if (1);  // oof
@@ -1830,8 +1672,12 @@ void func_80388FC8(Actor *this)
 
             if (this->modelCacheIndex == 0x215)
             {
-                FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.6f, 28000);
-                func_802D4830(this, 0x3EC, 0.1f);
+//              FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.6f, 28000);
+//              func_802D4830(this, 0x3EC, 0.1f);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+                    FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.6f, 28000);
+                    func_802D4830(this, 0x3EC, 0.1f);
+                }
             }
         }
 
@@ -1844,7 +1690,8 @@ void func_80388FC8(Actor *this)
             if (this->modelCacheIndex == 0x215)
             {
                 func_802D48B8(this);
-                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//              gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+                if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
             }
 
             this->lifetime_value = 1.f;
@@ -1876,7 +1723,8 @@ void lair_func_80389204(Actor *this)
 
     if (!this->volatile_initialized)
     {
-        if (fileProgressFlag_get(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED))
+//      if (fileProgressFlag_get(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED))
+        if (EventSystem_Should(VB_LAIR_GRATE_OR_PIPE_ALREADY_UP, fileProgressFlag_get(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED), this))
         {
             this->position_y = this->unk1C[1];
             return;
@@ -1884,10 +1732,8 @@ void lair_func_80389204(Actor *this)
 
         if (mapSpecificFlags_get(2))
         {
-            // [port] Anchor: a remote press shouldn't steal our camera.
-            if (!port_mapFlag_wasSetRemotely(2)) {
-                gcStaticCamera_activate(0x2C);
-            }
+//          gcStaticCamera_activate(0x2C);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) gcStaticCamera_activate(0x2C);
             fileProgressFlag_set(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED, true);
 
             this->volatile_initialized = true;
@@ -1902,8 +1748,12 @@ void lair_func_80389204(Actor *this)
 
             if (this->unk38_31)
                 return;
-            FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.7f, 28000);
-            func_802D4830(this, 0x3EC, 0.2f);
+//          FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.7f, 28000);
+//          func_802D4830(this, 0x3EC, 0.2f);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+                FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.7f, 28000);
+                func_802D4830(this, 0x3EC, 0.2f);
+            }
         }
 
         this->position_y += 3.f;
@@ -1913,7 +1763,8 @@ void lair_func_80389204(Actor *this)
             this->position_y = this->unk1C[1];
 
             func_802D48B8(this);
-            gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+//          gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
+            if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
 
             this->lifetime_value = 1.f;
         }
@@ -1980,8 +1831,12 @@ void lair_func_803894B0(Actor *this)
     if (--this->unk1C[0] == 0)
     {
         fileProgressFlag_set(FILEPROG_A1_STATUE_HAT_OPEN, true);
-        timed_playSfx(0.5f, SFX_3F9_UNKNOWN, 1.f, 32000);
-        FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 32000);
+//      timed_playSfx(0.5f, SFX_3F9_UNKNOWN, 1.f, 32000);
+//      FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 32000);
+        if (EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) {
+            timed_playSfx(0.5f, SFX_3F9_UNKNOWN, 1.f, 32000);
+            FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 32000);
+        }
         func_802EE2E8(this, 0xB, 0x19, 0x000, 0.6f, 1.8f, 3.f);
         func_802EE2E8(this, 0xB, 0x17, 0x0B4, 0.5f, 1.55f, 3.f);
         func_802EE2E8(this, 0xB, 0x15, 0x168, 0.4f, 1.3f, 3.f);
@@ -2296,15 +2151,6 @@ void func_80389FA8(Actor *this, enum file_progress_e flag)
     if (!this->initialized)
     {
         chMMMBreakableWooden_update(this);
-
-        if (fileProgressFlag_get(flag))
-            marker_despawn(this->marker);
-    }
-
-    // Anchor: re-check on scene-return restore (see chFloorCobweb_update).
-    if (!this->volatile_initialized)
-    {
-        this->volatile_initialized = true;
 
         if (fileProgressFlag_get(flag))
             marker_despawn(this->marker);

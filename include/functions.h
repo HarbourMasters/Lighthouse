@@ -158,8 +158,6 @@ Actor *marker_getActor(ActorMarker *);
 Actor *marker_getActorAndRotation(ActorMarker *marker, f32 rotation[3]);
 Actor *subaddie_getLinkedActor(Actor *);
 ActorMarker *func_8032B16C(enum jiggy_e jiggy_id);
-ActorMarker *actorArray_findHoneycombMarkerById(enum honeycomb_e id);
-ActorMarker *actorArray_findMumboTokenMarkerById(enum mumbotoken_e id);
 bool  func_80329078(Actor *, s32, s32);
 bool  func_80329480(Actor *);
 bool subaddie_maybe_set_state_position_direction(Actor *, s32, f32, s32, f32 );
@@ -321,7 +319,7 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_MUMBO = 2,
     ANCHOR_COLLECTIBLE_NOTE = 3,
     ANCHOR_COLLECTIBLE_JINJO = 4,
-    ANCHOR_COLLECTIBLE_WORM = 5,
+    ANCHOR_COLLECTIBLE_CATERPILLAR = 5,
     ANCHOR_COLLECTIBLE_ACORN = 6,
     ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,
     ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8,

@@ -18,6 +18,12 @@ extern "C" {
 extern s16 D_8039347C[12];
 }
 
+// The hack's cost for a door (0 to 11), or vanilla's.
+extern "C" int NoteDoorNumbers_GetCost(int doorIdx) {
+    const int cost = port_getRomhackNoteDoor(doorIdx);
+    return cost >= 0 ? cost : D_8039347C[doorIdx];
+}
+
 namespace {
 
 constexpr s32 kNoteDoorCount = 12;
@@ -168,7 +174,7 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
         memcpy(composed, gfxList, bytes);
         // Each door's list becomes a call to its composed number and an end; the geo selectors don't change
         for (s32 door = 0; door < kNoteDoorCount; door++) {
-            BuildNoteDoorNumberList(sNoteDoorNumberLists[door], gfxList->list, (u16)port_getNoteDoorCost(door));
+            BuildNoteDoorNumberList(sNoteDoorNumberLists[door], gfxList->list, (u16)NoteDoorNumbers_GetCost(door));
             gSPDisplayList(&composed->list[kNoteDoorNumberList[door]], sNoteDoorNumberLists[door]);
             gSPEndDisplayList(&composed->list[kNoteDoorNumberList[door] + 1]);
         }
@@ -179,6 +185,12 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
 }
 
 void ApplyNoteDoorNumbers() {
+    // Doors open at the hack's costs
+    COND_VB_SHOULD(VB_NOTEDOOR_ENOUGH_NOTES, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+        Actor* door = va_arg(args, Actor*);
+        *should = itemscore_noteScores_getTotal() >= NoteDoorNumbers_GetCost(door->actorTypeSpecificField - 1);
+    });
+
     // Hide the baked number mesh on doors the hack retunes
     COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack() && !sComposeNoteDoors, {
         const s32 noteDoorIdx = va_arg(args, s32);
@@ -205,11 +217,6 @@ void ApplyNoteDoorNumbers() {
 RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 
 } // namespace
-
-extern "C" int port_getNoteDoorCost(int doorIdx) {
-    const int cost = port_getRomhackNoteDoor(doorIdx);
-    return cost >= 0 ? cost : D_8039347C[doorIdx];
-}
 
 extern "C" void port_enableNoteDoorComposer(void) {
     sComposeNoteDoors = true;

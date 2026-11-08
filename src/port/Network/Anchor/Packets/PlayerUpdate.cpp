@@ -10,6 +10,7 @@
 extern "C" ActorMarker* bacarry_getMarker(void);
 
 #include "port/Patches/Patches.h"
+#include "port/Network/Anchor/Puzzles/Puzzles.h"
 
 /**
  * PLAYER_UPDATE
@@ -102,6 +103,12 @@ void Anchor::HandlePacket_PlayerAnimChange(nlohmann::json& payload) {
         client.dummy->dummyAnim_playForDuration(payload.value("id", ASSET_0_NONE), payload.value("duration", 0.0f),
                                                 payload.value("control", ANIMCTRL_ONCE), payload.value("start", 0.0f),
                                                 payload.value("subrange_end", 1.0f), payload.value("smooth", false));
+        // A teammate who skips the dance never sends it, so the fanfare goes with the dance.
+        if (payload.value("id", ASSET_0_NONE) == ASSET_282_ANIM_BSJIG_NOTEDOOR) {
+            f32 position[3];
+            client.dummy->dummy_getPosition(position);
+            AnchorPuzzles_ReplayNoteDoorDance(position);
+        }
     }
 }
 

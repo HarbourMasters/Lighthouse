@@ -162,7 +162,14 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_HANDLE_PLAYER_DEATH,
-    VB_JINJO_CHARGE_SOUND,
+
+    // A hit enemy dropping its bundle.
+    // #### `result`
+    // ```c
+    // sp6C != 0
+    // ```
+    // #### `args`
+    // - `s32` (the enemy's actor id, promoted from `s16`)
     VB_ENEMY_BECOME_BUNDLE,
 
     // #### `result`
@@ -328,17 +335,7 @@ typedef enum VBehaviorID {
     // Anchor
     VB_VILE_YUMBLIE_EMERGE,
     VB_VILE_YUMBLIE_HIDE,
-    VB_VILE_PLAYER_EAT_PIECE,
-    VB_VILE_GAME_UPDATE,
-    VB_VILE_CPU_AI,
-    VB_FP_TWINKLY_START,           // Gates FP twinkly minigame start so only one client owns a run at a time.
-    VB_SM_TUTORIAL_CHOICE_OPEN,    // True while the SM tutorial choice is still open to the local player.
-    VB_SM_MOLEHILL_ACTIVE,         // SM ability molehills stay inert until the tutorial choice is made.
-    VB_DOOR_OPEN_CAMERA,           // Suppresses door-open camera lock when the flag came from a teammate, not us.
-    VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
-    VB_CCW_PODIUM_DESPAWN,    // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
-                              // reveal it live.
-    VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
+    VB_DOOR_OPEN_CAMERA, // Suppresses door-open camera lock when the flag came from a teammate, not us.
 
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
@@ -367,8 +364,12 @@ typedef enum VBehaviorID {
     // true                                  // Juju's landing shakes
     // true                                  // Napper
     // true                                  // the flower, the egg, baby Eyrie, Nabnut, Gnawty's boulder
+    // true                                  // the crane, the egg tolls
+    // true                                  // the lair's grate and third pipe, a note door's end
+    // true                                  // a warp cauldron's look-at
     // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
+    // this->modelCacheIndex == 0x215        // the CC lobby pipes' camera
     // ```
     // #### `args`
     // - `*Actor` (whose step it is, or NULL from FP's snowman-button and Sir Slush managers, which have none)
@@ -395,7 +396,8 @@ typedef enum VBehaviorID {
     // true                                  // Napper, Jinxy, the pyramid, the GV and church doors
     // true                                  // the flower, the egg, baby Eyrie, the season doors
     // true                                  // Gnawty's boulder and its shake
-    // true                                  // a teammate's thrown caterpillar, acorn or gold landing
+    // true                                  // the crane, the egg tolls, the CC grates, the breakables
+    // true                                  // the lair's grate, pipes, level doors, Door of Grunty and statue hat
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
@@ -522,6 +524,193 @@ typedef enum VBehaviorID {
     // - `*ActorMarker` (Motzhand)
     VB_ORGAN_GAME_IDLE,
 
+    // An empty honeycomb a beaten enemy drops, or a honeycomb switch pops out.
+    // #### `result`
+    // ```c
+    // this->unk38_31                                                                // the Colliwobble's
+    // this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor) // the Quarries'
+    // true                                                                          // a switch's
+    // ```
+    // #### `args`
+    // - `s32` (honeycomb_e)
+    VB_SPAWN_EMPTY_HONEYCOMB,
+
+    // The crane's hourglass starting as the cage finishes rising. A listener that returns false has to hold the cage
+    // up, since chCageUpSwitch_update lowers it once the hourglass timer is empty.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (the hourglass ticks)
+    VB_RBB_CRANE_HOURGLASS_START,
+
+    // The jiggy cage's motor and slams as it rises, lowers and settles, about 3000 from its switch.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the cage's switch)
+    VB_RBB_CRANE_CAGE_SOUND,
+
+    // The BGS puzzle grate or a CC lobby pipe set up already up: the grate despawns and the pipe stays raised.
+    // #### `result`
+    // ```c
+    // fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN)
+    // fileProgressFlag_get(this->modelCacheIndex == 0x215 ? FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED
+    //                                                     : FILEPROG_20_CC_LOBBY_PIPE_2_RAISED)
+    // fileProgressFlag_get(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED)
+    // ```
+    // #### `args`
+    // - `*Actor` (the grate or pipe)
+    VB_LAIR_GRATE_OR_PIPE_ALREADY_UP,
+
+    // A note door still closed, which shows the note count and opens on enough notes.
+    // #### `result`
+    // ```c
+    // !fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) &&
+    //     player_isAbilityUnlocked(ABILITY_13_1ST_NOTEDOOR)
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    VB_NOTEDOOR_CLOSED,
+
+    // #### `result`
+    // ```c
+    // itemscore_noteScores_getTotal() >= D_8039347C[this->actorTypeSpecificField - 1]
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    VB_NOTEDOOR_ENOUGH_NOTES,
+
+    // A level door opening in the cutscene after its jigsaw.
+    // #### `result`
+    // ```c
+    // func_802D677C(-1) && (func_802D677C(-1) == gsworld_getMap()) && (func_802D67AC(-1) >= 8) &&
+    //     (func_802D67AC(-1) < 0x12) && (func_802D67DC(-1) == this->modelCacheIndex)
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    VB_LEVELDOOR_OPENING,
+
+    // FP's witch switch pressed, which its lair door waits on.
+    // #### `result`
+    // ```c
+    // volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)
+    // ```
+    // #### `args`
+    // - None
+    VB_FP_WITCH_SWITCH_PRESSED,
+
+    // CCW's puzzle podium, set up before its switch is pressed. A listener that returns false keeps it and has to hide
+    // it.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the podium)
+    VB_CCW_PODIUM_DESPAWN,
+
+    // The player stepping onto a jigsaw podium.
+    // #### `result`
+    // ```c
+    // isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) &&
+    //     (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
+    // ```
+    // #### `args`
+    // - `*Actor` (the podium)
+    VB_JIGSAW_PODIUM_ENTER,
+
+    // Furnace Fun's question pattern, rolled the first time Brentilda sets up. A listener that returns false has to set
+    // FILEPROG_D3_FF_PATTERN.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_FF_PATTERN_ROLL,
+
+    // A yumblie hole's piece, rolled as it appears. A listener that returns false has to set isGrumblie.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the yumblie)
+    VB_VILE_PIECE_ROLL,
+
+    // Grunty's brain in the final fight, each phase's update.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (Grunty)
+    VB_FINAL_BOSS_BRAIN,
+
+    // An egg or attack landing on Grunty in the final fight.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (local->phase, promoted from `u8`)
+    // - `*ActorMarker` (what hit her; NULL when replayed)
+    VB_FINAL_BOSS_HIT,
+
+    // An egg landing on a Jinjo statue's base in the final fight.
+    // #### `result`
+    // ```c
+    // actor_bossjinjobase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO   // a Jinjo statue's
+    // actor_jinjonatorbase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO  // the Jinjonator's
+    // ```
+    // #### `args`
+    // - `s32` (ch_bossjinjo_e, the statue)
+    // - `s32` (the pad, for the Jinjonator's)
+    // - `*ActorMarker` (the egg; NULL when replayed)
+    VB_JINJO_STATUE_EGG_HIT,
+
+    // The intro or bridge Bottles in Spiral Mountain, with the player close enough to talk. A listener that returns
+    // false for the intro has to set SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES.
+    // #### `result`
+    // ```c
+    // ((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && player_isStableWithExtraSteps()) ||
+    //     mapSpecificFlags_get(SM_SPECIFIC_FLAG_10)
+    // ```
+    // #### `args`
+    // - `*Actor` (the Bottles)
+    VB_SM_TUTORIAL_CHOICE_OPEN,
+
+    // A Spiral Mountain Bottles in reach of the player, who can wake him.
+    // #### `result`
+    // ```c
+    // subaddie_playerIsWithinSphereAndActive(this, 250)
+    // ```
+    // #### `args`
+    // - `*Actor` (the Bottles)
+    VB_SM_MOLEHILL_ACTIVE,
+
+    // The attack tutorial finding the claw swipe, roll and rat-a-tat rap already known, which ends it.
+    // #### `result`
+    // ```c
+    // __chAttackTutorial_areLearnableAbilitiesUnlocked()
+    // ```
+    // #### `args`
+    // - `*Actor` (the attack tutorial)
+    VB_ATTACK_TUTORIAL_MOVES_KNOWN,
+
+    // FP's Twinkly box, hit to start its minigame.
+    // #### `result`
+    // ```c
+    // this->state == 1 || this->state == 2
+    // ```
+    // #### `args`
+    // - `*Actor` (the box)
+    VB_FP_TWINKLY_START,
+
     // Romhack port gates
 
     // #### `result`
@@ -566,7 +755,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (progress_flag)
     VB_PROGRESS_FLAG_DIALOG,
-    VB_LAIR_GRUNTY_TAUNTS,  // Grunty's random lair taunt timer block: false = skip entirely.
+
+    // Grunty's random lair taunts.
+    // #### `result`
+    // ```c
+    // level_get() == LEVEL_6_LAIR
+    // ```
+    // #### `args`
+    // - None
+    VB_LAIR_GRUNTY_TAUNTS,
     VB_AMBIENCE_MAP_UPDATE, // Per-map ambience/chan-mask switch: false = a listener replaced it.
 
     // A listener that returns false skips the Stop 'N' Swop display and can draw a different one.
@@ -674,6 +871,15 @@ typedef enum VBehaviorID {
     // - None
     VB_JIGGY_COLLECT_TUTORIAL,
     VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
+
+    // What Brentilda says after her hint: her offer to heal, or ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED when
+    // there's nothing to heal.
+    // #### `result`
+    // ```c
+    // text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2
+    // ```
+    // #### `args`
+    // - None
     VB_BRENTILDA_HEAL_DIALOG,
     VB_SKY_UPDATE,
     VB_SKY_DRAW_BACKDROP_RECT,
@@ -699,7 +905,14 @@ typedef enum VBehaviorID {
     // - `s32` (item)
     // - `*s32` (diff)
     VB_ITEM_ADJUST_BY_DIFF,
-    VB_MM_HUT_DESPAWN_ON_SMASH,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the hut)
+    VB_MM_HUT_SPAWN_EXPLOSION,
 
     // #### `result`
     // ```c
@@ -708,7 +921,6 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*ActorMarker` (Nabnut)
     VB_NABNUT_SNORE_SFX,
-    VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
 
     VB_COUNT,
 } VBehaviorID;

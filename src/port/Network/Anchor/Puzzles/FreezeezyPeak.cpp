@@ -60,7 +60,7 @@ static void NoteSnowStep(s32 puzzleId, bool teammates, f32 x, f32 y, f32 z) {
 // The remote bit is 0 unless a teammate's flag landed this visit.
 static bool IsBoggyTeammateRescue(Actor* actor) {
     return actor != NULL && actor->modelCacheIndex == ACTOR_160_BOGGY_1 &&
-           port_mapFlag_wasSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN);
+           Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN);
 }
 
 static bool BoggyDialogHere(Actor* boggy) {

@@ -5,8 +5,13 @@
 #include "functions.h"
 #include "port/ShipUtils.h"
 
-extern "C" {
-void chHoneycomb_netSpawnDropAt(s32 uid, s32 bundleId, f32 x, f32 y, f32 z);
+#include <bit>
+
+// Spawned through the same per-map bundle as the local drop so it gets the pickup drop physics.
+static void spawnDrop(uintptr_t uid, uintptr_t bundle, uintptr_t x, uintptr_t y, uintptr_t z) {
+    f32 pos[3] = { std::bit_cast<f32>((u32)x), std::bit_cast<f32>((u32)y), std::bit_cast<f32>((u32)z) };
+    func_802CA1CC((enum honeycomb_e)uid);
+    bundle_spawn_f32((enum bundle_e)bundle, pos);
 }
 
 void Anchor::SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z) {
@@ -40,10 +45,11 @@ void Anchor::HandlePacket_SpawnHoneycomb(nlohmann::json& payload) {
         return;
     }
     // Already present locally, nothing to add.
-    if (actorArray_findHoneycombMarkerById((enum honeycomb_e)honeycombId) != nullptr) {
+    if (Anchor_FindHoneycombMarker((enum honeycomb_e)honeycombId) != nullptr) {
         return;
     }
 
-    chHoneycomb_netSpawnDropAt(honeycombId, payload.at("bundle").get<s32>(), payload.at("x").get<f32>(),
-                               payload.at("y").get<f32>(), payload.at("z").get<f32>());
+    __spawnQueue_add_5(spawnDrop, (uintptr_t)honeycombId, (uintptr_t)payload.at("bundle").get<s32>(),
+                       std::bit_cast<u32>(payload.at("x").get<f32>()), std::bit_cast<u32>(payload.at("y").get<f32>()),
+                       std::bit_cast<u32>(payload.at("z").get<f32>()));
 }

@@ -103,8 +103,8 @@ float port_getSfxVolume(void);
 
 // Note doors (NoteDoorNumbers.cpp)
 
-int port_getNoteDoorCost(int doorIdx);
 void port_enableNoteDoorComposer(void);
+int NoteDoorNumbers_GetCost(int doorIdx);
 
 // Attract-demo audio hold
 
@@ -115,29 +115,9 @@ void port_noteMainLoopAlive(void);
 int port_audioStallHold(void);
 int32_t port_audioPumpShouldWait(void);
 
-// One-shot cues when a teammate's file-progress flag arrives
-void port_progressFlag_remoteCue(int32_t progressFlag);
-void port_notedoor_remoteOpen(int32_t progressFlag);
-void port_leveldoor_remoteOpen(int32_t progressFlag);
-
-void port_breakable_remoteBreak(int32_t progressFlag);
-
-void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
-void port_breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
-
-void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
-
 int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
 
-int32_t port_cutsceneWarp_getReturnMap(void);
-
-void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
-int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
-void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
-
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
-void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
-void port_remoteCarry_reset(void);
 
 // Connected, in a real room, syncing world state.
 int32_t port_anchor_isWorldSyncActive(void);
@@ -151,19 +131,8 @@ int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId);
 void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 
-void port_fpTwinkly_release(void);
-
-int32_t port_mapFlag_wasSetRemotely(int32_t index);
-
 void port_puzzleCount_add(int32_t counterId, int32_t delta);
 int32_t port_puzzleCount_get(int32_t counterId);
-
-void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
-int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
-int32_t port_hutSmash_countForCurrentLevel(int32_t localCount);
-
-void port_jiggyCrane_broadcast(int32_t stage);
-void port_jiggyCrane_remoteApply(int32_t stage);
 
 // Rate-limited: a marker reached cube_removeProp with a propPtr outside its cube.
 void port_warnPropNotInCube(int32_t index, int32_t propCnt);

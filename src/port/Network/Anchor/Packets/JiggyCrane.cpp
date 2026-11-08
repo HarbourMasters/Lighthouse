@@ -3,14 +3,13 @@
 #include <libultraship/libultraship.h>
 
 #include "functions.h"
-
-#include "port/Patches/Patches.h"
+#include "port/Network/Anchor/Puzzles/Puzzles.h"
 
 /**
  * JIGGY_CRANE
  */
 
-void Anchor::SendPacket_JiggyCrane(s32 stage) {
+void Anchor::SendPacket_JiggyCrane(s32 stage, s32 ticks) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags || GetCurrentMapPlayers() == 0) {
         return;
     }
@@ -18,6 +17,7 @@ void Anchor::SendPacket_JiggyCrane(s32 stage) {
     nlohmann::json payload;
     payload["type"] = JIGGY_CRANE;
     payload["stage"] = stage;
+    payload["ticks"] = ticks;
 
     SendToCurrentMapPlayers(payload);
 }
@@ -27,9 +27,5 @@ void Anchor::HandlePacket_JiggyCrane(nlohmann::json& payload) {
         return;
     }
 
-    port_jiggyCrane_remoteApply(payload.at("stage").get<s32>());
-}
-
-extern "C" void port_jiggyCrane_broadcast(int32_t stage) {
-    Anchor::GetInstance()->SendPacket_JiggyCrane(stage);
+    AnchorPuzzles_ReplayJiggyCrane(payload.at("stage").get<s32>(), payload.at("ticks").get<s32>());
 }

@@ -30,7 +30,7 @@ static bool IsTeammateStep(Actor* actor) {
         case ACTOR_39_NAPPER:
             return sNapperTeammateCollect;
         case ACTOR_114_CHURCH_DOOR:
-            return port_mapFlag_wasSetRemotely(MMM_SPECIFIC_FLAG_0_UNKNOWN);
+            return Anchor_WasMapFlagSetRemotely(MMM_SPECIFIC_FLAG_0_UNKNOWN);
         default:
             return false;
     }

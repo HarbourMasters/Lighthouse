@@ -43,7 +43,7 @@ void handleOrangeCollision(ActorMarker *marker) {
     }
 
     closest_orange_pad->state = ORANGE_PAD_STATE_HIT;
-    CALL_EVENT(OnBreakableBroken, (s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2]); // [port]
+    CALL_EVENT(OnBreakableBroken, (s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2], false); // [port]
 
     if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, ORANGE_PAD_STATE_HIT, &distance_to_orange_pad)) {
         // There are still other pads on the ground, play progress ding
