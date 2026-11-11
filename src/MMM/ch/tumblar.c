@@ -143,7 +143,8 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
     if (arg0->state == TUMBLAR_STATE_0_IDLE) {
         func_8035179C_copyPosition(arg1, position);
         controller_copyJoystick(0, joystick);
-        is_banjo_above = chTumblar_isBanjoAbove(arg0, arg1);
+//      is_banjo_above = chTumblar_isBanjoAbove(arg0, arg1);
+        is_banjo_above = EventSystem_Should(VB_TUMBLAR_RIDE, chTumblar_isBanjoAbove(arg0, arg1));
 
         if (is_banjo_above) {
             func_8028F66C(BS_INTR_D_SURF);
@@ -169,8 +170,12 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
             ml_vec3f_set_length(arg0->velocity, 400.0f);
         }
 
-        position[0] += arg0->velocity[0] * tick;
-        position[2] += arg0->velocity[2] * tick;
+//      position[0] += arg0->velocity[0] * tick;
+//      position[2] += arg0->velocity[2] * tick;
+        if (EventSystem_Should(VB_TUMBLAR_MOVE, true, position)) {
+            position[0] += arg0->velocity[0] * tick;
+            position[2] += arg0->velocity[2] * tick;
+        }
 
         func_80351B28(arg1, position);
         func_8035179C_copyPosition(arg1, position);

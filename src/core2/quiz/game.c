@@ -959,9 +959,11 @@ void func_802D5260(void) {
         item_set(ITEM_6_HOURGLASS, true);
         levelSpecificFlags_set(LEVEL_FLAG_3D_LAIR_UNKNOWN, true);
     }
-    if( levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
+//  if( levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
+    if( EventSystem_Should(VB_LAIR_WATER_DRAIN_START, levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
         && !levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)
-        && item_getCount(ITEM_6_HOURGLASS) == false
+//      && item_getCount(ITEM_6_HOURGLASS) == false
+        && item_getCount(ITEM_6_HOURGLASS) == false)
     ) {
         levelSpecificFlags_set(LEVEL_FLAG_3C_LAIR_UNKNOWN, true);
         levelSpecificFlags_set(LEVEL_FLAG_3D_LAIR_UNKNOWN, false);
@@ -1235,13 +1237,12 @@ int func_802D60C4(void){
 void func_802D6114(void){
     s32 sp24;
     s32 sp20;
-    s32 camScript;
 
     sp24 =  D_80367694;\
     sp20 =  D_80367698;
-    camScript = D_80367688;
     if(D_8036769C)
         fileProgressFlag_set(D_8036769C, true);
+    CALL_EVENT(OnCutsceneWarpEnd, sp24, D_80367688); // [port]
     func_802D6344();
     if(gsworld_getMap() != sp24){
         if(map_getLevel(sp24) != map_getLevel(gsworld_getMap())){
@@ -1256,10 +1257,6 @@ void func_802D6114(void){
     else{//L802D61DC
         func_80347A14(1);
         gcpausemenu_80314AC8(1);
-        // [port] Anchor: exit the camera manually; 0x30 (MM) and 0x40 (Door of Grunty) schedule their own exit.
-        if (camScript != 0x30 && camScript != 0x40) {
-            ncStaticCamera_exit();
-        }
     }
 }
 

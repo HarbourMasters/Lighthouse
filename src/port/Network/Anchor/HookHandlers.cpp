@@ -20,6 +20,7 @@ float OTRGetDimensionFromRightEdge(float v);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 void func_80324CD8(f32 time);
+void __chScarfSled_setState(Actor* self, s32 next_state);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 bool __chAttackTutorial_areLearnableAbilitiesUnlocked(void);
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
@@ -183,6 +184,15 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == MMM_SPECIFIC_FLAG_2_UNKNOWN || index == MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN)) {
         return true;
     }
+    // The shed's Tee-Hee flags go out only from the player running Tumblar's game. A watcher's Tee-Hee sets the wake
+    // flag to respawn after a kill (ghost.c), and the runner's would come back the moment they next kill it. The
+    // dismiss flag also goes out while nobody holds him, since a run can end with its rider off him.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_24_MMM_TUMBLARS_SHED &&
+        ((index == MMM_SPECIFIC_FLAG_3_UNKNOWN &&
+          !(NetAuthority_IsClaimed(NET_ACTIVITY_MMM_TUMBLAR) && NetAuthority_IsSelf(NET_ACTIVITY_MMM_TUMBLAR))) ||
+         (index == MMM_SPECIFIC_FLAG_4_UNKNOWN && !NetAuthority_IsSelf(NET_ACTIVITY_MMM_TUMBLAR)))) {
+        return true;
+    }
     // Per-frame scratch for the local player (quiz/game.c, its only writer).
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && index == 0x1F) {
         return true;
@@ -193,9 +203,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN || index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
-    // Eyrie's flight ending starts the flyer's cutscene (cutsceneadulteyrie.c); the jiggy syncs via JIGGY_SPAWN.
+    // Every copy of Eyrie's flight raises the drop flag from its path (cutsceneadulteyrie.c); a teammate's would drop
+    // ours a second time.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_46_CCW_WINTER &&
-        index == CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT) {
+        index == CCW_WINTER_SPECIFIC_FLAG_6_CUTSCENE_EEYRIE_ADULT) {
         return true;
     }
     // SM map flags are entirely Bottles-tutorial choreography;
@@ -240,6 +251,11 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
             // The Tee-Hees clear 3 and 4 as they wake and leave (ghost.c); a teammate's clear can land with the set.
             if (gsworld_getMap() == MAP_24_MMM_TUMBLARS_SHED &&
                 (index == MMM_SPECIFIC_FLAG_3_UNKNOWN || index == MMM_SPECIFIC_FLAG_4_UNKNOWN)) {
+                return true;
+            }
+            // The flyer clears 5 as it takes off and the adult as it sets up (cutsceneadulteyrie.c, adulteyrie.c); a
+            // teammate's clear can land with the set.
+            if (gsworld_getMap() == MAP_46_CCW_WINTER && index == CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT) {
                 return true;
             }
             // Snorkel clears the anchor cue as it leaves (dolphin.c); a teammate's clear warps a lagging presser early.
@@ -289,6 +305,12 @@ static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
 }
 
 static s32 sScarfSledBoardTime = 0;
+static bool sScarfSledRidePending = false;
+static bool sScarfSledReplay = false;
+
+static bool Anchor_IsTeammateSledRide(Actor* actor) {
+    return sScarfSledReplay && actor != nullptr && actor->modelCacheIndex == ACTOR_181_SCARF_SLED;
+}
 
 void Anchor::RegisterHooks() {
 
@@ -448,6 +470,10 @@ void Anchor::RegisterHooks() {
         if (sled->state != 2) {
             return;
         }
+        if (sScarfSledReplay) {
+            sScarfSledReplay = false;
+            return;
+        }
         NetAuthority_Release(NET_ACTIVITY_FP_SCARF_SLED);
         if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             func_80324CD8(0.0f);
@@ -464,8 +490,8 @@ void Anchor::RegisterHooks() {
             *should = false;
         }
     });
-    // Despawns the sled once a teammate's ride has rescued Boggy, and releases a claim we stepped away from without
-    // boarding. While a teammate holds the sled, it isn't solid or touchable.
+    // Despawns the sled once a teammate's ride has rescued Boggy, starts our copy of a teammate's ride, and releases a
+    // claim we stepped away from without boarding. While a teammate holds the sled, it isn't solid or touchable.
     COND_ID_HOOK(OnActorTick, ACTOR_181_SCARF_SLED, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         Actor* sled = reinterpret_cast<OnActorTick*>(event)->actor;
         if (sled->state != 1) {
@@ -476,6 +502,10 @@ void Anchor::RegisterHooks() {
         sled->marker->propPtr->unk8_3 = !heldByTeammate;
         if (Anchor_WasMapFlagSetRemotely(FP_SPECIFIC_FLAG_1_UNKNOWN)) {
             marker_despawn(sled->marker);
+        } else if (sScarfSledRidePending && heldByTeammate) {
+            sScarfSledRidePending = false;
+            sScarfSledReplay = true;
+            __chScarfSled_setState(sled, 2);
         } else if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_SCARF_SLED) &&
                    NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED) &&
                    globalTimer_getTime() - sScarfSledBoardTime > 15) { // frames
@@ -488,6 +518,42 @@ void Anchor::RegisterHooks() {
         if (ev->actor->state != 2 && !NetAuthority_IsSelf(NET_ACTIVITY_FP_SCARF_SLED)) {
             *ev->should = false;
         }
+    });
+    // A teammate's flag 0xB starts our copy of their ride (OnActorTick above). One already underway when we arrive
+    // comes in with scoped state, which fires no event, so it doesn't replay.
+    COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnGameFlagSet*>(event);
+        if (Anchor::GetInstance()->isApplyingRemote && ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC &&
+            ev->index == FP_SPECIFIC_FLAG_B_UNKNOWN && ev->value && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK) {
+            sScarfSledRidePending = true;
+        }
+    });
+    // Always on: a ride that starts while connected plays out if the connection drops.
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_CUTSCENE, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsTeammateSledRide(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_PLAY_PUZZLE_JINGLE, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (Anchor_IsTeammateSledRide(actor) && !Anchor_InEarshot(actor->position)) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (Anchor_IsTeammateSledRide(actor) && !Anchor_InEarshot(actor->position)) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_FP_SCARF_SLED_RIDER, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsTeammateSledRide(va_arg(args, Actor*))) {
+            *should = false;
+        }
+    });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        sScarfSledRidePending = false;
+        sScarfSledReplay = false;
     });
 
     // Only one client may run FP's Twinkly minigame at a time: claim it or block if already held.
@@ -502,6 +568,14 @@ void Anchor::RegisterHooks() {
     });
     COND_HOOK(OnFpTwinklyMinigameEnd, EVENT_PRIORITY_NORMAL, isConnected,
               [](IEvent* event) { NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY); });
+
+    // Exit the camera manually; 0x30 (MM) and 0x40 (Door of Grunty) schedule their own exit. Always on.
+    COND_HOOK(OnCutsceneWarpEnd, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnCutsceneWarpEnd*>(event);
+        if (ev->returnMap == (s32)gsworld_getMap() && ev->cameraScript != 0x30 && ev->cameraScript != 0x40) {
+            ncStaticCamera_exit();
+        }
+    });
 
     // Always on: a door that opens while connected plays out if the connection drops.
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, true, {
@@ -807,6 +881,7 @@ void Anchor::RegisterHooks() {
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
 
     Anchor_RegisterHutHooks(isConnected);
+    Anchor_RegisterTumblarHooks(isConnected);
     AnchorPuzzles_Register(isConnected);
     Anchor_RegisterFightHooks(isConnected);
 

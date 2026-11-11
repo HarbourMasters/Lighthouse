@@ -204,4 +204,14 @@ void AnchorPuzzles_RegisterGobisValley(bool connected) {
             *should = false;
         }
     });
+
+    // A teammate's press opens our door too, but its countdown takes the hourglass only while it's free.
+    COND_VB_SHOULD(VB_GV_DOOR_HOURGLASS_START, EVENT_PRIORITY_NORMAL, connected, {
+        static const s32 kDoorFlag[] = { 3, 5, 6 }; // GV_DOOR_CAM_SUN, _STAR and _KAZOOIE
+        const s32 door = va_arg(args, s32);
+        if (door >= GV_DOOR_CAM_SUN && door <= GV_DOOR_CAM_KAZOOIE && Anchor_WasMapFlagSetRemotely(kDoorFlag[door]) &&
+            !item_empty(ITEM_6_HOURGLASS)) {
+            *should = false;
+        }
+    });
 }

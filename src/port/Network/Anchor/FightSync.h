@@ -66,6 +66,7 @@ void FightSync_OnStatueSpawned(int32_t statue_id);
 void FightSync_OnJinjoSlam(int32_t statue_id);
 
 void FightSync_OnFireballThrow(float flightTime);
+bool FightSync_HasFlightPad(void);
 
 // --- C -> network (bridges implemented in the packet .cpp files) -----------------------
 

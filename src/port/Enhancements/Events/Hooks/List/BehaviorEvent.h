@@ -70,6 +70,7 @@ DEFINE_EVENT(OnEggTollPaid, Actor* actor;)
 DEFINE_EVENT(OnCageSwitchState, Actor* actor; int32_t state;) // chcageupswitch_state_e
 DEFINE_EVENT(OnLairWaterLevel, int16_t* levels; float current; float* height;)
 DEFINE_EVENT(OnCutsceneWarp, int32_t map; int32_t progressFlag;)
+DEFINE_EVENT(OnCutsceneWarpEnd, int32_t returnMap; int32_t cameraScript;)
 DEFINE_EVENT(OnMmWitchSwitchCutscene)
 DEFINE_EVENT(OnBottlesTutorialAnswer, Actor* bottles; int32_t * answer;) // 1 tutorial, 0 skip
 DEFINE_EVENT(OnPuzzlePosMark, int32_t puzzleId; int32_t x; int32_t y; int32_t z;)

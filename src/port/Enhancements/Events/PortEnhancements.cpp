@@ -131,6 +131,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnCageSwitchState);
     REGISTER_EVENT(OnLairWaterLevel);
     REGISTER_EVENT(OnCutsceneWarp);
+    REGISTER_EVENT(OnCutsceneWarpEnd);
     REGISTER_EVENT(OnMmWitchSwitchCutscene);
     REGISTER_EVENT(OnBottlesTutorialAnswer);
     REGISTER_EVENT(OnPuzzlePosMark);
@@ -152,6 +153,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnJiggySpawned);
     REGISTER_EVENT(OnHoneycombDropSpawn);
     REGISTER_EVENT(OnTimedJiggyExpired);
+    REGISTER_EVENT(OnChallengeTimerSet);
     REGISTER_EVENT(OnPlayerDeath);
     REGISTER_EVENT(OnBoggyRaceReload);
     REGISTER_EVENT(OnGameFileErase);

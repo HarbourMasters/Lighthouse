@@ -61,8 +61,12 @@ bool Anchor_JiggyListHasObject(int16_t jiggyId);
 ActorMarker* Anchor_FindHoneycombMarker(enum honeycomb_e id);
 ActorMarker* Anchor_FindMumboTokenMarker(enum mumbotoken_e id);
 void Anchor_RegisterHutHooks(bool connected);
+void Anchor_RegisterTumblarHooks(bool connected);
+bool TumblarUpdate_IsGameRunning();
 void Anchor_BreakLairBreakable(int32_t progressFlag);
 void Anchor_RegisterFightHooks(bool connected);
+bool ChallengeTimer_IsShowing();
+bool ChallengeTimer_IsOurs(s32 jiggyId);
 
 class Anchor : public Network {
 private:
@@ -146,10 +150,12 @@ private:
     void HandlePacket_WaterRise(nlohmann::json& payload);
     void HandlePacket_HutSmash(nlohmann::json& payload);
     void HandlePacket_JiggyCrane(nlohmann::json& payload);
+    void HandlePacket_ChallengeTimer(nlohmann::json& payload);
     void HandlePacket_PedestalOwner(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
     void HandlePacket_SpawnHoneycomb(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
+    void HandlePacket_TumblarUpdate(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
     void HandlePacket_UpdateClientState(nlohmann::json& payload);
     void HandlePacket_UpdateRoomState(nlohmann::json& payload);
@@ -202,10 +208,12 @@ public:
     inline static const std::string WATER_RISE = "WATER_RISE";
     inline static const std::string HUT_SMASH = "HUT_SMASH";
     inline static const std::string JIGGY_CRANE = "JIGGY_CRANE";
+    inline static const std::string CHALLENGE_TIMER = "CHALLENGE_TIMER";
     inline static const std::string PEDESTAL_OWNER = "PEDESTAL_OWNER";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
     inline static const std::string HONEYCOMB_SPAWN = "HONEYCOMB_SPAWN";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
+    inline static const std::string TUMBLAR_UPDATE = "TUMBLAR_UPDATE";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
     inline static const std::string UPDATE_ROOM_STATE = "UPDATE_ROOM_STATE";
@@ -242,6 +250,10 @@ public:
     // room (the global room, or a private room with "Sync Items & Flags" off) has to play
     // exactly like single player, so only dummy players are allowed past this.
     bool IsWorldSyncActive();
+
+    bool IsApplyingRemote() const {
+        return isApplyingRemote;
+    }
 
     // Presence/position/plumbing packets, the only ones allowed through when the room
     // is not syncing game state. Anything absent is treated as world state and dropped
@@ -294,11 +306,14 @@ public:
     void SendPacket_WaterRise(s32 map, s32 kind, s32 p1, s32 p2, f32 duration);
     void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
     void SendPacket_JiggyCrane(s32 stage, s32 ticks = 0);
+    void SendPacket_ChallengeTimer(s32 ticks);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_JiggyExpired(s16 jiggyId);
     void SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(uint32_t clientId);
+    void SendPacket_TumblarUpdate(const f32 position[3]);
+    void SendPacket_TumblarTile(s32 tile);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();
     void SendPacket_UpdateRoomState();

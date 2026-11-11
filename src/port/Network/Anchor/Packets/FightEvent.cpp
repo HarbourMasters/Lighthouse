@@ -92,6 +92,13 @@ void Anchor_RegisterFightHooks(bool connected) {
         }
     });
 
+    // Always on: a follower that drops mid-fight runs phase 3 without a pad.
+    COND_VB_SHOULD(VB_FINAL_BOSS_DESPAWN_FLIGHT_PAD, EVENT_PRIORITY_NORMAL, true, {
+        if (!FightSync_HasFlightPad()) {
+            *should = false;
+        }
+    });
+
     // Always on: the boss's spawn and defeat reset the sync state, and a slam made before we connected still counts.
     COND_HOOK(OnFinalBossSpawned, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { FightSync_OnBossSpawned(); });
     COND_HOOK(OnFinalBossDefeated, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { FightSync_OnBossDefeated(); });

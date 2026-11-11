@@ -68,7 +68,9 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     }
 
     // BGS timed-switch checks cleanup
-    if ((s32)gsworld_getMap() == map && (rc == RC_BGS_JIGGY_ELEVATED_WALKWAY || rc == RC_BGS_JIGGY_MAZE)) {
+    if ((s32)gsworld_getMap() == map &&
+        ((rc == RC_BGS_JIGGY_ELEVATED_WALKWAY && ChallengeTimer_IsOurs(JIGGY_20_BGS_ELEVATED_WALKWAY)) ||
+         (rc == RC_BGS_JIGGY_MAZE && ChallengeTimer_IsOurs(JIGGY_25_BGS_MAZE)))) {
         func_802D6924();
     }
 

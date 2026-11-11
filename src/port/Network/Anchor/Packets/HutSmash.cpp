@@ -7,7 +7,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include <array>
-#include <bit>
+#include <cstring>
 #include <map>
 #include <vector>
 
@@ -64,8 +64,10 @@ static void dropRecordedBundle(Actor* hut, int32_t loot, bool fullBundle) {
         return; // note / jinjo: spawn live but skip on reload
     }
     f32 pos[3] = { hut->position_x, hut->position_y + (mm ? 125.0f : 130.0f), hut->position_z };
-    __spawnQueue_add_4((GenFunction_4)spawnQueue_bundle_f32, mm ? kMmHutDrops[loot] : chBGSMudHutDrops[loot],
-                       std::bit_cast<u32>(pos[0]), std::bit_cast<u32>(pos[1]), std::bit_cast<u32>(pos[2]));
+    u32 bits[3];
+    memcpy(bits, pos, sizeof(bits));
+    __spawnQueue_add_4((GenFunction_4)spawnQueue_bundle_f32, mm ? kMmHutDrops[loot] : chBGSMudHutDrops[loot], bits[0],
+                       bits[1], bits[2]);
 }
 
 static void replaySmash(Actor* hut, int32_t loot) {

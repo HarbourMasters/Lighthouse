@@ -277,6 +277,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_HutSmash(payload);
             else if (packetType == JIGGY_CRANE)
                 HandlePacket_JiggyCrane(payload);
+            else if (packetType == CHALLENGE_TIMER)
+                HandlePacket_ChallengeTimer(payload);
             else if (packetType == PEDESTAL_OWNER)
                 HandlePacket_PedestalOwner(payload);
             else if (packetType == JIGGY_SPAWN)
@@ -285,6 +287,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_SpawnHoneycomb(payload);
             else if (packetType == TELEPORT_TO)
                 HandlePacket_TeleportTo(payload);
+            else if (packetType == TUMBLAR_UPDATE)
+                HandlePacket_TumblarUpdate(payload);
             else if (packetType == UNSET_FLAG)
                 HandlePacket_UnsetFlag(payload);
             else if (packetType == MAP_LOAD)

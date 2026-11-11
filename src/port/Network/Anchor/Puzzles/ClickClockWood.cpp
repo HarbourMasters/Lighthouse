@@ -7,6 +7,7 @@ extern "C" {
 #include "CCW/ch/adulteyrie.h"
 #include "CCW/ch/beanstalk.h"
 #include "CCW/ch/ccwgobi.h"
+#include "CCW/ch/cutsceneadulteyrie.h"
 #include "CCW/ch/eyrieegg.h"
 #include "CCW/ch/gnawtyboulder.h"
 #include "CCW/ch/outsideautumnnabnut.h"
@@ -37,6 +38,8 @@ static bool sEyrieTeammateDone = false;
 static bool sNabnutTeammateDone = false;
 // Baby Eyrie just set up, and takes the team's feed count without the eating.
 static bool sEyrieBabySetUp = false;
+// Eyrie's flight is a teammate's. Decided as he takes off: their flag 5 can land again during our flight.
+static bool sEyrieFlightReplay = false;
 
 static bool IsTeammateStep(Actor* actor) {
     if (actor == NULL) {
@@ -53,6 +56,8 @@ static bool IsTeammateStep(Actor* actor) {
             return sNabnutTeammateDone;
         case ACTOR_2AC_GNAWTY_BOULDER:
             return sBoulderReplay;
+        case ACTOR_30E_CUTSCENE_ADULT_EYRIE:
+            return sEyrieFlightReplay;
         case ACTOR_2AB_GNAWTY_SUMMER:
             return Anchor_WasLevelFlagSetRemotely(LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED);
         case ACTOR_1E3_CCW_SPRING_SEASON_DOOR:
@@ -83,6 +88,27 @@ static void ZubbaDoorUpdate(IEvent* event) {
     if (door->volatile_initialized && levelSpecificFlags_get(LEVEL_FLAG_10_CCW_BREAK_ZUBBA_DOOR)) {
         marker_despawn(door->marker);
         *ev->should = false;
+    }
+}
+
+// A teammate's take-off flies our Eyrie, but not once the jiggy is out or while we're meeting him: then our take-off
+// flies him, and that flight ends the camera and look-at it started.
+static void EyrieFlyerUpdate(IEvent* event) {
+    Actor* flyer = ((ShouldActorUpdate*)event)->actor;
+    if (!flyer->volatile_initialized || flyer->state != CH_CUTSCENE_ADULT_EYRIE_STATE_1_UNK ||
+        !mapSpecificFlags_get(CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT)) {
+        return;
+    }
+    sEyrieFlightReplay = Anchor_WasMapFlagSetRemotely(CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT);
+    if (!sEyrieFlightReplay) {
+        return;
+    }
+    Actor* adult = actorArray_findActorFromActorId(ACTOR_2A3_EEYRIE_ADULT);
+    if (jiggyscore_isSpawned(JIGGY_49_CCW_EYRIE) ||
+        (adult != NULL && (adult->state == CH_EERYIE_ADULT_STATE_2_MEET_DIALOG ||
+                           adult->state == CH_EERYIE_ADULT_STATE_3_FLIGHT_TAKE_OFF))) {
+        mapSpecificFlags_set(CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT, false);
+        sEyrieFlightReplay = false;
     }
 }
 
@@ -136,16 +162,24 @@ void AnchorPuzzles_RegisterClickClockWood(bool connected) {
         }
     });
 
-    // A teammate's Eyrie already flew and his jiggy is out.
+    // A teammate's Eyrie took off, or already flew and his jiggy is out. While we're meeting him only a teammate's
+    // take-off can have set 5, so it's dropped, and his take-off then sets it again as ours.
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_2A3_EEYRIE_ADULT, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* eyrie = ev->actor;
         if (eyrie->volatile_initialized && eyrie->state == CH_EERYIE_ADULT_STATE_1_WAITING &&
-            jiggyscore_isSpawned(JIGGY_49_CCW_EYRIE) && !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) {
+            (jiggyscore_isSpawned(JIGGY_49_CCW_EYRIE) ||
+             Anchor_WasMapFlagSetRemotely(CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT)) &&
+            !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) {
             marker_despawn(eyrie->marker);
             *ev->should = false;
+        } else if ((eyrie->state == CH_EERYIE_ADULT_STATE_2_MEET_DIALOG ||
+                    eyrie->state == CH_EERYIE_ADULT_STATE_3_FLIGHT_TAKE_OFF) &&
+                   mapSpecificFlags_get(CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT)) {
+            mapSpecificFlags_set(CCW_WINTER_SPECIFIC_FLAG_5_EEYRIE_ADULT, false);
         }
     });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_30E_CUTSCENE_ADULT_EYRIE, EVENT_PRIORITY_NORMAL, connected, EyrieFlyerUpdate);
 
     // A teammate's flower grew this season, and Gobi has gone. Not mid-bust, whose timer holds his marker.
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_29E_CCW_GOBI, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
@@ -224,6 +258,12 @@ void AnchorPuzzles_RegisterClickClockWood(bool connected) {
             *should = false;
         }
     });
+    COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, true, {
+        Actor* actor = va_arg(args, Actor*);
+        if (IsTeammateStep(actor) && !Anchor_InEarshot(actor->position)) {
+            *should = false;
+        }
+    });
     // A teammate's jiggy is theirs, as is Nabnut's once it's out.
     COND_VB_SHOULD(VB_SPAWN_PUZZLE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
         Actor* actor = va_arg(args, Actor*);
@@ -236,5 +276,6 @@ void AnchorPuzzles_RegisterClickClockWood(bool connected) {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         sEyrieTeammateDone = false;
         sNabnutTeammateDone = false;
+        sEyrieFlightReplay = false;
     });
 }

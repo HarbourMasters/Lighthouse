@@ -337,6 +337,15 @@ typedef enum VBehaviorID {
     VB_VILE_YUMBLIE_HIDE,
     VB_DOOR_OPEN_CAMERA, // Suppresses door-open camera lock when the flag came from a teammate, not us.
 
+    // A GV door's countdown on the hourglass as it opens. The door shuts on a separate counter.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (DoorCameraId, the door)
+    VB_GV_DOOR_HOURGLASS_START,
+
     // Once he's done coughing, Boggy waits for the rescue dialog to end before he runs off. A listener that returns
     // false skips the wait and starts the run with func_803877A8 (arg2 2), since no dialog will.
     // #### `result`
@@ -347,6 +356,15 @@ typedef enum VBehaviorID {
     // - `*Actor` (Boggy)
     VB_FP_BOGGY_WAIT_FOR_DIALOG,
 
+    // Whether the sled race just won is the bear race, which picks Boggy's dialog and his jiggy.
+    // #### `result`
+    // ```c
+    // jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2) || jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)
+    // ```
+    // #### `args`
+    // - `*Actor` (Boggy)
+    VB_FP_BOGGY_RACE_BEAR_WIN,
+
     // Whether Banjo can board the scarf sled he's touching.
     // #### `result`
     // ```c
@@ -355,6 +373,16 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_FP_SCARF_SLED_BOARD,
+
+    // The rider's part of the scarf sled's crash: map flag 1, which rescues Boggy, and the bounce off the sled. A
+    // teammate's ride replayed here skips both.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the sled)
+    VB_FP_SCARF_SLED_RIDER,
 
     // A puzzle step's camera, and the look-at that holds the player through it. A teammate's step replayed here goes
     // without both.
@@ -367,6 +395,7 @@ typedef enum VBehaviorID {
     // true                                  // the crane, the egg tolls
     // true                                  // the lair's grate and third pipe, a note door's end
     // true                                  // a warp cauldron's look-at
+    // true                                  // the scarf sled's ride, Eyrie's flight and its end
     // actor_animationIsAt(this, 0.1f) != 0  // Tanktup's camera
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's camera
     // this->modelCacheIndex == 0x215        // the CC lobby pipes' camera
@@ -380,7 +409,7 @@ typedef enum VBehaviorID {
     // ```c
     // true                                       // Croctus's second dialog, Boggy, Tanktup's last dialog
     // true                                       // Napper, Jinxy, the GV and church doors
-    // true                                       // baby Eyrie, Nabnut, Gnawty
+    // true                                       // baby Eyrie, Nabnut, Gnawty, Eyrie's flight
     // (!this->unk138_23) && (!local->unk14)      // Tanktup's hit dialog
     // !jiggyscore_isCollected(JIGGY_1B_CC_TOOTH) // a Clanker tooth's
     // ```
@@ -398,6 +427,7 @@ typedef enum VBehaviorID {
     // true                                  // Gnawty's boulder and its shake
     // true                                  // the crane, the egg tolls, the CC grates, the breakables
     // true                                  // the lair's grate, pipes, level doors, Door of Grunty and statue hat
+    // true                                  // the scarf sled's yells, landings, slide and crash
     // actor_animationIsAt(this, 0.55f) != 0 // Tanktup's cough
     // !this->unk38_31                       // the church door shutting
     // gsworld_getMap() == MAP_43_CCW_SPRING // the spring flower's fanfare
@@ -411,7 +441,7 @@ typedef enum VBehaviorID {
     // ```c
     // true                                                                // Boggy, the pink egg, the snow managers
     // true                                                                // Juju's, with the solve's shake
-    // true                                                                // the flower and Nabnut
+    // true                                                                // the flower, Nabnut, Eyrie's flight
     // actor_animationIsAt(this, 0.4f) != 0                                // Tanktup's
     // nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24) // Blubber's
     // ```
@@ -514,6 +544,63 @@ typedef enum VBehaviorID {
     // - `s32` (the Tumblar's state, promoted from `u8`)
     VB_TUMBLAR_BREAK,
 
+    // Tumblar's game starting as Banjo stands on him. It's asked every frame once the game is set up, whatever its
+    // state, and a listener that returns false keeps it waiting.
+    // #### `result`
+    // ```c
+    // MMM_D_8038C510.unk8 == 1 && MMM_D_8038C510.unkC != NULL &&
+    //     chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
+    // ```
+    // #### `args`
+    // - `s32` (the game's state, promoted from `u8`)
+    VB_TUMBLAR_GAME_START,
+
+    // Banjo riding Tumblar, which steers him.
+    // #### `result`
+    // ```c
+    // chTumblar_isBanjoAbove(arg0, arg1)
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_RIDE,
+
+    // Tumblar moving by his velocity. A listener that returns false can set his position instead.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*f32` (position)
+    VB_TUMBLAR_MOVE,
+
+    // Tumblar's game putting its full 75 seconds on the hourglass as it starts. A listener that returns false keeps
+    // the time already on it.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_HOURGLASS_RESET,
+
+    // Tumblar stepping onto a tile in his game, which lights it and checks its letter.
+    // #### `result`
+    // ```c
+    // sp24 && sp24->unk3 == 2 && sp24 != MMM_D_8038C510.unk4
+    // ```
+    // #### `args`
+    // - `s32` (the tile's mesh)
+    VB_TUMBLAR_TILE_STEP,
+
+    // An X tile knocking Banjo off Tumblar.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_TUMBLAR_KNOCK_OFF,
+
     // A listener that returns true has to end the game.
     // #### `result`
     // ```c
@@ -565,6 +652,16 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (the grate or pipe)
     VB_LAIR_GRATE_OR_PIPE_ALREADY_UP,
+
+    // Lair water switch 3's drain starting as its countdown runs out. A listener that returns false keeps the water up.
+    // #### `result`
+    // ```c
+    // levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN) && !levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) &&
+    //     item_getCount(ITEM_6_HOURGLASS) == false
+    // ```
+    // #### `args`
+    // - None
+    VB_LAIR_WATER_DRAIN_START,
 
     // A note door still closed, which shows the note count and opens on enough notes.
     // #### `result`
@@ -660,6 +757,15 @@ typedef enum VBehaviorID {
     // - `s32` (local->phase, promoted from `u8`)
     // - `*ActorMarker` (what hit her; NULL when replayed)
     VB_FINAL_BOSS_HIT,
+
+    // The flight pad despawning as Grunty finishes casting phase 3's spell barrier.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (Grunty)
+    VB_FINAL_BOSS_DESPAWN_FLIGHT_PAD,
 
     // An egg landing on a Jinjo statue's base in the final fight.
     // #### `result`

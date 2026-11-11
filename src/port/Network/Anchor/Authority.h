@@ -32,6 +32,7 @@ typedef enum NetworkActivityId {
     NET_ACTIVITY_FP_TWINKLY,
     NET_ACTIVITY_SM_TUTORIAL,
     NET_ACTIVITY_FP_SCARF_SLED,
+    NET_ACTIVITY_MMM_TUMBLAR,
     NET_ACTIVITY_COUNT
 } NetworkActivityId;
 

@@ -84,8 +84,12 @@ void func_8038A140(s32 arg0) {
         if (MMM_D_8038C510.unk8 == 1) {
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_3_UNKNOWN, 1);
         }
-        item_set(ITEM_0_HOURGLASS_TIMER, 75*FRAMERATE - 1);
+//      item_set(ITEM_0_HOURGLASS_TIMER, 75*FRAMERATE - 1);
+        if (EventSystem_Should(VB_TUMBLAR_HOURGLASS_RESET, true)) {
+            item_set(ITEM_0_HOURGLASS_TIMER, 75*FRAMERATE - 1);
+        }
         item_set(6, 1);
+        CALL_EVENT(OnChallengeTimerSet, JIGGY_62_MMM_TUMBLAR); // [port]
     }
     if (MMM_D_8038C510.unk8 == 3) {
         item_set(6, 0);
@@ -188,7 +192,10 @@ void func_8038A82C(Struct_MMM_3D50_0 * arg0){
         player_getPosition(sp44);
         chTumblar_copyPosition((s32)(intptr_t)MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10, sp38);
         sp38[1] = sp44[1];
-        func_8028F620(sp38, 300.0f, -1500.0f);
+//      func_8028F620(sp38, 300.0f, -1500.0f);
+        if (EventSystem_Should(VB_TUMBLAR_KNOCK_OFF, true)) {
+            func_8028F620(sp38, 300.0f, -1500.0f);
+        }
         return;
     }
     for(iPtr = &D_8038C2F0[0]; iPtr->unk0 != 0; iPtr++){//L8038A8C8
@@ -252,9 +259,11 @@ void func_8038AA44(void){
     if(MMM_D_8038C510.unk8 == 0) return;
 
     func_8038A750();
-    if( MMM_D_8038C510.unk8 == 1
+//  if( MMM_D_8038C510.unk8 == 1
+    if( EventSystem_Should(VB_TUMBLAR_GAME_START, MMM_D_8038C510.unk8 == 1
         && MMM_D_8038C510.unkC != NULL
-        && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
+//      && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
+        && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10), MMM_D_8038C510.unk8)
     ){
         if (!levelSpecificFlags_get(LEVEL_FLAG_2F_MMM_UNKNOWN)) {
             levelSpecificFlags_set(LEVEL_FLAG_2F_MMM_UNKNOWN, true);
@@ -276,9 +285,11 @@ void func_8038AA44(void){
             tmp_v0 = model_func_8033F3C0(MMM_D_8038C510.unk0, sp28);
             if(tmp_v0){
                 sp24 = func_8038A26C(tmp_v0);
-                if( sp24 
+//              if( sp24 
+                if( EventSystem_Should(VB_TUMBLAR_TILE_STEP, sp24
                     && sp24->unk3 == 2
-                    && sp24 != MMM_D_8038C510.unk4
+//                  && sp24 != MMM_D_8038C510.unk4
+                    && sp24 != MMM_D_8038C510.unk4, tmp_v0)
                 ){
                     func_8038A82C(sp24);
                     MMM_D_8038C510.unk4 = sp24;
