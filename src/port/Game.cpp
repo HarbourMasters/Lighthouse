@@ -418,7 +418,7 @@ void push_frame() {
 #ifdef __linux__
 static void SetAppImageHome() {
     const char* appImage = std::getenv("APPIMAGE");
-    if (appImage == nullptr || appImage[0] == '\0' || std::getenv("SHIP_HOME") != nullptr) {
+    if (appImage == nullptr || appImage[0] == '\0' || std::getenv("LIGHTHOUSE_HOME") != nullptr) {
         return;
     }
 
@@ -444,7 +444,7 @@ static void SetAppImageHome() {
 
     std::filesystem::create_directories(home, ec);
     if (!ec) {
-        setenv("SHIP_HOME", home.c_str(), 0);
+        setenv("LIGHTHOUSE_HOME", home.c_str(), 0);
     }
 }
 #endif
@@ -464,12 +464,12 @@ int SDL_main(int argc, char* argv[]) {
 #endif
 
     // Anchor relative paths to the executable instead of cwd
-    // when SHIP_HOME is not in use
+    // when LIGHTHOUSE_HOME is not in use
     std::error_code ec;
-    const char* shipHome = std::getenv("SHIP_HOME");
+    const char* lighthouseHome = std::getenv("LIGHTHOUSE_HOME");
     const char* appImage = std::getenv("APPIMAGE");
-    if (shipHome != nullptr && shipHome[0] != '\0') {
-        std::filesystem::current_path(shipHome, ec);
+    if (lighthouseHome != nullptr && lighthouseHome[0] != '\0') {
+        std::filesystem::current_path(lighthouseHome, ec);
     } else if (appImage != nullptr && appImage[0] != '\0') {
         // Running from an AppImage: the executable lives in a read-only squashfs
         // mount under /tmp, so anchor to the .AppImage file's directory instead.
