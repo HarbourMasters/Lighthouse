@@ -1054,7 +1054,6 @@ void func_803268B4(void);
 void func_80326C24(s32 arg0);
 void func_803283BC(void);
 void func_803283D4(void);
-void port_actorDespawn_beginDefer(void);
 void port_actorDespawn_endDefer(void);
 void func_80328CA8(Actor *self, s32 angle);
 void func_803297FC(Actor *arg0, f32 *o1, f32 *o2);

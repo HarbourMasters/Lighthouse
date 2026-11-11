@@ -1194,10 +1194,6 @@ void func_803283BC(void){
     D_8036E574 = 1;
 }
 
-void port_actorDespawn_beginDefer(void){
-    D_8036E574 = 1;
-}
-
 void port_actorDespawn_endDefer(void){
     D_8036E574 = 0;
 }
