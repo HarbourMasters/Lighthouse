@@ -471,7 +471,7 @@ void GameEngine::ArchivesChanged() {
         interpreter->TextureCacheClear();
     }
     ResourceHelpers_ClearRefCache();
-    port_spriteDisplayCache_clear();
+    SpritePatches_ClearDisplayCache();
 }
 
 void GameEngine::StartFrame() const {
@@ -542,7 +542,7 @@ extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
     return SAMPLES_PER_FRAME;
 }
 
-extern "C" void port_beginDemoAudioHold(void) {
+extern "C" void GameEngine_BeginDemoAudioHold(void) {
     if (kDemoAudioHoldFrames <= 0) {
         return;
     }
@@ -556,7 +556,7 @@ extern "C" void port_tickDemoAudioHold(void) {
     }
 }
 
-extern "C" int port_audioHeld(void) {
+extern "C" int GameEngine_IsAudioHeld(void) {
     return sHoldAudio.load() ? 1 : 0;
 }
 

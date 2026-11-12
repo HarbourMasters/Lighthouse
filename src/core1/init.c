@@ -180,7 +180,7 @@ void core1_init(void) {
     D_8027A130 = 0;
     gGlobalTimer = 0;
 //  func_8023DA9C(3);
-    func_8023DA9C(port_bootsUnloaded() ? 0 : 3);
+    func_8023DA9C(Ship_BootsUnloaded() ? 0 : 3);
 }
 
 void globalTimer_incTimer(void) {
@@ -283,7 +283,7 @@ void mainLoop(void) {
     if (D_8027A130 != 0) {
         func_803283BC();
         CALL_EVENT(GameFrameUpdate);
-        port_actorDespawn_endDefer();
+        actorArray_endDespawnDefer();
     }
 }
 

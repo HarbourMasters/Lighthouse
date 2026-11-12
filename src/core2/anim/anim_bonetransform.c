@@ -235,7 +235,7 @@ bool asset_isCompressed(enum asset_e arg0){ //asset_compressed?
 }
 
 // [port] Sprite display data cache lives in SpritePatches.cpp
-extern BKSpriteDisplayData *port_getOrCreateDisplayData(BKSprite *sprite);
+extern BKSpriteDisplayData *SpritePatches_GetOrCreateDisplayData(BKSprite *sprite);
 
 //returns raw sprite(as saved in ROM) and points arg1 to a parsed sprite(?)
 BKSprite *codeB3A80_getSprite(enum asset_e sprite_id, BKSpriteDisplayData **arg1){
@@ -253,7 +253,7 @@ BKSprite *codeB3A80_getSprite(enum asset_e sprite_id, BKSpriteDisplayData **arg1
         *arg1 = NULL;
         return NULL;
     }
-    *arg1 = port_getOrCreateDisplayData(s0);
+    *arg1 = SpritePatches_GetOrCreateDisplayData(s0);
     return s0;
 }
 

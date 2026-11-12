@@ -36,16 +36,16 @@ extern "C" void port_noteMainLoopAlive(void) {
     sAllowedUntilMs.store(NowMs() + kCushionMs, std::memory_order_relaxed);
 }
 
-extern "C" int port_audioStallHold(void) {
+extern "C" int AudioSync_IsStallHeld(void) {
     const int64_t allowedUntil = sAllowedUntilMs.load(std::memory_order_relaxed);
     return allowedUntil != 0 && NowMs() > allowedUntil;
 }
 
-extern "C" void port_lockAudio(void) {
+extern "C" void AudioSync_Lock(void) {
     gAudioLock.lock();
 }
 
-extern "C" void port_unlockAudio(void) {
+extern "C" void AudioSync_Unlock(void) {
     gAudioLock.unlock();
 }
 

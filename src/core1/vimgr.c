@@ -165,7 +165,7 @@ void viMgr_func_8024BF94(s32 arg0){
 }
 
 s32 viMgr_func_8024BFA0(void){
-    return D_802808DC + port_getCutsceneExtraVis();
+    return D_802808DC + FramePacingPatches_GetCutsceneExtraVis();
 }
 
 void viMgr_func_8024BFAC(void){
@@ -175,7 +175,7 @@ void viMgr_func_8024BFAC(void){
 void viMgr_func_8024BFD8(s32 arg0){
     // [port] Set D_80280724 to the actual VI count so time_func_8033DDB8() returns
     // the correct delta for demo/playback zoomboxes.
-    s32 demoVi = port_getDemoViCount();
+    s32 demoVi = FramePacingPatches_GetDemoViCount();
     static s32 D_80280E90;
     s32 viBudget = (demoVi > 2) ? demoVi : 2;
 

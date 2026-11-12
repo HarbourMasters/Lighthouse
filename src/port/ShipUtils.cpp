@@ -152,11 +152,11 @@ int port_getBootSequence(void) {
     return CVarGetInteger(CVAR_SETTING("BootSequence"), BOOTSEQUENCE_DEFAULT);
 }
 
-int port_bootsUnloaded(void) {
+int Ship_BootsUnloaded(void) {
     return Lighthouse::GetFrameHost() != nullptr;
 }
 
-float port_getRumbleScale(void) {
+float Ship_GetRumbleScale(void) {
     auto ctx = Ship::Context::GetRawInstance();
     if (!ctx) {
         return 0.5f;

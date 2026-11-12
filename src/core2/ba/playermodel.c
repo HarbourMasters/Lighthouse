@@ -44,7 +44,7 @@ enum asset_e playerModel_get(void){
                 case MAP_88_CS_SPIRAL_MOUNTAIN_6:
                 case MAP_89_CS_INTRO_BANJOS_HOUSE_2:
                 case MAP_8A_CS_INTRO_BANJOS_HOUSE_3:
-                    if (port_shouldDisableLOD()) {
+                    if (GraphicsPatches_IsLodDisabled()) {
                         return ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY;
                     }
                     return ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY;
@@ -64,7 +64,7 @@ enum asset_e playerModel_get(void){
                 case MAP_45_CCW_AUTUMN:
                 case MAP_46_CCW_WINTER:
                 case MAP_56_STUB_ML_MINE_LEVEL:
-                    if (port_shouldDisableLOD()) {
+                    if (GraphicsPatches_IsLodDisabled()) {
                         return ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY;
                     }
                     return ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY;

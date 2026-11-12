@@ -205,7 +205,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         }
         else{
             osViBlack(1);
-            port_requestReadback(); // [port] need readback active for transition capture
+            Framebuffer_RequestReadback(); // [port] need readback active for transition capture
             anctrl_setAnimTimer(s_current_transition.anctrl, 0.25f); //set animation timer
         }
         anctrl_start(s_current_transition.anctrl, "transition.c", 0x125); 
@@ -459,21 +459,21 @@ void gctransition_update(void){
                 case 0:
                     break;
                 case 1:
-                    port_requestReadback(); // [port] ensure readback has valid data before freeze
+                    Framebuffer_RequestReadback(); // [port] ensure readback has valid data before freeze
                     func_8028F7C8(1);
                     gsworld_setEnableUpdate(0);
                     break;
                 case 2:
                     gsworld_setEnableDraw(0);
-                    port_freezeReadback(1); // [port] next draw is black — freeze so gFramebuffers keeps world for substate 3 capture
+                    Framebuffer_FreezeReadback(1); // [port] next draw is black — freeze so gFramebuffers keeps world for substate 3 capture
                     break;
                 case 3:
-                    port_patchTransitionModel(s_current_transition.model_ptr);
+                    Framebuffer_PatchTransitionModel(s_current_transition.model_ptr);
                     model_copyFramebufferToTextures(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
                 case 4:
                     osViBlack(0);
-                    port_freezeReadback(0); // [port] resume readback
+                    Framebuffer_FreezeReadback(0); // [port] resume readback
                     break;
                 default:
                    s_current_transition.timer += dt;
@@ -488,11 +488,11 @@ void gctransition_update(void){
                 case 0:
                     break;
                 case 1:
-                    port_requestReadback(); // [port] ensure readback has valid data for substate 2 capture
+                    Framebuffer_RequestReadback(); // [port] ensure readback has valid data for substate 2 capture
                     break;
                 case 2:
                     gsworld_setEnableDraw(0);
-                    port_patchTransitionModel(s_current_transition.model_ptr);
+                    Framebuffer_PatchTransitionModel(s_current_transition.model_ptr);
                     model_copyFramebufferToTextures(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
                 

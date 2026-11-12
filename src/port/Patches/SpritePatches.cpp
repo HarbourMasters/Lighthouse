@@ -43,7 +43,7 @@ typedef struct {
 static SpriteDisplayCacheEntry sSpriteDisplayCache[SPRITE_DISPLAY_CACHE_SIZE];
 static s32 sSpriteDisplayCacheCount = 0;
 
-void port_spriteDisplayCache_clear(void) {
+void SpritePatches_ClearDisplayCache(void) {
     sSpriteDisplayCacheCount = 0;
 }
 
@@ -58,11 +58,11 @@ void port_refreshDialogFontGlyphCount(void) {
 
 // PAL's extended dialog font draws 'b' and up as glyphs, so its format codes are shifted past them.
 // Follows the loaded font rather than the cartridge, since a language pack can swap it.
-int port_dialogFontUsesShiftedCodes(void) {
+int SpritePatches_DialogFontUsesShiftedCodes(void) {
     return print_sDialogFontGlyphCount > 'b' - '\x21';
 }
 
-BKSpriteDisplayData* port_getOrCreateDisplayData(BKSprite* sprite) {
+BKSpriteDisplayData* SpritePatches_GetOrCreateDisplayData(BKSprite* sprite) {
     s32 i;
     if (sprite == NULL) {
         return NULL;

@@ -362,7 +362,7 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
 //  if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
-    if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f * port_drawDistanceMul() * port_drawDistanceMul()) {
+    if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f * GraphicsPatches_GetDrawDistanceMultiplier() * GraphicsPatches_GetDrawDistanceMultiplier()) {
         return false;
     }
 
@@ -383,7 +383,7 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
     s32 i;
 
     // [port] Extended draw distance: scale bounding radius by the distance multiplier.
-    distance *= port_drawDistanceMul();
+    distance *= GraphicsPatches_GetDrawDistanceMultiplier();
 
     delta[0] = pos[0] - sViewportPosition[0];
     delta[1] = pos[1] - sViewportPosition[1];

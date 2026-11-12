@@ -17,8 +17,8 @@ void sfxInstruments_init(void) {
 
     // [port] the soundfont ships as one resource per sound rather than a ctl/tbl pair;
     // assemble the bank from the descriptor and the sounds it names
-    extern ALBankFile *port_alBnkfLoad(const char *descriptorPath);
-    bnk_f = port_alBnkfLoad("assets/sfx_bank");
+    extern ALBankFile *AudioSoundFont_LoadBankFile(const char *descriptorPath);
+    bnk_f = AudioSoundFont_LoadBankFile("assets/sfx_bank");
 
     bnk = bnk_f->bankArray[0];
     inst = bnk->instArray[0];
@@ -49,7 +49,7 @@ void sfxInstruments_func_803353BC(intptr_t arg0, u16 arg1) {
     if(arg1 > 0x7fff)
         arg1 = 0x7fff;
 //  func_80244978(arg0, AL_SEQP_PROG_EVT, arg1);
-    func_80244978(arg0, AL_SEQP_PROG_EVT, (s32)(arg1 * port_getSfxVolume()));
+    func_80244978(arg0, AL_SEQP_PROG_EVT, (s32)(arg1 * AudioVolume_GetSfx()));
 }
 
 void sfxInstruments_func_803353F4(intptr_t arg0, s32 arg1) {

@@ -93,9 +93,9 @@ void GameEngine::RunCommands(Gfx* Commands) {
 }
 
 int GameEngine::CurrentViPerTick() {
-    int viPerTick = port_getDemoViCount();
+    int viPerTick = FramePacingPatches_GetDemoViCount();
     if (viPerTick <= 0) {
-        viPerTick = gVIsPerFrame + port_getCutsceneExtraVis();
+        viPerTick = gVIsPerFrame + FramePacingPatches_GetCutsceneExtraVis();
     }
     if (viPerTick < gVIsPerFrame) {
         viPerTick = gVIsPerFrame;
@@ -214,7 +214,7 @@ void RunTimedPass(Gfx* commands, int fps) {
         port_serviceRenderRequests();
         port_waitDemoViSerial(sFrameViSerial, 250);
     }
-    const int vis = std::max(port_getDemoViCount(), 2);
+    const int vis = std::max(FramePacingPatches_GetDemoViCount(), 2);
     const long long tickNs = 1000000000LL * vis / 60;
     const long long presentNs = 1000000000LL / fps;
     const long long passStartNs = OS_SteadyNs();
