@@ -630,7 +630,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
 
             case MARKER_169_SNS_EGG: //L8028C908
             { //ONLY THIS CASE DOESN'T MATCH
-                if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false, SNS_MAP_CHECK_PICKUP)) {
+                if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false, SNS_MAP_CHECK_PICKUP, actor)) {
                     switch (gsworld_getMap())
                     {
                     case MAP_1D_MMM_CELLAR: //L8028C95C
