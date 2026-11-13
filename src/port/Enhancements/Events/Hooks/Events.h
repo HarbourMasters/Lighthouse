@@ -967,6 +967,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `f64` (function_time, promoted from `f32`)
     VB_GAMESELECT_RESUME_WARP,
+
+    // Whether one of the numbers on the note door model shows. Each door shows only its cost.
+    // #### `result`
+    // ```c
+    // actor->noteDoorIdx + 1 == i + 2
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    // - `s32` (i, the number, 0 to 11)
     VB_NOTEDOOR_DRAW_NUMBER,
 
     // #### `result`
