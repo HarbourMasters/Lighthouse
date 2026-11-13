@@ -71,6 +71,24 @@ typedef enum VBehaviorID {
     // - None
     VB_CAMERA_SWIVEL,
 
+    // A camera-node area (fixed or pivoting camera) is about to take the camera.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CAMERA_FIXED_NODE,
+
+    // The underwater camera is about to take the camera.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_CAMERA_UNDERWATER,
+
     // Cutscene and celebration skips
 
     // #### `result`

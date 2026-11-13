@@ -474,6 +474,8 @@ void GameEngine::ArchivesChanged() {
     port_spriteDisplayCache_clear();
 }
 
+extern "C" void port_dialogueSkipKey(void);
+
 void GameEngine::StartFrame() const {
     using Ship::KbScancode;
     const int32_t dwScancode = this->context->GetWindow()->GetLastScancode();
@@ -490,6 +492,10 @@ void GameEngine::StartFrame() const {
             // gNextGameState = GSTATE_BOOT;
             break;
         }
+        // Skip Dialogue (Enhancements/Cutscenes/CutsceneSkips.cpp)
+        case KbScancode::LUS_KB_ENTER:
+            port_dialogueSkipKey();
+            break;
         default:
             break;
     }
