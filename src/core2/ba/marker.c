@@ -585,8 +585,9 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 if (__baMarker_8028BC20(marker))
                     return;
                 sp98 = func_802CA1C4(marker_getActor(marker));
-                if (sp98 != HONEYCOMB_12_MMM_FLOORBOARD || player_getTransformation() == TRANSFORM_3_PUMPKIN
-                    || !EventSystem_Should(VB_HONEYCOMB_PUMPKIN_REQUIREMENT, true))
+//              if(sp98 != HONEYCOMB_12_MMM_FLOORBOARD || player_getTransformation() == TRANSFORM_3_PUMPKIN)
+                if (sp98 != HONEYCOMB_12_MMM_FLOORBOARD
+                    || EventSystem_Should(VB_HONEYCOMB_PUMPKIN_REQUIREMENT_MET, player_getTransformation() == TRANSFORM_3_PUMPKIN))
                 {
                     honeycombscore_set(sp98, 1);
                     CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_HONEYCOMB, sp98);

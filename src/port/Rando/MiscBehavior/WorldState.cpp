@@ -247,12 +247,12 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
     })
 
     // Drop the id-keyed requirement for the MMM floorboard honeycomb (marker.c)
-    COND_VB_SHOULD(VB_HONEYCOMB_PUMPKIN_REQUIREMENT, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_HONEYCOMB_PUMPKIN_REQUIREMENT_MET, EVENT_PRIORITY_NORMAL, true, {
         (void)args;
         if (!IS_RANDO || !EMPTY_HONEYCOMB_OPTION_ENABLED) {
             return;
         }
-        *should = false;
+        *should = true;
     })
 
     REGISTER_LISTENER(OnIsHoneycombScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

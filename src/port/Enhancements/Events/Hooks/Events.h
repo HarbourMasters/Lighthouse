@@ -1473,14 +1473,14 @@ typedef enum VBehaviorID {
     // - None
     VB_JIGGY_COLLECT_TUTORIAL,
 
-    // MMM's floorboard honeycomb needing the pumpkin.
+    // MMM's floorboard honeycomb needing the pumpkin. A listener that returns true lets any transformation collect it.
     // #### `result`
     // ```c
-    // true
+    // player_getTransformation() == TRANSFORM_3_PUMPKIN
     // ```
     // #### `args`
     // - None
-    VB_HONEYCOMB_PUMPKIN_REQUIREMENT,
+    VB_HONEYCOMB_PUMPKIN_REQUIREMENT_MET,
 
     // What Brentilda says after her hint: her offer to heal, or ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED when
     // there's nothing to heal.

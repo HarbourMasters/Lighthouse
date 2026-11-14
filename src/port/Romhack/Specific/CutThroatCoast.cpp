@@ -232,9 +232,9 @@ void RegisterCutThroatCoastPatches() {
     });
 
     // This MMM empty honeycomb doesn't require the pumpkin
-    REGISTER_VB_SHOULD(VB_HONEYCOMB_PUMPKIN_REQUIREMENT, EVENT_PRIORITY_NORMAL, {
+    REGISTER_VB_SHOULD(VB_HONEYCOMB_PUMPKIN_REQUIREMENT_MET, EVENT_PRIORITY_NORMAL, {
         (void)args;
-        *should = false;
+        *should = true;
     });
 
     // The sky timer never advances, so skybox layers hold their initial rotation
