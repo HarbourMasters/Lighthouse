@@ -11,9 +11,8 @@
 #include "port/ShipInit.hpp"
 #include "port/UI/cvar_prefixes.h"
 
-typedef unsigned char u8;
-
 extern "C" {
+#include "structs.h"
 bool gameFile_isNotEmpty(int gamenum);
 int jiggyscore_total(void);
 int itemscore_noteScores_getTotal(void);
@@ -578,9 +577,6 @@ static void RegisterLocalizedText() {
     // revert to the base model; others early-out immediately.
     REGISTER_LISTENER(OnModelLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnModelLoad*)event;
-        if (ev->reload == nullptr) {
-            return;
-        }
         uint32_t modelId = (uint32_t)ev->modelId;
         if (ResourceMgr_IsAssetRepointed(modelId)) {
             sEverRepointedModels.insert(modelId);
@@ -593,7 +589,11 @@ static void RegisterLocalizedText() {
             return; // already synced to the active language
         }
         slotGen = gen;
-        *ev->reload = 1;
+        ModelCache* modelInfo = (ModelCache*)ev->modelInfo;
+        if (modelInfo->modelPtr != NULL) {
+            assetcache_release(modelInfo->modelPtr);
+            modelInfo->modelPtr = NULL;
+        }
     });
 
     // Swap an English pause-menu / file-select string for its translation. A language

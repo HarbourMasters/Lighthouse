@@ -1712,12 +1712,7 @@ BKModelBin *marker_loadModelBin(ActorMarker *this){
 
     // [port] Let the language system invalidate a re-pointed model so it
     // re-fetches the active language's version (live swap on the next draw).
-    s32 reload = 0;
-    CALL_EVENT(OnModelLoad, this->modelId, modelInfo, &reload);
-    if (reload && modelInfo->modelPtr != NULL) {
-        assetcache_release(modelInfo->modelPtr);
-        modelInfo->modelPtr = NULL;
-    }
+    CALL_EVENT(OnModelLoad, this->modelId, modelInfo);
 
     if(modelInfo->modelPtr == NULL){
         model = assetcache_get(this->modelId);
