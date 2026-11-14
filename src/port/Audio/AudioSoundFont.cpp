@@ -419,11 +419,7 @@ extern "C" ALBankFile* AudioSoundFont_LoadBankFile(const char* descriptorPath) {
     return file;
 }
 
-extern "C" void port_alBnkfReleaseSources(void) {
-    sBankResources.clear();
-}
-
-extern "C" void port_alBnkfFreeAll(void) {
+extern "C" void AudioSoundFont_FreeAll(void) {
     for (void* p : sBankAllocations) {
         free(p);
     }

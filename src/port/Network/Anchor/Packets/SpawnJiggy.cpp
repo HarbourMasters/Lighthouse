@@ -18,7 +18,7 @@ extern s32 s_jiggyList_level_jiggy_count;
 
 extern "C" {
 void func_80332BB0(void);
-void port_jiggySpawn_remove(int32_t jiggyId);
+void SpawnJiggy_Remove(int32_t jiggyId);
 }
 
 /**
@@ -159,7 +159,7 @@ void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
 
     s16 jiggyId = payload.at("jiggyId").get<s16>();
     if (payload.value("expired", false)) {
-        port_jiggySpawn_remove(jiggyId);
+        SpawnJiggy_Remove(jiggyId);
         expireTimedJiggy(jiggyId);
         return;
     }
@@ -200,7 +200,7 @@ void Anchor::FlushPendingJiggySpawns() {
 }
 
 // Team-state snapshot/restore (UpdateTeamState.cpp). Flat [map, jiggyId, x, y, z] tuples.
-std::vector<int32_t> port_jiggySpawn_snapshot() {
+std::vector<int32_t> SpawnJiggy_Snapshot() {
     std::vector<int32_t> flat;
     for (const auto& [map, list] : sSpawnedJiggies) {
         for (const auto& pj : list) {
@@ -214,7 +214,7 @@ std::vector<int32_t> port_jiggySpawn_snapshot() {
     return flat;
 }
 
-void port_jiggySpawn_restore(const std::vector<int32_t>& flat) {
+void SpawnJiggy_Restore(const std::vector<int32_t>& flat) {
     sSpawnedJiggies.clear();
     for (size_t i = 0; i + 5 <= flat.size(); i += 5) {
         // The collect that would clear a record can sit in a queue that was never replayed.
@@ -226,13 +226,13 @@ void port_jiggySpawn_restore(const std::vector<int32_t>& flat) {
     }
 }
 
-extern "C" void port_jiggySpawn_remove(int32_t jiggyId) {
+extern "C" void SpawnJiggy_Remove(int32_t jiggyId) {
     for (auto& [map, list] : sSpawnedJiggies) {
         std::erase_if(list, [jiggyId](const SpawnedJiggy& pj) { return pj.jiggyId == jiggyId; });
     }
 }
 
-extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId) {
+extern "C" int32_t SpawnJiggy_IsRecorded(int32_t jiggyId) {
     if (jiggyscore_isCollected((enum jiggy_e)jiggyId)) {
         return 0;
     }

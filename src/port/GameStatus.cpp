@@ -79,11 +79,11 @@ typedef struct {
 extern PauseLevelEntry D_8036C58C[0xD];
 }
 
-extern "C" const char* port_levelName(enum level_e level) {
+extern "C" const char* GameStatus_GetLevelName(enum level_e level) {
     for (int i = 0; i < 0xD; i++) {
         if (D_8036C58C[i].level_id == level) {
             // A romhack's own name for the level wins over the vanilla string.
-            const char* rhName = port_getRomhackLevelName(i);
+            const char* rhName = RomhackConfig_GetLevelName(i);
             return rhName ? rhName : (const char*)D_8036C58C[i].string;
         }
     }
@@ -99,40 +99,40 @@ extern "C" const char* port_levelName(enum level_e level) {
     }
 }
 
-extern "C" const char* port_getLevelName(int map_id) {
+extern "C" const char* GameStatus_GetMapLevelName(int map_id) {
     enum level_e level = map_getLevel((enum map_e)map_id);
     for (int i = 0; i < 0xD; i++) {
         if (D_8036C58C[i].level_id == level) {
-            return port_levelName(level);
+            return GameStatus_GetLevelName(level);
         }
     }
-    return port_mapName(map_id);
+    return Ship_GetMapName(map_id);
 }
 
-extern "C" void port_getLevelStats(int map_id, s32* noteVal, s32* noteMax, s32* jiggyVal, s32* jiggyMax, s32* hcVal,
-                                   s32* hcMax) {
+extern "C" void GameStatus_GetLevelStats(int map_id, s32* noteVal, s32* noteMax, s32* jiggyVal, s32* jiggyMax,
+                                         s32* hcVal, s32* hcMax) {
     enum level_e level = map_getLevel((enum map_e)map_id);
 
     *noteVal = itemscore_noteScores_get(level);
     *jiggyVal = jiggyscore_leveltotal(level);
     *hcVal = honeycombscore_get_level_total(level);
-    port_getLevelMaxima(level, noteMax, jiggyMax, hcMax);
+    GameStatus_GetLevelMaxima(level, noteMax, jiggyMax, hcMax);
 }
 
-extern "C" void port_getLevelMaxima(enum level_e level, s32* noteMax, s32* jiggyMax, s32* hcMax) {
-    int n = port_getRomhackNotesMax();
+extern "C" void GameStatus_GetLevelMaxima(enum level_e level, s32* noteMax, s32* jiggyMax, s32* hcMax) {
+    int n = RomhackConfig_GetNotesMax();
     *noteMax = (n >= 0) ? n : 100;
-    int j = port_getRomhackJiggiesPerWorld();
+    int j = RomhackConfig_GetJiggiesPerWorld();
     *jiggyMax = (j >= 0) ? j : 10;
 
-    int hMax = port_getRomhackHoneycombsPerWorld();
+    int hMax = RomhackConfig_GetHoneycombsPerWorld();
     if (hMax < 0)
         hMax = 2;
-    int specialLevel = port_getRomhackSpecialLevel();
+    int specialLevel = RomhackConfig_GetSpecialLevel();
     if (specialLevel < 0)
         specialLevel = 0xB; // LEVEL_B_SPIRAL_MOUNTAIN
     if ((int)level == specialLevel) {
-        int hcSpecial = port_getRomhackExtraHcStart();
+        int hcSpecial = RomhackConfig_GetExtraHcStart();
         if (hcSpecial < 0)
             hcSpecial = 6;
         hMax = hcSpecial;
@@ -140,9 +140,9 @@ extern "C" void port_getLevelMaxima(enum level_e level, s32* noteMax, s32* jiggy
     *hcMax = hMax;
 }
 
-extern "C" bool port_pauseTotalsRowVisible(enum level_e level, s32 row) {
-    int hideCollLvl = port_getRomhackHideCollectiblesLevel();
-    int hideJigLvl = port_getRomhackHideJiggiesLevel();
+extern "C" bool GameStatus_IsPauseTotalsRowVisible(enum level_e level, s32 row) {
+    int hideCollLvl = RomhackConfig_GetHideCollectiblesLevel();
+    int hideJigLvl = RomhackConfig_GetHideJiggiesLevel();
     if (hideCollLvl < 0)
         hideCollLvl = LEVEL_6_LAIR;
     if (hideJigLvl < 0)
@@ -157,11 +157,11 @@ extern "C" bool port_pauseTotalsRowVisible(enum level_e level, s32 row) {
     return EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, visible, level, row);
 }
 
-extern "C" enum level_e port_pauseTotalsPageLevel(s32 page) {
+extern "C" enum level_e GameStatus_GetPauseTotalsPageLevel(s32 page) {
     return (enum level_e)D_8036C58C[page].level_id;
 }
 
-extern "C" u16 port_getLevelTime(int map_id) {
+extern "C" u16 GameStatus_GetLevelTime(int map_id) {
     return itemscore_timeScores_get(map_getLevel((enum map_e)map_id));
 }
 
@@ -180,18 +180,18 @@ static const char* trimName(const char* name) {
     return buf;
 }
 
-extern "C" void port_setWindowTitle(int map_id) {
+extern "C" void GameStatus_SetWindowTitle(int map_id) {
     enum level_e level = map_getLevel((enum map_e)map_id);
     const char* levelName;
     // Override the level name for file select
     if (map_id == MAP_91_FILE_SELECT)
         levelName = "FILE SELECT";
     else
-        levelName = trimName(port_getLevelName(map_id));
+        levelName = trimName(GameStatus_GetMapLevelName(map_id));
 
     // Determine which stats to hide (mirrors pause menu totals screen logic)
-    int hideCollLvl = port_getRomhackHideCollectiblesLevel();
-    int hideJigLvl = port_getRomhackHideJiggiesLevel();
+    int hideCollLvl = RomhackConfig_GetHideCollectiblesLevel();
+    int hideJigLvl = RomhackConfig_GetHideJiggiesLevel();
     if (hideCollLvl < 0)
         hideCollLvl = 0x6; // LEVEL_6_LAIR
     if (hideJigLvl < 0)
@@ -206,7 +206,7 @@ extern "C" void port_setWindowTitle(int map_id) {
     bool showHoneycombs = !isNonGameplay && ((int)level != hideCollLvl);
 
     s32 noteVal, noteMax, jiggyVal, jiggyMax, hcVal, hcMax;
-    port_getLevelStats(map_id, &noteVal, &noteMax, &jiggyVal, &jiggyMax, &hcVal, &hcMax);
+    GameStatus_GetLevelStats(map_id, &noteVal, &noteMax, &jiggyVal, &jiggyMax, &hcVal, &hcMax);
 
     char noteStr[16], jiggyStr[16], hcStr[16];
     if (showNotes)
@@ -224,7 +224,7 @@ extern "C" void port_setWindowTitle(int map_id) {
 
     char timeStr[16];
     if (!isNonGameplay && showNotes) {
-        u16 timeSec = port_getLevelTime(map_id);
+        u16 timeSec = GameStatus_GetLevelTime(map_id);
         int hours = timeSec / 3600;
         int minutes = (timeSec / 60) % 60;
         int seconds = timeSec % 60;
@@ -251,7 +251,7 @@ void RegisterGameStatus_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_LOW, true, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         sPendingTitleMap = ev->nextMap;
-        Graphics_RunOnRenderThread([](void*) { port_setWindowTitle(sPendingTitleMap); }, nullptr);
+        Graphics_RunOnRenderThread([](void*) { GameStatus_SetWindowTitle(sPendingTitleMap); }, nullptr);
     });
 }
 

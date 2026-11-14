@@ -97,7 +97,7 @@ void ExitOrbit() {
 }
 
 bool HandleInput() {
-    if (!port_freeLook_isEnabled()) {
+    if (!FreeLookCamera_IsEnabled()) {
         if (sActive) {
             ExitOrbit();
         }
@@ -178,7 +178,7 @@ void UpdateOrbit() {
 
 } // namespace
 
-extern "C" int port_freeLook_isEnabled(void) {
+extern "C" int FreeLookCamera_IsEnabled(void) {
     return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0;
 }
 

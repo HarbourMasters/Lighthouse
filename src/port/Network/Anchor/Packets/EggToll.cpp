@@ -120,7 +120,7 @@ void Anchor::HandlePacket_EggToll(nlohmann::json& payload) {
     }
 }
 
-std::vector<int32_t> port_eggToll_snapshot() {
+std::vector<int32_t> EggToll_Snapshot() {
     std::vector<int32_t> flat;
     flat.reserve(sStages.size() * 3);
     for (const auto& [key, stage] : sStages) {
@@ -131,14 +131,14 @@ std::vector<int32_t> port_eggToll_snapshot() {
     return flat;
 }
 
-void port_eggToll_restore(const std::vector<int32_t>& flat) {
+void EggToll_Restore(const std::vector<int32_t>& flat) {
     sStages.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         sStages[{ flat[i], flat[i + 1] }] = flat[i + 2];
     }
 }
 
-void port_eggToll_clearForLevel(int32_t levelId) {
+void EggToll_ClearForLevel(int32_t levelId) {
     std::erase_if(sStages,
                   [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
 }

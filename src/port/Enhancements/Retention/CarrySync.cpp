@@ -16,7 +16,7 @@
 extern "C" {
 #include "enums.h"
 #include "actor.h"
-s32 port_anchor_isWorldSyncActive(void);
+s32 Anchor_IsWorldSyncActive(void);
 ActorMarker* bacarry_getMarkerWithExtraSteps(void);
 }
 
@@ -116,13 +116,13 @@ bool registerSpawn(int32_t kind, ActorMarker* marker, int32_t x, int32_t y, int3
     int32_t mapId = (int32_t)gsworld_getMap();
     int32_t hash = spawnHash(x, y, z);
     ObjectExtension::GetInstance().Set<CarriedSpawnData>(marker, CarriedSpawnData(mapId, hash));
-    return port_anchor_isWorldSyncActive() && !inDemoPlayback() && kindAllowedFor(kind, mapId) &&
+    return Anchor_IsWorldSyncActive() && !inDemoPlayback() && kindAllowedFor(kind, mapId) &&
            isCollected(slot, mapId, hash);
 }
 
 bool collectedRemotely(int32_t kind, ActorMarker* marker) {
     int32_t slot = slotForKind(kind);
-    if (slot < 0 || !port_anchor_isWorldSyncActive()) {
+    if (slot < 0 || !Anchor_IsWorldSyncActive()) {
         return false;
     }
     CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
@@ -169,7 +169,7 @@ void CarryableUpdate(IEvent* event) {
 
 } // namespace
 
-extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId, int32_t id, int32_t sameMap) {
+extern "C" void CarrySync_ApplyRemoteCollect(int32_t kind, int32_t mapId, int32_t id, int32_t sameMap) {
     (void)sameMap;
     int32_t slot = slotForKind(kind);
     if (slot < 0 || id < 0) {
@@ -179,7 +179,7 @@ extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId,
 }
 
 // Snapshot/restore as flat [slot, mapId, hash] tuples.
-std::vector<int32_t> port_carriedSync_snapshotCollected() {
+std::vector<int32_t> CarrySync_SnapshotCollected() {
     std::vector<int32_t> flat;
     flat.reserve(sCollected.size() * 3);
     for (const auto& e : sCollected) {
@@ -188,16 +188,16 @@ std::vector<int32_t> port_carriedSync_snapshotCollected() {
     return flat;
 }
 
-void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat) {
+void CarrySync_RestoreCollected(const std::vector<int32_t>& flat) {
     sCollected.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         sCollected.insert({ flat[i], flat[i + 1], flat[i + 2] });
     }
 }
 
-extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
+extern "C" int32_t CarrySync_GetCollectedCount(int32_t kind) {
     int32_t slot = slotForKind(kind);
-    if (slot < 0 || !port_anchor_isWorldSyncActive()) {
+    if (slot < 0 || !Anchor_IsWorldSyncActive()) {
         return 0;
     }
     int32_t count = 0;
@@ -209,7 +209,7 @@ extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
     return count;
 }
 
-void port_carriedSync_clearForLevel(int32_t levelId) {
+void CarrySync_ClearForLevel(int32_t levelId) {
     std::erase_if(sCollected, [levelId](const std::array<int32_t, 3>& e) {
         return (int32_t)map_getLevel((enum map_e)e[1]) == levelId;
     });
@@ -223,7 +223,7 @@ void RegisterCarrySync_Init() {
         ActorMarker* marker = ((OnCarriedObjectCollected*)event)->marker;
         int32_t kind = kindForMarker(marker->id);
         int32_t slot = slotForKind(kind);
-        if (slot < 0 || inDemoPlayback() || !port_anchor_isWorldSyncActive()) {
+        if (slot < 0 || inDemoPlayback() || !Anchor_IsWorldSyncActive()) {
             return;
         }
         CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
@@ -236,7 +236,7 @@ void RegisterCarrySync_Init() {
 
     COND_HOOK(OnCarryThrow, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         int32_t kind = kindForMarker(((OnCarryThrow*)event)->markerId);
-        if (slotForKind(kind) < 0 || inDemoPlayback() || !port_anchor_isWorldSyncActive()) {
+        if (slotForKind(kind) < 0 || inDemoPlayback() || !Anchor_IsWorldSyncActive()) {
             return;
         }
         CALL_EVENT(OnCollectibleCollected, kind, -1);

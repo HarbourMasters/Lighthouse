@@ -35,7 +35,7 @@ void RegisterFurnaceFunMoves_Init() {
     sPendingGame = -1;
 
     COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, CVAR != FFM_OFF, [](IEvent* event) {
-        if (port_isRomhack()) {
+        if (RomhackConfig_IsActive()) {
             return;
         }
         if (CVAR == FFM_AT_START) {

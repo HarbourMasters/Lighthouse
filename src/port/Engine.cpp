@@ -435,7 +435,7 @@ void GameEngine::Create(int argc, char* argv[]) {
 
 extern void ResourceHelpers_ClearRefCache();
 void ReleaseSoundfonts();
-extern "C" void port_alBnkfFreeAll();
+extern "C" void AudioSoundFont_FreeAll();
 
 void GameEngine::Destroy() {
     if (Instance->context && Instance->context->GetControlDeck()) {
@@ -550,7 +550,7 @@ extern "C" void GameEngine_BeginDemoAudioHold(void) {
     sHoldAudio.store(true);
 }
 
-extern "C" void port_tickDemoAudioHold(void) {
+extern "C" void GameEngine_TickDemoAudioHold(void) {
     if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
         sHoldAudio.store(false);
     }
@@ -561,7 +561,7 @@ extern "C" int GameEngine_IsAudioHeld(void) {
 }
 
 void ReleaseSoundfonts() {
-    port_alBnkfFreeAll();
+    AudioSoundFont_FreeAll();
 }
 
 extern "C" uint32_t GameEngine_GetSampleRate() {

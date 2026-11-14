@@ -38,7 +38,7 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["teleportMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.TeleportMode"), 1);
     payload["syncItemsAndFlags"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.SyncItemsAndFlags"), 1);
     payload["shareConsumables"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShareConsumables"), 0);
-    payload["isRomHack"] = port_isRomhack();
+    payload["isRomHack"] = RomhackConfig_IsActive();
     payload["romhackName"] = Lighthouse::CurrentRomhackLabel();
     if (selectedFileNum != DEFAULT_FILE_NUM) {
         payload["isRando"] = (bool)IS_RANDO;
@@ -73,8 +73,8 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
         roomState.shareConsumables = 0;
         roomState.isRomhack = false;
         roomState.romhackName.clear();
-        port_noteRetention_setForced(0);
-        port_jinjoRetention_setForced(0);
+        NoteRetention_SetForced(0);
+        JinjoRetention_SetForced(0);
         return;
     }
 
@@ -85,7 +85,7 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     if (roomState.romhackName != localLabel) {
         // Only act on ownership the server has actually handed out.
         if (ownClientId != 0 && roomState.ownerClientId == ownClientId) {
-            roomState.isRomhack = port_isRomhack();
+            roomState.isRomhack = RomhackConfig_IsActive();
             roomState.romhackName = localLabel;
             lastWarnedRomhackLabel.clear();
             SendPacket_UpdateRoomState();
@@ -95,7 +95,7 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
         } else if (roomState.romhackName != lastWarnedRomhackLabel) {
             lastWarnedRomhackLabel = roomState.romhackName;
             std::string msg = "There's a romhack mismatch between your client and the server:\n\n";
-            msg += Lighthouse::DescribeRomhackMismatch(port_isRomhack(), localLabel, roomState.isRomhack,
+            msg += Lighthouse::DescribeRomhackMismatch(RomhackConfig_IsActive(), localLabel, roomState.isRomhack,
                                                        roomState.romhackName);
             msg += "\n\nYou can still play together, but items, flags, and custom content\n"
                    "may not sync correctly. To avoid desyncs, enable or disable the\n"
@@ -112,8 +112,8 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     const bool wasSyncing = roomState.syncItemsAndFlags != 0;
     roomState.syncItemsAndFlags = payload["state"]["syncItemsAndFlags"].get<u8>();
     // Retention holds the team's notes and jinjos, so it's only forced while syncing them.
-    port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
-    port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+    NoteRetention_SetForced(IsWorldSyncActive() ? 1 : 0);
+    JinjoRetention_SetForced(IsWorldSyncActive() ? 1 : 0);
     roomState.shareConsumables = payload["state"].value("shareConsumables", (u8)0);
     roomState.isRando = payload["state"].value("isRando", false);
     roomState.seed = payload["state"].value("seed", (int32_t)0);

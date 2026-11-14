@@ -32,7 +32,7 @@ int64_t NowMs() {
 }
 } // namespace
 
-extern "C" void port_noteMainLoopAlive(void) {
+extern "C" void AudioSync_NoteMainLoopAlive(void) {
     sAllowedUntilMs.store(NowMs() + kCushionMs, std::memory_order_relaxed);
 }
 
@@ -49,12 +49,12 @@ extern "C" void AudioSync_Unlock(void) {
     gAudioLock.unlock();
 }
 
-extern "C" void port_audioIntMaskEnter(void) {
+extern "C" void AudioSync_IntMaskEnter(void) {
     gAudioLock.lock();
     gAudioMaskDepth++;
 }
 
-extern "C" void port_audioIntMaskExit(void) {
+extern "C" void AudioSync_IntMaskExit(void) {
     if (gAudioMaskDepth > 0) {
         gAudioMaskDepth--;
         gAudioLock.unlock();
@@ -65,9 +65,9 @@ extern "C" void port_audioIntMaskExit(void) {
 // the caller passes to the paired restore is non-OS_IM_NONE.
 extern "C" OSIntMask osSetIntMask(OSIntMask mask) {
     if (mask == OS_IM_NONE) {
-        port_audioIntMaskEnter();
+        AudioSync_IntMaskEnter();
     } else {
-        port_audioIntMaskExit();
+        AudioSync_IntMaskExit();
     }
     return 0;
 }

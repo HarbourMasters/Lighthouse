@@ -14,7 +14,7 @@ void ControlSchemes_GetRightStick(float dst[2]);
 extern "C" {
 #endif
 
-int port_rightStickIsMapped(void);
+int ControlSchemes_IsRightStickMapped(void);
 
 #ifdef __cplusplus
 }

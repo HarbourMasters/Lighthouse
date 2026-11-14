@@ -20,7 +20,7 @@ extern s16 D_8039347C[12];
 
 // The hack's cost for a door (0 to 11), or vanilla's.
 extern "C" int NoteDoorNumbers_GetCost(int doorIdx) {
-    const int cost = port_getRomhackNoteDoor(doorIdx);
+    const int cost = RomhackConfig_GetNoteDoor(doorIdx);
     return cost >= 0 ? cost : D_8039347C[doorIdx];
 }
 
@@ -196,16 +196,16 @@ void DrawComposedNoteDoor(IEvent* event) {
 
 void ApplyNoteDoorNumbers() {
     // Doors open at the hack's costs
-    COND_VB_SHOULD(VB_NOTEDOOR_ENOUGH_NOTES, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+    COND_VB_SHOULD(VB_NOTEDOOR_ENOUGH_NOTES, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), {
         Actor* door = va_arg(args, Actor*);
         *should = itemscore_noteScores_getTotal() >= NoteDoorNumbers_GetCost(door->actorTypeSpecificField - 1);
     });
 
     // Hide the baked number mesh on doors the hack retunes, unless the composer replaced it
-    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), {
         Actor* door = va_arg(args, Actor*);
         if (!sNoteDoorsComposed && door->actorTypeSpecificField >= 1 &&
-            port_getRomhackNoteDoor(door->actorTypeSpecificField - 1) >= 0) {
+            RomhackConfig_GetNoteDoor(door->actorTypeSpecificField - 1) >= 0) {
             *should = false;
         }
     });
@@ -220,7 +220,7 @@ RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 
 } // namespace
 
-extern "C" void port_enableNoteDoorComposer(void) {
+extern "C" void NoteDoorNumbers_EnableComposer(void) {
     sComposeNoteDoors = true;
     ApplyNoteDoorNumbers();
 }

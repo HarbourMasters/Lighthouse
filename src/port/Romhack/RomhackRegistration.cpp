@@ -88,11 +88,11 @@ void AddOtherOverlaysSpawnableActors(IEvent* event) {
 }
 
 void RegisterRomhackPatches_Init() {
-    COND_HOOK(OnSpawnableActorsReset, EVENT_PRIORITY_NORMAL, port_isRomhack(), AddOtherOverlaysSpawnableActors);
+    COND_HOOK(OnSpawnableActorsReset, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), AddOtherOverlaysSpawnableActors);
     // Romhacks keep their learned moves when the stored state clears.
-    COND_VB_SHOULD(VB_ABILITY_CLEAR_ALL, EVENT_PRIORITY_NORMAL, port_isRomhack(), { *should = false; });
+    COND_VB_SHOULD(VB_ABILITY_CLEAR_ALL, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), { *should = false; });
 
-    const char* id = port_getRomhackIdentifier();
+    const char* id = RomhackConfig_GetIdentifier();
     if (id == nullptr) {
         return;
     }

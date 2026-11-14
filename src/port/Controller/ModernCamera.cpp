@@ -39,7 +39,7 @@ using namespace PortCamera;
 
 bool ModernSchemeActive() {
     return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN &&
-           !port_freeLook_isEnabled() && port_rightStickIsMapped();
+           !FreeLookCamera_IsEnabled() && ControlSchemes_IsRightStickMapped();
 }
 
 constexpr int kClimbCamState = 0x10;
@@ -217,12 +217,12 @@ void UpdateOrbit() {
 }
 
 bool SuppressVanillaZoom() {
-    if (IsDemoMode() || port_freeLook_isEnabled()) {
+    if (IsDemoMode() || FreeLookCamera_IsEnabled()) {
         return false;
     }
     int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
     if (scheme == CONTROL_SCHEME_MODERN) {
-        return port_rightStickIsMapped();
+        return ControlSchemes_IsRightStickMapped();
     }
     if (scheme == CONTROL_SCHEME_POCKET && bs_getState() == BS_7_CROUCH) {
         return true;

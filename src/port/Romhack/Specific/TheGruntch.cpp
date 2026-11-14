@@ -423,7 +423,7 @@ static void Gruntch_EnablePauseTotalsLayout() {
 static void Gruntch_EnableJiggyTally() {
     HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
     HackShared_SetJiggyLevelCap(10);
-    port_overrideRomhackJiggiesPerWorld(10);
+    RomhackConfig_OverrideJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
     HackShared_SetPauseRowsVisible(LEVEL_2_TREASURE_TROVE_COVE, (1 << 2) | (1 << 3));

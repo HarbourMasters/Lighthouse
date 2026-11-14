@@ -45,7 +45,7 @@ OSMesgQueue* viMgr_getFrameTokenQueue(void);
 OSMesgQueue* viMgr_getTickRetraceQueue(void);
 OSMesgQueue* core1_15B30_getTaskDataListLockQueue(void);
 int GameEngine_IsAudioHeld(void);
-int port_renderServicePending(void);
+int Graphics_RenderServicePending(void);
 // Repro context
 int gsworld_getMap(void);
 int gsworld_getExit(void);
@@ -383,7 +383,7 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
         } else {
             out += fmt::format("Parked at: no queue wait, so loop/mutex/condvar. Candidates: {}\n",
                                kThreadNonQueueWaits[firstStalled]);
-            if (firstStalled == WATCHDOG_GAME_TICK && port_renderServicePending()) {
+            if (firstStalled == WATCHDOG_GAME_TICK && Graphics_RenderServicePending()) {
                 out += "Note: Graphics_RunOnRenderThread call is pending, so sSvcCv is the prime suspect\n";
             }
         }
@@ -432,7 +432,7 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
     OSMesgQueue* audioReply = audioManager_getReplyMesgQueue();
     out += fmt::format("SI/audio: joyBusy={} pollingQ={} audioFrameQ={} audioReplyQ={} audioHeld={} svcPending={}\n",
                        joy_getBusy(), siPoll->validCount, audioFrame->validCount, audioReply->validCount,
-                       GameEngine_IsAudioHeld(), port_renderServicePending());
+                       GameEngine_IsAudioHeld(), Graphics_RenderServicePending());
     out += fmt::format("Context: map={:#x} exit={:#x} gameMode={} build={} {}@{}", gsworld_getMap(), gsworld_getExit(),
                        getGameMode(), (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
 

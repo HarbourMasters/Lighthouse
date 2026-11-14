@@ -26,7 +26,7 @@ static bool IsBlubberTeammateFinish(Actor* actor) {
 
 // The Nipper hits the team landed, one bit each.
 static s32 NipperHits() {
-    const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
+    const s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
 }
 
@@ -47,7 +47,7 @@ static s32 NipperLocalHits(Actor* nipper) {
 // Replays a teammate's treasure hunt steps, one a frame. The hunt has no actor to poll until the first X is busted.
 static void TreasureHuntTick() {
     static f32 sTreasurePosition[3];
-    s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_XHUNT) & 0x3F;
+    s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_TTC_XHUNT) & 0x3F;
     s32 sharedStep = 0;
 
     while (bits & 1) {
@@ -80,14 +80,14 @@ void AnchorPuzzles_RegisterTreasureTroveCove(bool connected) {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_115_BLUBBER, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* blubber = ev->actor;
-        const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+        const s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_TTC_BLUBBER);
 
         // Our deliveries: half the gold, then all of it.
         if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
-            port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
+            PuzzleStep_OrBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
         }
         if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
-            port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
+            PuzzleStep_OrBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
         }
         if (!blubber->volatile_initialized && (bits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
             marker_despawn(blubber->marker);
@@ -120,7 +120,7 @@ void AnchorPuzzles_RegisterTreasureTroveCove(bool connected) {
         // gold isn't synced.
         if (!blubber->volatile_initialized) {
             const s32 delivered = ((bits & 0x1) ? 1 : 0) + ((bits & 0x2) ? 1 : 0);
-            const s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;
+            const s32 pool = CarrySync_GetCollectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;
             if (pool > item_getCount(ITEM_18_GOLD_BULLIONS)) {
                 item_adjustByDiffWithoutHud(ITEM_18_GOLD_BULLIONS, pool - item_getCount(ITEM_18_GOLD_BULLIONS));
             }
