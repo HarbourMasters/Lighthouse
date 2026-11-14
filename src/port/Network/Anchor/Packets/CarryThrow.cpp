@@ -6,8 +6,6 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-#include "port/Patches/Patches.h"
-
 #include "functions.h"
 extern "C" {
 void __chLevelCollectible_presentReturnEmitSparkles(f32 position[3], enum asset_e sprite_id);
@@ -157,7 +155,7 @@ static void spawnMethod(uintptr_t markerId, uintptr_t clientId) {
     }
 }
 
-extern "C" void CarryThrow_SetCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
+void CarryThrow_SetCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
     s32 slot;
     if (clientId == 0) {
         return;

@@ -16,8 +16,6 @@ void maClankerRings_endMinigame(void);
 void maClankerTooth_setNextState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // clankerrings.c's RING_COUNT.
 constexpr u8 kClankerRingCount = 9;
 

@@ -12,8 +12,6 @@ void chXmasTreeIce_shatterIce(ActorMarker* marker);
 void func_803877A8(ActorMarker* caller, enum asset_e text_id, s32 arg2);
 }
 
-#include "port/Patches/Patches.h"
-
 struct CubPresent {
     s32 levelFlag;
     s32 bit;

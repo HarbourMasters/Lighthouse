@@ -361,9 +361,9 @@ void Anchor::ClearDummies() {
 }
 
 // Lets decomp gate Anchor-only catch-up paths so single player keeps vanilla behaviour.
-extern "C" s32 Anchor_IsWorldSyncActive(void) {
+bool Anchor_IsWorldSyncActive() {
     Anchor* anchor = Anchor::GetInstance();
-    return (anchor != nullptr && anchor->IsWorldSyncActive()) ? 1 : 0;
+    return anchor != nullptr && anchor->IsWorldSyncActive();
 }
 
 void Anchor::PopulateDummies(GameMap map) {

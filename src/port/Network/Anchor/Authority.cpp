@@ -55,14 +55,9 @@ static void Authority_ClearClaim(NetworkActivityId activity) {
     }
 }
 
-static bool Authority_SyncActive() {
-    Anchor* anchor = Anchor::GetInstance();
-    return anchor != nullptr && anchor->IsWorldSyncActive();
-}
-
 bool NetAuthority_IsSelf(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
+    if (!Anchor_IsWorldSyncActive() || !Authority_IsValidActivity(activity)) {
         return true;
     }
     const ActivityState& state = sActivities[activity];
@@ -70,12 +65,12 @@ bool NetAuthority_IsSelf(NetworkActivityId activity) {
 }
 
 bool NetAuthority_IsClaimed(NetworkActivityId activity) {
-    return Authority_SyncActive() && Authority_IsValidActivity(activity) && sActivities[activity].claimed;
+    return Anchor_IsWorldSyncActive() && Authority_IsValidActivity(activity) && sActivities[activity].claimed;
 }
 
 void NetAuthority_Claim(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
+    if (!Anchor_IsWorldSyncActive() || !Authority_IsValidActivity(activity)) {
         return;
     }
     ActivityState& state = sActivities[activity];
@@ -94,7 +89,7 @@ void NetAuthority_Claim(NetworkActivityId activity) {
 
 void NetAuthority_Release(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
+    if (!Anchor_IsWorldSyncActive() || !Authority_IsValidActivity(activity)) {
         return;
     }
     ActivityState& state = sActivities[activity];
@@ -149,7 +144,7 @@ void Authority_OnAccept(NetworkActivityId activity, uint32_t clientId, uint32_t 
 
 bool NetAuthority_IsConfirmed(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
+    if (!Anchor_IsWorldSyncActive() || !Authority_IsValidActivity(activity)) {
         return true;
     }
     const ActivityState& state = sActivities[activity];

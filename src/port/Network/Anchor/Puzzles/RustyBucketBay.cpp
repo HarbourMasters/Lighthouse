@@ -21,8 +21,6 @@ void func_80387B24(void);
 void RBB_func_80387960(f32 arg0);
 }
 
-#include "port/Patches/Patches.h"
-
 static bool sCraneReplay = false;
 // What's left of a teammate's raised cage, in hourglass ticks.
 static s32 sCraneTicks = 0;

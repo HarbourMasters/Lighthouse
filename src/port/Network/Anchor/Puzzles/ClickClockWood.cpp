@@ -21,8 +21,6 @@ void chEyrieEgg_setNextState(Actor* self, s32 next_state);
 void chGnawtyBoulder_setNextState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // outsideautumnnabnut.c's AUTUMN_NABNUT_ACORN_COUNT.
 constexpr s32 kNabnutAcornCount = 6;
 
