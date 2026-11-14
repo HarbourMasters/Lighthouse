@@ -78,7 +78,11 @@ void RegisterMumboTokenGV_Init() {
 // CCW Gnawty rock: indestructible in Spring (v1.1).
 void RegisterGnawtySpringRock_Init() {
     COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL,
-                   !CVarGetInteger(CVAR_GNAWTY_ROCK, 0) || RomhackConfig_IsActive(), { *should = true; });
+                   CVarGetInteger(CVAR_GNAWTY_ROCK, 0) && !RomhackConfig_IsActive(), {
+                       if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+                           *should = false;
+                       }
+                   });
 }
 
 // CCW flower: prevent the re-plant softlock (v1.1). Default on to prevent softlock.

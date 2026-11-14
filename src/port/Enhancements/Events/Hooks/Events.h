@@ -224,7 +224,7 @@ typedef enum VBehaviorID {
     // Gnawty's boulder breaking, which v1.1 doesn't allow in Spring.
     // #### `result`
     // ```c
-    // gsworld_getMap() != MAP_43_CCW_SPRING
+    // true
     // ```
     // #### `args`
     // - None
