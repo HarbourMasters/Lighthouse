@@ -56,14 +56,8 @@ void RegisterSkipMiscCutscenes_Init() {
 static bool sCluckerSkipForced = false;
 
 void RegisterSkipCluckerCutscene_Init() {
-    COND_HOOK(OnGetLevelSpecificFlag, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_SKIP_CLUCKER_CUTSCENE, 0) || sCluckerSkipForced, [](IEvent* event) {
-                  auto* ev = reinterpret_cast<OnGetLevelSpecificFlag*>(event);
-                  if (ev->flagId == LEVEL_FLAG_14_TTC_UNKNOWN) {
-                      ev->result = 1;
-                      event->Cancelled = true;
-                  }
-              });
+    COND_VB_SHOULD(VB_CLUCKER_CUTSCENE_PLAYED, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_CLUCKER_CUTSCENE, 0) || sCluckerSkipForced, { *should = true; });
 }
 
 void CluckerCutscene_ForceSkip() {

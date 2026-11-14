@@ -213,7 +213,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnFindActorMarkerFromJiggyId);
     REGISTER_EVENT(OnFindClosestActorFromActorId);
     REGISTER_EVENT(OnSetJiggyList);
-    REGISTER_EVENT(OnGetLevelSpecificFlag);
     REGISTER_EVENT(OnIsJiggyScoreCollected);
     REGISTER_EVENT(OnIsJiggyScoreSpawned);
     REGISTER_EVENT(SetRandoInfFlag);

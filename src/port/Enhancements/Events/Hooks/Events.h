@@ -125,6 +125,15 @@ typedef enum VBehaviorID {
     // - None
     VB_GAME_OVER_CUTSCENE_LEAVE,
 
+    // The level flag Clucker's death cutscene sets so it doesn't play again. A listener that returns true skips it.
+    // #### `result`
+    // ```c
+    // levelSpecificFlags_get(LEVEL_FLAG_14_TTC_UNKNOWN)
+    // ```
+    // #### `args`
+    // - None
+    VB_CLUCKER_CUTSCENE_PLAYED,
+
     // #### `result`
     // ```c
     // !sp2C
