@@ -246,6 +246,7 @@ int32_t SpawnJiggy_IsRecorded(int32_t jiggyId) {
 }
 
 void RegisterSpawnJiggy_Init() {
+    // Always on: the records belong to the loaded file, and no jiggy stays in flight across a map load.
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sSpawnedJiggies.clear(); });
 
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

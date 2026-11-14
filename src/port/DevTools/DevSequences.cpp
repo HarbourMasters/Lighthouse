@@ -48,6 +48,7 @@ void RequestCutsceneMap(int mapId) {
 }
 
 void RegisterDevSequences_Init() {
+    // Always on: it idles until the Developer Tools menu requests a sequence.
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
         if (sMode9InDemo && !gctransition_8030BDC0() && getGameMode() != GAME_MODE_9_BANJO_AND_KAZOOIE) {
             sMode9InDemo = false;

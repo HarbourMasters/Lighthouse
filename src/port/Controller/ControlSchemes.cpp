@@ -487,6 +487,7 @@ static void ShapeControllerInput(OSContPad* pad) {
 }
 
 void RegisterControlSchemes_Init() {
+    // Always on: ShapeControllerInput reads it.
     COND_HOOK(OnJigsawPodiumInput, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { sJigsawPodiumTTL = 4; });
     // Every scheme reshapes the pad, Retro included.
     COND_HOOK(OnControllerRead, EVENT_PRIORITY_NORMAL, true,

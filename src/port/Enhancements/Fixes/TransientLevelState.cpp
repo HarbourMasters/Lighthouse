@@ -15,6 +15,7 @@ extern "C" {
 }
 
 void RegisterTransientLevelState_Init() {
+    // Always on: it drops the stale state only with world sync off (see above).
     REGISTER_LISTENER(OnLevelReset, EVENT_PRIORITY_HIGH, [](IEvent* event) {
         OnLevelReset* ev = (OnLevelReset*)event;
         int32_t level = ev->levelId;

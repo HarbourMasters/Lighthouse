@@ -30,8 +30,8 @@ bool canAimEggs() {
 } // namespace
 
 void RegisterEggAimSpawn_Init() {
-    REGISTER_LISTENER(EggHeadSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (!CVarGetInteger(CVAR_NAME, 0) || sFiring == 0) {
+    COND_HOOK(EggHeadSpawn, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent* event) {
+        if (sFiring == 0) {
             return;
         }
         auto* ev = reinterpret_cast<EggHeadSpawn*>(event);
@@ -45,7 +45,7 @@ void RegisterEggAimSpawn_Init() {
     });
 }
 
-static RegisterShipInitFunc eggAimSpawnInitFunc(RegisterEggAimSpawn_Init);
+static RegisterShipInitFunc eggAimSpawnInitFunc(RegisterEggAimSpawn_Init, { CVAR_NAME });
 
 void RegisterEggAim_Init() {
     // A wind-up frozen by turning Egg Aim off would otherwise mis-flag the next ordinary egg shot.

@@ -90,6 +90,7 @@ void RelocalizeQuiz(OnQuizUpdate* ev) {
 } // namespace
 
 static void RegisterRelocalize_Init() {
+    // Always on: the language can change while a dialog or quiz is open.
     REGISTER_LISTENER(OnDialogUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnDialogUpdate*>(event);
         const int gen = ResourceMgr_GetLanguageGeneration();

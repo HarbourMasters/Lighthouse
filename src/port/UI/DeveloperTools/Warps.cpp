@@ -647,6 +647,7 @@ void DrawWarpsTab() {
 }
 
 void Warps_Register() {
+    // Always on: the Warps window rescans entrances on its next draw after a map load.
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { entranceScanPending = true; });
 }
 

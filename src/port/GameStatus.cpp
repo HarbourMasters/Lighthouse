@@ -248,6 +248,7 @@ extern "C" void GameStatus_SetWindowTitle(int map_id) {
 static int sPendingTitleMap = 0;
 
 void RegisterGameStatus_Init() {
+    // Always on: the window title names the current map.
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_LOW, true, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         sPendingTitleMap = ev->nextMap;

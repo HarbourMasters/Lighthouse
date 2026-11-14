@@ -639,6 +639,7 @@ void PlayerColors_reset(void) {
 } // extern "C"
 
 static void RegisterPlayerColors() {
+    // Always on: each color's Enabled setting is read at draw.
     REGISTER_LISTENER(OnModelDraw, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnModelDraw*)event;
         if (TexturesForModel(ev->modelId) == nullptr) {

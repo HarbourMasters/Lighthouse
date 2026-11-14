@@ -140,6 +140,7 @@ static void FormatWsCameraFixRow(char* out, size_t size, s32 map, const ActiveCa
 }
 
 void CameraTools_Register() {
+    // Always on: the Camera Tools window reads the active camera, and nudges stay empty until it adds one.
     REGISTER_LISTENER(CameraRotationAuthored, EVENT_PRIORITY_LOW, [](IEvent* event) {
         auto* ev = (CameraRotationAuthored*)event;
         sActiveCamera.valid = true;

@@ -321,6 +321,7 @@ void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat) {
 }
 
 void RegisterPuzzleStep_Init() {
+    // Always on: a loaded file starts with no puzzle records.
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         sPuzzleBits.clear();
         sPuzzleCounts.clear();

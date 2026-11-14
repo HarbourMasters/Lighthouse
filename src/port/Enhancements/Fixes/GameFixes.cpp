@@ -231,6 +231,7 @@ static bool ChimpyDeliveryStillInFlight() {
     return sChimpyDeliveryInFlight;
 }
 
+// Always on: it prevents a softlock, so it has no setting.
 void RegisterChimpySoftlock_Init() {
     REGISTER_LISTENER(OnCarryThrow, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnCarryThrow*>(event);
@@ -281,6 +282,7 @@ static bool isPlaybackMode(s32 mode) {
            (mode == GAME_MODE_A_SNS_PICTURE);
 }
 
+// Always on: a map savestate in a playback mode throws the demo out of sync.
 void RegisterMapSavestatePlayback_Init() {
     REGISTER_VB_SHOULD(VB_MAP_SAVESTATE_USE, EVENT_PRIORITY_NORMAL, {
         s32 mode = va_arg(args, s32);
