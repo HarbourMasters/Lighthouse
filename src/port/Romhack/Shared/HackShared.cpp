@@ -194,7 +194,10 @@ bool sFileSelectGameOver = false;
 void ApplyFileSelectGameOver() {
     COND_HOOK(OnGameOverReturnMap, EVENT_PRIORITY_NORMAL, sFileSelectGameOver,
               [](IEvent* event) { *((OnGameOverReturnMap*)event)->map = MAP_91_FILE_SELECT; });
-    COND_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
+    COND_VB_SHOULD(VB_INTRO_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = true; });
+    COND_VB_SHOULD(VB_LAIR_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = true; });
+    COND_VB_SHOULD(VB_GAME_OVER_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = true; });
+    COND_VB_SHOULD(VB_GAME_OVER_SKIP_BEGIN, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = true; });
     COND_VB_SHOULD(VB_GAME_OVER_MACHINE_ROOM, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
 }
 

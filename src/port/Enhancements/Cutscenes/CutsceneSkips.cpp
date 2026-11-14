@@ -42,16 +42,14 @@ void RegisterSkipBootLogos_Init() {
 }
 
 void RegisterSkipIntroCutscene_Init() {
-    COND_VB_SHOULD(VB_PLAY_INTRO_CUTSCENE, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !RomhackConfig_IsActive(), { *should = false; });
+    COND_VB_SHOULD(VB_INTRO_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !RomhackConfig_IsActive(), { *should = true; });
 }
 
 void RegisterSkipMiscCutscenes_Init() {
-    COND_HOOK(OnMiscCutscenesCheck, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !RomhackConfig_IsActive(), [](IEvent* event) {
-                  auto* ev = reinterpret_cast<OnMiscCutscenesCheck*>(event);
-                  *ev->skipMiscCutscenes = true;
-              });
+    const bool skipMisc = CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !RomhackConfig_IsActive();
+    COND_VB_SHOULD(VB_LAIR_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, skipMisc, { *should = true; });
+    COND_VB_SHOULD(VB_GAME_OVER_CUTSCENE_LEAVE, EVENT_PRIORITY_NORMAL, skipMisc, { *should = true; });
 }
 
 static bool sCluckerSkipForced = false;

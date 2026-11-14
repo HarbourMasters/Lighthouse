@@ -97,15 +97,33 @@ typedef enum VBehaviorID {
     // - `s32` (i_ptr->unk0, promoted from `s16`)
     VB_CUTSCENE_TRIGGER_UPDATE,
 
-    // The intro cutscene, which Start skips once there's a save file. A listener that returns false lets Start skip it
+    // The intro cutscene, which Start skips once there's a save file. A listener that returns true lets Start skip it
     // without one.
     // #### `result`
     // ```c
-    // true
+    // gameFile_anyNonEmpty() != 0
     // ```
     // #### `args`
     // - None
-    VB_PLAY_INTRO_CUTSCENE,
+    VB_INTRO_CUTSCENE_SKIPPABLE,
+
+    // A save file with time in the lair (D_8037DCCE), which lets Start skip the lair's entry cutscene.
+    // #### `result`
+    // ```c
+    // (D_8037DCCE[0] != 0) || (D_8037DCCE[1] != 0) || (D_8037DCCE[2] != 0)
+    // ```
+    // #### `args`
+    // - None
+    VB_LAIR_CUTSCENE_SKIPPABLE,
+
+    // A listener that returns true makes Start leave the game-over cutscene at once, ahead of the timed return.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - None
+    VB_GAME_OVER_CUTSCENE_LEAVE,
 
     // #### `result`
     // ```c
@@ -1218,14 +1236,23 @@ typedef enum VBehaviorID {
     // - `s32` (enum map_e)
     VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
 
-    // A cutscene skip needing a save file or progress first.
+    // Map flag 0 unlocks the game-over cutscene's skip for the save file, setting FILEPROG_E1_UNKNOWN.
     // #### `result`
     // ```c
-    // true
+    // mapSpecificFlags_get(0) != 0
     // ```
     // #### `args`
     // - None
-    VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,
+    VB_GAME_OVER_CUTSCENE_SKIPPABLE,
+
+    // Start begins the game-over skip's timed return, and runs it at once when map flag 0xC marks it begun.
+    // #### `result`
+    // ```c
+    // !mapSpecificFlags_get(0xC)
+    // ```
+    // #### `args`
+    // - None
+    VB_GAME_OVER_SKIP_BEGIN,
 
     // The lair's entry cutscene seen, which sends a game over to the machine room's cutscene until Furnace Fun is done.
     // #### `result`

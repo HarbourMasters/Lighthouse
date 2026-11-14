@@ -25,12 +25,9 @@ u8 D_80383190;
 /* .code */
 // func_8031C640
 bool cutscene_skipIntroCutsceneCheck(void) {
-    // [port] Skip intro cutscene
-    if (!EventSystem_Should(VB_PLAY_INTRO_CUTSCENE, true) && controller_getStartButtonSafe(0) == 1) { return true; }
-
     // [port] Romhack gate: hacks that force the skip drop the "has a save file" term.
-    if ((controller_getStartButtonSafe(0) == 1) &&
-        (!EventSystem_Should(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, true) || gameFile_anyNonEmpty() != 0)) {
+//  if ((controller_getStartButtonSafe(0) == 1) && (gameFile_anyNonEmpty() != 0)) {
+    if ((controller_getStartButtonSafe(0) == 1) && EventSystem_Should(VB_INTRO_CUTSCENE_SKIPPABLE, gameFile_anyNonEmpty() != 0)) {
         return true;
     }
     return false;
@@ -38,14 +35,9 @@ bool cutscene_skipIntroCutsceneCheck(void) {
 
 // func_8031C688
 bool cutscene_skipEnterLairCutsceneCheck(void) {
-    // [port] Skip lair cutscene
-    bool skipMiscCutscenes = false;
-    CALL_EVENT(OnMiscCutscenesCheck, &skipMiscCutscenes);
-    if (skipMiscCutscenes && controller_getStartButtonSafe(0) == 1) { return true; }
-
     if ((controller_getStartButtonSafe(0) == 1)
-        && (!EventSystem_Should(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, true)
-            || (D_8037DCCE[0] != 0)
+//      && ((D_8037DCCE[0] != 0)
+        && EventSystem_Should(VB_LAIR_CUTSCENE_SKIPPABLE, (D_8037DCCE[0] != 0)
             || (D_8037DCCE[1] != 0)
             || (D_8037DCCE[2] != 0))) {
         return true;
@@ -57,21 +49,18 @@ bool cutscene_skipEnterLairCutsceneCheck(void) {
 bool cutscene_skipGameOverCutsceneCheck(void) {
     s32 sp24;
 
+    sp24 = controller_getStartButtonSafe(0);
     // [port] Romhack gate: hacks that always run the game-over return drop every
     // progress precondition below and pick their own destination map.
-    bool requireProgress = EventSystem_Should(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, true);
-
-    sp24 = controller_getStartButtonSafe(0);
-    if (!requireProgress || mapSpecificFlags_get(0) != 0) {
+//  if (mapSpecificFlags_get(0) != 0) {
+    if (EventSystem_Should(VB_GAME_OVER_CUTSCENE_SKIPPABLE, mapSpecificFlags_get(0) != 0)) {
         fileProgressFlag_set(FILEPROG_E1_UNKNOWN, 1);
     }
-    bool skipMiscCutscenes = false;
-    CALL_EVENT(OnMiscCutscenesCheck, &skipMiscCutscenes);
-    if (skipMiscCutscenes && controller_getStartButtonSafe(0) == 1) { return true; }
-
-    if ((sp24 == 1) && (!requireProgress || fileProgressFlag_get(FILEPROG_E1_UNKNOWN)) &&
-        !gctransition_8030BDC0()) {
-        if (!requireProgress || !mapSpecificFlags_get(0xC)) {
+    // [port] Skip Misc Cutscenes leaves at once, ahead of the timed return below.
+    if (EventSystem_Should(VB_GAME_OVER_CUTSCENE_LEAVE, false) && sp24 == 1) { return true; }
+    if ((sp24 == 1) && fileProgressFlag_get(FILEPROG_E1_UNKNOWN) && !gctransition_8030BDC0()) {
+//      if (!mapSpecificFlags_get(0xC)) {
+        if (EventSystem_Should(VB_GAME_OVER_SKIP_BEGIN, !mapSpecificFlags_get(0xC))) {
             mapSpecificFlags_set(0xC, true);
             func_802DC528(0, 0);
             timedFunc_set_2(11.0f, (GenFunction_2)func_802DC560, 0, 0);

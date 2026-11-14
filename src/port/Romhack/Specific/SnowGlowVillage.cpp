@@ -117,7 +117,10 @@ void SnowGlow_EnablePauseMenu() {
 
 // Cutscenes
 void SnowGlow_EnableCutsceneSkips() {
-    REGISTER_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, { *should = false; });
+    REGISTER_VB_SHOULD(VB_INTRO_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_LAIR_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_GAME_OVER_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_GAME_OVER_SKIP_BEGIN, EVENT_PRIORITY_NORMAL, { *should = true; });
 
     REGISTER_LISTENER(OnGameOverReturnMap, EVENT_PRIORITY_NORMAL,
                       [](IEvent* event) { *((OnGameOverReturnMap*)event)->map = MAP_77_GL_RBB_LOBBY; });

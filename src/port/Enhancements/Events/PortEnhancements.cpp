@@ -108,8 +108,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBossJinjoHitUpdate);
     REGISTER_EVENT(OnSmMovesCompleted);
     REGISTER_EVENT(OnFpTwinklyMinigameEnd);
-    REGISTER_EVENT(OnIntroCutsceneCheck);
-    REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnJigsawPodiumInput);
     REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
