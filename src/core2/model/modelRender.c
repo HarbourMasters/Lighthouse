@@ -745,7 +745,7 @@ void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     if (cmd->branch_offset) {
         mlMtx_apply_vec3f(transformed_pos, cmd->position);
         dist = LENGTH_VEC3F(transformed_pos);
-        if (port_shouldDisableLOD()) dist = 1.0f; // [port]
+        if (GraphicsPatches_IsLodDisabled()) dist = 1.0f; // [port]
 //      if ((cmd->min < dist) && (dist <= cmd->max)) {
         if (EventSystem_Should(VB_DRAW_GEO_CMD, (cmd->min < dist) && (dist <= cmd->max), OCCLUSION_CMD_LOD, cmd, modelRenderModelBin, NULL, 0, (s32)cmd->min, (s32)cmd->max)) {
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
@@ -922,7 +922,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
 
     // [port] Extended draw distance: scale/extend the model cull, keep the fade flag.
-    port_applyModelDrawDistanceCull(&D_80383710, &D_8038370C, &D_80383708);
+    GraphicsPatches_ApplyModelDrawDistanceCull(&D_80383710, &D_8038370C, &D_80383708);
 
     D_80370990 = FALSE;
 
@@ -987,7 +987,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
     camera_focus_distance = gu_sqrtf(camera_focus[0]*camera_focus[0] + camera_focus[1]*camera_focus[1] + camera_focus[2]*camera_focus[2]);
 //  if( 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
-    if( !port_shouldDisableLOD() && 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
+    if( !GraphicsPatches_IsLodDisabled() && 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 
@@ -1161,7 +1161,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     if(model_bin->anim_vertices_list_offset != 0 && D_8038371C != NULL){
         animVerticesList_transform(modelbin_getAnimVerticesList_MACRO(modelRenderModelBin), modelRendervertexList, D_8038371C);
         // [port] The transform just posed the model's shared vertex array. Hand this draw a private copy.
-        port_modelRender_snapshotAnimVertices(gfx, vtxList_getVertices(modelRendervertexList), vtxList_getVtxCount(modelRendervertexList));
+        AnimVertexPatches_SnapshotVertices(gfx, vtxList_getVertices(modelRendervertexList), vtxList_getVtxCount(modelRendervertexList));
     }
 
     mlMtxIdent();
@@ -1196,7 +1196,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     // [port] Romhack model DLs can leave a palette (TLUT) mode enabled and leak it
     // into the next model's draw; reset it after every model for romhacks.
-    port_modelRenderResetTLUT(gfx);
+    GraphicsPatches_ResetModelTLUT(gfx);
 
     if (modelRenderCallback.post_draw != NULL) {
         modelRenderCallback.post_draw(modelRenderCallback.post_draw_arg);

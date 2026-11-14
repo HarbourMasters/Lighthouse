@@ -44,7 +44,7 @@ OSMesgQueue* viMgr_getRetraceQueue(void);
 OSMesgQueue* viMgr_getFrameTokenQueue(void);
 OSMesgQueue* viMgr_getTickRetraceQueue(void);
 OSMesgQueue* core1_15B30_getTaskDataListLockQueue(void);
-int port_audioHeld(void);
+int GameEngine_IsAudioHeld(void);
 int port_renderServicePending(void);
 // Repro context
 int gsworld_getMap(void);
@@ -70,12 +70,12 @@ constexpr const char* kThreadNonQueueWaits[WATCHDOG_NUM_THREADS] = {
     "sleep_until; OS_SendEventMesg -> sMesgMutex",
     "HandleEvents (SDL/window), ProcessGfxCommands (renderer present/DXGI wait), DrainRenderService callback, "
     "OS_SiService -> ControlDeck",
-    "port_runOnRenderThread sSvcCv handoff; port_lockAudio (gAudioLock); ProcessGfxCommands std::async waits; "
+    "Graphics_RunOnRenderThread sSvcCv handoff; AudioSync_Lock (gAudioLock); ProcessGfxCommands std::async waits; "
     "map-load I/O",
     "sMesgMutex; a handler blocking in osSendMesg on a full queue",
     "sMesgMutex",
     "func_8024F450 -> D_802816E8 wait; CALL_EVENT(OnControllerRead); CALL_EVENT(OnControllerUpdate)",
-    "port_lockAudio (gAudioLock) in audioManager_handleFrameMsg",
+    "AudioSync_Lock (gAudioLock) in audioManager_handleFrameMsg",
     "func_8024F450 -> D_802816E8 wait via baMotor_startMotor/stopMotor/reinitialize; __osMotorAccess -> "
     "ControlDeck rumble",
 };
@@ -188,7 +188,7 @@ QueueInfo DescribeQueue(OSMesgQueue* mq) {
     }
     if (mq == audioManager_getFrameMesgQueue()) {
         return { true, "audioFrameMsgQ (audio_manager.c)",
-                 "thread5_handleAudioTimerEvent (skipped while port_audioHeld)" };
+                 "thread5_handleAudioTimerEvent (skipped while GameEngine_IsAudioHeld)" };
     }
     if (mq == audioManager_getReplyMesgQueue()) {
         return { true, "audioReplyMsgQ (audio_manager.c)",
@@ -384,7 +384,7 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
             out += fmt::format("Parked at: no queue wait, so loop/mutex/condvar. Candidates: {}\n",
                                kThreadNonQueueWaits[firstStalled]);
             if (firstStalled == WATCHDOG_GAME_TICK && port_renderServicePending()) {
-                out += "Note: port_runOnRenderThread call is pending, so sSvcCv is the prime suspect\n";
+                out += "Note: Graphics_RunOnRenderThread call is pending, so sSvcCv is the prime suspect\n";
             }
         }
     }
@@ -432,7 +432,7 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
     OSMesgQueue* audioReply = audioManager_getReplyMesgQueue();
     out += fmt::format("SI/audio: joyBusy={} pollingQ={} audioFrameQ={} audioReplyQ={} audioHeld={} svcPending={}\n",
                        joy_getBusy(), siPoll->validCount, audioFrame->validCount, audioReply->validCount,
-                       port_audioHeld(), port_renderServicePending());
+                       GameEngine_IsAudioHeld(), port_renderServicePending());
     out += fmt::format("Context: map={:#x} exit={:#x} gameMode={} build={} {}@{}", gsworld_getMap(), gsworld_getExit(),
                        getGameMode(), (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
 

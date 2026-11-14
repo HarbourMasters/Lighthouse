@@ -184,6 +184,16 @@ BKGfxList* ComposeNoteDoors(BKModelBin* bin) {
     return (BKGfxList*)sComposedNoteDoorList.data();
 }
 
+void DrawComposedNoteDoor(IEvent* event) {
+    ActorMarker* marker = ((OnActorDrawBegin*)event)->actor->marker;
+    BKModelBin* bin = (BKModelBin*)assetcache_get((enum asset_e)marker->modelId);
+    BKGfxList* composed = ComposeNoteDoors(bin);
+    assetcache_release(bin);
+    if (composed != nullptr) {
+        modelRender_setDisplayList(composed);
+    }
+}
+
 void ApplyNoteDoorNumbers() {
     // Doors open at the hack's costs
     COND_VB_SHOULD(VB_NOTEDOOR_ENOUGH_NOTES, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
@@ -191,27 +201,19 @@ void ApplyNoteDoorNumbers() {
         *should = itemscore_noteScores_getTotal() >= NoteDoorNumbers_GetCost(door->actorTypeSpecificField - 1);
     });
 
-    // Hide the baked number mesh on doors the hack retunes
-    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack() && !sComposeNoteDoors, {
-        const s32 noteDoorIdx = va_arg(args, s32);
-        if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
+    // Hide the baked number mesh on doors the hack retunes, unless the composer replaced it
+    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+        Actor* door = va_arg(args, Actor*);
+        if (!sNoteDoorsComposed && door->actorTypeSpecificField >= 1 &&
+            port_getRomhackNoteDoor(door->actorTypeSpecificField - 1) >= 0) {
             *should = false;
         }
     });
 
-    // Draw the substitute mesh
-    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, sComposeNoteDoors, {
-        const s32 noteDoorIdx = va_arg(args, s32);
-        ActorMarker* marker = va_arg(args, ActorMarker*);
-        BKModelBin* bin = (BKModelBin*)assetcache_get((enum asset_e)marker->modelId);
-        BKGfxList* composed = ComposeNoteDoors(bin);
-        assetcache_release(bin);
-        if (composed != nullptr) {
-            modelRender_setDisplayList(composed);
-        } else if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
-            *should = false;
-        }
-    });
+    // Draw the substitute mesh, cleared after a skipped draw so it can't reach the next model
+    COND_ID_HOOK(OnActorDrawBegin, ACTOR_203_NOTE_DOOR, EVENT_PRIORITY_NORMAL, sComposeNoteDoors, DrawComposedNoteDoor);
+    COND_ID_HOOK(OnActorDrawEnd, ACTOR_203_NOTE_DOOR, EVENT_PRIORITY_NORMAL, sComposeNoteDoors,
+                 [](IEvent*) { modelRender_setDisplayList(nullptr); });
 }
 
 RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });

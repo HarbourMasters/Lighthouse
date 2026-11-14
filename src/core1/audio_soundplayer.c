@@ -512,7 +512,7 @@ N_AL_Struct81s *func_8024431C(ALBank *bank, ALSound *sound) {
         temp_s0->unk3E = 0;
         temp_s0->unk3D = 0x40;
 //      temp_s0->unk34 = 0x7FFF;
-        temp_s0->unk34 = (s16)(0x7FFF * port_getSfxVolume());
+        temp_s0->unk34 = (s16)(0x7FFF * AudioVolume_GetSfx());
     }
     return temp_s0;
 }

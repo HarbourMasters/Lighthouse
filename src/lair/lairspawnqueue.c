@@ -1081,9 +1081,9 @@ Actor *func_80387DA8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
      * Hides all note door graphics that don't match this note door's index
      * e.g. for the 50 note door, hides 180, 260, etc.
      */
-    bool showNumber = EventSystem_Should(VB_NOTEDOOR_DRAW_NUMBER, true, actor->noteDoorIdx, marker);
     for (i = 0; i != NUM_NOTE_DOORS; i++)
-        modelRender_setAppendageVisibility(i + 1, showNumber && (actor->noteDoorIdx + 1 == i + 2));
+//      modelRender_setAppendageVisibility(i + 1, actor->noteDoorIdx + 1 == i + 2);
+        modelRender_setAppendageVisibility(i + 1, EventSystem_Should(VB_NOTEDOOR_DRAW_NUMBER, actor->noteDoorIdx + 1 == i + 2, actor, i));
 
     /**
      * Draw the note door

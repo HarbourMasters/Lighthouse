@@ -137,7 +137,7 @@ extern "C" PrintBufferView* print_sCurrentPtr;
 
 // Override the scale of the most-recently pushed print entry (e.g. right after print_dialog),
 // so callers can shrink/grow buffered text without a dedicated scaled print variant. No-op if none.
-extern "C" void port_setPrintScale(float scale) {
+extern "C" void Localization_SetPrintScale(float scale) {
     if (print_sCurrentPtr != nullptr) {
         print_sCurrentPtr->scale = scale;
     }

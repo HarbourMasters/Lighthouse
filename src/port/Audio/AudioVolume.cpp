@@ -11,11 +11,11 @@
 static std::atomic<float> sMusicVolume = 1.0f;
 static std::atomic<float> sSfxVolume = 1.0f;
 
-float port_getMusicVolume(void) {
+float AudioVolume_GetMusic(void) {
     return sMusicVolume.load(std::memory_order_relaxed);
 }
 
-float port_getSfxVolume(void) {
+float AudioVolume_GetSfx(void) {
     return sSfxVolume.load(std::memory_order_relaxed);
 }
 

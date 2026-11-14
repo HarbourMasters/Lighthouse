@@ -241,14 +241,14 @@ void joy_update(void)
 
         time_setDeltaReal_frames(curr_demo_lag);
         // [port] Override display pacing for maps that ran slow on N64.
-        port_setDemoViCount(port_getDemoDisplayViCount(curr_demo_lag));
+        FramePacingPatches_SetDemoViCount(FramePacingPatches_GetDemoDisplayViCount(curr_demo_lag));
     }
     else
     {
         // [port] Use the VI divisor from cutscene framerate actors so Game.cpp
         // paces the display correctly for slower cutscenes.
         s32 viDiv = viMgr_func_8024BFA0();
-        port_setDemoViCount((viDiv > 2) ? viDiv : 0);
+        FramePacingPatches_SetDemoViCount((viDiv > 2) ? viDiv : 0);
     }
 
     curr_demo_lag = time_getDeltaReal_frames();

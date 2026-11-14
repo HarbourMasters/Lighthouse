@@ -164,7 +164,7 @@ void Lighthouse::RunOnGameThread(std::function<void()> fn) {
 
 // A list is submitted while its tick is still recording, so the pair is
 // captured here and travels with the task.
-extern "C" void port_thread5_onSubmit(void* taskData) {
+extern "C" void Graphics_OnThread5Submit(void* taskData) {
     if (!OnGameThread() || (uintptr_t)taskData < 100) {
         return;
     }
@@ -315,7 +315,7 @@ void EnableThread5() {
 static void RegisterThread5MapSync_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         (void)event;
-        port_pipelineSyncPoint();
+        Graphics_PipelineSyncPoint();
     });
 }
 
@@ -330,7 +330,7 @@ extern "C" int port_renderServicePending(void) {
 
 // Renderer calls from tick code come through here; D3D11 hangs if they run
 // off the window thread. Inline when there is no separate tick thread.
-extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg) {
+extern "C" void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg) {
     if (!OnGameThread()) {
         fn(arg);
         return;
@@ -355,7 +355,7 @@ extern "C" void port_serviceRenderRequests(void) {
 
 // Barrier before the tick frees or reads memory an in-flight list references.
 // The game's own EVENT_SYNC handshake is the RDP-done wait.
-extern "C" void port_pipelineSyncPoint(void) {
+extern "C" void Graphics_PipelineSyncPoint(void) {
     if (OnGameThread()) {
         core1_15B30_sendMesg3ToRenderThread();
     }
@@ -407,7 +407,7 @@ void push_frame() {
     if (++sTitleCounter >= 30) {
         sTitleCounter = 0;
         sTitleMap = gsworld_getMap();
-        port_runOnRenderThread([](void*) { port_setWindowTitle(sTitleMap); }, nullptr);
+        Graphics_RunOnRenderThread([](void*) { port_setWindowTitle(sTitleMap); }, nullptr);
     }
 
     if (!sFrameRendered) {

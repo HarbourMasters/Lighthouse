@@ -251,7 +251,7 @@ void RegisterGameStatus_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_LOW, true, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         sPendingTitleMap = ev->nextMap;
-        port_runOnRenderThread([](void*) { port_setWindowTitle(sPendingTitleMap); }, nullptr);
+        Graphics_RunOnRenderThread([](void*) { port_setWindowTitle(sPendingTitleMap); }, nullptr);
     });
 }
 

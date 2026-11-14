@@ -40,7 +40,7 @@ extern "C" void port_animVtx_beginTick(void) {
     }
 }
 
-extern "C" void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t count) {
+extern "C" void AnimVertexPatches_SnapshotVertices(Gfx** gfx, void* vertices, int32_t count) {
     if (gfx == nullptr || vertices == nullptr || count <= 0) {
         return;
     }
@@ -77,9 +77,8 @@ static void RegisterWhistleSwitchVertices_Init() {
     COND_ID_HOOK(OnActorDrawBegin, ACTOR_1C1_WHISTLE_SWITCH_3, EVENT_PRIORITY_NORMAL, true, MarkTintedWhistleSwitch);
     COND_HOOK(OnModelRenderBegin, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         if (gTintedVertices != nullptr) {
-            port_modelRender_snapshotAnimVertices(((OnModelRenderBegin*)event)->gfx,
-                                                  vtxList_getVertices(gTintedVertices),
-                                                  vtxList_getVtxCount(gTintedVertices));
+            AnimVertexPatches_SnapshotVertices(((OnModelRenderBegin*)event)->gfx, vtxList_getVertices(gTintedVertices),
+                                               vtxList_getVtxCount(gTintedVertices));
             gTintedVertices = nullptr;
         }
     });

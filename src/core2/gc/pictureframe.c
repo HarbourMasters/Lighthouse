@@ -39,7 +39,7 @@ Actor *func_802DF160(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod, (void *)this);
     modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)D_8037E000);
     BKModelBin *model_bin = marker_loadModelBin(D_8037E000);
-    port_patchPictureModel(model_bin, 262, 397, -273, -100, 1);
+    Framebuffer_PatchPictureModel(model_bin, 262, 397, -273, -100, 1);
     modelRender_draw(gfx, mtx, D_80368360, NULL, 1.0f, NULL, model_bin);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     return this;

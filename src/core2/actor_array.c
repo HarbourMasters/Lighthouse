@@ -1194,11 +1194,8 @@ void func_803283BC(void){
     D_8036E574 = 1;
 }
 
-void port_actorDespawn_beginDefer(void){
-    D_8036E574 = 1;
-}
-
-void port_actorDespawn_endDefer(void){
+// [port] Ends the despawn defer mainLoop starts with func_803283BC
+void actorArray_endDespawnDefer(void){
     D_8036E574 = 0;
 }
 

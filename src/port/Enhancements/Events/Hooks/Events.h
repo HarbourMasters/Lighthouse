@@ -51,7 +51,23 @@ typedef enum VBehaviorID {
     VB_PAUSEMENU_PRINT_LEVEL_NAME,
 
     // Camera behavior
+
+    // R held, which swings the camera behind the player.
+    // #### `result`
+    // ```c
+    // bakey_held(BUTTON_R)
+    // ```
+    // #### `args`
+    // - None
     VB_CAMERA_FOLLOW,
+
+    // The screen shake added to the camera's position.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_CAMERA_APPLY_SHAKE,
 
     // #### `result`
@@ -80,6 +96,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (i_ptr->unk0, promoted from `s16`)
     VB_CUTSCENE_TRIGGER_UPDATE,
+
+    // The intro cutscene, which Start skips once there's a save file. A listener that returns false lets Start skip it
+    // without one.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_PLAY_INTRO_CUTSCENE,
 
     // #### `result`
@@ -122,9 +147,25 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_JIGGY_FANFARE_MUSIC_DELAY,
+
+    // The jig as a note door opens. A listener that returns false has to clear BA_FLAG_1A_OPEN_NOTEDOOR.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_PLAY_NOTEDOOR_DANCE,
 
     // Vanilla bug fixes and corrections
+
+    // FILEPROG_FC_DEFEAT_GRUNTY set as the Jinjonator is freed. v1.1 sets it after the Jinjonator's attacks instead.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_GRUNTY_DEFEATED_FLAG_BOSS,
 
     // #### `result`
@@ -134,7 +175,24 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_VOID_OUT_GAME_OVER,
+
+    // Gnawty's boulder breaking, which v1.1 doesn't allow in Spring.
+    // #### `result`
+    // ```c
+    // gsworld_getMap() != MAP_43_CCW_SPRING
+    // ```
+    // #### `args`
+    // - None
     VB_CCW_GNAWTY_SPRING_ROCK,
+
+    // Spring's flower growing when it's planted, which v1.1 allows only once.
+    // #### `result`
+    // ```c
+    // gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING &&
+    //     !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)
+    // ```
+    // #### `args`
+    // - None
     VB_CCW_FLOWER_REPLANT,
 
     // A listener that returns false sets the slide rate itself.
@@ -181,6 +239,14 @@ typedef enum VBehaviorID {
     // - `s32` (the dropped item's actor id)
     // - `s32` (how many of them can lie on the ground)
     VB_YUMYUM_DROP,
+
+    // The stump's rumble and sound as it rises.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_MM_CHIMPY_STUMP_RUMBLE,
 
     // #### `result`
@@ -199,6 +265,13 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (the stump)
     VB_MM_CHIMPY_STUMP_START_LOWERED,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (whose path it is)
     VB_SPLINE_PATH_SFX,
 
     // #### `result`
@@ -262,6 +335,14 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_BEAK_BOMB_RANGE_END,
+
+    // Snacker spawning.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_DISABLE_SNACKER,
 
     // #### `result`
@@ -271,36 +352,254 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_SAVE_AND_EXIT,
+
+    // Mumbo's warning that the magic is getting weak, and the change back to Banjo once it runs out.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_MUMBO_DETRANSFORM,
+
+    // A dialog voice's raised pitch while A is held.
+    // #### `result`
+    // ```c
+    // arg1 != 0
+    // ```
+    // #### `args`
+    // - None
     VB_ZOOMBOX_FAST_VOICE,
 
     // Rando object behavior
+
+    // A listener that returns true skips Bottles' text callback in Spiral Mountain.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*Actor` (Bottles)
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,
+
+    // A listener that returns true skips Bottles' lesson and has to set the text id and flags he shows.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*Actor` (Bottles)
+    // - `*s32` (the text id)
+    // - `*s32` (the text flags)
     VB_OVERRIDE_MOLEHILL_ABILITY,
+
+    // A listener that returns true skips the jiggy's spawn.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `s32` (jiggy_e)
+    // - `*f32` (the position)
     VB_OVERRIDE_JIGGY_SPAWN,
+
+    // A witch switch jiggy's jingle in the lair, whose track a listener may change. The result is unused.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (jiggy_e)
+    // - `*s32` (comusic_e, the track)
     VB_JIGGY_SPAWN_JINGLE,
+
+    // A Clanker tooth's jiggy spawning, except with the player at x < 0, z > 5400, where jiggy_spawn spawns it. It's
+    // asked every frame until the jiggy is spawned.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (jiggy_e, promoted from `u8`)
+    // - `*f32` (the position)
     VB_CC_TOOTH_PLACE_JIGGY,
+
+    // A listener that returns true leaves the prop out as its cube loads.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*s16` (the position)
+    // - `s32` (enum asset_e, the sprite; -1 for a marker or model prop)
     VB_OVERRIDE_PROP_SPAWN,
+
+    // A spawned actor taking its prop's secondary id, selector and scale.
+    // #### `result`
+    // ```c
+    // TRUE
+    // ```
+    // #### `args`
+    // - `*Actor` (the actor)
     VB_APPLY_CUBE_PROP_DATA,
+
+    // A listener that returns true skips spawning one of a bundle's actors, and can hand back one it spawned instead.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `s32` (bundle_e)
+    // - `*BundleInfo`
+    // - `s32` (the actor's index in the bundle)
+    // - `*f32` (the position)
+    // - `**Actor` (the actor)
     VB_OVERRIDE_BUNDLE_SPAWN,
+
+    // A listener that returns true skips giving a jiggy list spawn its slot and jiggy id.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*Actor` (the actor)
     VB_BUNDLE_SPAWN_SET_ACTOR_DATA,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_NAPPER_SET_JIGGY_POSITION,
+
+    // A listener that returns true skips a Stop 'N' Swop egg's map check, which marks the map's egg collected at pickup
+    // and can despawn the egg at spawn.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `s32` (SNS_MAP_CHECK_PICKUP or SNS_MAP_CHECK_SPAWN)
+    // - `*Actor` (the egg)
     VB_OVERRIDE_SNS_MAP_CHECK,
+
+    // A listener that returns true keeps a delayed dialog from showing.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `s32` (the text id)
     VB_OVERRIDE_TIMED_DIALOGUE,
+
+    // A listener that returns true skips counting a collected jinjo and OnJinjoCollected.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*f32` (the jinjo's position)
     VB_UPDATE_JINJO_HUD,
+
+    // A jinjo stepping up midichannel_incOrDecCounter's counter, which nothing reads.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_SET_JINJO_COUNT,
+
+    // An empty honeycomb or jiggy already collected, which despawns.
+    // #### `result`
+    // ```c
+    // honeycombscore_get(local->uid)    // empty honeycombs
+    // jiggyscore_isCollected(local->id) // jiggies
+    // ```
+    // #### `args`
+    // - `*Actor` (the collectable)
     VB_COLLECTABLE_ALREADY_HELD,
+
+    // FP's Christmas tree jiggy collected from anywhere, or made collidable.
+    // #### `result`
+    // ```c
+    // false                                                       // collected anywhere
+    // levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE) // collidable
+    // ```
+    // #### `args`
+    // - `*Actor` (the jiggy)
     VB_XMAS_TREE_JIGGY_COLLIDABLE,
 
     // Dialog and localization
+
+    // The dialog language set back to the first one on game init.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_RESET_DIALOG_LANGUAGE,
+
+    // A listener that returns true keeps a dialog from showing.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `s32` (the text id)
     VB_OVERRIDE_DIALOG_SHOW,
 
     // Rendering and performance
+
+    // A cube's props sorted farthest first. A listener that returns false has to sort them by D_80383450's distances.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Cube` (the cube)
     VB_CUBE_PROP_SORT,
+
+    // An actor's vertices tinted by the lights in range. A listener that returns false has to tint them.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Vtx` (the first vertex)
+    // - `*Vtx` (the end)
+    // - `*Vtx` (the first reference vertex)
+    // - `**Lighting` (the first light)
+    // - `**Lighting` (the end)
     VB_GCLIGHTS_RECOLOR,
+
+    // A snowflake's turn to face the camera.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*f32` (the camera rotation)
     VB_SNOW_CAMERA_ROTATION,
+
+    // The snow's z-buffered geometry mode.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `**Gfx`
     VB_SNOW_RENDER_STATE,
+
+    // Alpha compare turned back off after a sprite draws.
+    // #### `result`
+    // ```c
+    // D_80383634 == 0x0E
+    // ```
+    // #### `args`
+    // - `**Gfx`
     VB_SPRITE_RESTORE_ALPHA_COMPARE,
 
     // #### `result`
@@ -328,14 +627,61 @@ typedef enum VBehaviorID {
     // - `s32` (CAMERA flags promoted from `u8`, or LOD min)
     // - `s32` (LOD max)
     VB_DRAW_GEO_CMD,
+
+    // The picture box's framebuffer setup. The result is unused.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `**Gfx`
     VB_PICTUREBOX_TARGET_FB,
+
+    // The frame's display list going out.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (its length, in commands)
     VB_PICTUREBOX_SUBMIT_FRAME,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (enum item_e)
     VB_ITEMPRINT_DRAW_COUNT,
 
     // Anchor
+
+    // A yumblie or grumblie coming up in the Mr. Vile minigame.
+    // #### `result`
+    // ```c
+    // mapSpecificFlags_get(BGS_SPECIFIC_FLAG_6_MR_VILE) && (12 > chMrVileMinigame_getPieceCount(local->game_marker))
+    // ```
+    // #### `args`
+    // - None
     VB_VILE_YUMBLIE_EMERGE,
+
+    // A yumblie or grumblie going back down.
+    // #### `result`
+    // ```c
+    // ml_timer_update(&local->waitTimer, time_delta) || !mapSpecificFlags_get(BGS_SPECIFIC_FLAG_6_MR_VILE)
+    // ```
+    // #### `args`
+    // - None
     VB_VILE_YUMBLIE_HIDE,
-    VB_DOOR_OPEN_CAMERA, // Suppresses door-open camera lock when the flag came from a teammate, not us.
+
+    // A GV or MMM door's camera and look-at as it opens or shuts. A door a teammate opened goes without them.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (DoorCameraId, the door)
+    VB_DOOR_OPEN_CAMERA,
 
     // A GV door's countdown on the hourglass as it opens. The door shuts on a separate counter.
     // #### `result`
@@ -826,6 +1172,14 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_ABILITY_CLEAR_ALL,
+
+    // Mumbo's purchase and transformation.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (Mumbo)
     VB_MUMBO_HUT_INTERACT,
 
     // A listener that returns false skips player_transform, and Mumbo carries on as if the cast worked.
@@ -845,12 +1199,69 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_MUMBO_RANDOM_EVENT,
+
+    // A level's scores, spawned jiggies and level flags reset as it loads, along with OnLevelReset.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (enum level_e, promoted from `u8`)
     VB_LEVEL_LOAD_RESET_SCORES,
+
+    // RBB's propellers, MM's huts, TTC's treasure hunt and MMM's flower pots reset as their level loads.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (enum map_e)
     VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
+
+    // A cutscene skip needing a save file or progress first.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,
+
+    // The lair's entry cutscene seen, which sends a game over to the machine room's cutscene until Furnace Fun is done.
+    // #### `result`
+    // ```c
+    // fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE)
+    // ```
+    // #### `args`
+    // - None
     VB_GAME_OVER_MACHINE_ROOM,
+
+    // A level entered from the lair, which plays its entry transition and the player's walk-in.
+    // #### `result`
+    // ```c
+    // sLevelState.level != LEVEL_6_LAIR && sLevelState.level != LEVEL_C_BOSS && prev_lvl == LEVEL_6_LAIR
+    // ```
+    // #### `args`
+    // - `s32` (enum level_e, the one left)
+    // - `s32` (enum level_e, the one entered, promoted from `u8`)
     VB_LEVEL_ENTERED_FROM_LAIR,
+
+    // Every map savestate cleared, as a level unloads and as a character parade starts.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_MAP_SAVESTATE_CLEAR_ALL,
+
+    // Every map savestate reset as a level loads.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (enum level_e, the one left)
     VB_LEVEL_LOAD_SAVESTATE_INIT,
 
     // A listener that returns false keeps the dialog from showing, and its flag stays unset.
@@ -870,7 +1281,16 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_LAIR_GRUNTY_TAUNTS,
-    VB_AMBIENCE_MAP_UPDATE, // Per-map ambience/chan-mask switch: false = a listener replaced it.
+
+    // The map's ambience and channel mask. A listener that returns false has to set them.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*s32` (sPlayerPosition, not yet updated this frame)
+    // - `*s32` (sTrackId)
+    VB_AMBIENCE_MAP_UPDATE,
 
     // A listener that returns false skips the Stop 'N' Swop display and can draw a different one.
     // #### `result`
@@ -893,6 +1313,13 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_PAUSEMENU_SET_NEXT_PAGE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*void` (NULL)
     VB_PAUSEMENU_DRAW_JOYSTICKS,
 
     // The pink bold font on the current level's page. A listener that returns false sets a different texture.
@@ -925,6 +1352,13 @@ typedef enum VBehaviorID {
     // - `s32` (gVoidOutReturnLocation[0], the map)
     // - `s32` (gVoidOutReturnLocation[1], the exit)
     VB_VOID_OUT_RESPAWN_TRANSITION,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ActorMarker` (what the player bumped)
     VB_BUMP_REBOUNDS_PLAYER,
 
     // #### `result`
@@ -967,6 +1401,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `f64` (function_time, promoted from `f32`)
     VB_GAMESELECT_RESUME_WARP,
+
+    // Whether one of the numbers on the note door model shows. Each door shows only its cost.
+    // #### `result`
+    // ```c
+    // actor->noteDoorIdx + 1 == i + 2
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
+    // - `s32` (i, the number, 0 to 11)
     VB_NOTEDOOR_DRAW_NUMBER,
 
     // #### `result`
@@ -976,7 +1419,15 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_JIGGY_COLLECT_TUTORIAL,
-    VB_HONEYCOMB_PUMPKIN_REQUIREMENT, // also read by rando
+
+    // MMM's floorboard honeycomb needing the pumpkin.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_HONEYCOMB_PUMPKIN_REQUIREMENT,
 
     // What Brentilda says after her hint: her offer to heal, or ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED when
     // there's nothing to heal.
@@ -987,11 +1438,58 @@ typedef enum VBehaviorID {
     // #### `args`
     // - None
     VB_BRENTILDA_HEAL_DIALOG,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_SKY_UPDATE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_SKY_DRAW_BACKDROP_RECT,
+
+    // A season door starting raised once its season is open.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor` (the door)
     VB_CCW_SEASON_DOOR_RAISED_INIT,
+
+    // Boggy at home in FP once his third jiggy is out.
+    // #### `result`
+    // ```c
+    // jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3) || jiggyscore_isSpawned(JIGGY_2C_FP_BOGGY_3)
+    // ```
+    // #### `args`
+    // - `*Actor` (Boggy)
     VB_BOGGY_HOME_VISIBLE,
+
+    // A level's last jiggy, which plays its fanfare.
+    // #### `result`
+    // ```c
+    // item_getCount(ITEM_E_JIGGY) == lastJiggyCount // the jig, before the count goes up
+    // item_getCount(ITEM_E_JIGGY) == 10             // the fanfare
+    // ```
+    // #### `args`
+    // - `*ActorMarker` (the jiggy; NULL from the fanfare)
     VB_LAST_JIGGY_FANFARE,
+
+    // A jigsaw podium marked as stood on when the player touches it.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ActorMarker` (the podium)
     VB_JIGSAW_PODIUM_COLLIDE,
 
     // #### `result`
@@ -1001,6 +1499,14 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (the map)
     VB_HEALTH_HUD_SHOW,
+
+    // A music channel mask, which a listener may change. The result is unused.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*s32` (the mask)
     VB_MIDI_SET_CHAN_MASK,
 
     // #### `result`

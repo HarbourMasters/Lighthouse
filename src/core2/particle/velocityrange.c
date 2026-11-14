@@ -98,7 +98,7 @@ void func_802F1FC0(Struct65s *self, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     
     gSPDisplayList((*gfx)++, D_80368AC0);
     func_80347FC0(gfx, D_80368AB0[1].unk0, 0, 0, 0, 0, 0, 0, 0, &width, &height);
-    port_requestReadback(); // [port] particle reads framebuffer pixels
+    Framebuffer_RequestReadback(); // [port] particle reads framebuffer pixels
     temp_addr = &gFramebuffers[getOtherFramebuffer()][spC0*gFramebufferWidth + (spC4 & 0xFFFC)];
     gDPSetTextureImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, temp_addr);
     gDPSetTile((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 9, 0x0080, G_TX_LOADTILE, 0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD);

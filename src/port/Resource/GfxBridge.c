@@ -105,7 +105,7 @@ void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target) {
 // handle raw heap pointers without crashing (byte-by-byte check, address filtering).
 // Raw sprite texture data embedded in BKSprite structures passes through as-is;
 // OTR-tagged model textures (__OTR__ paths) are handled by LUS natively.
-void port_gDPSetTextureImage(Gfx* pkt, int fmt, int siz, int width, const void* img) {
+void GfxBridge_SetTextureImage(Gfx* pkt, int fmt, int siz, int width, const void* img) {
     Gfx* _g = (Gfx*)(pkt);
     _g->words.w0 = _SHIFTL(G_SETTIMG, 24, 8) | _SHIFTL(fmt, 21, 3) | _SHIFTL(siz, 19, 2) | _SHIFTL((width)-1, 0, 12);
     _g->words.w1 = (uintptr_t)(img);

@@ -30,6 +30,7 @@ int ResourceMgr_HasLangStrings(void);
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 char* ResourceMgr_LoadTexOrDListByName(const char* filePath);
 Vtx* ResourceMgr_LoadVtxByName(char* path);
+int32_t ResourceMgr_GetMusicTrackVolume(uint32_t assetId);
 
 #ifdef __cplusplus
 }
