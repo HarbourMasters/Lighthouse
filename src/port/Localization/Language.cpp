@@ -458,7 +458,7 @@ void RescanLanguages() {
 
     // Hide vanilla language packs unless there's a hack langpack as well,
     // exemptions for languages the base o2r provides.
-    if (port_isRomhack()) {
+    if (RomhackConfig_IsActive()) {
         sLanguages.erase(
             std::remove_if(sLanguages.begin(), sLanguages.end(),
                            [](const LanguageEntry& e) { return e.source != nullptr && e.scopedSource == nullptr; }),

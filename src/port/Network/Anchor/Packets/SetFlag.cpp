@@ -23,7 +23,7 @@ static const char* LevelOpenSeenFlagName(s16 flag) {
         LEVEL_A_MAD_MONSTER_MANSION, LEVEL_9_RUSTY_BUCKET_BAY,    LEVEL_8_CLICK_CLOCK_WOOD,
     };
     if (flag >= 0x28 && flag <= 0x30) {
-        return port_levelName(kSeenFlagLevels[flag - 0x28]);
+        return GameStatus_GetLevelName(kSeenFlagLevels[flag - 0x28]);
     }
     if (flag == FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) {
         return "the door to Gruntilda";
@@ -48,7 +48,7 @@ static const char* WitchSwitchLevelName(s16 flag) {
     };
     if (flag >= VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM && flag <= VOLATILE_FLAG_BE_WITCH_SWITCH_PRESSED_GV) {
         const s32 i = flag - VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM;
-        return fileProgressFlag_get(kWitchSwitchDone[i]) ? nullptr : port_levelName(kWitchSwitchLevels[i]);
+        return fileProgressFlag_get(kWitchSwitchDone[i]) ? nullptr : GameStatus_GetLevelName(kWitchSwitchLevels[i]);
     }
     return nullptr;
 }
@@ -60,11 +60,11 @@ static std::string ProgressFlagNews(s16 flag) {
     }
     switch (flag) {
         case FILEPROG_22_WATER_SWITCH_1_PRESSED:
-            return std::string("hit water switch 1 in ") + port_levelName(LEVEL_6_LAIR);
+            return std::string("hit water switch 1 in ") + GameStatus_GetLevelName(LEVEL_6_LAIR);
         case FILEPROG_24_WATER_SWITCH_2_PRESSED:
-            return std::string("hit water switch 2 in ") + port_levelName(LEVEL_6_LAIR);
+            return std::string("hit water switch 2 in ") + GameStatus_GetLevelName(LEVEL_6_LAIR);
         case FILEPROG_26_WATER_SWITCH_3_PRESSED:
-            return std::string("hit water switch 3 in ") + port_levelName(LEVEL_6_LAIR);
+            return std::string("hit water switch 3 in ") + GameStatus_GetLevelName(LEVEL_6_LAIR);
         case FILEPROG_B9_DOUBLE_HEALTH:
             return "unlocked double health";
         default:

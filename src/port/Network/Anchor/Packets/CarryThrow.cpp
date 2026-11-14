@@ -157,7 +157,7 @@ static void spawnMethod(uintptr_t markerId, uintptr_t clientId) {
     }
 }
 
-extern "C" void port_remoteCarry_setCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
+extern "C" void CarryThrow_SetCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
     s32 slot;
     if (clientId == 0) {
         return;

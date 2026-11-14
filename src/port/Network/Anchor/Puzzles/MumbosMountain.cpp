@@ -15,7 +15,7 @@ static bool sJujuReplay = false;
 
 // The team's knocked totems, one bit each.
 static s32 JujusKnocked() {
-    const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_MM_JUJU) & 0xF;
+    const s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_MM_JUJU) & 0xF;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1) + ((bits >> 3) & 1);
 }
 
@@ -79,8 +79,8 @@ void AnchorPuzzles_RegisterMumbosMountain(bool connected) {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_57_ORANGE_PAD, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         Actor* pad = ((ShouldActorUpdate*)event)->actor;
         if (pad->state != ORANGE_PAD_STATE_HIT &&
-            port_breakable_isBroken((s32)gsworld_getMap(), (s32)pad->marker->id, (s32)pad->position[0],
-                                    (s32)pad->position[1], (s32)pad->position[2])) {
+            BreakObject_IsBroken((s32)gsworld_getMap(), (s32)pad->marker->id, (s32)pad->position[0],
+                                 (s32)pad->position[1], (s32)pad->position[2])) {
             pad->state = ORANGE_PAD_STATE_HIT;
         }
     });

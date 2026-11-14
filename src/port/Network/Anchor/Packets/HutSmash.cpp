@@ -158,7 +158,7 @@ void Anchor::HandlePacket_HutSmash(nlohmann::json& payload) {
     sHuts.emplace(std::array<int32_t, 4>{ map, x, y, z }, loot);
 }
 
-std::vector<int32_t> port_hutSmash_snapshot() {
+std::vector<int32_t> HutSmash_Snapshot() {
     std::vector<int32_t> flat;
     flat.reserve(sHuts.size() * 5);
     for (const auto& [key, loot] : sHuts) {
@@ -171,14 +171,14 @@ std::vector<int32_t> port_hutSmash_snapshot() {
     return flat;
 }
 
-void port_hutSmash_restore(const std::vector<int32_t>& flat) {
+void HutSmash_Restore(const std::vector<int32_t>& flat) {
     sHuts.clear();
     for (size_t i = 0; i + 5 <= flat.size(); i += 5) {
         sHuts[{ flat[i], flat[i + 1], flat[i + 2], flat[i + 3] }] = flat[i + 4];
     }
 }
 
-void port_hutSmash_clearForLevel(int32_t levelId) {
+void HutSmash_ClearForLevel(int32_t levelId) {
     std::erase_if(sHuts,
                   [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
 }

@@ -65,7 +65,7 @@ void DisplayOverlayWindow::Draw() {
         default:
             break;
     }
-    std::string timerStr = port_FormatTimeDisplay(timeToDisplay);
+    std::string timerStr = Ship_FormatTimeDisplay(timeToDisplay);
     ImGui::Text(timerStr.c_str());
 
     ImGui::End();

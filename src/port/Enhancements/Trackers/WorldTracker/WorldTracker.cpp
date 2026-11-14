@@ -52,11 +52,11 @@ struct WorldTrackerRows {
 
 WorldTrackerRows WorldTracker_GetRows(level_e levelId) {
     WorldTrackerRows rows;
-    rows.notes = port_pauseTotalsRowVisible(levelId, 0);
-    rows.jiggies = port_pauseTotalsRowVisible(levelId, 1);
-    rows.honeycombs = port_pauseTotalsRowVisible(levelId, 2);
+    rows.notes = GameStatus_IsPauseTotalsRowVisible(levelId, 0);
+    rows.jiggies = GameStatus_IsPauseTotalsRowVisible(levelId, 1);
+    rows.honeycombs = GameStatus_IsPauseTotalsRowVisible(levelId, 2);
     // Hacks reuse token ids as flags, so the per-world token counts don't apply to them
-    rows.tokens = !port_isRomhack() && levelId != LEVEL_B_SPIRAL_MOUNTAIN;
+    rows.tokens = !RomhackConfig_IsActive() && levelId != LEVEL_B_SPIRAL_MOUNTAIN;
     rows.jinjos = levelId != LEVEL_B_SPIRAL_MOUNTAIN && levelId != LEVEL_6_LAIR;
     return rows;
 }
@@ -64,14 +64,14 @@ WorldTrackerRows WorldTracker_GetRows(level_e levelId) {
 // Romhacks list the levels their pause menu shows: the pages the player has spent time in
 std::vector<level_e> WorldTracker_GetLevels() {
     std::vector<level_e> levels;
-    if (!port_isRomhack()) {
+    if (!RomhackConfig_IsActive()) {
         for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i <= LEVEL_B_SPIRAL_MOUNTAIN; i++) {
             levels.push_back((level_e)i);
         }
         return levels;
     }
     for (s32 page = 1; page < 12; page++) {
-        const level_e level = port_pauseTotalsPageLevel(page);
+        const level_e level = GameStatus_GetPauseTotalsPageLevel(page);
         if (level >= LEVEL_1_MUMBOS_MOUNTAIN && level <= LEVEL_B_SPIRAL_MOUNTAIN &&
             itemscore_timeScores_get(level) != 0) {
             levels.push_back(level);
@@ -129,7 +129,7 @@ void WorldTracker_DrawTotals() {
         ImGui::Text("%i / %i", WorldTracker::worldTrackerTotal.honeycombLevelTotal,
                     WorldTracker::worldTrackerTotalMax.honeycombLevelTotal);
 
-        if (!port_isRomhack()) {
+        if (!RomhackConfig_IsActive()) {
             ImGui::TableNextColumn();
             ImGui::Image(GetWorldTrackerTexture("Mumbo Token"), imageSize);
             ImGui::SameLine();
@@ -172,10 +172,10 @@ void WorldTracker_DrawWorldObject(level_e levelId) {
     ImGui::PushID(levelId);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding,
                         ImVec2(ImGui::GetStyle().CellPadding.x, ImGui::GetStyle().CellPadding.y + 2.0f));
-    std::string levelName = port_levelName(levelId);
+    std::string levelName = GameStatus_GetLevelName(levelId);
     const WorldTrackerRows rows = WorldTracker_GetRows(levelId);
     s32 maxNotes, maxJiggies, maxEHoneycombs;
-    port_getLevelMaxima(levelId, &maxNotes, &maxJiggies, &maxEHoneycombs);
+    GameStatus_GetLevelMaxima(levelId, &maxNotes, &maxJiggies, &maxEHoneycombs);
 
     WorldTracker_PushImageButtonStyle();
     ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0));
@@ -321,7 +321,7 @@ void UpdateWorldTrackerTotals(level_e levelId) {
     const WorldTrackerObject& levelTrackerObject = worldTrackerObject[levelId];
     const WorldTrackerRows rows = WorldTracker_GetRows(levelId);
     s32 maxNotes, maxJiggies, maxEHoneycombs;
-    port_getLevelMaxima(levelId, &maxNotes, &maxJiggies, &maxEHoneycombs);
+    GameStatus_GetLevelMaxima(levelId, &maxNotes, &maxJiggies, &maxEHoneycombs);
 
     if (rows.notes) {
         worldTrackerTotal.noteLevelTotal += levelTrackerObject.noteLevelTotal;

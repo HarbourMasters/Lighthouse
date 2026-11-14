@@ -427,7 +427,7 @@ const char* MapShortName(int32_t map) {
 }
 
 const char* LevelDisplayName(int32_t level) {
-    return port_levelName((enum level_e)LevelBucket(level));
+    return GameStatus_GetLevelName((enum level_e)LevelBucket(level));
 }
 
 const char* FindWarpName(int32_t map, int32_t exit) {

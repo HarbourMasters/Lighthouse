@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-int port_freeLook_isEnabled(void);
+int FreeLookCamera_IsEnabled(void);
 
 #ifdef __cplusplus
 }

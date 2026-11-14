@@ -146,7 +146,7 @@ bool correctChunk(const std::string& activePath, const std::string& basePath) {
 
 // Called when the dialog font is (re)loaded, boot and language switch alike. Scans every chunk of
 // the sheet now in play and corrects each.
-extern "C" void port_dialogFontHd_rebuild(void) {
+extern "C" void AltDialogFont_RebuildHd(void) {
     if (!Ship::Context::GetRawInstance()->GetResourceManager()->IsAltAssetsEnabled()) {
         return;
     }
@@ -182,7 +182,7 @@ extern "C" void port_dialogFontHd_rebuild(void) {
 
 static void RegisterAltDialogFont_Init() {
     // Alt assets can be turned on at any time, so the rebuild checks them itself.
-    COND_HOOK(OnDialogFontLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { port_dialogFontHd_rebuild(); });
+    COND_HOOK(OnDialogFontLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { AltDialogFont_RebuildHd(); });
 }
 
 static RegisterShipInitFunc altDialogFontInitFunc(RegisterAltDialogFont_Init);

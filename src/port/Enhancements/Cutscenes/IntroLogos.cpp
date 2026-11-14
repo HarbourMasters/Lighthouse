@@ -12,7 +12,7 @@
 
 extern "C" {
 #include "enums.h"
-int port_getBootSequence(void);
+int Ship_GetBootSequence(void);
 void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath);
 }
 
@@ -27,7 +27,7 @@ constexpr const char* kIntroCubeWalkAnim = "anim/lighthouse_walk";
 constexpr const char* kIntroCubeShrugAnim = "anim/lighthouse_shrug";
 
 bool bootSequenceIsDefault() {
-    return port_getBootSequence() == BOOTSEQUENCE_DEFAULT;
+    return Ship_GetBootSequence() == BOOTSEQUENCE_DEFAULT;
 }
 
 void stripXylophoneNintendoLogo() {
@@ -59,7 +59,7 @@ void RegisterIntroLogos_Init() {
 static RegisterShipInitFunc introLogosInit(RegisterIntroLogos_Init, { CVAR_SETTING("BootSequence") });
 
 void RegisterBootToFileSelect_Init() {
-    COND_HOOK(OnDefaultBootMap, EVENT_PRIORITY_NORMAL, port_getBootSequence() == BOOTSEQUENCE_FILESELECT,
+    COND_HOOK(OnDefaultBootMap, EVENT_PRIORITY_NORMAL, Ship_GetBootSequence() == BOOTSEQUENCE_FILESELECT,
               [](IEvent* event) { *((OnDefaultBootMap*)event)->map = MAP_91_FILE_SELECT; });
 }
 

@@ -177,7 +177,7 @@ void DrawCameraTools() {
     f32 liveRotation[3];
     viewport_getPosition_vec3f(livePosition);
     viewport_getRotation_vec3f(liveRotation);
-    const f32 scale[3] = { port_wsCameraPitchScale(), port_wsCameraYawScale(), 1.0f };
+    const f32 scale[3] = { CameraPatches_GetWidescreenPitchScale(), CameraPatches_GetWidescreenYawScale(), 1.0f };
     f32 delta[3];
     f32 tableAdjust[3];
     for (int i = 0; i < 3; i++) {
@@ -190,7 +190,7 @@ void DrawCameraTools() {
     }
 
     ImGui::SeparatorText("Live Camera");
-    ImGui::Text("Map: %s (%d / 0x%X)   Camera: %s", port_mapName(map), map, map, CameraTypeName(cameraType));
+    ImGui::Text("Map: %s (%d / 0x%X)   Camera: %s", Ship_GetMapName(map), map, map, CameraTypeName(cameraType));
     ImGui::Text("Pos %9.2f %9.2f %9.2f   Pitch/Yaw/Roll %7.2f %7.2f %7.2f", livePosition[0], livePosition[1],
                 livePosition[2], liveRotation[0], liveRotation[1], liveRotation[2]);
 
@@ -235,7 +235,7 @@ void DrawCameraTools() {
     ImGui::SeparatorText("Camera Nodes");
 
     if (UIWidgets::Button("Dump To Log", { .color = THEME_COLOR })) {
-        BK_LOG_DEBUG("camera nodes for map %s (%d / 0x%X), camera type %s:", port_mapName(map), map, map,
+        BK_LOG_DEBUG("camera nodes for map %s (%d / 0x%X), camera type %s:", Ship_GetMapName(map), map, map,
                      CameraTypeName(cameraType));
         BK_LOG_DEBUG("  live viewport  pos %9.2f %9.2f %9.2f  pyr %7.2f %7.2f %7.2f", livePosition[0], livePosition[1],
                      livePosition[2], liveRotation[0], liveRotation[1], liveRotation[2]);

@@ -161,11 +161,11 @@ void AnchorPuzzles_RegisterRustyBucketBay(bool connected) {
                          return;
                      }
                      if (mapSpecificFlags_get(RBB_MAIN_SPECIFIC_FLAG_0_PROPELLER)) {
-                         port_puzzleStep_orBits(ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1);
+                         PuzzleStep_OrBits(ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1);
                      }
                      if (button->state == CH_RBB_GREY_PROPELLER_SWITCH_STATE_1_NOT_PRESSED &&
                          (mapSpecificFlags_get(RBB_MAIN_SPECIFIC_FLAG_0_PROPELLER) ||
-                          (port_puzzleStep_get(ANCHOR_PUZZLE_RBB_ENGINE_FANS) & 1))) {
+                          (PuzzleStep_GetBits(ANCHOR_PUZZLE_RBB_ENGINE_FANS) & 1))) {
                          button->position_y -= 35.0f;
                          button->state = CH_RBB_GREY_PROPELLER_SWITCH_STATE_2_PRESSED;
                          mapSpecificFlags_set(RBB_MAIN_SPECIFIC_FLAG_0_PROPELLER, true);

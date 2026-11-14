@@ -17,8 +17,8 @@ extern "C" {
 
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
-void port_jiggySpawn_remove(int32_t jiggyId);
-int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
+void SpawnJiggy_Remove(int32_t jiggyId);
+int32_t SpawnJiggy_IsRecorded(int32_t jiggyId);
 void func_80324CD8(f32 time);
 void __chScarfSled_setState(Actor* self, s32 next_state);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
@@ -279,7 +279,7 @@ static bool Anchor_SmTutorialChoiceOpen() {
     }
     // By level, not map: a romhack's Spiral Mountain may be a different map id.
     if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
-        (port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+        (PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
         return false;
     }
     if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) && !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
@@ -805,7 +805,7 @@ void Anchor::RegisterHooks() {
         if (!Anchor_WorldSyncActive() || !Anchor::GetInstance()->IsSaveLoaded()) {
             return;
         }
-        if (port_jiggySpawn_isRecorded(ev->jiggyId)) {
+        if (SpawnJiggy_IsRecorded(ev->jiggyId)) {
             event->Cancelled = true;
             ev->result = 1;
         }
@@ -854,7 +854,7 @@ void Anchor::RegisterHooks() {
         if (*ev->answer == 0 && !Anchor_SmTutorialChoiceOpen()) {
             *ev->answer = 1;
         }
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_SM_TUTORIAL, 1);
+        PuzzleStep_OrBits(ANCHOR_PUZZLE_SM_TUTORIAL, 1);
     });
 
     // Ability molehills wake up only after the tutorial choice exists: the offer was
@@ -863,7 +863,7 @@ void Anchor::RegisterHooks() {
         const s32 mole = va_arg(args, Actor*)->actorTypeSpecificField;
         if (mole != CH_SM_MOLE_ID_1_INTRO && mole != CH_SM_MOLE_ID_8_BRIDGE && Anchor_WorldSyncActive() &&
             !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
-            !(port_puzzleStep_getForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+            !(PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
         }
     });
@@ -873,7 +873,7 @@ void Anchor::RegisterHooks() {
             return;
         }
         auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);
-        port_jiggySpawn_remove(ev->jiggyId);
+        SpawnJiggy_Remove(ev->jiggyId);
         Anchor::GetInstance()->SendPacket_JiggyExpired((s16)ev->jiggyId);
     });
 

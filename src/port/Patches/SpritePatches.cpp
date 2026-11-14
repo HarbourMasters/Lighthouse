@@ -50,7 +50,7 @@ void SpritePatches_ClearDisplayCache(void) {
 // Recompute the dialog-font glyph count from the currently loaded slot-0 sprite. print_init
 // sets this once from the base font, but a language pack can swap in an extended dialog font
 // (more glyphs than the base 62) at runtime.
-void port_refreshDialogFontGlyphCount(void) {
+void SpritePatches_RefreshDialogFontGlyphCount(void) {
     if (print_sFontSpriteAssets[0] != NULL) {
         print_sDialogFontGlyphCount = sprite_getFramePtr(print_sFontSpriteAssets[0], 0)->chunkCnt;
     }
@@ -86,7 +86,7 @@ BKSpriteDisplayData* SpritePatches_GetOrCreateDisplayData(BKSprite* sprite) {
     return func_80344A1C(sprite);
 }
 
-BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
+BKSprite* SpritePatches_LoadFilledBanner(s32 bannerAssetId, s32 fillId) {
     // Reload (not assetcache_get) so the cached, already-baked buffer isn't filled twice.
     BKSprite* banner = (BKSprite*)ResourceMgr_ReloadByAssetId((uint32_t)bannerAssetId);
     if (banner == NULL) {
@@ -173,7 +173,7 @@ static s32 sPauseBannerLanguageGen = -1;
 static s32 PauseBannerUpdate(s32 page_id) {
     // Draw a pre-rendered world-name banner when one exists for this page. The JP cart
     // ships them, and a language pack can supply its own; if none resolves,
-    // port_loadFilledBanner returns NULL below and the caller falls back to drawing the
+    // SpritePatches_LoadFilledBanner returns NULL below and the caller falls back to drawing the
     // world name as bold-font text.
     s32 page = page_id;
     if (page < 0 || page > PAUSE_BANNER_LAST_PAGE) {
@@ -190,7 +190,7 @@ static s32 PauseBannerUpdate(s32 page_id) {
         sPauseBannerAlpha = 0;
         if (page >= 0) {
             s32 fillId = (page != 0 && page == gcpausemenu_levelToMenuPage(level_get())) ? 0x6e7 : -1;
-            sPauseBanner = port_loadFilledBanner(SPRITE_WORLD_NAME_TOTAL + page, fillId);
+            sPauseBanner = SpritePatches_LoadFilledBanner(SPRITE_WORLD_NAME_TOTAL + page, fillId);
         }
     }
     if (sPauseBannerAlpha < 100) {

@@ -103,7 +103,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
 
         if (level > 0 && level < 0xB) {
             for (s32 jiggyId = (level - 1) * 10 + 1; jiggyId < level * 10 + 1; jiggyId++) {
-                if (port_jiggyscore_isCollectedRaw((jiggy_e)jiggyId)) {
+                if (Ship_IsJiggyCollectedRaw((jiggy_e)jiggyId)) {
                     total++;
                 }
             }
@@ -129,7 +129,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
             s32 end = (level * 2 - 1 == 0x15) ? first + 6 : first + 2;
 
             for (s32 honeycombId = first; honeycombId < end; honeycombId++) {
-                if (port_honeycombscore_getRaw((honeycomb_e)honeycombId)) {
+                if (Ship_GetHoneycombScoreRaw((honeycomb_e)honeycombId)) {
                     total++;
                 }
             }

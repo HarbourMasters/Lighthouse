@@ -82,7 +82,7 @@ void AnchorRoomWindow::DrawElement() {
                 if ((client.self ? Anchor::GetInstance()->IsSaveLoaded() : client.isSaveLoaded)) {
                     ImGui::SameLine();
                     ImGui::TextColored(ImVec4(1, 1, 1, 0.5f), "- %s",
-                                       port_getLevelName((int)(client.self ? gsworld_getMap() : client.map)));
+                                       GameStatus_GetMapLevelName((int)(client.self ? gsworld_getMap() : client.map)));
                 }
             }
 

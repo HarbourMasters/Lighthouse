@@ -32,7 +32,7 @@ s32 globalTimer_getTime(void);
 // Vanilla holds back Start-to-skip on the Rareware logo at first boot. This lets it through 30 frames after boot.
 void RegisterSkipBootLogos_Init() {
     COND_VB_SHOULD(VB_CUTSCENE_TRIGGER_UPDATE, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !port_isRomhack(), {
+                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !RomhackConfig_IsActive(), {
                        // 0x18 is the logo's trigger node.
                        if (va_arg(args, s32) == 0x18 && gsworld_getMap() == MAP_1F_CS_START_RAREWARE &&
                            globalTimer_getTime() > 30) {
@@ -43,12 +43,12 @@ void RegisterSkipBootLogos_Init() {
 
 void RegisterSkipIntroCutscene_Init() {
     COND_VB_SHOULD(VB_PLAY_INTRO_CUTSCENE, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !port_isRomhack(), { *should = false; });
+                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !RomhackConfig_IsActive(), { *should = false; });
 }
 
 void RegisterSkipMiscCutscenes_Init() {
     COND_HOOK(OnMiscCutscenesCheck, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !port_isRomhack(), [](IEvent* event) {
+              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !RomhackConfig_IsActive(), [](IEvent* event) {
                   auto* ev = reinterpret_cast<OnMiscCutscenesCheck*>(event);
                   *ev->skipMiscCutscenes = true;
               });

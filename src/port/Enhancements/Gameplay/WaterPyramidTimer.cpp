@@ -13,7 +13,7 @@
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer")
 
 void RegisterWaterPyramidTimer_Init() {
-    const bool enabled = CVarGetInteger(CVAR_NAME, 0) && !port_isRomhack();
+    const bool enabled = CVarGetInteger(CVAR_NAME, 0) && !RomhackConfig_IsActive();
     COND_HOOK(OnWaterPyramidTimer, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnWaterPyramidTimer*>(event);
         *ev->timer = 29;

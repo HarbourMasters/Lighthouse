@@ -135,7 +135,7 @@ void AnchorPuzzles_RegisterClickClockWood(bool connected) {
             sEyrieBabySetUp = baby->state == CH_EYRIE_BABY_STATE_0_NOT_HATCHED;
             return;
         }
-        const s32 fed = port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
+        const s32 fed = PuzzleStep_GetCount(ANCHOR_COUNT_CCW_EYRIE_FED);
         if (sEyrieBabySetUp) {
             sEyrieBabySetUp = false;
             local->eatenCount = (u8)fed;
@@ -210,7 +210,7 @@ void AnchorPuzzles_RegisterClickClockWood(bool connected) {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_2A8_NABNUT, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         Actor* nabnut = ((ShouldActorUpdate*)event)->actor;
         auto* local = (ActorLocal_ChAutumnNabnutPosition*)&nabnut->local;
-        const s32 returned = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+        const s32 returned = PuzzleStep_GetCount(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
         if (nabnut->volatile_initialized && nabnut->state == CH_AUTUMN_OUTDOOR_NABNUT_STATE_1_SAD &&
             returned > local->returned_acorn_count) {
             local->returned_acorn_count = returned;

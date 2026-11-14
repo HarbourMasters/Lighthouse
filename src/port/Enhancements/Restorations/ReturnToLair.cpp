@@ -25,7 +25,7 @@ void RegisterReturnToLair_Init() {
     COND_VB_SHOULD(VB_INIT_RETURN_TO_LAIR, EVENT_PRIORITY_NORMAL, true, {
         menuData = va_arg(args, struct1As*);
 
-        if (CVAR && !port_isRomhack()) {
+        if (CVAR && !RomhackConfig_IsActive()) {
             s32 level = level_get();
             bool isSpiralMountain = (level == LEVEL_B_SPIRAL_MOUNTAIN);
             // The enter-lair cutscene flag is what flips the save's start map to the Lair, so it
@@ -84,7 +84,7 @@ void RegisterReturnToLair_Init() {
         s32 menu = va_arg(args, s32);
         s32 selection = va_arg(args, s32);
         if (menu == 0) { // PAUSE_MENU_0_MAIN
-            const bool backToFront = CVAR && !port_isRomhack();
+            const bool backToFront = CVAR && !RomhackConfig_IsActive();
             for (s32 n = 0; n < 4; n++) {
                 const s32 i = backToFront ? 3 - n : n;
                 if (i != selection) {
@@ -98,7 +98,7 @@ void RegisterReturnToLair_Init() {
 
     // Shrink the pause-menu zoombox text so the longer string fits at the vanilla box scale.
     // Only sub-1.0 boxes (the pause menus) are touched.
-    COND_HOOK(OnZoomboxTextDraw, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(), [](IEvent* event) {
+    COND_HOOK(OnZoomboxTextDraw, EVENT_PRIORITY_NORMAL, CVAR && !RomhackConfig_IsActive(), [](IEvent* event) {
         auto* ev = reinterpret_cast<OnZoomboxTextDraw*>(event);
         if (ev->boxScale < 1.0f) {
             *ev->scale = 0.85f;
