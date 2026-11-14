@@ -233,8 +233,7 @@ typedef enum VBehaviorID {
     // Spring's flower growing when it's planted, which v1.1 allows only once.
     // #### `result`
     // ```c
-    // gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING &&
-    //     !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)
+    // gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING
     // ```
     // #### `args`
     // - None

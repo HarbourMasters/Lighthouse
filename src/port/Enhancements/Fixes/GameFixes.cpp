@@ -87,8 +87,11 @@ void RegisterGnawtySpringRock_Init() {
 
 // CCW flower: prevent the re-plant softlock (v1.1). Default on to prevent softlock.
 void RegisterCCWFlowerReplant_Init() {
-    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, !CVarGetInteger(CVAR_FLOWER_REPLANT, 1),
-                   { *should = true; });
+    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FLOWER_REPLANT, 1), {
+        if (fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)) {
+            *should = false;
+        }
+    });
 }
 
 // Termite mound: instant slide on slopes (v1.1). v1.0 doubled the rate.

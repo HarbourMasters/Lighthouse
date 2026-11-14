@@ -135,10 +135,11 @@ void chCCWBeanstalk_feed(ActorMarker *marker, ActorMarker *other_marker) {
 void chCCWBeanstalk_spawnBeanstalk(ActorMarker* marker, ActorMarker *other_marker) {
     Actor* actor = marker_getActor(marker);
 
-    // [port] v1.1 fix: don't allow re-planting flower in Spring after it's already been planted
-    if (EventSystem_Should(VB_CCW_FLOWER_REPLANT,
-                           gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING &&
-                               !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING))) {
+//  if (gsworld_getMap() == MAP_43_CCW_SPRING
+    if (EventSystem_Should(VB_CCW_FLOWER_REPLANT, gsworld_getMap() == MAP_43_CCW_SPRING
+//      && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING)
+        && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING))
+    {
         chCCWBeanstalk_setNextState(actor, CH_CCW_BEANSTALK_STATE_2_GROWING);
     }
 }
