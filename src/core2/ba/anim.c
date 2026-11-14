@@ -337,15 +337,3 @@ void baanim_setEndAndDuration(f32 end_position, f32 duration){
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
     CALL_EVENT(OnPlayerAnimSubRangeChange, duration, end_position);
 }
-
-void baanim_onCtrlStart(AnimCtrl* ctrl) {
-    if (ctrl == playerAnimCtrl) {
-        CALL_EVENT(OnPlayerAnimChange,
-            anctrl_getIndex(ctrl),
-            anctrl_getDuration(ctrl),
-            anctrl_getPlaybackType(ctrl),
-            ctrl->start,
-            ctrl->subrange_end,
-            ctrl->smooth_transition);
-    }
-}
