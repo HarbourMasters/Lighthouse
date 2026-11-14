@@ -84,11 +84,7 @@ static bool mirrorLive(int32_t puzzleId) {
 }
 
 int32_t PuzzleStep_GetBits(int32_t puzzleId) {
-    if (!mirrorLive(puzzleId)) {
-        return 0;
-    }
-    auto it = sPuzzleBits.find({ (int32_t)gsworld_getMap(), puzzleId });
-    return it != sPuzzleBits.end() ? it->second : 0;
+    return PuzzleStep_GetBitsForMap((int32_t)gsworld_getMap(), puzzleId);
 }
 
 int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId) {
