@@ -45,7 +45,8 @@ DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl cont
 DEFINE_EVENT(OnPlayerAnimReset)
 DEFINE_EVENT(OnPlayerTransformChange, Transformation tf_id;)
 DEFINE_EVENT(OnPlayerAnimSubRangeChange, f32 duration; f32 end_position;)
-DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
+// timer = the hourglass, in seconds; doorFrames = how long the hatch stays open.
+DEFINE_EVENT(OnWaterPyramidTimer, s32* timer; s32 * doorFrames;)
 // Fired per conditional geometry-cull command in the map model (camera-area portal, LOD
 // band, frustum sphere). Listeners may set *forceDraw to draw a chunk the vanilla gate
 // would skip. `type` is OCCLUSION_CMD_* (see GeoCull.h); `offset` is the command's byte

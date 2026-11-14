@@ -238,12 +238,14 @@ void func_8038E648(Actor *this){
                 if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_STAR))
                     gcStaticCamera_activate(2);
                 subaddie_set_state(this, 6);
+                s32 doorFrames = 600; // [port]
+                s32 pyramidTimer = 25; // [port]
+                CALL_EVENT(OnWaterPyramidTimer, &pyramidTimer, &doorFrames); // [port] may extend timer
+//              this->unk38_31 = 600;
+                this->unk38_31 = doorFrames;
 //              core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
                 if(EventSystem_Should(VB_PLAY_PUZZLE_JINGLE, true, this)) core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
-                s32 pyramidTimer = 25;
-                CALL_EVENT(OnWaterPyramidTimer, &pyramidTimer); // [port] may extend timer
-                this->unk38_31 = pyramidTimer * 24; // [port] door duration derived from HUD timer (vanilla ratio 600:25)
-//              code_4C020_setHourglassTimer(pyramidTimer);
+//              code_4C020_setHourglassTimer(25);
 //              item_set(ITEM_6_HOURGLASS, 1);
                 if(EventSystem_Should(VB_GV_DOOR_HOURGLASS_START, true, GV_DOOR_CAM_STAR)){
                     code_4C020_setHourglassTimer(pyramidTimer);

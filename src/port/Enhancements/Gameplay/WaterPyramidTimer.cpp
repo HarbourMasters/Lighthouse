@@ -17,6 +17,8 @@ void RegisterWaterPyramidTimer_Init() {
     COND_HOOK(OnWaterPyramidTimer, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnWaterPyramidTimer*>(event);
         *ev->timer = 29;
+        // door duration derived from HUD timer (vanilla ratio 600:25)
+        *ev->doorFrames = *ev->timer * 24;
     });
 }
 
