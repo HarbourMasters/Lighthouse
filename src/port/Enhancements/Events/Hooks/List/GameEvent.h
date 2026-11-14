@@ -70,6 +70,8 @@ DEFINE_EVENT(OnActorNew, ActorInfo* info; uint32_t * flags;)
 DEFINE_EVENT(OnEggFireSfx, int32_t sfx; int32_t * rate;)
 // sfx = SFX_3F5_UNKNOWN, as Napper wakes.
 DEFINE_EVENT(OnNapperWakeSfx, int32_t* sfx;)
+// chanMask = the music channels a map's ambience fades to.
+DEFINE_EVENT(OnMidiChanMask, int32_t* chanMask;)
 DEFINE_EVENT(OnCrocMaxWalkVelocity, float* velocity;)
 // count = the jiggies a level holds before its last, 9 in vanilla.
 DEFINE_EVENT(OnLastJiggyCount, int32_t* count;)

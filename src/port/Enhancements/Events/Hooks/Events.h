@@ -1500,15 +1500,6 @@ typedef enum VBehaviorID {
     // - `s32` (the map)
     VB_HEALTH_HUD_SHOW,
 
-    // A music channel mask, which a listener may change. The result is unused.
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*s32` (the mask)
-    VB_MIDI_SET_CHAN_MASK,
-
     // #### `result`
     // ```c
     // true

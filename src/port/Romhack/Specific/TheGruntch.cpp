@@ -304,12 +304,10 @@ static bool Gruntch_OnFullChanMaskMap() {
 }
 
 static void Gruntch_EnableFullChanMask() {
-    REGISTER_VB_SHOULD(VB_MIDI_SET_CHAN_MASK, EVENT_PRIORITY_NORMAL, {
-        s32* mask = va_arg(args, s32*);
+    REGISTER_LISTENER(OnMidiChanMask, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         if (Gruntch_OnFullChanMaskMap()) {
-            *mask = 0xFFFF;
+            *((OnMidiChanMask*)event)->chanMask = 0xFFFF;
         }
-        (void)should;
     });
 
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
