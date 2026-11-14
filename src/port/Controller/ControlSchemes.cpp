@@ -138,7 +138,7 @@ void CollectCButtonSources(const std::shared_ptr<Controller>& controller, CONTRO
 
 } // namespace
 
-extern "C" int port_rightStickIsMapped(void) {
+extern "C" int ControlSchemes_IsRightStickMapped(void) {
     auto controller = GetPort0Controller();
     if (controller == nullptr) {
         return 0;
@@ -329,7 +329,7 @@ static void ShapeControllerInput(OSContPad* pad) {
         static uint16_t sLatchDir = 0;
         static int32_t sLatchTTL = 0;
 
-        if (port_freeLook_isEnabled() && !onJigsawPodium) {
+        if (FreeLookCamera_IsEnabled() && !onJigsawPodium) {
             uint16_t stickBits = 0;
             if (arx * arx + ary * ary > 24 * 24) {
                 if (arx >= ary) {

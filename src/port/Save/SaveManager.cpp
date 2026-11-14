@@ -121,8 +121,8 @@ static ResolvedFlag ResolveFlag(const FlagDef& f) {
         return { f.bitIndex, f.bitWidth, -1 };
     }
 
-    const int index = port_getRomhackJiggyPuzzleFlag(puzzle);
-    const int width = port_getRomhackJiggyPuzzleSize(puzzle);
+    const int index = RomhackConfig_GetJiggyPuzzleFlag(puzzle);
+    const int width = RomhackConfig_GetJiggyPuzzleSize(puzzle);
     if (index < 0 || width < 0) {
         return { f.bitIndex, f.bitWidth, puzzle }; // no override, vanilla placement
     }

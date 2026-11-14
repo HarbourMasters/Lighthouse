@@ -43,7 +43,7 @@ static bool PortDebuggerAttached() {
 }
 #endif
 
-void port_traceBadAssetId(uint32_t assetId) {
+void AssetTrace_TraceBadAssetId(uint32_t assetId) {
     static std::mutex seenMutex;
     static std::unordered_set<uint32_t> seen;
     {

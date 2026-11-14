@@ -50,7 +50,7 @@ static constexpr int WS_XLU_SCALE_FIX_COUNT = sizeof(sWsXluScaleFixes) / sizeof(
 
 void RegisterWidescreenXluScale() {
     COND_HOOK(MapModelXluScale, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
-        float aspectScale = port_wsCameraYawScale();
+        float aspectScale = CameraPatches_GetWidescreenYawScale();
         if (aspectScale <= 0.0f) {
             return;
         }

@@ -72,8 +72,8 @@ void Anchor::OnConnected() {
     Lighthouse::RunOnGameThread([this]() {
         RegisterHooks();
 
-        port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
-        port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+        NoteRetention_SetForced(IsWorldSyncActive() ? 1 : 0);
+        JinjoRetention_SetForced(IsWorldSyncActive() ? 1 : 0);
 
         if (SendPacket_RequestTeamState()) {
             hasRequestedTeamState = true;
@@ -94,8 +94,8 @@ void Anchor::OnDisconnected() {
         Authority_Reset();
         RegisterHooks();
 
-        port_noteRetention_setForced(0);
-        port_jinjoRetention_setForced(0);
+        NoteRetention_SetForced(0);
+        JinjoRetention_SetForced(0);
 
         heldTeamState.reset();
         heldIncomingPackets.clear();
@@ -360,16 +360,10 @@ void Anchor::ClearDummies() {
     dummies.clear();
 }
 
-// Presence only: true in any room, including the global one. For dummy-player visuals.
-extern "C" s32 port_anchor_isConnected(void) {
-    Anchor* anchor = Anchor::GetInstance();
-    return (anchor != nullptr && anchor->isConnected) ? 1 : 0;
-}
-
 // Lets decomp gate Anchor-only catch-up paths so single player keeps vanilla behaviour.
-extern "C" s32 port_anchor_isWorldSyncActive(void) {
+bool Anchor_IsWorldSyncActive() {
     Anchor* anchor = Anchor::GetInstance();
-    return (anchor != nullptr && anchor->IsWorldSyncActive()) ? 1 : 0;
+    return anchor != nullptr && anchor->IsWorldSyncActive();
 }
 
 void Anchor::PopulateDummies(GameMap map) {
@@ -442,11 +436,11 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
-extern void port_breakable_clearForLevel(int32_t levelId);
-extern void port_hutSmash_clearForLevel(int32_t levelId);
-extern void port_eggToll_clearForLevel(int32_t levelId);
-extern void port_puzzleStep_clearForLevel(int32_t levelId);
-extern void port_carriedSync_clearForLevel(int32_t levelId);
+extern void BreakObject_ClearForLevel(int32_t levelId);
+extern void HutSmash_ClearForLevel(int32_t levelId);
+extern void EggToll_ClearForLevel(int32_t levelId);
+extern void PuzzleStep_ClearForLevel(int32_t levelId);
+extern void CarrySync_ClearForLevel(int32_t levelId);
 
 s32 Anchor_LevelOfMap(s32 map) {
     if (map <= 0 || map >= MAP_NUM_MAPS) {
@@ -454,6 +448,14 @@ s32 Anchor_LevelOfMap(s32 map) {
     }
     s32 level = (s32)map_getLevel((enum map_e)map);
     return (level > 0 && level < 0x20) ? level : 0;
+}
+
+void Anchor_ClearLevelState(int32_t levelId) {
+    BreakObject_ClearForLevel(levelId);
+    HutSmash_ClearForLevel(levelId);
+    EggToll_ClearForLevel(levelId);
+    PuzzleStep_ClearForLevel(levelId);
+    CarrySync_ClearForLevel(levelId);
 }
 
 // Whether the player is within range of pos, for a teammate's sound or dialog there. The default, 1800 units, is as
@@ -518,11 +520,7 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     }
     for (s32 level = 1; level < 0x20; level++) {
         if (!occupied[level]) {
-            port_breakable_clearForLevel(level);
-            port_hutSmash_clearForLevel(level);
-            port_eggToll_clearForLevel(level);
-            port_puzzleStep_clearForLevel(level);
-            port_carriedSync_clearForLevel(level);
+            Anchor_ClearLevelState(level);
         }
     }
 }

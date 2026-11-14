@@ -16,8 +16,6 @@ extern ActorArray* suBaddieActorArray;
 void code_4C020_breakableObjectSfx(ActorMarker* marker, ActorMarker* other_marker);
 }
 
-#include "port/Patches/Patches.h"
-
 /**
  * BREAK_OBJECT
  */
@@ -115,21 +113,21 @@ static void despawnBrokenRestores(s32 map) {
         if (actor->marker == NULL || actor->despawn_flag || survivesBreak(actor->marker->id)) {
             continue;
         }
-        if (port_breakable_isBroken(map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
-                                    (s32)actor->position[2])) {
+        if (BreakObject_IsBroken(map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
+                                 (s32)actor->position[2])) {
             marker_despawn(actor->marker);
         }
     }
 }
 
-extern "C" int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z) {
+int32_t BreakObject_IsBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return 0;
     }
     return sBrokenObjects.count({ map, markerId, x, y, z }) != 0 ? 1 : 0;
 }
 
-std::vector<int32_t> port_breakable_snapshotBroken() {
+std::vector<int32_t> BreakObject_SnapshotBroken() {
     std::vector<int32_t> flat;
     flat.reserve(sBrokenObjects.size() * 5);
     for (const auto& e : sBrokenObjects) {
@@ -138,14 +136,14 @@ std::vector<int32_t> port_breakable_snapshotBroken() {
     return flat;
 }
 
-void port_breakable_restoreBroken(const std::vector<int32_t>& flat) {
+void BreakObject_RestoreBroken(const std::vector<int32_t>& flat) {
     sBrokenObjects.clear();
     for (size_t i = 0; i + 5 <= flat.size(); i += 5) {
         sBrokenObjects.insert({ flat[i], flat[i + 1], flat[i + 2], flat[i + 3], flat[i + 4] });
     }
 }
 
-void port_breakable_clearForLevel(int32_t levelId) {
+void BreakObject_ClearForLevel(int32_t levelId) {
     std::erase_if(sBrokenObjects, [levelId](const std::array<int32_t, 5>& e) {
         return (int32_t)map_getLevel((enum map_e)e[0]) == levelId;
     });
@@ -209,8 +207,8 @@ void RegisterBreakObject_Init() {
     });
     COND_HOOK(OnBreakableSetUp, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         Actor* actor = ((OnBreakableSetUp*)event)->actor;
-        if (port_breakable_isBroken((s32)gsworld_getMap(), actor->marker->id, (s32)actor->position[0],
-                                    (s32)actor->position[1], (s32)actor->position[2])) {
+        if (BreakObject_IsBroken((s32)gsworld_getMap(), actor->marker->id, (s32)actor->position[0],
+                                 (s32)actor->position[1], (s32)actor->position[2])) {
             marker_despawn(actor->marker);
         }
     });

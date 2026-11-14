@@ -22,8 +22,6 @@ void chTanktupLeg_despawn(ActorMarker* self, ActorMarker* other_marker);
 void chYellowFlibbit_setState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // The heads a teammate fed, a bit per actorTypeSpecificField, until the map reloads. A feed's scene outlasts the
 // update that replays it: the sounds, camera and dialogs come from timers and dialog callbacks.
 static s32 sCroctusTeammateFeeds = 0;
@@ -96,7 +94,7 @@ static void PinkEggUpdate(IEvent* event) {
     if (jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)) {
         marker_despawn(egg->marker);
         *ev->should = false;
-    } else if (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg*)&egg->local)->actorId)) {
+    } else if (PuzzleStep_GetBits(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg*)&egg->local)->actorId)) {
         sPinkEggReplay = true;
         chPinkEgg_collision(egg->marker, NULL);
         sPinkEggReplay = false;
@@ -107,7 +105,7 @@ static void PinkEggUpdate(IEvent* event) {
 static void TanktupLegUpdate(IEvent* event) {
     Actor* leg = ((ShouldActorUpdate*)event)->actor;
     if (leg->initialized && leg->state == 1 && leg->marker->collidable &&
-        (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << leg->unk10_12))) {
+        (PuzzleStep_GetBits(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << leg->unk10_12))) {
         sTanktupReplay = true;
         sTanktupTeammateLegs |= 1 << leg->unk10_12;
         sTanktupDialogHere = Anchor_InEarshot(leg->position);
@@ -120,7 +118,7 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* croctus = ev->actor;
         if (sCroctusArrivalFeeds < 0) {
-            sCroctusArrivalFeeds = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_CROCTUS);
+            sCroctusArrivalFeeds = PuzzleStep_GetBits(ANCHOR_PUZZLE_BGS_CROCTUS);
         }
         if (!croctus->volatile_initialized || croctus->state == CHCROCTUS_STATE_5_FED ||
             croctus->state == CHCROCTUS_STATE_6_DESPAWN) {
@@ -135,7 +133,7 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
         // A teammate fed the open head. Feeding the fifth spawns the jiggy, which the check above covers.
         const s32 field = croctus->actorTypeSpecificField;
         if (field < 5 && !croctus->unk38_31 && croctus->marker->propPtr->isNotFeatherEggOrNote &&
-            (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_CROCTUS) & (1 << (field - 1)))) {
+            (PuzzleStep_GetBits(ANCHOR_PUZZLE_BGS_CROCTUS) & (1 << (field - 1)))) {
             sCroctusTeammateFeeds |= 1 << (field - 1);
             croctus->unk38_31 = true;
         }
@@ -157,7 +155,7 @@ void AnchorPuzzles_RegisterBubblegloopSwamp(bool connected) {
             sTanktupCatchUp = false;
             sTanktupReplay = false;
             // Legs a teammate already knocked in don't spawn.
-            const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
+            const s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_BGS_TANKTUP);
             for (s32 i = 0; i < 4; i++) {
                 if (bits & (1 << i)) {
                     body->tanktup.unk0[i] = 1;

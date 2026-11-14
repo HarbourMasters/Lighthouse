@@ -31,7 +31,7 @@ BKVertexList* gTintedVertices = nullptr;
 
 } // namespace
 
-extern "C" void port_animVtx_beginTick(void) {
+extern "C" void AnimVertexPatches_BeginTick(void) {
     gSlot = (gSlot + 1) % kSlots;
     gUsed = 0;
     gOverflow[gSlot].clear();

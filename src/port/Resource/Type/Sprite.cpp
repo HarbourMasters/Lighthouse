@@ -2,15 +2,15 @@
 #include <cstring>
 
 extern "C" {
-void port_spriteAltRegisterChunk(const void* chunkAddr, const char* path);
-void port_spriteAltUnregisterChunk(const void* chunkAddr);
+void AltSprites_RegisterChunk(const void* chunkAddr, const char* path);
+void AltSprites_UnregisterChunk(const void* chunkAddr);
 }
 
 namespace Factories {
 
 Sprite::~Sprite() {
     for (const void* addr : mRegisteredChunks) {
-        port_spriteAltUnregisterChunk(addr);
+        AltSprites_UnregisterChunk(addr);
     }
 }
 
@@ -107,7 +107,7 @@ void Sprite::BuildSpriteStructure() {
 
             // Register the HD resource path (if any) for this chunk
             if (!chunkData.resPath.empty()) {
-                port_spriteAltRegisterChunk(chunk, chunkData.resPath.c_str());
+                AltSprites_RegisterChunk(chunk, chunkData.resPath.c_str());
                 mRegisteredChunks.push_back(chunk);
             }
 

@@ -27,7 +27,7 @@ constexpr ability_e kSpiralMountainAbilities[] = {
 
 void RegisterSkipSMTutorial_Init() {
     COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent* event) {
-        if (port_isRomhack() || IS_RANDO) {
+        if (RomhackConfig_IsActive() || IS_RANDO) {
             return;
         }
 
@@ -48,7 +48,7 @@ void RegisterSkipSMTutorial_Init() {
         sItemscoreTimeScores[LEVEL_B_SPIRAL_MOUNTAIN] = 122.0f; // Average speedrun time for SM completion (2:02)
     });
     COND_VB_SHOULD(VB_GAMESELECT_NEW_GAME_INTRO, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), {
-        if (!port_isRomhack() && !IS_RANDO) {
+        if (!RomhackConfig_IsActive() && !IS_RANDO) {
             timedFunc_set_2(0.0f, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
             timedFunc_set_1(0.0f, (GenFunction_1)gsworld_setEnableUpdate, 1);
             *should = false;

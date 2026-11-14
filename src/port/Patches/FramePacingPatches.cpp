@@ -47,11 +47,11 @@ void FramePacingPatches_SetDemoViCount(int viCount) {
     sDemoViCv.notify_all();
 }
 
-unsigned port_getDemoViSerial(void) {
+unsigned FramePacingPatches_GetDemoViSerial(void) {
     return sDemoViSerial.load(std::memory_order_acquire);
 }
 
-int port_waitDemoViSerial(unsigned seen, int timeoutUs) {
+int FramePacingPatches_WaitDemoViSerial(unsigned seen, int timeoutUs) {
     std::unique_lock<std::mutex> lock(sDemoViMutex);
     return sDemoViCv.wait_for(lock, std::chrono::microseconds(timeoutUs),
                               [seen] { return sDemoViSerial.load(std::memory_order_acquire) != seen; });

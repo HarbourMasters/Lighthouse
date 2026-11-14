@@ -161,7 +161,7 @@ void TriggerCatch() {
 void ResolveCatch() {
     gcsfx_play((enum sfx_e)(sfx_randi2(0, 2) != 0 ? kCatchSfxA : kCatchSfxB));
     if (!mumboscore_get((enum mumbotoken_e)sCfg->firstCatchToken)) {
-        const s32 warpDestination = port_getRomhackWarpDest(sCfg->escapeWarpIndex);
+        const s32 warpDestination = RomhackConfig_GetWarpDest(sCfg->escapeWarpIndex);
         if (warpDestination >= 0) {
             func_8031CC8C(NULL, warpDestination);
         } else if (sCfg->escapeWarpFallback != nullptr) {

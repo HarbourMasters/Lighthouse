@@ -323,7 +323,7 @@ static void createTransitionFb(void* arg) {
     gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
 }
 
-s32 port_getTransitionGpuFbId(void) {
+s32 Framebuffer_GetTransitionGpuId(void) {
     if (sTransitionGpuFbId < 0) {
         Graphics_RunOnRenderThread(createTransitionFb, NULL);
     }
@@ -334,7 +334,7 @@ s32 port_getTransitionGpuFbId(void) {
 // main framebuffer into the transition FB (same technique as the pause snapshot).
 // Called after the scene draw.
 void Framebuffer_CaptureTransition(Gfx** gfx) {
-    s32 trFb = port_getTransitionGpuFbId(); // create + register on first use
+    s32 trFb = Framebuffer_GetTransitionGpuId(); // create + register on first use
     if (trFb >= 0) {
         gDPCopyFB((*gfx)++, trFb, 0, 0, NULL); // copy main FB -> transition FB
     }

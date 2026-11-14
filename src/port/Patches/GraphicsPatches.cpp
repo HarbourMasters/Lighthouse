@@ -35,7 +35,7 @@ extern s32 gFramebufferHeight;
 // Romhack model display lists can leave a palette (TLUT) mode enabled and leak it
 // into the next model's draw.
 void GraphicsPatches_ResetModelTLUT(Gfx** gfx) {
-    if (!port_isRomhack()) {
+    if (!RomhackConfig_IsActive()) {
         return;
     }
     gDPSetTextureLUT((*gfx)++, G_TT_NONE);
@@ -268,7 +268,8 @@ static void OnModelDisplayListLoad_StaleTile(IEvent* event) {
 
 static void RegisterStaleTileFix_Init() {
     COND_HOOK(OnModelDisplayListLoad, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_FP_LOBBY_DOOR_TILE, 0) && !port_isRomhack(), OnModelDisplayListLoad_StaleTile);
+              CVarGetInteger(CVAR_FP_LOBBY_DOOR_TILE, 0) && !RomhackConfig_IsActive(),
+              OnModelDisplayListLoad_StaleTile);
 }
 
 static RegisterShipInitFunc staleTileFixInit(RegisterStaleTileFix_Init, { CVAR_FP_LOBBY_DOOR_TILE });

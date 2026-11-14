@@ -32,7 +32,7 @@ constexpr s32 kDriftTicks = 15;
 // Something of ours in this map acts on the hourglass running out. A map that isn't listed, or any map in a romhack,
 // counts as armed.
 static bool ChallengeTimer_ReaderArmed() {
-    if (port_isRomhack()) {
+    if (RomhackConfig_IsActive()) {
         return true;
     }
     switch (gsworld_getMap()) {

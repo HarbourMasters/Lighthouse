@@ -764,6 +764,6 @@ void RegisterSnowGlowVillagePatches() {
     HackShared_EnableMumboReward();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
     // HackShared_EnablePodiumCheck(kSnowGlowPodiumFloors);
-    port_enableNoteDoorComposer();
-    port_overrideRomhackHoneycombsPerWorld(6);
+    NoteDoorNumbers_EnableComposer();
+    RomhackConfig_OverrideHoneycombsPerWorld(6);
 }

@@ -12,8 +12,6 @@ void chXmasTreeIce_shatterIce(ActorMarker* marker);
 void func_803877A8(ActorMarker* caller, enum asset_e text_id, s32 arg2);
 }
 
-#include "port/Patches/Patches.h"
-
 struct CubPresent {
     s32 levelFlag;
     s32 bit;
@@ -75,18 +73,18 @@ static bool BoggyDialogHere(Actor* boggy) {
 static void BearCubUpdate(IEvent* event) {
     Actor* cub = ((ShouldActorUpdate*)event)->actor;
     const CubPresent& present = kCubPresents[cub->modelCacheIndex - ACTOR_1EA_POLAR_BEAR_CUB_BLUE];
-    const s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_FP_PRESENTS);
+    const s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_FP_PRESENTS);
 
     // Before the cub sets up: our presents are the team's collected ones less the delivered, since carried presents
     // aren't synced.
     if (!cub->volatile_initialized) {
-        const s32 pool = port_carriedSync_collectedCount(present.kind) - ((bits & present.bit) ? 1 : 0);
+        const s32 pool = CarrySync_GetCollectedCount(present.kind) - ((bits & present.bit) ? 1 : 0);
         if (pool > item_getCount(present.item)) {
             item_adjustByDiffWithoutHud(present.item, pool - item_getCount(present.item));
         }
     }
     if (levelSpecificFlags_get(present.levelFlag)) {
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_PRESENTS, present.bit);
+        PuzzleStep_OrBits(ANCHOR_PUZZLE_FP_PRESENTS, present.bit);
     } else if (bits & present.bit) {
         // A teammate gave this cub its present.
         levelSpecificFlags_set(present.levelFlag, true);
@@ -105,14 +103,14 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
         const s32 x = (s32)button->position[0];
         const s32 y = (s32)button->position[1];
         const s32 z = (s32)button->position[2];
-        if (button->state == 1 && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)) {
+        if (button->state == 1 && PuzzleStep_IsPosMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)) {
             subaddie_set_state_with_direction(button, 2, 0.01f, 1);
             NoteSnowStep(ANCHOR_PUZZLE_FP_SNOWBUTTONS, true, button->position[0], button->position[1],
                          button->position[2]);
             maSnowButton_decRemaining();
         }
         if (button->state != 1) {
-            port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
+            PuzzleStep_MarkPos(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
         }
     });
 
@@ -121,8 +119,8 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* slush = ev->actor;
         if (gsworld_getMap() != MAP_27_FP_FREEZEEZY_PEAK ||
-            !port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)slush->position[0], (s32)slush->position[1],
-                                     (s32)slush->position[2])) {
+            !PuzzleStep_IsPosMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)slush->position[0], (s32)slush->position[1],
+                                    (s32)slush->position[2])) {
             return;
         }
         if (slush->volatile_initialized) {
@@ -170,7 +168,7 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_15F_XMAS_TREE, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         Actor* tree = ((ShouldActorUpdate*)event)->actor;
         if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE) &&
-            (port_puzzleStep_getForMap(MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
+            (PuzzleStep_GetBitsForMap(MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
             levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
             if (tree->state == 4) {
                 item_set(ITEM_6_HOURGLASS, false);
@@ -183,7 +181,7 @@ void AnchorPuzzles_RegisterFreezeezyPeak(bool connected) {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_340_XMAS_TREE_ICE, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         auto* ev = (ShouldActorUpdate*)event;
         Actor* ice = ev->actor;
-        const bool shattered = port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1;
+        const bool shattered = PuzzleStep_GetBits(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1;
         if (!ice->volatile_initialized) {
             sTreeIceShattering = false;
             if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)) {

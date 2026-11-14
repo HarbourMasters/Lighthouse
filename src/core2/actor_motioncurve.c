@@ -6,7 +6,7 @@
 #include "core2/ba/physics.h"
 
 extern f32 player_getYaw(void);
-// chJigsawDance_setState declared in port_prototypes.h (u32 arg1)
+//extern void chJigsawDance_setState(Actor *, s32);
 extern void bsjig_setJiggyMarkerPtr(ActorMarker *);
 
 typedef struct{

@@ -16,8 +16,6 @@ void maClankerRings_endMinigame(void);
 void maClankerTooth_setNextState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // clankerrings.c's RING_COUNT.
 constexpr u8 kClankerRingCount = 9;
 
@@ -38,8 +36,8 @@ static bool IsClankerTeammateTooth(Actor* actor) {
 static void CCGrateUpdate(IEvent* event) {
     auto* ev = (ShouldActorUpdate*)event;
     Actor* grate = ev->actor;
-    if (!port_breakable_isBroken((s32)gsworld_getMap(), (s32)grate->marker->id, (s32)grate->position[0],
-                                 (s32)grate->position[1], (s32)grate->position[2])) {
+    if (!BreakObject_IsBroken((s32)gsworld_getMap(), (s32)grate->marker->id, (s32)grate->position[0],
+                              (s32)grate->position[1], (s32)grate->position[2])) {
         return;
     }
     if (!grate->volatile_initialized) {
@@ -59,7 +57,7 @@ static void ClankerToothUpdate(IEvent* event) {
     if (!tooth->volatile_initialized) {
         return;
     }
-    const s32 bits = (port_puzzleStep_get(ANCHOR_PUZZLE_CC_CLANKER_TEETH) >> ((local->unk0 - 1) * 3)) & 0x7;
+    const s32 bits = (PuzzleStep_GetBits(ANCHOR_PUZZLE_CC_CLANKER_TEETH) >> ((local->unk0 - 1) * 3)) & 0x7;
     const s32 eggs = (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
     while (tooth->state == CLANKER_TOOTH_STATE_1_UPRIGHT && local->egg_count < eggs) {
         local->egg_count++;

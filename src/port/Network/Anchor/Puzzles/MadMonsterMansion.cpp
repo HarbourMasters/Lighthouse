@@ -13,8 +13,6 @@ void func_8038A140(s32 arg0);
 void organMinigame_setState(s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // A teammate collected Napper's jiggy here, and his scene plays out.
 static bool sNapperTeammateCollect = false;
 
@@ -41,8 +39,8 @@ void AnchorPuzzles_RegisterMadMonsterMansion(bool connected) {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_25_CEMETARY_POT, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         Actor* pot = ((ShouldActorUpdate*)event)->actor;
         if (pot->state == FLOWER_POT_STATE_1_IDLE &&
-            port_breakable_isBroken((s32)gsworld_getMap(), (s32)pot->marker->id, (s32)pot->position[0],
-                                    (s32)pot->position[1], (s32)pot->position[2])) {
+            BreakObject_IsBroken((s32)gsworld_getMap(), (s32)pot->marker->id, (s32)pot->position[0],
+                                 (s32)pot->position[1], (s32)pot->position[2])) {
             subaddie_set_state(pot, FLOWER_POT_STATE_2_FLOWERED);
             anctrl_setPlaybackType(pot->anctrl, ANIMCTRL_ONCE);
         }

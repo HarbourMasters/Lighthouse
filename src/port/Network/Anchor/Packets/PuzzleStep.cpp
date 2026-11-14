@@ -13,8 +13,6 @@
 
 #include "functions.h"
 
-#include "port/Patches/Patches.h"
-
 /**
  * PUZZLE_STEP
  *
@@ -85,15 +83,11 @@ static bool mirrorLive(int32_t puzzleId) {
     return Anchor::GetInstance()->IsWorldSyncActive() && mirrorAllowedFor(puzzleId, (int32_t)gsworld_getMap());
 }
 
-extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
-    if (!mirrorLive(puzzleId)) {
-        return 0;
-    }
-    auto it = sPuzzleBits.find({ (int32_t)gsworld_getMap(), puzzleId });
-    return it != sPuzzleBits.end() ? it->second : 0;
+int32_t PuzzleStep_GetBits(int32_t puzzleId) {
+    return PuzzleStep_GetBitsForMap((int32_t)gsworld_getMap(), puzzleId);
 }
 
-extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
+int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive() || !mirrorAllowedFor(puzzleId, map)) {
         return 0;
     }
@@ -103,7 +97,7 @@ extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
 
 // For level-homed puzzles: a relocated actor writes under the romhack's map
 // key, which a map-keyed read can't know. ORs the puzzle's bits across the level.
-extern "C" int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId) {
+int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId) {
     int32_t bits = 0;
     for (const auto& [key, val] : sPuzzleBits) {
         if (key[1] == puzzleId && mirrorAllowedFor(puzzleId, key[0]) &&
@@ -114,7 +108,7 @@ extern "C" int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId
     return bits;
 }
 
-extern "C" void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits) {
+void PuzzleStep_OrBits(int32_t puzzleId, int32_t bits) {
     if (!mirrorLive(puzzleId)) {
         return;
     }
@@ -167,7 +161,7 @@ void Anchor::HandlePacket_PuzzleStep(nlohmann::json& payload) {
     sPuzzleBits[{ map, puzzleId }] |= payload.at("bits").get<s32>();
 }
 
-std::vector<int32_t> port_puzzleStep_snapshot() {
+std::vector<int32_t> PuzzleStep_Snapshot() {
     std::vector<int32_t> flat;
     flat.reserve(sPuzzleBits.size() * 3);
     for (const auto& [key, bits] : sPuzzleBits) {
@@ -178,7 +172,7 @@ std::vector<int32_t> port_puzzleStep_snapshot() {
     return flat;
 }
 
-void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
+void PuzzleStep_Restore(const std::vector<int32_t>& flat) {
     sPuzzleBits.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         if (!mirrorAllowedFor(flat[i + 1], flat[i])) {
@@ -188,7 +182,7 @@ void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
     }
 }
 
-void port_puzzleStep_clearForLevel(int32_t levelId) {
+void PuzzleStep_ClearForLevel(int32_t levelId) {
     std::erase_if(sPuzzleBits,
                   [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
     std::erase_if(sPuzzleCounts,
@@ -204,7 +198,7 @@ void port_puzzleStep_clearForLevel(int32_t levelId) {
  * (FP's Sir Slushes). Rides the same PUZZLE_STEP packet via the phash field.
  */
 
-extern "C" int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+int32_t PuzzleStep_IsPosMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
     if (!mirrorLive(puzzleId)) {
         return 0;
     }
@@ -212,7 +206,7 @@ extern "C" int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t 
     return (it != sPuzzlePos.end() && it->second.count(puzzlePosHash(x, y, z))) ? 1 : 0;
 }
 
-extern "C" void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+void PuzzleStep_MarkPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
     if (!mirrorLive(puzzleId)) {
         return;
     }
@@ -226,7 +220,7 @@ extern "C" void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int3
 }
 
 // Flat [map, puzzleId, count, hashes...] runs.
-std::vector<int32_t> port_puzzlePos_snapshot() {
+std::vector<int32_t> PuzzleStep_SnapshotPositions() {
     std::vector<int32_t> flat;
     for (const auto& [key, set] : sPuzzlePos) {
         flat.push_back(key[0]);
@@ -239,7 +233,7 @@ std::vector<int32_t> port_puzzlePos_snapshot() {
     return flat;
 }
 
-void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
+void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat) {
     sPuzzlePos.clear();
     size_t i = 0;
     while (i + 3 <= flat.size()) {
@@ -263,7 +257,7 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
  * to actor state), and scoping them would brick a relocated Eyrie/Nabnut.
  */
 
-extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
+int32_t PuzzleStep_GetCount(int32_t counterId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return 0;
     }
@@ -271,7 +265,7 @@ extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
     return it != sPuzzleCounts.end() ? it->second : 0;
 }
 
-extern "C" void port_puzzleCount_add(int32_t counterId, int32_t delta) {
+void PuzzleStep_AddCount(int32_t counterId, int32_t delta) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return;
     }
@@ -308,7 +302,7 @@ void Anchor::HandlePacket_PuzzleCount(nlohmann::json& payload) {
     sPuzzleCounts[{ map, counterId }] += delta;
 }
 
-std::vector<int32_t> port_puzzleCount_snapshot() {
+std::vector<int32_t> PuzzleStep_SnapshotCounts() {
     std::vector<int32_t> flat;
     flat.reserve(sPuzzleCounts.size() * 3);
     for (const auto& [key, count] : sPuzzleCounts) {
@@ -319,7 +313,7 @@ std::vector<int32_t> port_puzzleCount_snapshot() {
     return flat;
 }
 
-void port_puzzleCount_restore(const std::vector<int32_t>& flat) {
+void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat) {
     sPuzzleCounts.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
         sPuzzleCounts[{ flat[i], flat[i + 1] }] = flat[i + 2];
@@ -335,15 +329,15 @@ void RegisterPuzzleStep_Init() {
     // At boot, with the rest of this file: the records do nothing until the puzzle's sync is live.
     REGISTER_LISTENER(OnPuzzleStep, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnPuzzleStep*)event;
-        port_puzzleStep_orBits(ev->puzzleId, ev->bits);
+        PuzzleStep_OrBits(ev->puzzleId, ev->bits);
     });
     REGISTER_LISTENER(OnPuzzlePosMark, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnPuzzlePosMark*)event;
-        port_puzzlePos_mark(ev->puzzleId, ev->x, ev->y, ev->z);
+        PuzzleStep_MarkPos(ev->puzzleId, ev->x, ev->y, ev->z);
     });
     REGISTER_LISTENER(OnPuzzleCountAdd, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (OnPuzzleCountAdd*)event;
-        port_puzzleCount_add(ev->counterId, ev->delta);
+        PuzzleStep_AddCount(ev->counterId, ev->delta);
     });
 }
 

@@ -103,13 +103,13 @@ f32 MeasureBoldNameWidth(const char* s) {
 
 // A ported hack's level names are recentered on the vanilla names' hand-tuned x.
 void ApplyPauseLevelNames() {
-    COND_HOOK(OnPauseLevelName, EVENT_PRIORITY_NORMAL, port_isRomhack(), [](IEvent* event) {
+    COND_HOOK(OnPauseLevelName, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), [](IEvent* event) {
         auto* ev = (OnPauseLevelName*)event;
-        const char* romhackName = port_getRomhackLevelName(ev->page);
+        const char* romhackName = RomhackConfig_GetLevelName(ev->page);
         if (romhackName == nullptr) {
             return;
         }
-        if (port_getRomhackIdentifier() != nullptr) {
+        if (RomhackConfig_GetIdentifier() != nullptr) {
             const f32 shift = (MeasureBoldNameWidth((const char*)*ev->name) - MeasureBoldNameWidth(romhackName)) * 0.5f;
             *ev->x += (s32)(shift >= 0.0f ? shift + 0.5f : shift - 0.5f);
         }
@@ -122,15 +122,15 @@ s32 sPauseRowsMask = 0;
 
 // One listener decides every totals row. A mask from HackShared_SetPauseRowsVisible beats the config's hidden rows.
 void ApplyPauseRowVisibility() {
-    COND_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+    COND_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, RomhackConfig_IsActive(), {
         const s32 level = va_arg(args, s32);
         const s32 row = va_arg(args, s32);
         if (level == sPauseRowsLevel) {
             *should = (sPauseRowsMask >> row) & 1;
             return;
         }
-        s32 hideCollectibles = port_getRomhackHideCollectiblesLevel();
-        s32 hideJiggies = port_getRomhackHideJiggiesLevel();
+        s32 hideCollectibles = RomhackConfig_GetHideCollectiblesLevel();
+        s32 hideJiggies = RomhackConfig_GetHideJiggiesLevel();
         if (hideCollectibles < 0 && hideJiggies < 0) {
             return;
         }
@@ -372,11 +372,11 @@ void ApplySpawnRewrites() {
 }
 
 static void ApplyNewGameHooks() {
-    COND_VB_SHOULD(VB_GAMESELECT_NEW_GAME_INTRO, EVENT_PRIORITY_NORMAL, port_getRomhackNewGameMap() >= 0, {
-        timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, port_getRomhackNewGameMap(), 0, 1);
+    COND_VB_SHOULD(VB_GAMESELECT_NEW_GAME_INTRO, EVENT_PRIORITY_NORMAL, RomhackConfig_GetNewGameMap() >= 0, {
+        timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, RomhackConfig_GetNewGameMap(), 0, 1);
         *should = false;
     });
-    COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, port_getRomhackKnowAllMoves() >= 0,
+    COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, RomhackConfig_GetKnowAllMoves() >= 0,
               [](IEvent*) { ability_setAllLearned(-1); });
 }
 

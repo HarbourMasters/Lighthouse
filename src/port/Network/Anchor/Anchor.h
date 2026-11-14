@@ -65,8 +65,28 @@ void Anchor_RegisterTumblarHooks(bool connected);
 bool TumblarUpdate_IsGameRunning();
 void Anchor_BreakLairBreakable(int32_t progressFlag);
 void Anchor_RegisterFightHooks(bool connected);
+void Anchor_ClearLevelState(int32_t levelId);
 bool ChallengeTimer_IsShowing();
 bool ChallengeTimer_IsOurs(s32 jiggyId);
+
+int32_t BreakObject_IsBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
+
+void CarryThrow_SetCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
+
+// Connected, in a real room, syncing world state.
+bool Anchor_IsWorldSyncActive();
+
+// The puzzle mirrors below are home-scoped.
+void PuzzleStep_OrBits(int32_t puzzleId, int32_t bits);
+int32_t PuzzleStep_GetBits(int32_t puzzleId);
+int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId);
+int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId);
+
+void PuzzleStep_MarkPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
+int32_t PuzzleStep_IsPosMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
+
+void PuzzleStep_AddCount(int32_t counterId, int32_t delta);
+int32_t PuzzleStep_GetCount(int32_t counterId);
 
 class Anchor : public Network {
 private:

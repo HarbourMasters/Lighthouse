@@ -14,7 +14,7 @@
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterEasierBoggyRaces_Init() {
-    COND_HOOK(OnBoggyRaceSetSpeed, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(), [](IEvent* event) {
+    COND_HOOK(OnBoggyRaceSetSpeed, EVENT_PRIORITY_NORMAL, CVAR && !RomhackConfig_IsActive(), [](IEvent* event) {
         auto* ev = reinterpret_cast<OnBoggyRaceSetSpeed*>(event);
         *ev->speed *= 0.95f;
     });
