@@ -6,6 +6,7 @@
 
 #include "bk_time.h"
 #include "port/Interpolation/FrameInterpolation.h"
+#include "port/Patches/Patches.h"
 
 extern void func_8023DFF0(s32);
 extern void coMusicPlayer_update(void);
@@ -94,9 +95,6 @@ void func_802E3460(s32 arg0) {
         D_8037E8C0.unk0 = 0.0f;
     }
 }
-
-extern void Graphics_PushFrame(Gfx* data);
-extern void Framebuffer_ReadbackGPU(int bufferIndex);
 
 void func_802E3524(s32 arg0) {
     Gfx *gfx_begin;

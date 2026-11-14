@@ -17,6 +17,7 @@ void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg);
 void Graphics_ServiceRenderRequests(void);
 // Waits for in-flight display lists before freeing or reading what they use.
 void Graphics_PipelineSyncPoint(void);
+void Graphics_PushFrame(Gfx* data);
 
 // Frame Pacing (FramePacingPatches.cpp)
 
@@ -43,6 +44,7 @@ int SpritePatches_DialogFontUsesShiftedCodes(void);   // format codes shifted pa
 void Framebuffer_FreezeReadback(int freeze);
 void Framebuffer_RequestReadback(void);
 int Framebuffer_ConsumeReadbackRequest(void);
+void Framebuffer_ReadbackGPU(int bufferIndex);
 void Framebuffer_DrawPauseBackground(Gfx** gfx, int capture);
 int Framebuffer_ConsumePauseRecapture(void);
 int TransitionPatches_ShouldCapture(void);
