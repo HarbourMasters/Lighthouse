@@ -68,7 +68,6 @@ void DrawSubframe(Fast::Interpreter* interpreter, const std::shared_ptr<Ship::Wi
 void PresentSubframe(Fast::Interpreter* interpreter) {
     interpreter->EndFrame();
     sLastPresentNs = OS_SteadyNs();
-    CALL_EVENT(FrameDrawEnd);
     interpreter->mInterpolationIndex++;
 }
 } // namespace

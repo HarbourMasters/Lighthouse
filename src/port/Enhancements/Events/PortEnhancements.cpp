@@ -21,7 +21,6 @@ void PortEnhancements_Init() {
 void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
-    REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(OnControllerRead);
     REGISTER_EVENT(OnControllerUpdate);
     REGISTER_EVENT(OnMapLoad);
@@ -50,8 +49,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorDrawEnd);
     REGISTER_EVENT(ShouldActorDraw);
     REGISTER_EVENT(ShouldActorUpdate);
-    REGISTER_EVENT(OnPropTick);
-    REGISTER_EVENT(OnSpritePropTick);
     REGISTER_EVENT(LocalizeUiString);
     REGISTER_EVENT(OnFileSelectInfoBuild);
 
@@ -110,7 +107,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnFpTwinklyMinigameEnd);
     REGISTER_EVENT(OnJigsawPodiumInput);
     REGISTER_EVENT(OnMumboTokenIdResolve);
-    REGISTER_EVENT(OnNametagDraw);
     REGISTER_EVENT(OnAnimCtrlStart);
     REGISTER_EVENT(OnPlayerAnimChange);
     REGISTER_EVENT(OnPlayerAnimReset);
@@ -163,7 +159,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnSaveClear);
-    REGISTER_EVENT(OnPropInit);
     REGISTER_EVENT(OnWarpDispatch);
     REGISTER_EVENT(OnNamedWarp);
     REGISTER_EVENT(OnWarpMusic);

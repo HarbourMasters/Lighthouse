@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 DEFINE_EVENT(GameFrameUpdate);
-DEFINE_EVENT(FrameDrawEnd);
 DEFINE_EVENT(OnControllerRead, void* pad;);
 DEFINE_EVENT(OnControllerUpdate);
 
@@ -55,9 +54,6 @@ DEFINE_EVENT(OnActorDrawBegin, Actor* actor;);
 DEFINE_EVENT(OnActorDrawEnd, Actor* actor;);
 DEFINE_EVENT(ShouldActorDraw, Actor* actor; bool* should;);
 DEFINE_EVENT(ShouldActorUpdate, Actor* actor; bool* should;);
-DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);
-DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
-DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
 DEFINE_EVENT(LocalizeUiString, const char** str;);
 DEFINE_EVENT(OnParadeNameDraw, const char* name; int32_t yPosition;);
 DEFINE_EVENT(OnJinjoHeadDraw, s32 jinjoId;);
