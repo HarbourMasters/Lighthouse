@@ -109,7 +109,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSmMovesCompleted);
     REGISTER_EVENT(OnFpTwinklyMinigameEnd);
     REGISTER_EVENT(OnJigsawPodiumInput);
-    REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
     REGISTER_EVENT(OnNametagDraw);
     REGISTER_EVENT(OnAnimCtrlStart);
@@ -201,7 +200,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
     REGISTER_EVENT(OnReset);
     REGISTER_EVENT(SetAnimSpeedMult);
-    REGISTER_EVENT(OnActorUpdate);
 
     // Register rando events
     REGISTER_EVENT(InitRandoEvents);

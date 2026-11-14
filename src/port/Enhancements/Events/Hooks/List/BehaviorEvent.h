@@ -38,7 +38,6 @@ DEFINE_EVENT(OnBossJinjoHitUpdate, Actor* jinjo;)
 DEFINE_EVENT(OnSmMovesCompleted)
 DEFINE_EVENT(OnFpTwinklyMinigameEnd)
 DEFINE_EVENT(OnJigsawPodiumInput, s32 podiumId;)
-DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
 DEFINE_EVENT(OnMumboTokenIdResolve, s32* tokenId; s32 * position; s32 mapId;)
 DEFINE_EVENT(OnAnimCtrlStart, AnimCtrl* ctrl;)
 DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position;

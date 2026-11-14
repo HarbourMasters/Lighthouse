@@ -3,7 +3,6 @@
 #include <libultraship/bridge/eventsbridge.h>
 
 DEFINE_EVENT(SetAnimSpeedMult, int32_t* mult; int32_t id;)
-DEFINE_EVENT(OnActorUpdate, Actor* actor;)
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnActorArrayFree)
 DEFINE_EVENT(OnMapFileLoad, int32_t map;)

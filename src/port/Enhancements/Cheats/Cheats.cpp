@@ -291,12 +291,8 @@ void RegisterFastTransform_Init() {
         }
     });
 
-    COND_HOOK(OnActorUpdate, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
-        OnActorUpdate* ev = reinterpret_cast<OnActorUpdate*>(event);
-        if (ev->actor->actor_info->actorId != ACTOR_7_MUMBO) {
-            return;
-        }
-
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_7_MUMBO, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
+        ShouldActorUpdate* ev = reinterpret_cast<ShouldActorUpdate*>(event);
         if (ev->actor->state == 5) {
             anctrl_setDuration(ev->actor->anctrl, 7.5f / 8.0f);
         }

@@ -62,7 +62,6 @@ void chMumboToken_update(Actor *this){
     f32 sp28[3];
 
     local = (ActorLocal_MumboToken *)&this->local;
-    CALL_EVENT(OnMumboTokenUpdate, this);
     if(!this->initialized){
         this->initialized = true;
         if(local->uid == 0){

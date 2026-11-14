@@ -65,12 +65,14 @@ void RegisterGruntyDefeatedFlag_Init() {
 
 // Move this token to the floor when jiggy is collected so it is no longer missable
 void RegisterMumboTokenGV_Init() {
-    COND_HOOK(OnMumboTokenUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0), [](IEvent* event) {
-        auto* ev = reinterpret_cast<OnMumboTokenUpdate*>(event);
-        if (gsworld_getMap() == MAP_15_GV_WATER_PYRAMID && jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
-            ev->actor->position[1] = 175.0f;
-        }
-    });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_2D_MUMBO_TOKEN, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0),
+                 [](IEvent* event) {
+                     auto* ev = reinterpret_cast<ShouldActorUpdate*>(event);
+                     if (gsworld_getMap() == MAP_15_GV_WATER_PYRAMID &&
+                         jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
+                         ev->actor->position[1] = 175.0f;
+                     }
+                 });
 }
 
 // CCW Gnawty rock: indestructible in Spring (v1.1).

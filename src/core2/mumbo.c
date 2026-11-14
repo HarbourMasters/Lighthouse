@@ -216,7 +216,6 @@ void chMumbo_func_802D1B8C(Actor *this, enum transformation_e transform_id) {
 }
 
 void chMumbo_update(Actor *this) {
-    CALL_EVENT(OnActorUpdate, this);
     s32 face_buttons[6];
     f32 sp4C[3];
     bool sp48;
