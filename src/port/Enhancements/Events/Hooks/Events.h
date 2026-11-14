@@ -310,6 +310,7 @@ typedef enum VBehaviorID {
     // - `*Actor` (the stump)
     VB_MM_CHIMPY_STUMP_START_LOWERED,
 
+    // A sound node on an actor's path. A listener that returns false breaks out of the node before it plays.
     // #### `result`
     // ```c
     // true
