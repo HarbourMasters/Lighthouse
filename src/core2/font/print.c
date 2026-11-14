@@ -537,7 +537,9 @@ BKSpriteTextureBlock *print_getBoldFontLetterSprite(s32 letterId, s32 *fontType)
         // [port] Let the language system remap the slot/letter (e.g. fall back to
         // the base font if the JP font slot is momentarily unloaded mid-swap).
         CALL_EVENT(ResolveBoldFontSlot, &slot, &letterId);
+//      *fontType = print_sFontSpriteAssets[print_sCurrentFont]->type;
         *fontType = print_sFontSpriteAssets[slot]->type;
+//      return print_sFonts[print_sCurrentFont][letterId].sprite;
         return print_sFonts[slot][letterId].sprite;
     }
     else{//L802F5510

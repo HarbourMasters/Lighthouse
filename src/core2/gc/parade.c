@@ -310,6 +310,7 @@ void gcparade_update(void) {
                                 sp34 = 0xA8;
                             timedFunc_set_1(1.0f, (GenFunction_1)func_80311714, 0);
                             CALL_EVENT(ParadeCreditDialogId, D_803830F0.indx, &paradeDialogId);
+//                          func_80324DBC(1.0f, D_803830F0.indx + 0x11AF, sp34, NULL, NULL, gcparade_textCallback, NULL);
                             func_80324DBC(1.0f, paradeDialogId, sp34, NULL, NULL, gcparade_textCallback, NULL);
                             timedFunc_set_1(1.0f, (GenFunction_1)func_80311714, 1);
                         } else if (D_803830F0.parade_element->exit >= 0) {

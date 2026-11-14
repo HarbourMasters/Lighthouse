@@ -23,6 +23,7 @@ bool batimer_decrement(s32 id){
     }
     int mult = 1;
     CALL_EVENT(SetAnimSpeedMult, &mult, id);
+//  s_batimer.value[id] = ml_max_f(0.0f, s_batimer.value[id] - time_getDelta());
     s_batimer.value[id] = ml_max_f(0.0f, s_batimer.value[id] - (time_getDelta() * mult));
     return s_batimer.value[id] == 0.0f;
 }

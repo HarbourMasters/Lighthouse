@@ -104,11 +104,14 @@ s32 cutscenetrigger_update(void)
     cutscenetrigger_check(MAP_81_CS_INTRO_GL_DINGPOT_2,       0, MAP_7D_CS_SPIRAL_MOUNTAIN_1,                             -1, NULL);
     cutscenetrigger_check(MAP_82_CS_ENTERING_GL_MACHINE_ROOM, 0, MAP_69_GL_MM_LOBBY,            WARP_GL_MM_LOBBY_12_ENTRANCE, cutscene_skipEnterLairCutsceneCheck);
     // [port] Honor BootSequence so post-cutscene transitions match a fresh boot.
+//  cutscenetrigger_check(MAP_83_CS_GAME_OVER_MACHINE_ROOM,   0, MAP_1F_CS_START_RAREWARE,                                -1, cutscene_skipGameOverCutsceneCheck);
     cutscenetrigger_check(MAP_83_CS_GAME_OVER_MACHINE_ROOM,   0, getDefaultBootMap(),                                     -1, cutscene_skipGameOverCutsceneCheck);
     cutscenetrigger_check(MAP_87_CS_SPIRAL_MOUNTAIN_5,        0, MAP_88_CS_SPIRAL_MOUNTAIN_6,                             -1, NULL);
     cutscenetrigger_check(MAP_94_CS_INTRO_SPIRAL_7,           0, MAP_8E_GL_FURNACE_FUN,                                    4, NULL);
     cutscenetrigger_check(MAP_88_CS_SPIRAL_MOUNTAIN_6,        1, MAP_96_CS_END_BEACH_1,                                   -1, NULL);
+//  cutscenetrigger_check(MAP_98_CS_END_SPIRAL_MOUNTAIN_1,    0, MAP_1F_CS_START_RAREWARE,                                -1, NULL);
     cutscenetrigger_check(MAP_98_CS_END_SPIRAL_MOUNTAIN_1,    0, getDefaultBootMap(),                                     -1, NULL);
+//  cutscenetrigger_check(MAP_99_CS_END_SPIRAL_MOUNTAIN_2,    0, MAP_1F_CS_START_RAREWARE,                                -1, NULL);
     cutscenetrigger_check(MAP_99_CS_END_SPIRAL_MOUNTAIN_2,    0, getDefaultBootMap(),                                     -1, NULL);
     cutscenetrigger_check(MAP_20_CS_END_NOT_100,              0, MAP_98_CS_END_SPIRAL_MOUNTAIN_1,                         -1, NULL);
     cutscenetrigger_check(MAP_95_CS_END_ALL_100,              0, MAP_99_CS_END_SPIRAL_MOUNTAIN_2,                         -1, NULL);

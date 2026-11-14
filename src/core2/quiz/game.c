@@ -998,6 +998,7 @@ void func_802D5260(void) {
                      : 0];
         }
         CALL_EVENT(OnLairWaterLevel, (s16 *)&D_803679C8[sp3C], sp38->type_6D.unk8, &sp34); // [port]
+//      func_8034DEB4(sp38, sp34);
         func_8034DEB4(&sp38->type_6D, sp34);
         player_getPosition(sp28);
 

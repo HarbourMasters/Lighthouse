@@ -41,6 +41,7 @@ enum mumbotoken_e func_802E0A90(Actor *this){
     s32 pos[3];
     s32 ret;
 
+//  gsworld_getMap();
     enum map_e map_id = gsworld_getMap();
     pos[0] = (s32)this->position[0];
     pos[1] = (s32)this->position[1];
@@ -50,6 +51,7 @@ enum mumbotoken_e func_802E0A90(Actor *this){
         return 0;
     }
     else{
+//      return func_80306DBC(id) - 199;
         ret = func_80306DBC(id) - 199;
         // [port] Fix duplicate mumbo token IDs (from BanjoRecomp)
         CALL_EVENT(OnMumboTokenIdResolve, &ret, pos, map_id);

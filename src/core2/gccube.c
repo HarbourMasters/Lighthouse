@@ -448,10 +448,14 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         int width = 4;
         CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);
 
+//      if(vp_cube_indices[i] - sp44[i] >= 5){
         if(vp_cube_indices[i] - sp44[i] > width){
+//          sp44[i] = vp_cube_indices[i] - 4;
             sp44[i] = vp_cube_indices[i] - width;
         }
+//      if(sp38[i] - vp_cube_indices[i] >= 5){
         if(sp38[i] - vp_cube_indices[i] > width){
+//          sp38[i] = vp_cube_indices[i] + 4;
             sp38[i] = vp_cube_indices[i] + width;
         }
     }

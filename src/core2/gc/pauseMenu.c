@@ -806,6 +806,7 @@ s32 gcpausemenu_80312D78(struct1As *arg0, s32 arg1) {
             if (!arg0[var_s2].unkF) {
                 const char *label = (const char *) arg0[var_s2].str;
                 CALL_EVENT(LocalizeUiString, &label);
+//              var_v0 = BOOL(func_803183A4(D_80383010.zoombox[var_s2], arg0[var_s2].str));
                 var_v0 = BOOL(func_803183A4(D_80383010.zoombox[var_s2], (u8 *) label));
                 arg0[var_s2].unkF = var_v0;
                 if (arg0[var_s2].unkF) {
@@ -1145,6 +1146,7 @@ s32 gcPauseMenu_update(void) {
                 gczoombox_maximize(D_80383010.zoombox[D_80383010.selection]);
                 const char *confirm = (D_80383010.unk3_6) ? "ARE YOU SURE?" : "A - YES, B - NO";
                 CALL_EVENT(LocalizeUiString, &confirm);
+//              if (D_8036C4E0[D_80383010.selection].unkF = func_803183A4(D_80383010.zoombox[D_80383010.selection], (D_80383010.unk3_6) ? "ARE YOU SURE?" : "A - YES, B - NO")) {
                 if (D_8036C4E0[D_80383010.selection].unkF = func_803183A4(D_80383010.zoombox[D_80383010.selection], (u8 *) confirm)) {
                     D_80383010.unkC = 0.0;
                 }
