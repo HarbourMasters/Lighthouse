@@ -14,19 +14,12 @@
 extern "C" {
 #include "variables.h"
 
-float OTRGetDimensionFromLeftEdge(float v);
-float OTRGetDimensionFromRightEdge(float v);
-void SpawnJiggy_Remove(int32_t jiggyId);
-int32_t SpawnJiggy_IsRecorded(int32_t jiggyId);
 void func_80324CD8(f32 time);
 void __chScarfSled_setState(Actor* self, s32 next_state);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 bool __chAttackTutorial_areLearnableAbilitiesUnlocked(void);
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
 }
-
-s32 Anchor_LevelOfMap(s32 map);
-void Anchor_DespawnCollectedCollectibles();
 
 // The honeycomb is out, or spawned and yet to take its uid.
 static bool Anchor_HoneycombPresent(enum honeycomb_e id) {

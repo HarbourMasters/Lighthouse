@@ -10,8 +10,7 @@
 #include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
-
-extern int ResourceMgr_IsModelAsset(uint32_t assetId);
+#include "port/ResourceHelpers.h"
 
 #define AssetCacheSize 0x3D5
 

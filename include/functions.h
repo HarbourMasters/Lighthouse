@@ -2961,6 +2961,9 @@ void osDpSetStatus(u32 data);
 void* osViGetCurrentFramebuffer(void);
 void* osViGetNextFramebuffer(void);
 
+// --- port/Patches/SpritePatches.cpp ---
+BKSpriteDisplayData *SpritePatches_GetOrCreateDisplayData(BKSprite *sprite);
+
 // --- provided by libultraship ---
 s32 osPiReadIo(u32, u32 *);
 

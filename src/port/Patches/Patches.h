@@ -12,6 +12,7 @@ extern "C" {
 
 // Carries the interpolation pair with a submitted display list.
 void Graphics_OnThread5Submit(void* taskData);
+void Graphics_ReleaseRcpTask(void);
 // Runs fn on the window thread when the tick is on its own thread.
 void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg);
 void Graphics_ServiceRenderRequests(void);

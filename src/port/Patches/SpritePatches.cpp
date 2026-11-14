@@ -6,6 +6,7 @@
 
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
+#include "port/ResourceHelpers.h"
 #include "port/ShipInit.hpp"
 
 extern "C" {
@@ -23,8 +24,6 @@ void __gcpausemenu_drawSprite(Gfx** gdl, Mtx** mptr, Vtx** vptr, BKSprite* sprit
 void* assetcache_get(enum asset_e assetId);
 void assetcache_release(void* asset);
 enum asset_e print_getCurrentMapBoldFontTexture(void);
-char* ResourceMgr_ReloadByAssetId(uint32_t assetId);
-int ResourceMgr_GetLanguageGeneration(void);
 
 enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);

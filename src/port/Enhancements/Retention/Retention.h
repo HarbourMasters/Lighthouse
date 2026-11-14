@@ -57,6 +57,11 @@ uint8_t collectedBits(int32_t level);
 #ifdef __cplusplus
 }
 
+#include <vector>
+std::vector<int32_t> CarrySync_SnapshotCollected();
+void CarrySync_RestoreCollected(const std::vector<int32_t>& flat);
+void CarrySync_ClearForLevel(int32_t levelId);
+
 namespace retention {
 // False during demos, Bottles bonus games, and rando files.
 bool systemActive();

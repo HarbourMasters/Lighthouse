@@ -6,6 +6,7 @@
 
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
+#include "port/Enhancements/Backports/TooieJiggyDance.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 

@@ -18,7 +18,6 @@ extern s32 s_jiggyList_level_jiggy_count;
 
 extern "C" {
 void func_80332BB0(void);
-void SpawnJiggy_Remove(int32_t jiggyId);
 }
 
 /**
@@ -226,13 +225,13 @@ void SpawnJiggy_Restore(const std::vector<int32_t>& flat) {
     }
 }
 
-extern "C" void SpawnJiggy_Remove(int32_t jiggyId) {
+void SpawnJiggy_Remove(int32_t jiggyId) {
     for (auto& [map, list] : sSpawnedJiggies) {
         std::erase_if(list, [jiggyId](const SpawnedJiggy& pj) { return pj.jiggyId == jiggyId; });
     }
 }
 
-extern "C" int32_t SpawnJiggy_IsRecorded(int32_t jiggyId) {
+int32_t SpawnJiggy_IsRecorded(int32_t jiggyId) {
     if (jiggyscore_isCollected((enum jiggy_e)jiggyId)) {
         return 0;
     }

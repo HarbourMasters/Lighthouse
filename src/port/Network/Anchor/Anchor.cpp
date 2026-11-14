@@ -436,12 +436,6 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
-extern void BreakObject_ClearForLevel(int32_t levelId);
-extern void HutSmash_ClearForLevel(int32_t levelId);
-extern void EggToll_ClearForLevel(int32_t levelId);
-extern void PuzzleStep_ClearForLevel(int32_t levelId);
-extern void CarrySync_ClearForLevel(int32_t levelId);
-
 s32 Anchor_LevelOfMap(s32 map) {
     if (map <= 0 || map >= MAP_NUM_MAPS) {
         return 0;

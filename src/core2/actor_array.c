@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Engine.h"
 #include "port/Patches/Patches.h"
 #include "actor.h"
 
@@ -10,7 +11,6 @@
 #include "port/Patches/Patches.h"
 
 extern bool D_80370990;
-extern f32 GameEngine_GetAspectRatio(void);
 
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
 

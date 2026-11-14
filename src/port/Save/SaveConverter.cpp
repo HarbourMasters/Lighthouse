@@ -16,10 +16,6 @@
 #include <iterator>
 #include <vector>
 
-nlohmann::ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum);
-SaveData* Convert_JSONToSaveData(int32_t fileNum);
-std::string CollapsedJSONArray(const nlohmann::ordered_json& jsonFile);
-
 extern "C" void glcrc_calcChecksum(void* start, void* end, uint32_t checksum[2]);
 
 namespace {

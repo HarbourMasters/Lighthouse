@@ -84,7 +84,6 @@ extern ActorInfo chBGSWitchSwitch; //witch_switch.bgs
 extern ActorInfo chGVWitchSwitch; //witch_switch.gv
 extern ActorInfo chWadingBoots; //wading boots
 extern ActorInfo chBadShad; //chbadshad
-extern ActorInfo gDummyPlayerAnchorInfo; //dummy player anchor (port)
 extern ActorInfo D_80367AB0;
 extern ActorInfo D_80367AD4;
 extern ActorInfo D_80367AF8;

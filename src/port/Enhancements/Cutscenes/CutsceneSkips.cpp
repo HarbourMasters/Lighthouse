@@ -5,6 +5,7 @@
 
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
