@@ -450,6 +450,14 @@ s32 Anchor_LevelOfMap(s32 map) {
     return (level > 0 && level < 0x20) ? level : 0;
 }
 
+void Anchor_ClearLevelState(int32_t levelId) {
+    BreakObject_ClearForLevel(levelId);
+    HutSmash_ClearForLevel(levelId);
+    EggToll_ClearForLevel(levelId);
+    PuzzleStep_ClearForLevel(levelId);
+    CarrySync_ClearForLevel(levelId);
+}
+
 // Whether the player is within range of pos, for a teammate's sound or dialog there. The default, 1800 units, is as
 // far as Croctus's mouth squeak carries; a romhack can pass another.
 bool Anchor_InEarshot(f32 pos[3], f32 range) {
@@ -512,11 +520,7 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     }
     for (s32 level = 1; level < 0x20; level++) {
         if (!occupied[level]) {
-            BreakObject_ClearForLevel(level);
-            HutSmash_ClearForLevel(level);
-            EggToll_ClearForLevel(level);
-            PuzzleStep_ClearForLevel(level);
-            CarrySync_ClearForLevel(level);
+            Anchor_ClearLevelState(level);
         }
     }
 }
