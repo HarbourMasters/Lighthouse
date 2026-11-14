@@ -14,12 +14,6 @@ extern "C" {
 #include "enums.h"
 }
 
-void BreakObject_ClearForLevel(int32_t levelId);
-void HutSmash_ClearForLevel(int32_t levelId);
-void EggToll_ClearForLevel(int32_t levelId);
-void PuzzleStep_ClearForLevel(int32_t levelId);
-void CarrySync_ClearForLevel(int32_t levelId);
-
 void RegisterTransientLevelState_Init() {
     REGISTER_LISTENER(OnLevelReset, EVENT_PRIORITY_HIGH, [](IEvent* event) {
         OnLevelReset* ev = (OnLevelReset*)event;
@@ -27,11 +21,7 @@ void RegisterTransientLevelState_Init() {
         if (level == 0 || Anchor_IsWorldSyncActive()) {
             return;
         }
-        BreakObject_ClearForLevel(level);
-        HutSmash_ClearForLevel(level);
-        EggToll_ClearForLevel(level);
-        PuzzleStep_ClearForLevel(level);
-        CarrySync_ClearForLevel(level);
+        Anchor_ClearLevelState(level);
     });
 }
 

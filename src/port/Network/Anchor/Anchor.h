@@ -65,6 +65,7 @@ void Anchor_RegisterTumblarHooks(bool connected);
 bool TumblarUpdate_IsGameRunning();
 void Anchor_BreakLairBreakable(int32_t progressFlag);
 void Anchor_RegisterFightHooks(bool connected);
+void Anchor_ClearLevelState(int32_t levelId);
 bool ChallengeTimer_IsShowing();
 bool ChallengeTimer_IsOurs(s32 jiggyId);
 
