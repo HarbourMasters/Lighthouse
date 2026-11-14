@@ -7,6 +7,8 @@
 #include "core2/gc/zoombox.h"
 #include "port/ResourceHelpers.h"
 
+int port_dialogueSkipPressed(void);
+
 extern void func_803114D0(void);
 extern int gcdialog_hasCurrentTextId(void);
 extern char *dialogBin_get(enum asset_e text_id);
@@ -388,6 +390,7 @@ void dialog_update(void) {
     char *sp4C[8];
 
     ret = -1;
+    const s32 portSkipPressed = port_dialogueSkipPressed(); // [port] Skip Dialogue (CutsceneSkips.cpp)
 
     if (g_Dialog.u8_s.unk128_31 & 0x80) {
         controller_copyFaceButtonsPrimary(0, controller_face_buttons);
@@ -636,7 +639,8 @@ void dialog_update(void) {
             break;
 
         case DIALOG_STATE_3:
-            if ((g_Dialog.u8_s.unk128_31 & 1) && controller_face_buttons[FACE_BUTTON(BUTTON_B)] == 1u) {
+            if (((g_Dialog.u8_s.unk128_31 & 1) && controller_face_buttons[FACE_BUTTON(BUTTON_B)] == 1u) ||
+                portSkipPressed) {
                 dialog_setState(DIALOG_STATE_6);
                 break;
             }

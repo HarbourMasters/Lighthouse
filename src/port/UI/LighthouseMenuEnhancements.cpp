@@ -117,6 +117,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Skips Banjo's dance when a note door opens, opening it immediately."));
 
+    AddWidget(path, "Return Skips Dialogue", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipDialogueWithReturn"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Press Return (Enter) to skip the rest of the dialogue on screen, up to the "
+                                           "next question or the end."));
+
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
@@ -216,6 +222,37 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.InvertY"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Inverts the vertical free look direction."));
+
+    AddWidget(path, "Free Look Everywhere", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.Everywhere"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Free look also works underwater and in rooms with a fixed camera. The game's camera stays until "
+            "you move the stick or mouse; a C-button camera control gives it back."));
+
+    AddWidget(path, "Free Look Mouse", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.Mouse"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Turn the free look camera with the mouse (needs Free Look on). The mouse is captured while "
+            "you play: open the menu or press F2 to free it. Like the right stick, a C-button camera "
+            "control returns to the normal camera until the mouse moves again."));
+
+    AddWidget(path, "Mouse Sensitivity", WIDGET_CVAR_SLIDER_INT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseSensitivity"))
+        .RaceDisable(false)
+        .Options(IntSliderOptions().Min(1).Max(200).DefaultValue(50).ShowButtons(true).Format("%d%%").Tooltip(
+            "How far the camera turns for each bit of mouse movement: 100% is 0.2 degrees a pixel."));
+
+    AddWidget(path, "Mouse Invert X", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseInvertX"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Inverts the horizontal mouse direction."));
+
+    AddWidget(path, "Mouse Invert Y", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseInvertY"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Inverts the vertical mouse direction."));
 
     AddWidget(path, "Free Look Smoothing", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.SmoothRate"))

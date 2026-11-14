@@ -60,6 +60,8 @@ void FrameInterpolation_NoInterpolatePush(void);
 void FrameInterpolation_NoInterpolatePop(void);
 
 // Like NoInterpolatePush, but keeps the camera half of the transform live.
+void FrameInterpolation_WorldRelativePush(void);
+void FrameInterpolation_WorldRelativePop(void);
 void FrameInterpolation_CameraRelativePush(void);
 void FrameInterpolation_CameraRelativePop(void);
 

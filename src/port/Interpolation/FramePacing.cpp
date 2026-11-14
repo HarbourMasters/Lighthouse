@@ -299,14 +299,20 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {
+    // The window can report a refresh rate of 0 (e.g. when it starts off-screen or minimized, from a
+    // saved position of -32000): fall back to 60 rather than divide by zero when pacing frames.
+    uint32_t refresh = Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate();
+    if (refresh == 0) {
+        refresh = 60;
+    }
+    uint32_t fps;
     if (CVarGetInteger(CVAR_SETTING("MatchRefreshRate"), 0)) {
-        return Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate();
-
+        fps = refresh;
     } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
                !Ship::Context::GetRawInstance()->GetWindow()->CanDisableVerticalSync()) {
-        return std::min<uint32_t>(Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate(),
-                                  CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60));
+        fps = std::min<uint32_t>(refresh, CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60));
+    } else {
+        fps = CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 30);
     }
-
-    return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 30);
+    return fps > 0 ? fps : 30;
 }

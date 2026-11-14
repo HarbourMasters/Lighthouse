@@ -69,6 +69,11 @@ int func_80290D48(void){
 
 
     camera_node_index = func_802903CC();
+    // [port] False when the port's camera keeps (or takes) the camera in a fixed-camera area.
+    if(!EventSystem_Should(VB_CAMERA_FIXED_NODE, true)){
+        func_80290BC0(0);
+        return false;
+    }
     if(camera_node_index == -1 || !ncCameraNodeList_nodeIsValid(camera_node_index)){
         func_80290BC0(0);
         return false;
@@ -106,6 +111,10 @@ int func_80290D48(void){
 
 int func_80290E8C(void){
     if(player_getWaterState() != BSWATERGROUP_2_UNDERWATER)
+        return false;
+
+    // [port] False when the port's camera keeps (or takes) the camera underwater.
+    if(!EventSystem_Should(VB_CAMERA_UNDERWATER, true))
         return false;
 
     ncDynamicCamera_setState(3);

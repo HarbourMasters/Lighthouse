@@ -29,6 +29,7 @@ struct ToMtxData {
     uint64_t pathSig;
     bool noInterpolate;
     bool camRelFixup;
+    bool worldRel; // drawn by the world pass relative to the camera (gsworld.c)
     bool ambiguousSig;
 };
 
@@ -140,6 +141,9 @@ struct InterpolationCache {
     std::vector<PairedAnimVtx> pairedAnimVtxs;
     std::vector<PairedProjRot> pairedProjRots;
     std::vector<uint32_t> camRelFixups;
+    // World matrices with no usable previous partner (unpaired, or turned too far to blend): drawn
+    // at this tick's position, moved by the sub-frame's camera so they stay put in the world.
+    std::vector<uint32_t> worldFixups;
     float cameraDelta[3] = { 0.0f, 0.0f, 0.0f };
     bool hasCameraDelta = false;
     bool prevHasCameraPos = false;
@@ -153,6 +157,7 @@ struct InterpolationCache {
         pairedAnimVtxs.clear();
         pairedProjRots.clear();
         camRelFixups.clear();
+        worldFixups.clear();
         hasCameraDelta = false;
         prevHasCameraPos = false;
     }
@@ -172,6 +177,7 @@ bool gRecording = false;
 bool gShouldInterpolate = true;
 int gNoInterpolateDepth = 0;
 int gCameraRelativeDepth = 0;
+int gWorldDepth = 0;
 
 std::unordered_map<const void*, uint64_t> gIdMap;
 uint64_t gNextId = 1;
@@ -249,6 +255,7 @@ void FrameInterpolation_StartRecord(void) {
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
     gCameraRelativeDepth = 0;
+    gWorldDepth = 0;
     gRecording = true;
 }
 
@@ -370,6 +377,7 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     d.pathSig = sig;
     d.noInterpolate = (gNoInterpolateDepth > 0 || gCameraRelativeDepth > 0);
     d.camRelFixup = (gCameraRelativeDepth > 0);
+    d.worldRel = (gWorldDepth > 0);
     d.ambiguousSig = false;
     recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
@@ -415,6 +423,18 @@ void FrameInterpolation_NoInterpolatePush(void) {
 void FrameInterpolation_NoInterpolatePop(void) {
     if (gNoInterpolateDepth > 0) {
         gNoInterpolateDepth--;
+    }
+}
+
+// The world pass (gsworld.c): its matrices hold positions relative to the camera, so one drawn
+// without blending must still follow the blended camera or it jumps against everything else.
+void FrameInterpolation_WorldRelativePush(void) {
+    gWorldDepth++;
+}
+
+void FrameInterpolation_WorldRelativePop(void) {
+    if (gWorldDepth > 0) {
+        gWorldDepth--;
     }
 }
 
@@ -611,18 +631,33 @@ void BuildInterpolationCache() {
             }
             continue;
         }
-        if (c.noInterpolate || c.ambiguousSig) {
+        if (c.noInterpolate) {
+            continue;
+        }
+        const bool fixWorld = c.worldRel && gCache.hasCameraDelta;
+        if (c.ambiguousSig) {
+            if (fixWorld) {
+                gCache.worldFixups.push_back(i);
+            }
             continue;
         }
         auto it = prevSigMap.find(c.pathSig);
         if (it == prevSigMap.end() || it->second >= prevToMtxs.size()) {
+            if (fixWorld) {
+                gCache.worldFixups.push_back(i);
+            }
             continue;
         }
         const ToMtxData& p = prevToMtxs[it->second];
         if (std::memcmp(p.src, c.src, sizeof(c.src)) == 0) {
             continue;
         }
-        gCache.pairedToMtxs.push_back({ i, it->second, shouldSnap(p.src, c.src) });
+        const bool snap = shouldSnap(p.src, c.src);
+        if (snap && fixWorld) {
+            gCache.worldFixups.push_back(i);
+            continue;
+        }
+        gCache.pairedToMtxs.push_back({ i, it->second, snap });
     }
 
     // Sprites whose inputs didn't move at all are dropped for the same
@@ -854,12 +889,21 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
     const std::vector<SpriteDrawData>& prevSpritesData = gRenderPrev->sprites;
     const std::vector<SpriteDrawData>& currSpritesData = gRenderCurr->sprites;
 
-    replacements.reserve(gCache.pairedToMtxs.size() + gCache.pairedSprites.size() + gCache.camRelFixups.size() +
+    replacements.reserve(gCache.pairedToMtxs.size() + gCache.pairedSprites.size() + gCache.camRelFixups.size() + gCache.worldFixups.size() +
                          gRenderCurr->projRots.size() * 3);
     const float w = 1.0f - t;
 
     // Re-aim the frozen matrix at the sub-frame's camera.
     for (uint32_t idx : gCache.camRelFixups) {
+        const ToMtxData& c = currToMtxs[idx];
+        MtxF& out = replacements[reinterpret_cast<Mtx*>(c.dst)];
+        std::memcpy(out.mf, c.src, sizeof(out.mf));
+        for (int k = 0; k < 3; k++) {
+            out.mf[3][k] += w * gCache.cameraDelta[k];
+        }
+    }
+
+    for (uint32_t idx : gCache.worldFixups) {
         const ToMtxData& c = currToMtxs[idx];
         MtxF& out = replacements[reinterpret_cast<Mtx*>(c.dst)];
         std::memcpy(out.mf, c.src, sizeof(out.mf));
