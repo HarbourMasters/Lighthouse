@@ -8,10 +8,18 @@ typedef enum baanim_update_type_e {
     BAANIM_UPDATE_3_SCALE_VERT
 } AnimUpdateType;
 
-/* getters — used by DummyPlayer and network code to read current scale state */
-void baanim_getDurationRange(f32 *min, f32 *max);
-void baanim_getVelocityMapRanges(f32 *vel_min, f32 *vel_max, f32 *dur_min, f32 *dur_max);
-f32  baanim_getDurationScale(void);
-bool baanim_isScalableDuration(void);
+/* [port] Moved out of anim.c for Anchor's player updates */
+typedef struct {
+    f32 velocity_min; //velocity_min
+    f32 velocity_max; //velocity_max
+    f32 duration_min; //duration_min
+    f32 duration_max; //duration_max
+    f32 duration_scale; //duration_scale
+    u8  scalable_duration; //scalable_duration
+} BaAnimScale;
+
+extern f32 baAnimMinDuration;
+extern f32 baAnimMaxDuration;
+extern BaAnimScale baAnimScale;
 
 #endif

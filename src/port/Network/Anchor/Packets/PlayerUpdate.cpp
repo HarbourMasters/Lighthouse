@@ -154,19 +154,9 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
     }
 
     f32 pos[3];
-    f32 velocity_min;
-    f32 velocity_max;
-    f32 duration_min;
-    f32 duration_max;
-    f32 duration_scale;
-    u8 scalable_duration;
     f32 velocity[3];
-    f32 animMinDuration;
-    f32 animMaxDuration;
     player_getPosition(pos);
     baphysics_get_velocity(velocity);
-    baanim_getVelocityMapRanges(&velocity_min, &velocity_max, &duration_min, &duration_max);
-    baanim_getDurationRange(&animMinDuration, &animMaxDuration);
 
     nlohmann::json payload;
     payload["map"] = gsworld_getMap();
@@ -177,11 +167,12 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
     payload["updateType"] = updateType;
     payload["velocity"] = velocity;
     payload["direction"] = baModel_getDirection();
-    payload["velRanges"] = { velocity_min, velocity_max, duration_min, duration_max };
-    payload["durationScale"] = baanim_getDurationScale();
-    payload["scalable"] = baanim_isScalableDuration();
+    payload["velRanges"] = { baAnimScale.velocity_min, baAnimScale.velocity_max, baAnimScale.duration_min,
+                             baAnimScale.duration_max };
+    payload["durationScale"] = baAnimScale.duration_scale;
+    payload["scalable"] = baAnimScale.scalable_duration != 0;
     payload["duration"] = anctrl_getDuration(baanim_getAnimCtrlPtr());
-    payload["durationRange"] = { animMinDuration, animMaxDuration };
+    payload["durationRange"] = { baAnimMinDuration, baAnimMaxDuration };
     {
         f32 sub_start, sub_end;
         anctrl_getSubRange(baanim_getAnimCtrlPtr(), &sub_start, &sub_end);
