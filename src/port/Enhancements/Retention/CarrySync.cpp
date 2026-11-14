@@ -8,6 +8,7 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Network/Anchor/Anchor.h"
 
 #include <array>
 #include <set>
@@ -16,7 +17,6 @@
 extern "C" {
 #include "enums.h"
 #include "actor.h"
-s32 Anchor_IsWorldSyncActive(void);
 ActorMarker* bacarry_getMarkerWithExtraSteps(void);
 }
 

@@ -14,8 +14,6 @@ void chGobi2_setState(Actor* self, s32 next_state);
 void chJinxyHeadSandybutt_setState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // Set while the pyramid rises for a teammate.
 static bool sPyramidReplay = false;
 

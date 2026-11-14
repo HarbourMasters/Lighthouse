@@ -15,8 +15,6 @@ void __chTreasurehunt_spawnRedXForNextStep(void);
 void __func_80388F88(void);
 }
 
-#include "port/Patches/Patches.h"
-
 // A teammate's last delivery is playing out on Blubber.
 static bool sBlubberTeammateFinish = false;
 

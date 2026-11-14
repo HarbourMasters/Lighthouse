@@ -6,14 +6,9 @@
 
 static std::unordered_map<int32_t, uint32_t> sPedestalOwner;
 
-static bool JigsawPedestal_SyncActive() {
-    Anchor* anchor = Anchor::GetInstance();
-    return anchor != nullptr && anchor->IsWorldSyncActive();
-}
-
 bool JigsawPedestal_TryClaim(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!JigsawPedestal_SyncActive()) {
+    if (!Anchor_IsWorldSyncActive()) {
         return true;
     }
     auto it = sPedestalOwner.find(id);
@@ -28,7 +23,7 @@ bool JigsawPedestal_TryClaim(int32_t id) {
 // True if we may drive this podium (unowned/self/offline), false if another owns it.
 bool JigsawPedestal_IsSelf(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!JigsawPedestal_SyncActive()) {
+    if (!Anchor_IsWorldSyncActive()) {
         return true;
     }
     auto it = sPedestalOwner.find(id);
@@ -37,7 +32,7 @@ bool JigsawPedestal_IsSelf(int32_t id) {
 
 void JigsawPedestal_Release(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
-    if (!JigsawPedestal_SyncActive()) {
+    if (!Anchor_IsWorldSyncActive()) {
         return;
     }
     // Keep a finished picture's claim until we leave the map: vanilla already refuses to let anyone
@@ -93,7 +88,7 @@ void JigsawPedestal_ReleaseAllSelf() {
 // podium as free and take it from us.
 void JigsawPedestal_ResendSelf() {
     Anchor* anchor = Anchor::GetInstance();
-    if (!JigsawPedestal_SyncActive()) {
+    if (!Anchor_IsWorldSyncActive()) {
         return;
     }
     for (auto& [id, owner] : sPedestalOwner) {

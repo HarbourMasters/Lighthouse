@@ -7,11 +7,11 @@
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Network/Anchor/Anchor.h"
 
 #include "functions.h"
 extern "C" {
 #include "enums.h"
-s32 Anchor_IsWorldSyncActive(void);
 }
 
 void BreakObject_ClearForLevel(int32_t levelId);

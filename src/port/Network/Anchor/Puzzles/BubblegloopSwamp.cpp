@@ -22,8 +22,6 @@ void chTanktupLeg_despawn(ActorMarker* self, ActorMarker* other_marker);
 void chYellowFlibbit_setState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // The heads a teammate fed, a bit per actorTypeSpecificField, until the map reloads. A feed's scene outlasts the
 // update that replays it: the sounds, camera and dialogs come from timers and dialog callbacks.
 static s32 sCroctusTeammateFeeds = 0;

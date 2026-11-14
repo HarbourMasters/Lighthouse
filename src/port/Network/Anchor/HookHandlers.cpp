@@ -7,7 +7,6 @@
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
 #include "port/UI/Notification.h"
-#include "port/Patches/Patches.h"
 #include <cstring>
 #include <unordered_set>
 
@@ -28,13 +27,6 @@ extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spa
 
 s32 Anchor_LevelOfMap(s32 map);
 void Anchor_DespawnCollectedCollectibles();
-
-// Every listener below that alters vanilla behaviour is wrapped in this. Presence-only rooms
-// (the global room, or sync turned off) must play exactly like single player.
-static bool Anchor_WorldSyncActive() {
-    Anchor* anchor = Anchor::GetInstance();
-    return anchor != nullptr && anchor->IsWorldSyncActive();
-}
 
 // The honeycomb is out, or spawned and yet to take its uid.
 static bool Anchor_HoneycombPresent(enum honeycomb_e id) {
@@ -76,7 +68,7 @@ static void Anchor_UpdateVileSync() {
 
 static void Anchor_UpdateFightSync() {
     auto* anchor = Anchor::GetInstance();
-    if (!Anchor_WorldSyncActive() || !anchor->IsSaveLoaded() || gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
+    if (!Anchor_IsWorldSyncActive() || !anchor->IsSaveLoaded() || gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
         return;
     }
 
@@ -274,7 +266,7 @@ static bool sAttackTutorialMovesKnown = false;
 
 // Whether the SM tutorial offer is ours to answer; claims it for us when it's free.
 static bool Anchor_SmTutorialChoiceOpen() {
-    if (!Anchor_WorldSyncActive()) {
+    if (!Anchor_IsWorldSyncActive()) {
         return true;
     }
     // By level, not map: a romhack's Spiral Mountain may be a different map id.
@@ -333,8 +325,8 @@ void Anchor::RegisterHooks() {
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
 
         auto* anchor = Anchor::GetInstance();
-        if (Anchor_WorldSyncActive() && ev->nextMap != MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
-            ev->nextMap != MAP_1F_CS_START_RAREWARE) {
+        if (Anchor_IsWorldSyncActive() && ev->nextMap != MAP_91_FILE_SELECT &&
+            ev->nextMap != MAP_1E_CS_START_NINTENDO && ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             Anchor_DespawnCollectedCollectibles();
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
 
@@ -413,7 +405,7 @@ void Anchor::RegisterHooks() {
         Anchor_UpdateVileSync();
         Anchor_UpdateFightSync();
 
-        if (Anchor_WorldSyncActive() && anchor->IsSaveLoaded()) {
+        if (Anchor_IsWorldSyncActive() && anchor->IsSaveLoaded()) {
             anchor->FlushPendingJiggySpawns();
             if (!anchor->hasCheckedRandoCompat) {
                 anchor->CheckRandoRoomCompatibility();
@@ -433,7 +425,7 @@ void Anchor::RegisterHooks() {
     // returning to idle (or the player declining) releases it.
     COND_HOOK(OnVileGameStateChange, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         auto ev = reinterpret_cast<OnVileGameStateChange*>(event);
-        if (!Anchor_WorldSyncActive() || gsworld_getMap() != MAP_10_BGS_MR_VILE) {
+        if (!Anchor_IsWorldSyncActive() || gsworld_getMap() != MAP_10_BGS_MR_VILE) {
             return;
         }
         if (ev->state >= 2) {
@@ -802,7 +794,7 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnIsJiggyScoreSpawned, EVENT_PRIORITY_LOW, isConnected, [](IEvent* event) {
         auto ev = reinterpret_cast<OnIsJiggyScoreSpawned*>(event);
-        if (!Anchor_WorldSyncActive() || !Anchor::GetInstance()->IsSaveLoaded()) {
+        if (!Anchor_IsWorldSyncActive() || !Anchor::GetInstance()->IsSaveLoaded()) {
             return;
         }
         if (SpawnJiggy_IsRecorded(ev->jiggyId)) {
@@ -817,7 +809,7 @@ void Anchor::RegisterHooks() {
     });
 
     COND_VB_SHOULD(VB_SPAWN_EMPTY_HONEYCOMB, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive() && Anchor_HoneycombPresent((enum honeycomb_e)va_arg(args, s32))) {
+        if (Anchor_IsWorldSyncActive() && Anchor_HoneycombPresent((enum honeycomb_e)va_arg(args, s32))) {
             *should = false;
         }
     });
@@ -842,7 +834,7 @@ void Anchor::RegisterHooks() {
     });
     COND_HOOK(OnSmMovesCompleted, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sAttackTutorialMovesKnown = true; });
     COND_VB_SHOULD(VB_ATTACK_TUTORIAL_MOVES_KNOWN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (Anchor_WorldSyncActive()) {
+        if (Anchor_IsWorldSyncActive()) {
             *should = sAttackTutorialMovesKnown || (func_802E4A08() && *should);
         }
     });
@@ -861,7 +853,7 @@ void Anchor::RegisterHooks() {
     // answered (synced bit) or a move is already known (covers skip-tutorial saves).
     COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
         const s32 mole = va_arg(args, Actor*)->actorTypeSpecificField;
-        if (mole != CH_SM_MOLE_ID_1_INTRO && mole != CH_SM_MOLE_ID_8_BRIDGE && Anchor_WorldSyncActive() &&
+        if (mole != CH_SM_MOLE_ID_1_INTRO && mole != CH_SM_MOLE_ID_8_BRIDGE && Anchor_IsWorldSyncActive() &&
             !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
             !(PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
@@ -869,7 +861,7 @@ void Anchor::RegisterHooks() {
     });
 
     COND_HOOK(OnTimedJiggyExpired, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
-        if (!Anchor_WorldSyncActive()) {
+        if (!Anchor_IsWorldSyncActive()) {
             return;
         }
         auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);

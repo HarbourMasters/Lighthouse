@@ -13,8 +13,6 @@
 
 #include "functions.h"
 
-#include "port/Patches/Patches.h"
-
 /**
  * PUZZLE_STEP
  *
@@ -85,7 +83,7 @@ static bool mirrorLive(int32_t puzzleId) {
     return Anchor::GetInstance()->IsWorldSyncActive() && mirrorAllowedFor(puzzleId, (int32_t)gsworld_getMap());
 }
 
-extern "C" int32_t PuzzleStep_GetBits(int32_t puzzleId) {
+int32_t PuzzleStep_GetBits(int32_t puzzleId) {
     if (!mirrorLive(puzzleId)) {
         return 0;
     }
@@ -93,7 +91,7 @@ extern "C" int32_t PuzzleStep_GetBits(int32_t puzzleId) {
     return it != sPuzzleBits.end() ? it->second : 0;
 }
 
-extern "C" int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId) {
+int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive() || !mirrorAllowedFor(puzzleId, map)) {
         return 0;
     }
@@ -103,7 +101,7 @@ extern "C" int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId) {
 
 // For level-homed puzzles: a relocated actor writes under the romhack's map
 // key, which a map-keyed read can't know. ORs the puzzle's bits across the level.
-extern "C" int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId) {
+int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId) {
     int32_t bits = 0;
     for (const auto& [key, val] : sPuzzleBits) {
         if (key[1] == puzzleId && mirrorAllowedFor(puzzleId, key[0]) &&
@@ -114,7 +112,7 @@ extern "C" int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId)
     return bits;
 }
 
-extern "C" void PuzzleStep_OrBits(int32_t puzzleId, int32_t bits) {
+void PuzzleStep_OrBits(int32_t puzzleId, int32_t bits) {
     if (!mirrorLive(puzzleId)) {
         return;
     }
@@ -204,7 +202,7 @@ void PuzzleStep_ClearForLevel(int32_t levelId) {
  * (FP's Sir Slushes). Rides the same PUZZLE_STEP packet via the phash field.
  */
 
-extern "C" int32_t PuzzleStep_IsPosMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+int32_t PuzzleStep_IsPosMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
     if (!mirrorLive(puzzleId)) {
         return 0;
     }
@@ -212,7 +210,7 @@ extern "C" int32_t PuzzleStep_IsPosMarked(int32_t puzzleId, int32_t x, int32_t y
     return (it != sPuzzlePos.end() && it->second.count(puzzlePosHash(x, y, z))) ? 1 : 0;
 }
 
-extern "C" void PuzzleStep_MarkPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+void PuzzleStep_MarkPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
     if (!mirrorLive(puzzleId)) {
         return;
     }
@@ -263,7 +261,7 @@ void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat) {
  * to actor state), and scoping them would brick a relocated Eyrie/Nabnut.
  */
 
-extern "C" int32_t PuzzleStep_GetCount(int32_t counterId) {
+int32_t PuzzleStep_GetCount(int32_t counterId) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return 0;
     }
@@ -271,7 +269,7 @@ extern "C" int32_t PuzzleStep_GetCount(int32_t counterId) {
     return it != sPuzzleCounts.end() ? it->second : 0;
 }
 
-extern "C" void PuzzleStep_AddCount(int32_t counterId, int32_t delta) {
+void PuzzleStep_AddCount(int32_t counterId, int32_t delta) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return;
     }

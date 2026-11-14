@@ -13,8 +13,6 @@ void func_8038A140(s32 arg0);
 void organMinigame_setState(s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // A teammate collected Napper's jiggy here, and his scene plays out.
 static bool sNapperTeammateCollect = false;
 

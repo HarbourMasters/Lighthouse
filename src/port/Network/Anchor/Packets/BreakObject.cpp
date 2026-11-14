@@ -16,8 +16,6 @@ extern ActorArray* suBaddieActorArray;
 void code_4C020_breakableObjectSfx(ActorMarker* marker, ActorMarker* other_marker);
 }
 
-#include "port/Patches/Patches.h"
-
 /**
  * BREAK_OBJECT
  */
@@ -122,7 +120,7 @@ static void despawnBrokenRestores(s32 map) {
     }
 }
 
-extern "C" int32_t BreakObject_IsBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z) {
+int32_t BreakObject_IsBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z) {
     if (!Anchor::GetInstance()->IsWorldSyncActive()) {
         return 0;
     }

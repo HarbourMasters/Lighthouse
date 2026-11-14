@@ -8,8 +8,6 @@ extern "C" {
 #include "MM/ch/orangepad.h"
 }
 
-#include "port/Patches/Patches.h"
-
 // A teammate's knock is playing out on the Jujus, until one of ours.
 static bool sJujuReplay = false;
 
