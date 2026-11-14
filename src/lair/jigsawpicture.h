@@ -1,5 +1,8 @@
 // BanjoDecomp: lair/jigsawpicture.h
 // [port] jigsawpicture.c's typedefs, moved here for port code, and a declaration of PICTURE_INFO.
+#ifndef BANJO_KAZOOIE_LAIR_JIGSAWPICTURE_H
+#define BANJO_KAZOOIE_LAIR_JIGSAWPICTURE_H
+
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -24,3 +27,5 @@ typedef enum {
     JIGSAW_PICTURE_COMPLETE = 7,
     JIGSAW_PICTURE_REMOVE_PIECE = 8
 } JigsawPictureState;
+
+#endif
