@@ -143,6 +143,19 @@ void RegisterYumYumDrop_Init() {
     });
 }
 
+// The tutorial's flags and dialogs belong to Spiral Mountain, but a romhack may
+// place it in any map of that level, so gate on the level rather than one map id.
+static bool InSpiralMountain() {
+    return map_getLevel(gsworld_getMap()) == LEVEL_B_SPIRAL_MOUNTAIN;
+}
+
+// Always on: in MAP_1_SM_SPIRAL_MOUNTAIN both tests match vanilla.
+void RegisterSpiralMountainTutorial_Init() {
+    // guard with SM check — flags collide with map-specific usage in other worlds (e.g. BGS switches)
+    REGISTER_VB_SHOULD(VB_SM_ABILITY_FLAG_SET, EVENT_PRIORITY_NORMAL, { *should = InSpiralMountain(); });
+    REGISTER_VB_SHOULD(VB_SM_ABILITY_DIALOG, EVENT_PRIORITY_NORMAL, { *should = InSpiralMountain(); });
+}
+
 // Spelling: "Congo" -> "Conga" when the Conga-as-termite dialog bin loads.
 void RegisterCongaDialog_Init() {
     const bool enabled = CVarGetInteger(CVAR_CONGA_TEXT, 0) && !RomhackConfig_IsActive();
@@ -281,6 +294,7 @@ static RegisterShipInitFunc initBoggyRaceGameOverFunc(RegisterBoggyRaceGameOver_
 static RegisterShipInitFunc initJinjoChargeSoundFunc(RegisterJinjoChargeSound_Init, { CVAR_JINJO_SOUND });
 static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CVAR_GRUNTY_BOUNCE });
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
+static RegisterShipInitFunc initSpiralMountainTutorialFunc(RegisterSpiralMountainTutorial_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
 static RegisterShipInitFunc initChimpyStumpRumbleFunc(RegisterChimpyStumpRumble_Init, { CVAR_STUMP_RUMBLE });
 static RegisterShipInitFunc initChimpyStumpRaisedFunc(RegisterChimpyStumpRaised_Init);

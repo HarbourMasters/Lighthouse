@@ -177,6 +177,24 @@ typedef enum VBehaviorID {
 
     // Vanilla bug fixes and corrections
 
+    // A first jump, flap or flip setting Spiral Mountain's map flag for that move.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (ability_used_e)
+    VB_SM_ABILITY_FLAG_SET,
+
+    // Bottles' dialog for a first swim, climb or beak barge in Spiral Mountain.
+    // #### `result`
+    // ```c
+    // gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN
+    // ```
+    // #### `args`
+    // - `s32` (ability_used_e)
+    VB_SM_ABILITY_DIALOG,
+
     // FILEPROG_FC_DEFEAT_GRUNTY set as the Jinjonator is freed. v1.1 sets it after the Jinjonator's attacks instead.
     // #### `result`
     // ```c
