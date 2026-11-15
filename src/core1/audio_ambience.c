@@ -33,7 +33,7 @@ static s32 sPlayerPosition[4];
 static enum comusic_e sTrackId[4]; // 0 - enum comusic_e, 1 - enum comusic_e, 2 - s32 volume for [0], 3 - s32 volume for [1]
 
 void midichannel_setChanMask(s32 chan_mask) {
-    EventSystem_Should(VB_MIDI_SET_CHAN_MASK, true, &chan_mask);
+    CALL_EVENT(OnMidiChanMask, &chan_mask); // [port]
     musicSlot_stepToChannelMask(0, chan_mask, 3.0f);
 }
 

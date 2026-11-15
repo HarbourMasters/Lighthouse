@@ -34,14 +34,7 @@ AnimCtrl *playerAnimCtrl;
 s32 baAnimState;
 f32 baAnimMinDuration;
 f32 baAnimMaxDuration;
-struct {
-    f32 velocity_min; //velocity_min
-    f32 velocity_max; //velocity_max
-    f32 duration_min; //duration_min
-    f32 duration_max; //duration_max
-    f32 duration_scale; //duration_scale
-    u8  scalable_duration; //scalable_duration
-}baAnimScale;
+BaAnimScale baAnimScale; // [port] the struct moved to anim.h
 void (*baAnimModifyFunction)(uintptr_t, uintptr_t);
 
 /* .code */
@@ -193,26 +186,6 @@ void baanim_setDurationRange(f32 min, f32 max){
     baAnimMaxDuration = max;
 }
 
-void baanim_getDurationRange(f32 *min, f32 *max){
-    *min = baAnimMinDuration;
-    *max = baAnimMaxDuration;
-}
-
-void baanim_getVelocityMapRanges(f32 *vel_min, f32 *vel_max, f32 *dur_min, f32 *dur_max){
-    *vel_min = baAnimScale.velocity_min;
-    *vel_max = baAnimScale.velocity_max;
-    *dur_min = baAnimScale.duration_min;
-    *dur_max = baAnimScale.duration_max;
-}
-
-f32 baanim_getDurationScale(void){
-    return baAnimScale.duration_scale;
-}
-
-bool baanim_isScalableDuration(void){
-    return baAnimScale.scalable_duration;
-}
-
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t)){
     baAnimModifyFunction = arg0;
 }
@@ -336,16 +309,4 @@ void baanim_setEndAndDuration(f32 end_position, f32 duration){
     anctrl_setDuration(playerAnimCtrl, duration);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
     CALL_EVENT(OnPlayerAnimSubRangeChange, duration, end_position);
-}
-
-void baanim_onCtrlStart(AnimCtrl* ctrl) {
-    if (ctrl == playerAnimCtrl) {
-        CALL_EVENT(OnPlayerAnimChange,
-            anctrl_getIndex(ctrl),
-            anctrl_getDuration(ctrl),
-            anctrl_getPlaybackType(ctrl),
-            ctrl->start,
-            ctrl->subrange_end,
-            ctrl->smooth_transition);
-    }
 }

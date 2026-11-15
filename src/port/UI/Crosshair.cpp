@@ -255,6 +255,7 @@ void Crosshair::Window::Draw() {
 }
 
 static void RegisterCrosshair() {
+    // Always on: Egg Aim and Beak Bomb Aiming ask for the crosshair frame by frame.
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_LOW, [](IEvent*) {
         sShown = sRequested ? std::min(sShown + 1, kFadeDuration) : std::max(sShown - 1, 0);
         sRequested = false;

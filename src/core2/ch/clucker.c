@@ -90,7 +90,8 @@ void chClucker_setNextState(Actor *this, s32 next_state){
     }
 
     if(next_state == 5){
-        if(!levelSpecificFlags_get(LEVEL_FLAG_14_TTC_UNKNOWN)
+//      if(!levelSpecificFlags_get(LEVEL_FLAG_14_TTC_UNKNOWN)
+        if(!EventSystem_Should(VB_CLUCKER_CUTSCENE_PLAYED, levelSpecificFlags_get(LEVEL_FLAG_14_TTC_UNKNOWN))
             && !( actorArray_findClosestActorFromActorId(this->position, 0x318, -1, &sp38) && ( sp38 < 250.0f))
         ){
             levelSpecificFlags_set(LEVEL_FLAG_14_TTC_UNKNOWN, true);

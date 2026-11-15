@@ -5,7 +5,6 @@
 #include "string.h"
 #include "math.h"
 
-#include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #ifdef __cplusplus
@@ -305,7 +304,7 @@ void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
 
-// --- core2/game_complete.c ---
+// --- port/Network/Anchor ---
 enum AnchorFlagSpace {
     ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
     ANCHOR_FLAGSPACE_VOLATILE = 1,
@@ -2960,6 +2959,9 @@ void osDpSetStatus(u32 data);
 // --- port/OS/OS_VI.cpp ---
 void* osViGetCurrentFramebuffer(void);
 void* osViGetNextFramebuffer(void);
+
+// --- port/Patches/SpritePatches.cpp ---
+BKSpriteDisplayData *SpritePatches_GetOrCreateDisplayData(BKSprite *sprite);
 
 // --- provided by libultraship ---
 s32 osPiReadIo(u32, u32 *);

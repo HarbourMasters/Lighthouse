@@ -18,12 +18,6 @@ static struct {
 #define learnedAbilities abilityprogress.learned
 #define usedAbilities    abilityprogress.used
 
-// [port] The tutorial's flags and dialogs belong to Spiral Mountain, but a romhack may
-// place it in any map of that level, so gate on the level rather than one map id.
-static s32 inSpiralMountain(void) {
-    return map_getLevel(gsworld_getMap()) == LEVEL_B_SPIRAL_MOUNTAIN;
-}
-
 void ability_setUsedWithDialog(enum ability_used_e ability) {
     s32 dialog_id;
     bool play_ding;
@@ -38,41 +32,40 @@ void ability_setUsedWithDialog(enum ability_used_e ability) {
 
     switch (ability) {
         case ABILITY_USED_0_JUMP:
-            // [port] guard with SM check — flags collide with map-specific usage in other worlds (e.g. BGS switches)
-            if (inSpiralMountain())
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_8_ABILITY_HOLD_A_JUMP_HIGHER_UNLOCKED, TRUE);
+//          mapSpecificFlags_set(SM_SPECIFIC_FLAG_8_ABILITY_HOLD_A_JUMP_HIGHER_UNLOCKED, TRUE);
+            if (EventSystem_Should(VB_SM_ABILITY_FLAG_SET, true, ability)) mapSpecificFlags_set(SM_SPECIFIC_FLAG_8_ABILITY_HOLD_A_JUMP_HIGHER_UNLOCKED, TRUE);
             play_ding = TRUE;
             break;
 
         case ABILITY_USED_1_FLAP:
-            if (inSpiralMountain())
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_9_ABILITY_FEATHERY_UNLOCKED, TRUE);
+//          mapSpecificFlags_set(SM_SPECIFIC_FLAG_9_ABILITY_FEATHERY_UNLOCKED, TRUE);
+            if (EventSystem_Should(VB_SM_ABILITY_FLAG_SET, true, ability)) mapSpecificFlags_set(SM_SPECIFIC_FLAG_9_ABILITY_FEATHERY_UNLOCKED, TRUE);
             play_ding = TRUE;
             break;
 
         case ABILITY_USED_2_FLIP:
-            if (inSpiralMountain())
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_A_ABILITY_FLIP_UNLOCKED, TRUE);
+//          mapSpecificFlags_set(SM_SPECIFIC_FLAG_A_ABILITY_FLIP_UNLOCKED, TRUE);
+            if (EventSystem_Should(VB_SM_ABILITY_FLAG_SET, true, ability)) mapSpecificFlags_set(SM_SPECIFIC_FLAG_A_ABILITY_FLIP_UNLOCKED, TRUE);
             play_ding = TRUE;
             break;
 
         case ABILITY_USED_3_SWIM:
 //          if (gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
-            if (inSpiralMountain()) {
+            if (EventSystem_Should(VB_SM_ABILITY_DIALOG, gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN, ability)) {
                 dialog_id = ASSET_DFC_BOTTLES_UNDERWATER_TUTORIAL;
             }
             break;
 
         case ABILITY_USED_4_CLIMB:
 //          if (gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
-            if (inSpiralMountain()) {
+            if (EventSystem_Should(VB_SM_ABILITY_DIALOG, gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN, ability)) {
                 dialog_id = ASSET_E02_DIALOG_BOTTLES_CLIMB_OTHER;
             }
             break;
 
         case ABILITY_USED_5_BEAK_BARGE:
 //          if (gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
-            if (inSpiralMountain()) {
+            if (EventSystem_Should(VB_SM_ABILITY_DIALOG, gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN, ability)) {
                 dialog_id = ASSET_E05_DIALOG_BOTTLES_KAZOOIE_BARGE;
             }
             break;

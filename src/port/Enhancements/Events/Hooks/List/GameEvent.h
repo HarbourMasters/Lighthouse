@@ -3,7 +3,6 @@
 #include <libultraship/bridge/eventsbridge.h>
 
 DEFINE_EVENT(SetAnimSpeedMult, int32_t* mult; int32_t id;)
-DEFINE_EVENT(OnActorUpdate, Actor* actor;)
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnActorArrayFree)
 DEFINE_EVENT(OnMapFileLoad, int32_t map;)
@@ -36,7 +35,6 @@ DEFINE_EVENT(OnHoneycombDropSpawn, int32_t honeycombId; int32_t bundleId; float 
 DEFINE_EVENT(OnTimedJiggyExpired, int32_t jiggyId;)
 // A timed challenge started or reset its hourglass.
 DEFINE_EVENT(OnChallengeTimerSet, int32_t jiggyId;)
-DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)
 DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)
 DEFINE_EVENT(OnSaveFileSave, void* saveBuffer; int32_t fileNum; int32_t * result;)
@@ -70,6 +68,8 @@ DEFINE_EVENT(OnActorNew, ActorInfo* info; uint32_t * flags;)
 DEFINE_EVENT(OnEggFireSfx, int32_t sfx; int32_t * rate;)
 // sfx = SFX_3F5_UNKNOWN, as Napper wakes.
 DEFINE_EVENT(OnNapperWakeSfx, int32_t* sfx;)
+// chanMask = the music channels a map's ambience fades to.
+DEFINE_EVENT(OnMidiChanMask, int32_t* chanMask;)
 DEFINE_EVENT(OnCrocMaxWalkVelocity, float* velocity;)
 // count = the jiggies a level holds before its last, 9 in vanilla.
 DEFINE_EVENT(OnLastJiggyCount, int32_t* count;)
@@ -91,7 +91,5 @@ DEFINE_EVENT(EggHeadSpawn, float* pitch; float* spawnHeight; float* minVerticalV
              int32_t * flattenTrajectory;)
 
 DEFINE_EVENT(OnLevelReset, int32_t levelId;)
-
-DEFINE_EVENT(OnGetLevelSpecificFlag, int32_t flagId; int32_t result;)
 
 DEFINE_EVENT(OnCheckSpiralMountainAbilities, int32_t result;)

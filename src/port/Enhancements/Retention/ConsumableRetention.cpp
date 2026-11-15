@@ -101,6 +101,7 @@ static void RegisterConsumableRetention_Init() {
         event->Cancelled = true;
     });
 
+    // Always on: every consumable bundle drop spawns here (see DropLocal).
     COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, true, {
         bundle_e bundleId = (bundle_e)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
@@ -135,6 +136,7 @@ static void RegisterConsumableRetention_Init() {
 static RegisterShipInitFunc initConsumableRetention(RegisterConsumableRetention_Init, { CVAR_CONSUMABLE_RETENTION });
 
 static void RegisterConsumableRecording_Init() {
+    // Always on: pickups count with the setting off, so turning it on later skips what's collected.
     REGISTER_LISTENER(OnConsumableCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         Prop* prop = (Prop*)((OnConsumableCollected*)event)->prop;
         if (!systemActive() || prop == nullptr) {

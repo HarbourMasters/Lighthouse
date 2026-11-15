@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <cmath>
 #include <vector>
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
@@ -129,8 +130,6 @@ void UpdateLighthouseBeam() {
 
 } // namespace
 
-void CluckerCutscene_ForceSkip();
-
 extern "C" void CutThroatCoast_DoubloonUpdate(Actor* thisx) {
     thisx->yaw = mlNormalizeAngle(thisx->yaw + 12.0f);
     chCarriedAcorn_update(thisx);
@@ -200,7 +199,7 @@ void RegisterCutThroatCoastPatches() {
     });
 
     // TODO: CTC's blob also patches the gravestone model's display lists once it loads.
-    port_enableNoteDoorComposer();
+    NoteDoorNumbers_EnableComposer();
 
     // Exiting via the exit pad should go back to the CTC lobby map
     REGISTER_LISTENER(OnMapChangeRequest, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
@@ -233,9 +232,9 @@ void RegisterCutThroatCoastPatches() {
     });
 
     // This MMM empty honeycomb doesn't require the pumpkin
-    REGISTER_VB_SHOULD(VB_HONEYCOMB_PUMPKIN_REQUIREMENT, EVENT_PRIORITY_NORMAL, {
+    REGISTER_VB_SHOULD(VB_HONEYCOMB_PUMPKIN_REQUIREMENT_MET, EVENT_PRIORITY_NORMAL, {
         (void)args;
-        *should = false;
+        *should = true;
     });
 
     // The sky timer never advances, so skybox layers hold their initial rotation

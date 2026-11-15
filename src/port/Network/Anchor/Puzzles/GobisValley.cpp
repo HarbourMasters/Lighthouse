@@ -14,8 +14,6 @@ void chGobi2_setState(Actor* self, s32 next_state);
 void chJinxyHeadSandybutt_setState(Actor* self, s32 next_state);
 }
 
-#include "port/Patches/Patches.h"
-
 // Set while the pyramid rises for a teammate.
 static bool sPyramidReplay = false;
 
@@ -140,8 +138,8 @@ void AnchorPuzzles_RegisterGobisValley(bool connected) {
     // Jinxy's door. Its open flag (0x10) doesn't last past a reload, so the team keeps it as a puzzle bit.
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_6D_GV_BANJO_DOOR, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         if (mapSpecificFlags_get(0x10)) {
-            port_puzzleStep_orBits(ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
-        } else if (port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1) {
+            PuzzleStep_OrBits(ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
+        } else if (PuzzleStep_GetBits(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1) {
             mapSpecificFlags_set(0x10, true);
             mapSpecificFlags_set(2, true); // the helped dialog is the opener's
         }

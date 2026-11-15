@@ -3,6 +3,8 @@
 #include <cstring>
 #include <string>
 #include <libultraship/bridge.h>
+#include "port/Enhancements/Backports/TooieJiggyDance.h"
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
@@ -55,10 +57,6 @@ extern struct {
 void _levelSpecificFlags_updateCRC1(void);
 void _levelSpecificFlags_updateCRC2(void);
 }
-
-void TooieJiggyDance_ForceEnable();
-void TooieJiggyDance_SetMapSuppression(const s32* maps, s32 count);
-void CluckerCutscene_ForceSkip();
 
 namespace {
 
@@ -117,7 +115,10 @@ void SnowGlow_EnablePauseMenu() {
 
 // Cutscenes
 void SnowGlow_EnableCutsceneSkips() {
-    REGISTER_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, { *should = false; });
+    REGISTER_VB_SHOULD(VB_INTRO_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_LAIR_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_GAME_OVER_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, { *should = true; });
+    REGISTER_VB_SHOULD(VB_GAME_OVER_SKIP_BEGIN, EVENT_PRIORITY_NORMAL, { *should = true; });
 
     REGISTER_LISTENER(OnGameOverReturnMap, EVENT_PRIORITY_NORMAL,
                       [](IEvent* event) { *((OnGameOverReturnMap*)event)->map = MAP_77_GL_RBB_LOBBY; });
@@ -764,6 +765,6 @@ void RegisterSnowGlowVillagePatches() {
     HackShared_EnableMumboReward();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
     // HackShared_EnablePodiumCheck(kSnowGlowPodiumFloors);
-    port_enableNoteDoorComposer();
-    port_overrideRomhackHoneycombsPerWorld(6);
+    NoteDoorNumbers_EnableComposer();
+    RomhackConfig_OverrideHoneycombsPerWorld(6);
 }

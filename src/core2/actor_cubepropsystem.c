@@ -10,8 +10,7 @@
 #include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
-
-extern int ResourceMgr_IsModelAsset(uint32_t assetId);
+#include "port/ResourceHelpers.h"
 
 #define AssetCacheSize 0x3D5
 
@@ -423,9 +422,6 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
             if(iProp->isActorProp){//actorProp;
                 // [port] marker is NULL until actor spawns
                 if(iProp->actorProp.marker != NULL){
-                    // [port] Fire one tick event per static prop for port-side features (e.g. nametags).
-                    f32 propPos[3] = { (f32)iProp->actorProp.position_x, (f32)iProp->actorProp.position_y, (f32)iProp->actorProp.position_z };
-                    CALL_EVENT(OnPropTick, iProp->actorProp.marker, propPos);
                     if(iProp->actorProp.marker->unk40_22){
                         markerPtr = (ActorMarker **)bk_vector_pushBackNew(&D_80383550);
                         *markerPtr = iProp->actorProp.marker;
@@ -466,9 +462,6 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                         iProp->spriteProp.spriteId,
                         ((uint64_t)(u16)iProp->spriteProp.position[0] << 32) | (u16)iProp->spriteProp.position[1],
                         (u16)iProp->spriteProp.position[2]);
-                    // [port] Fire one tick event per static sprite prop. Asset id
-                    // is the raw sprite index offset (+ 0x572 is the asset base).
-                    CALL_EVENT(OnSpritePropTick, (s32)iProp->spriteProp.spriteId + 0x572, sp94);
                     propModelList_drawSprite( gfx, mtx, vtx,
                         sp94, (f32)iProp->spriteProp.scale/100.0, iProp->spriteProp.spriteId, cube,
                         iProp->spriteProp.rgb_remove_red, iProp->spriteProp.rgb_remove_green, iProp->spriteProp.rgb_remove_blue,
@@ -1102,7 +1095,6 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                         }
                     }
                     //Prop* ptr = cube->prop2Ptr + i * sizeof(Prop);
-                    CALL_EVENT(OnPropInit, &cube->prop2Ptr[writeIdx]);
                     writeIdx++;
                 }
             }
@@ -1720,12 +1712,7 @@ BKModelBin *marker_loadModelBin(ActorMarker *this){
 
     // [port] Let the language system invalidate a re-pointed model so it
     // re-fetches the active language's version (live swap on the next draw).
-    s32 reload = 0;
-    CALL_EVENT(OnModelLoad, this->modelId, modelInfo, &reload);
-    if (reload && modelInfo->modelPtr != NULL) {
-        assetcache_release(modelInfo->modelPtr);
-        modelInfo->modelPtr = NULL;
-    }
+    CALL_EVENT(OnModelLoad, this->modelId, modelInfo);
 
     if(modelInfo->modelPtr == NULL){
         model = assetcache_get(this->modelId);

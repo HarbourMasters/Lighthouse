@@ -78,9 +78,7 @@ void _levelSpecificFlags_updateCRC2(void) {
 }
 
 s32 levelSpecificFlags_get(s32 i){
-    CALL_CANCELLABLE_RETURN_EVENT(OnGetLevelSpecificFlag, i) {
-        return bitfieldarray_getBit(D_80383320.unk8, i);
-    }
+    return bitfieldarray_getBit(D_80383320.unk8, i);
 }
 
 s32 levelSpecificFlags_getN(s32 i, s32 n){

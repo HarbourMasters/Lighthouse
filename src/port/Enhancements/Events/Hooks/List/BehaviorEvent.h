@@ -37,17 +37,16 @@ DEFINE_EVENT(OnJinjoStatueEgg, int32_t statueId; int32_t padIndex;)
 DEFINE_EVENT(OnBossJinjoHitUpdate, Actor* jinjo;)
 DEFINE_EVENT(OnSmMovesCompleted)
 DEFINE_EVENT(OnFpTwinklyMinigameEnd)
-DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)
-DEFINE_EVENT(OnMiscCutscenesCheck, bool* skipMiscCutscenes;)
 DEFINE_EVENT(OnJigsawPodiumInput, s32 podiumId;)
-DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
 DEFINE_EVENT(OnMumboTokenIdResolve, s32* tokenId; s32 * position; s32 mapId;)
+DEFINE_EVENT(OnAnimCtrlStart, AnimCtrl* ctrl;)
 DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position;
              f32 subrange_end; bool smooth;)
 DEFINE_EVENT(OnPlayerAnimReset)
 DEFINE_EVENT(OnPlayerTransformChange, Transformation tf_id;)
 DEFINE_EVENT(OnPlayerAnimSubRangeChange, f32 duration; f32 end_position;)
-DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
+// timer = the hourglass, in seconds; doorFrames = how long the hatch stays open.
+DEFINE_EVENT(OnWaterPyramidTimer, s32* timer; s32 * doorFrames;)
 // Fired per conditional geometry-cull command in the map model (camera-area portal, LOD
 // band, frustum sphere). Listeners may set *forceDraw to draw a chunk the vanilla gate
 // would skip. `type` is OCCLUSION_CMD_* (see GeoCull.h); `offset` is the command's byte

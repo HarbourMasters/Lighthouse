@@ -22,6 +22,6 @@
 static constexpr int kWarpIdxSmExitBanjosHouse = 281;
 
 void RegisterDreamiePatches() {
-    port_clearRomhackWarpDest(kWarpIdxSmExitBanjosHouse);
-    port_clearRomhackNamedWarps();
+    RomhackConfig_ClearWarpDest(kWarpIdxSmExitBanjosHouse);
+    RomhackConfig_ClearNamedWarps();
 }

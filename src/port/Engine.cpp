@@ -34,6 +34,7 @@
 #include "GameVersion/BaseGameVersion.h"
 #include "ship/window/gui/FileBrowserWindow.h"
 #include "Network/Anchor/Anchor.h"
+#include "port/Audio/AudioSoundFont.h"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Patches/Patches.h"
 #include "port/Save/SaveManager.h"
@@ -433,9 +434,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     });
 }
 
-extern void ResourceHelpers_ClearRefCache();
 void ReleaseSoundfonts();
-extern "C" void port_alBnkfFreeAll();
 
 void GameEngine::Destroy() {
     if (Instance->context && Instance->context->GetControlDeck()) {
@@ -550,7 +549,7 @@ extern "C" void GameEngine_BeginDemoAudioHold(void) {
     sHoldAudio.store(true);
 }
 
-extern "C" void port_tickDemoAudioHold(void) {
+extern "C" void GameEngine_TickDemoAudioHold(void) {
     if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
         sHoldAudio.store(false);
     }
@@ -561,7 +560,7 @@ extern "C" int GameEngine_IsAudioHeld(void) {
 }
 
 void ReleaseSoundfonts() {
-    port_alBnkfFreeAll();
+    AudioSoundFont_FreeAll();
 }
 
 extern "C" uint32_t GameEngine_GetSampleRate() {

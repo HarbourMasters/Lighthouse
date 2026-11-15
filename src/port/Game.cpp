@@ -176,7 +176,7 @@ extern "C" void Graphics_OnThread5Submit(void* taskData) {
     FrameInterpolation_GetRecordingPair(&pair.prev, &pair.curr, &pair.should);
     FrameInterpolation_ClaimPair(pair.prev, pair.curr);
     pair.swapNs = OS_ViLastSwapNs();
-    pair.viSerial = port_getDemoViSerial();
+    pair.viSerial = FramePacingPatches_GetDemoViSerial();
     pair.timed = GameEngine::WantsTimedPass(pair.curr >= 0, GameEngine::CurrentViPerTick());
     FrameInterpolation_StopRecord();
     Nametag::SubmitFrame(task->data_ptr);
@@ -238,7 +238,7 @@ void SendTaskDone() {
 
 // Hands the task back once the list is no longer read. A timed pass calls this after its
 // last draw; otherwise ServiceRcp does once the pass returns.
-extern "C" void port_releaseRcpTask(void) {
+extern "C" void Graphics_ReleaseRcpTask(void) {
     if (sTaskReleased) {
         return;
     }
@@ -278,7 +278,7 @@ int ServiceRcp() {
     }
     sTaskReleased = false;
     RenderTask(task->t.data_ptr);
-    port_releaseRcpTask();
+    Graphics_ReleaseRcpTask();
     return 1;
 }
 
@@ -324,7 +324,7 @@ static RegisterShipInitFunc sThread5MapSyncInit(RegisterThread5MapSync_Init);
 // Whether a tick-side renderer call is waiting on the window thread. The
 // handshake below is a condvar rather than a message queue, so it is the one
 // park the watchdog's blocked-wait registry cannot see.
-extern "C" int port_renderServicePending(void) {
+extern "C" int Graphics_RenderServicePending(void) {
     return sSvcFn != nullptr;
 }
 
@@ -349,7 +349,7 @@ extern "C" void Graphics_RunOnRenderThread(void (*fn)(void*), void* arg) {
     sSvcCv.wait(lock, done);
 }
 
-extern "C" void port_serviceRenderRequests(void) {
+extern "C" void Graphics_ServiceRenderRequests(void) {
     DrainRenderService();
 }
 
@@ -387,7 +387,7 @@ void push_frame() {
     }
 
     GameEngine::Instance->StartFrame();
-    port_animVtx_beginTick();
+    AnimVertexPatches_BeginTick();
     const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
     if (recordInterpolation) {
         FrameInterpolation_StartRecord();
@@ -399,7 +399,7 @@ void push_frame() {
         FrameInterpolation_StopRecord();
     }
     if (sFrameRendered) {
-        port_tickDemoAudioHold();
+        GameEngine_TickDemoAudioHold();
     }
 
     // Refresh window title stats once per second (every 30 game ticks). The
@@ -407,7 +407,7 @@ void push_frame() {
     if (++sTitleCounter >= 30) {
         sTitleCounter = 0;
         sTitleMap = gsworld_getMap();
-        Graphics_RunOnRenderThread([](void*) { port_setWindowTitle(sTitleMap); }, nullptr);
+        Graphics_RunOnRenderThread([](void*) { GameStatus_SetWindowTitle(sTitleMap); }, nullptr);
     }
 
     if (!sFrameRendered) {
@@ -513,7 +513,7 @@ int SDL_main(int argc, char* argv[]) {
     });
     while (WindowIsRunning() || !sGameThreadDone.load()) {
         ThreadWatchdog_Beat(WATCHDOG_MAIN_LOOP);
-        port_noteMainLoopAlive();
+        AudioSync_NoteMainLoopAlive();
         // Pump events every iteration: a task-starved pass must not starve
         // input and window messages.
         Ship::Context::GetRawInstance()->GetWindow()->HandleEvents();

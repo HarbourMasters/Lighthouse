@@ -157,7 +157,9 @@ void chYumblie_update(Actor *this){
     anim_progress = skeletalAnim_getProgress(this->unk148);
     if(this->state == YUMBLIE_STATE_1_UNDER_GROUND){
         if(ml_timer_update(&local->waitTimer, time_delta)){
+//          if(mapSpecificFlags_get(BGS_SPECIFIC_FLAG_6_MR_VILE)
             if(EventSystem_Should(VB_VILE_YUMBLIE_EMERGE, mapSpecificFlags_get(BGS_SPECIFIC_FLAG_6_MR_VILE)
+//              && (12 > chMrVileMinigame_getPieceCount(local->game_marker)))
                 && (12 > chMrVileMinigame_getPieceCount(local->game_marker))))
             {
                 chYumblie_setState(this, YUMBLIE_STATE_2_APPEAR);
@@ -190,6 +192,7 @@ void chYumblie_update(Actor *this){
 
     }
     if(this->state == YUMBLIE_STATE_3_ABOVE_GROUND){
+//      if( ml_timer_update(&local->waitTimer, time_delta) || !mapSpecificFlags_get(BGS_SPECIFIC_FLAG_6_MR_VILE) ){
         if( EventSystem_Should(VB_VILE_YUMBLIE_HIDE, ml_timer_update(&local->waitTimer, time_delta) || !mapSpecificFlags_get(BGS_SPECIFIC_FLAG_6_MR_VILE) )){
             chYumblie_setState(this, YUMBLIE_STATE_4_DISAPPEAR);
         }

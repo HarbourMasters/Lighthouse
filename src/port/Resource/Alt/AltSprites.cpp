@@ -102,7 +102,7 @@ const char* resolvePath(const void* chunkAddr) {
 
 extern "C" {
 
-void port_spriteAltRegisterChunk(const void* chunkAddr, const char* path) {
+void AltSprites_RegisterChunk(const void* chunkAddr, const char* path) {
     if (chunkAddr == nullptr || path == nullptr) {
         return;
     }
@@ -110,7 +110,7 @@ void port_spriteAltRegisterChunk(const void* chunkAddr, const char* path) {
     sChunkPaths[chunkAddr] = InternAltPath(path);
 }
 
-void port_spriteAltUnregisterChunk(const void* chunkAddr) {
+void AltSprites_UnregisterChunk(const void* chunkAddr) {
     if (chunkAddr == nullptr) {
         return;
     }

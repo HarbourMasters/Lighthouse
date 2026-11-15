@@ -97,15 +97,42 @@ typedef enum VBehaviorID {
     // - `s32` (i_ptr->unk0, promoted from `s16`)
     VB_CUTSCENE_TRIGGER_UPDATE,
 
-    // The intro cutscene, which Start skips once there's a save file. A listener that returns false lets Start skip it
+    // The intro cutscene, which Start skips once there's a save file. A listener that returns true lets Start skip it
     // without one.
     // #### `result`
     // ```c
-    // true
+    // gameFile_anyNonEmpty() != 0
     // ```
     // #### `args`
     // - None
-    VB_PLAY_INTRO_CUTSCENE,
+    VB_INTRO_CUTSCENE_SKIPPABLE,
+
+    // A save file with time in the lair (D_8037DCCE), which lets Start skip the lair's entry cutscene.
+    // #### `result`
+    // ```c
+    // (D_8037DCCE[0] != 0) || (D_8037DCCE[1] != 0) || (D_8037DCCE[2] != 0)
+    // ```
+    // #### `args`
+    // - None
+    VB_LAIR_CUTSCENE_SKIPPABLE,
+
+    // A listener that returns true makes Start leave the game-over cutscene at once, ahead of the timed return.
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - None
+    VB_GAME_OVER_CUTSCENE_LEAVE,
+
+    // The level flag Clucker's death cutscene sets so it doesn't play again. A listener that returns true skips it.
+    // #### `result`
+    // ```c
+    // levelSpecificFlags_get(LEVEL_FLAG_14_TTC_UNKNOWN)
+    // ```
+    // #### `args`
+    // - None
+    VB_CLUCKER_CUTSCENE_PLAYED,
 
     // #### `result`
     // ```c
@@ -159,6 +186,24 @@ typedef enum VBehaviorID {
 
     // Vanilla bug fixes and corrections
 
+    // A first jump, flap or flip setting Spiral Mountain's map flag for that move.
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (ability_used_e)
+    VB_SM_ABILITY_FLAG_SET,
+
+    // Bottles' dialog for a first swim, climb or beak barge in Spiral Mountain.
+    // #### `result`
+    // ```c
+    // gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN
+    // ```
+    // #### `args`
+    // - `s32` (ability_used_e)
+    VB_SM_ABILITY_DIALOG,
+
     // FILEPROG_FC_DEFEAT_GRUNTY set as the Jinjonator is freed. v1.1 sets it after the Jinjonator's attacks instead.
     // #### `result`
     // ```c
@@ -179,7 +224,7 @@ typedef enum VBehaviorID {
     // Gnawty's boulder breaking, which v1.1 doesn't allow in Spring.
     // #### `result`
     // ```c
-    // gsworld_getMap() != MAP_43_CCW_SPRING
+    // true
     // ```
     // #### `args`
     // - None
@@ -188,8 +233,7 @@ typedef enum VBehaviorID {
     // Spring's flower growing when it's planted, which v1.1 allows only once.
     // #### `result`
     // ```c
-    // gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING &&
-    //     !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)
+    // gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == CH_CCW_BEANSTALK_STATE_1_WAITING
     // ```
     // #### `args`
     // - None
@@ -266,6 +310,7 @@ typedef enum VBehaviorID {
     // - `*Actor` (the stump)
     VB_MM_CHIMPY_STUMP_START_LOWERED,
 
+    // A sound node on an actor's path. A listener that returns false breaks out of the node before it plays.
     // #### `result`
     // ```c
     // true
@@ -1218,14 +1263,23 @@ typedef enum VBehaviorID {
     // - `s32` (enum map_e)
     VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
 
-    // A cutscene skip needing a save file or progress first.
+    // Map flag 0 unlocks the game-over cutscene's skip for the save file, setting FILEPROG_E1_UNKNOWN.
     // #### `result`
     // ```c
-    // true
+    // mapSpecificFlags_get(0) != 0
     // ```
     // #### `args`
     // - None
-    VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,
+    VB_GAME_OVER_CUTSCENE_SKIPPABLE,
+
+    // Start begins the game-over skip's timed return, and runs it at once when map flag 0xC marks it begun.
+    // #### `result`
+    // ```c
+    // !mapSpecificFlags_get(0xC)
+    // ```
+    // #### `args`
+    // - None
+    VB_GAME_OVER_SKIP_BEGIN,
 
     // The lair's entry cutscene seen, which sends a game over to the machine room's cutscene until Furnace Fun is done.
     // #### `result`
@@ -1335,6 +1389,7 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // !(i == 0) && !(i == 2) // the Lair page
+    // !((i == 0) || (i == 2)) // the Lair page, in PAUSE_STATE_D_PAGE_OPENING
     // !(i == 0) && !(i == 1) // Spiral Mountain's page
     // 1                      // every other page
     // ```
@@ -1420,14 +1475,14 @@ typedef enum VBehaviorID {
     // - None
     VB_JIGGY_COLLECT_TUTORIAL,
 
-    // MMM's floorboard honeycomb needing the pumpkin.
+    // MMM's floorboard honeycomb needing the pumpkin. A listener that returns true lets any transformation collect it.
     // #### `result`
     // ```c
-    // true
+    // player_getTransformation() == TRANSFORM_3_PUMPKIN
     // ```
     // #### `args`
     // - None
-    VB_HONEYCOMB_PUMPKIN_REQUIREMENT,
+    VB_HONEYCOMB_PUMPKIN_REQUIREMENT_MET,
 
     // What Brentilda says after her hint: her offer to heal, or ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED when
     // there's nothing to heal.
@@ -1499,15 +1554,6 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `s32` (the map)
     VB_HEALTH_HUD_SHOW,
-
-    // A music channel mask, which a listener may change. The result is unused.
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*s32` (the mask)
-    VB_MIDI_SET_CHAN_MASK,
 
     // #### `result`
     // ```c

@@ -112,10 +112,8 @@ void chGnawtyBoulder_setNextState(Actor *this, s32 next_state) {
 void chGnawtyBoulder_die(ActorMarker* marker, ActorMarker *other_marker) {
     Actor* actor = marker_getActor(marker);
     if (actor->state == GNAWTY_BOULDER_STATE_1_IDLE) {
-        // [port] v1.1 fix: rock is indestructible in Spring (prevents sequence break)
-        if (EventSystem_Should(VB_CCW_GNAWTY_SPRING_ROCK, gsworld_getMap() != MAP_43_CCW_SPRING)) {
-            chGnawtyBoulder_setNextState(actor, GNAWTY_BOULDER_STATE_2_BREAK);
-        }
+//      chGnawtyBoulder_setNextState(actor, GNAWTY_BOULDER_STATE_2_BREAK);
+        if (EventSystem_Should(VB_CCW_GNAWTY_SPRING_ROCK, true)) chGnawtyBoulder_setNextState(actor, GNAWTY_BOULDER_STATE_2_BREAK);
     }
 }
 

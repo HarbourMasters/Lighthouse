@@ -448,10 +448,14 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         int width = 4;
         CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);
 
+//      if(vp_cube_indices[i] - sp44[i] >= 5){
         if(vp_cube_indices[i] - sp44[i] > width){
+//          sp44[i] = vp_cube_indices[i] - 4;
             sp44[i] = vp_cube_indices[i] - width;
         }
+//      if(sp38[i] - vp_cube_indices[i] >= 5){
         if(sp38[i] - vp_cube_indices[i] > width){
+//          sp38[i] = vp_cube_indices[i] + 4;
             sp38[i] = vp_cube_indices[i] + width;
         }
     }
@@ -841,9 +845,12 @@ void cubeList_init(){
         }
     }
     sCubeList.unk3C = (Cube *)bk_malloc(sizeof(Cube));
-    sCubeList.unk3C->x = 16;
-    sCubeList.unk3C->y = 16;
-    sCubeList.unk3C->z = 16;
+//  sCubeList.unk3C->x = 16;
+    sCubeList.unk3C->x = -16;
+//  sCubeList.unk3C->y = 16;
+    sCubeList.unk3C->y = -16;
+//  sCubeList.unk3C->z = 16;
+    sCubeList.unk3C->z = -16;
     sCubeList.unk3C->prop2Ptr = NULL;
     sCubeList.unk3C->prop1Ptr = NULL;
     sCubeList.unk3C->prop2Cnt = 0;
@@ -852,9 +859,12 @@ void cubeList_init(){
 
 
     sCubeList.unk40 = (Cube *)bk_malloc(sizeof(Cube));
-    sCubeList.unk40->x = 16;
-    sCubeList.unk40->y = 16;
-    sCubeList.unk40->z = 16;
+//  sCubeList.unk40->x = 16;
+    sCubeList.unk40->x = -16;
+//  sCubeList.unk40->y = 16;
+    sCubeList.unk40->y = -16;
+//  sCubeList.unk40->z = 16;
+    sCubeList.unk40->z = -16;
     sCubeList.unk40->prop2Ptr = NULL;
     sCubeList.unk40->prop1Ptr = NULL;
     sCubeList.unk40->prop2Cnt = 0;

@@ -6,6 +6,8 @@
 #include <libultraship/bridge.h>
 #include <cmath>
 
+#include "port/Enhancements/Backports/TooieJiggyDance.h"
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/Shared/HackShared.h"
@@ -40,8 +42,6 @@ extern struct1As D_8036C520[4];
 extern s8 D_8036C5F4[];
 extern s32 D_803726F0[2];
 }
-
-void TooieJiggyDance_ForceEnable();
 
 // Suppressed dialogs
 constexpr int kGruntchSuppressedDialogs[] = {
@@ -304,12 +304,10 @@ static bool Gruntch_OnFullChanMaskMap() {
 }
 
 static void Gruntch_EnableFullChanMask() {
-    REGISTER_VB_SHOULD(VB_MIDI_SET_CHAN_MASK, EVENT_PRIORITY_NORMAL, {
-        s32* mask = va_arg(args, s32*);
+    REGISTER_LISTENER(OnMidiChanMask, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         if (Gruntch_OnFullChanMaskMap()) {
-            *mask = 0xFFFF;
+            *((OnMidiChanMask*)event)->chanMask = 0xFFFF;
         }
-        (void)should;
     });
 
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
@@ -423,7 +421,7 @@ static void Gruntch_EnablePauseTotalsLayout() {
 static void Gruntch_EnableJiggyTally() {
     HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
     HackShared_SetJiggyLevelCap(10);
-    port_overrideRomhackJiggiesPerWorld(10);
+    RomhackConfig_OverrideJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
     HackShared_SetPauseRowsVisible(LEVEL_2_TREASURE_TROVE_COVE, (1 << 2) | (1 << 3));
@@ -673,8 +671,6 @@ constexpr StealthNoiseConfig kGruntchStealth = {
 //     { MAP_2E_MMM_HONEYCOMB_ROOM, -112.0f },
 //     { MAP_3D_RBB_NAVIGATION_ROOM, -352.0f },
 // };
-
-void CluckerCutscene_ForceSkip();
 
 // ------------------------------------------------------- Patch registration
 void RegisterGruntchPatches() {

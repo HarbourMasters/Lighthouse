@@ -5,6 +5,7 @@
 
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
+#include "port/Enhancements/Cutscenes/CutsceneSkips.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
@@ -32,7 +33,7 @@ s32 globalTimer_getTime(void);
 // Vanilla holds back Start-to-skip on the Rareware logo at first boot. This lets it through 30 frames after boot.
 void RegisterSkipBootLogos_Init() {
     COND_VB_SHOULD(VB_CUTSCENE_TRIGGER_UPDATE, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !port_isRomhack(), {
+                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !RomhackConfig_IsActive(), {
                        // 0x18 is the logo's trigger node.
                        if (va_arg(args, s32) == 0x18 && gsworld_getMap() == MAP_1F_CS_START_RAREWARE &&
                            globalTimer_getTime() > 30) {
@@ -42,29 +43,21 @@ void RegisterSkipBootLogos_Init() {
 }
 
 void RegisterSkipIntroCutscene_Init() {
-    COND_VB_SHOULD(VB_PLAY_INTRO_CUTSCENE, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !port_isRomhack(), { *should = false; });
+    COND_VB_SHOULD(VB_INTRO_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !RomhackConfig_IsActive(), { *should = true; });
 }
 
 void RegisterSkipMiscCutscenes_Init() {
-    COND_HOOK(OnMiscCutscenesCheck, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !port_isRomhack(), [](IEvent* event) {
-                  auto* ev = reinterpret_cast<OnMiscCutscenesCheck*>(event);
-                  *ev->skipMiscCutscenes = true;
-              });
+    const bool skipMisc = CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !RomhackConfig_IsActive();
+    COND_VB_SHOULD(VB_LAIR_CUTSCENE_SKIPPABLE, EVENT_PRIORITY_NORMAL, skipMisc, { *should = true; });
+    COND_VB_SHOULD(VB_GAME_OVER_CUTSCENE_LEAVE, EVENT_PRIORITY_NORMAL, skipMisc, { *should = true; });
 }
 
 static bool sCluckerSkipForced = false;
 
 void RegisterSkipCluckerCutscene_Init() {
-    COND_HOOK(OnGetLevelSpecificFlag, EVENT_PRIORITY_NORMAL,
-              CVarGetInteger(CVAR_SKIP_CLUCKER_CUTSCENE, 0) || sCluckerSkipForced, [](IEvent* event) {
-                  auto* ev = reinterpret_cast<OnGetLevelSpecificFlag*>(event);
-                  if (ev->flagId == LEVEL_FLAG_14_TTC_UNKNOWN) {
-                      ev->result = 1;
-                      event->Cancelled = true;
-                  }
-              });
+    COND_VB_SHOULD(VB_CLUCKER_CUTSCENE_PLAYED, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_CLUCKER_CUTSCENE, 0) || sCluckerSkipForced, { *should = true; });
 }
 
 void CluckerCutscene_ForceSkip() {

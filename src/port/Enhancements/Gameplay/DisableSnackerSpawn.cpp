@@ -15,7 +15,7 @@
 
 void RegisterDisableSnacker_Init() {
     COND_VB_SHOULD(VB_DISABLE_SNACKER, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_DISABLE_SNACKER, 0) && !port_isRomhack(), { *should = false; });
+                   CVarGetInteger(CVAR_DISABLE_SNACKER, 0) && !RomhackConfig_IsActive(), { *should = false; });
 }
 
 static RegisterShipInitFunc initFunc(RegisterDisableSnacker_Init, { CVAR_DISABLE_SNACKER });

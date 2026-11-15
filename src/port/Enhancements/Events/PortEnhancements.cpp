@@ -1,6 +1,7 @@
 #include "PortEnhancements.h"
 #include "port/Save/SaveManager.h"
 #include "port/Rando/Rando.h"
+#include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 
 #include <libultraship/bridge/consolevariablebridge.h>
@@ -20,7 +21,6 @@ void PortEnhancements_Init() {
 void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
-    REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(OnControllerRead);
     REGISTER_EVENT(OnControllerUpdate);
     REGISTER_EVENT(OnMapLoad);
@@ -49,8 +49,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorDrawEnd);
     REGISTER_EVENT(ShouldActorDraw);
     REGISTER_EVENT(ShouldActorUpdate);
-    REGISTER_EVENT(OnPropTick);
-    REGISTER_EVENT(OnSpritePropTick);
     REGISTER_EVENT(LocalizeUiString);
     REGISTER_EVENT(OnFileSelectInfoBuild);
 
@@ -107,12 +105,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBossJinjoHitUpdate);
     REGISTER_EVENT(OnSmMovesCompleted);
     REGISTER_EVENT(OnFpTwinklyMinigameEnd);
-    REGISTER_EVENT(OnIntroCutsceneCheck);
-    REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnJigsawPodiumInput);
-    REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
-    REGISTER_EVENT(OnNametagDraw);
+    REGISTER_EVENT(OnAnimCtrlStart);
     REGISTER_EVENT(OnPlayerAnimChange);
     REGISTER_EVENT(OnPlayerAnimReset);
     REGISTER_EVENT(OnPlayerAnimSubRangeChange);
@@ -164,7 +159,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnSaveClear);
-    REGISTER_EVENT(OnPropInit);
     REGISTER_EVENT(OnWarpDispatch);
     REGISTER_EVENT(OnNamedWarp);
     REGISTER_EVENT(OnWarpMusic);
@@ -181,6 +175,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorNew);
     REGISTER_EVENT(OnEggFireSfx);
     REGISTER_EVENT(OnNapperWakeSfx);
+    REGISTER_EVENT(OnMidiChanMask);
     REGISTER_EVENT(OnCrocMaxWalkVelocity);
     REGISTER_EVENT(OnLastJiggyCount);
     REGISTER_EVENT(OnPropSpriteScale);
@@ -200,7 +195,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
     REGISTER_EVENT(OnReset);
     REGISTER_EVENT(SetAnimSpeedMult);
-    REGISTER_EVENT(OnActorUpdate);
 
     // Register rando events
     REGISTER_EVENT(InitRandoEvents);
@@ -214,7 +208,6 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnFindActorMarkerFromJiggyId);
     REGISTER_EVENT(OnFindClosestActorFromActorId);
     REGISTER_EVENT(OnSetJiggyList);
-    REGISTER_EVENT(OnGetLevelSpecificFlag);
     REGISTER_EVENT(OnIsJiggyScoreCollected);
     REGISTER_EVENT(OnIsJiggyScoreSpawned);
     REGISTER_EVENT(SetRandoInfFlag);
@@ -301,6 +294,21 @@ void ActorEvent_Forward(EventID* event, IEvent* payload) {
         EventSystemCallEvent(it->second.event, payload, __FILE__, __LINE__, FILE_AND_LINE);
     }
 }
+
+extern "C" AnimCtrl* baanim_getAnimCtrlPtr(void);
+
+static void RegisterPlayerAnimChange_Init() {
+    // Always on: OnPlayerAnimChange's listeners are conditional.
+    COND_HOOK(OnAnimCtrlStart, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        AnimCtrl* ctrl = ((OnAnimCtrlStart*)event)->ctrl;
+        if (ctrl == baanim_getAnimCtrlPtr()) {
+            CALL_EVENT(OnPlayerAnimChange, anctrl_getIndex(ctrl), anctrl_getDuration(ctrl),
+                       anctrl_getPlaybackType(ctrl), ctrl->start, ctrl->subrange_end, ctrl->smooth_transition != 0);
+        }
+    });
+}
+
+static RegisterShipInitFunc initPlayerAnimChange(RegisterPlayerAnimChange_Init);
 
 extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
     // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as

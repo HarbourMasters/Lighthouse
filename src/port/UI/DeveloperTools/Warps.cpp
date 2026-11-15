@@ -427,7 +427,7 @@ const char* MapShortName(int32_t map) {
 }
 
 const char* LevelDisplayName(int32_t level) {
-    return port_levelName((enum level_e)LevelBucket(level));
+    return GameStatus_GetLevelName((enum level_e)LevelBucket(level));
 }
 
 const char* FindWarpName(int32_t map, int32_t exit) {
@@ -647,6 +647,7 @@ void DrawWarpsTab() {
 }
 
 void Warps_Register() {
+    // Always on: the Warps window rescans entrances on its next draw after a map load.
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { entranceScanPending = true; });
 }
 

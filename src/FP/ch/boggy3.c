@@ -53,6 +53,7 @@ void func_80390388(Actor *this){
             levelSpecificFlags_set(LEVEL_FLAG_12_FP_UNKNOWN, true);
             levelSpecificFlags_set(LEVEL_FLAG_13_FP_UNKNOWN, true);
         }
+//      if(jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3) || jiggyscore_isSpawned(JIGGY_2C_FP_BOGGY_3)){
         if(EventSystem_Should(VB_BOGGY_HOME_VISIBLE,
                jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3) || jiggyscore_isSpawned(JIGGY_2C_FP_BOGGY_3),
                this)){

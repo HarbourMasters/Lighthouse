@@ -14,6 +14,7 @@ extern "C" {
 #endif
 #include <libultra/gbi.h>
 
+char* ResourceMgr_ReloadByAssetId(uint32_t assetId);
 char* ResourceMgr_LoadByAssetId(uint32_t assetId);
 void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath);
 size_t ResourceMgr_GetResourceSize(uint32_t assetId);
@@ -42,6 +43,7 @@ std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId);
 std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId);
 bool ResourceHelpers_GetOverlayAsset(uint32_t assetId, std::string& outArchivePath, std::string& outPath);
 void ResourceHelpers_BuildOverlayRepoints();
+void ResourceHelpers_ClearRefCache();
 #endif
 
 #endif

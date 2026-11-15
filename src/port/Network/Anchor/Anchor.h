@@ -65,8 +65,54 @@ void Anchor_RegisterTumblarHooks(bool connected);
 bool TumblarUpdate_IsGameRunning();
 void Anchor_BreakLairBreakable(int32_t progressFlag);
 void Anchor_RegisterFightHooks(bool connected);
+void Anchor_ClearLevelState(int32_t levelId);
+s32 Anchor_LevelOfMap(s32 map);
+void Anchor_DespawnCollectedCollectibles();
 bool ChallengeTimer_IsShowing();
 bool ChallengeTimer_IsOurs(s32 jiggyId);
+
+int32_t BreakObject_IsBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
+
+void CarryThrow_SetCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
+
+// Connected, in a real room, syncing world state.
+bool Anchor_IsWorldSyncActive();
+
+// The puzzle mirrors below are home-scoped.
+void PuzzleStep_OrBits(int32_t puzzleId, int32_t bits);
+int32_t PuzzleStep_GetBits(int32_t puzzleId);
+int32_t PuzzleStep_GetBitsForMap(int32_t map, int32_t puzzleId);
+int32_t PuzzleStep_GetBitsForLevel(int32_t levelId, int32_t puzzleId);
+
+void PuzzleStep_MarkPos(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
+int32_t PuzzleStep_IsPosMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
+
+void PuzzleStep_AddCount(int32_t counterId, int32_t delta);
+int32_t PuzzleStep_GetCount(int32_t counterId);
+
+void SpawnJiggy_Remove(int32_t jiggyId);
+int32_t SpawnJiggy_IsRecorded(int32_t jiggyId);
+
+// In-memory session sets that aren't part of the save but still ride team state. Flat int
+// tuples; defined in the respective port modules.
+std::vector<int32_t> BreakObject_SnapshotBroken();
+void BreakObject_RestoreBroken(const std::vector<int32_t>& flat);
+void BreakObject_ClearForLevel(int32_t levelId);
+std::vector<int32_t> EggToll_Snapshot();
+void EggToll_Restore(const std::vector<int32_t>& flat);
+void EggToll_ClearForLevel(int32_t levelId);
+std::vector<int32_t> PuzzleStep_Snapshot();
+void PuzzleStep_Restore(const std::vector<int32_t>& flat);
+std::vector<int32_t> PuzzleStep_SnapshotCounts();
+void PuzzleStep_RestoreCounts(const std::vector<int32_t>& flat);
+std::vector<int32_t> PuzzleStep_SnapshotPositions();
+void PuzzleStep_RestorePositions(const std::vector<int32_t>& flat);
+void PuzzleStep_ClearForLevel(int32_t levelId);
+std::vector<int32_t> SpawnJiggy_Snapshot();
+void SpawnJiggy_Restore(const std::vector<int32_t>& flat);
+std::vector<int32_t> HutSmash_Snapshot();
+void HutSmash_Restore(const std::vector<int32_t>& flat);
+void HutSmash_ClearForLevel(int32_t levelId);
 
 class Anchor : public Network {
 private:

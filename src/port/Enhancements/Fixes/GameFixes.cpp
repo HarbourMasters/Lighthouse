@@ -19,7 +19,7 @@ extern s32 gVoidOutReturnLocation[2];
 }
 
 // Check if in parade
-extern "C" int port_isInCharacterParade(void) {
+extern "C" int GameFixes_IsInCharacterParade(void) {
     return volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE) != 0;
 }
 
@@ -65,30 +65,39 @@ void RegisterGruntyDefeatedFlag_Init() {
 
 // Move this token to the floor when jiggy is collected so it is no longer missable
 void RegisterMumboTokenGV_Init() {
-    COND_HOOK(OnMumboTokenUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0), [](IEvent* event) {
-        auto* ev = reinterpret_cast<OnMumboTokenUpdate*>(event);
-        if (gsworld_getMap() == MAP_15_GV_WATER_PYRAMID && jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
-            ev->actor->position[1] = 175.0f;
-        }
-    });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_2D_MUMBO_TOKEN, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0),
+                 [](IEvent* event) {
+                     auto* ev = reinterpret_cast<ShouldActorUpdate*>(event);
+                     if (gsworld_getMap() == MAP_15_GV_WATER_PYRAMID &&
+                         jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
+                         ev->actor->position[1] = 175.0f;
+                     }
+                 });
 }
 
 // CCW Gnawty rock: indestructible in Spring (v1.1).
 void RegisterGnawtySpringRock_Init() {
     COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL,
-                   !CVarGetInteger(CVAR_GNAWTY_ROCK, 0) || port_isRomhack(), { *should = true; });
+                   CVarGetInteger(CVAR_GNAWTY_ROCK, 0) && !RomhackConfig_IsActive(), {
+                       if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+                           *should = false;
+                       }
+                   });
 }
 
 // CCW flower: prevent the re-plant softlock (v1.1). Default on to prevent softlock.
 void RegisterCCWFlowerReplant_Init() {
-    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, !CVarGetInteger(CVAR_FLOWER_REPLANT, 1),
-                   { *should = true; });
+    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FLOWER_REPLANT, 1), {
+        if (fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)) {
+            *should = false;
+        }
+    });
 }
 
 // Termite mound: instant slide on slopes (v1.1). v1.0 doubled the rate.
 void RegisterTermiteMoundSlopes_Init() {
     COND_VB_SHOULD(VB_TERMITE_MOUND_SLOPES, EVENT_PRIORITY_NORMAL,
-                   CVarGetInteger(CVAR_TERMITE_SLOPES, 0) && !port_isRomhack(), {
+                   CVarGetInteger(CVAR_TERMITE_SLOPES, 0) && !RomhackConfig_IsActive(), {
                        *va_arg(args, f32*) = 100.0f;
                        *should = false;
                    });
@@ -143,9 +152,22 @@ void RegisterYumYumDrop_Init() {
     });
 }
 
+// The tutorial's flags and dialogs belong to Spiral Mountain, but a romhack may
+// place it in any map of that level, so gate on the level rather than one map id.
+static bool InSpiralMountain() {
+    return map_getLevel(gsworld_getMap()) == LEVEL_B_SPIRAL_MOUNTAIN;
+}
+
+// Always on: in MAP_1_SM_SPIRAL_MOUNTAIN both tests match vanilla.
+void RegisterSpiralMountainTutorial_Init() {
+    // guard with SM check — flags collide with map-specific usage in other worlds (e.g. BGS switches)
+    REGISTER_VB_SHOULD(VB_SM_ABILITY_FLAG_SET, EVENT_PRIORITY_NORMAL, { *should = InSpiralMountain(); });
+    REGISTER_VB_SHOULD(VB_SM_ABILITY_DIALOG, EVENT_PRIORITY_NORMAL, { *should = InSpiralMountain(); });
+}
+
 // Spelling: "Congo" -> "Conga" when the Conga-as-termite dialog bin loads.
 void RegisterCongaDialog_Init() {
-    const bool enabled = CVarGetInteger(CVAR_CONGA_TEXT, 0) && !port_isRomhack();
+    const bool enabled = CVarGetInteger(CVAR_CONGA_TEXT, 0) && !RomhackConfig_IsActive();
     COND_HOOK(OnDialogLoaded, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnDialogLoaded*>(event);
         if (ev->textId != ASSET_B3E_DIALOG_CONGA_MEET_AS_TERMITE || ev->text == nullptr) {
@@ -209,6 +231,7 @@ static bool ChimpyDeliveryStillInFlight() {
     return sChimpyDeliveryInFlight;
 }
 
+// Always on: it prevents a softlock, so it has no setting.
 void RegisterChimpySoftlock_Init() {
     REGISTER_LISTENER(OnCarryThrow, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnCarryThrow*>(event);
@@ -259,6 +282,7 @@ static bool isPlaybackMode(s32 mode) {
            (mode == GAME_MODE_A_SNS_PICTURE);
 }
 
+// Always on: a map savestate in a playback mode throws the demo out of sync.
 void RegisterMapSavestatePlayback_Init() {
     REGISTER_VB_SHOULD(VB_MAP_SAVESTATE_USE, EVENT_PRIORITY_NORMAL, {
         s32 mode = va_arg(args, s32);
@@ -281,6 +305,7 @@ static RegisterShipInitFunc initBoggyRaceGameOverFunc(RegisterBoggyRaceGameOver_
 static RegisterShipInitFunc initJinjoChargeSoundFunc(RegisterJinjoChargeSound_Init, { CVAR_JINJO_SOUND });
 static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CVAR_GRUNTY_BOUNCE });
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
+static RegisterShipInitFunc initSpiralMountainTutorialFunc(RegisterSpiralMountainTutorial_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
 static RegisterShipInitFunc initChimpyStumpRumbleFunc(RegisterChimpyStumpRumble_Init, { CVAR_STUMP_RUMBLE });
 static RegisterShipInitFunc initChimpyStumpRaisedFunc(RegisterChimpyStumpRaised_Init);

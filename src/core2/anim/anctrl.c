@@ -190,8 +190,6 @@ void __anctrl_gotoStart(AnimCtrl *this){
     this->timer = anim_getTimer(this->animation);
 }
 
-extern void baanim_onCtrlStart(struct anctrl_s* ctrl);
-
 void _anctrl_start(AnimCtrl * this, const char *file, s32 line){
     if(this->smooth_transition && anim_getIndex(this->animation) != 0){
         anim_resetSmooth(this->animation);
@@ -204,7 +202,7 @@ void _anctrl_start(AnimCtrl * this, const char *file, s32 line){
         __anctrl_gotoStart(this);
         anim_setDuration(this->animation, 1.0f);
     }
-    baanim_onCtrlStart(this);
+    CALL_EVENT(OnAnimCtrlStart, this); // [port]
 }
 
 void anctrl_setAnimTimer(AnimCtrl *this, f32 timer){

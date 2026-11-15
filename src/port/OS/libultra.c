@@ -14,6 +14,7 @@
 #include <libultra/convert.h>
 #include <libultra/exception.h>
 #include <libultra/rcp.h>
+#include "port/OS/OS.h"
 
 #define DEFAULT_FRAMEBUFFER_WIDTH 292
 #define DEFAULT_FRAMEBUFFER_HEIGHT 216
@@ -28,13 +29,6 @@ s32 osCicId = 6103;
 _Alignas(0x40) u8 D_8000E800[DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEIGHT * sizeof(u16)];
 
 u16 gFramebuffers[2][DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEIGHT];
-
-// Threads are in src/port/OS/OS.cpp.
-void OS_CreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
-void OS_StartThread(OSThread* thread);
-void OS_StopThread(OSThread* thread);
-void OS_DestroyThread(OSThread* thread);
-void OS_SetThreadPri(OSThread* thread, OSPri p);
 
 void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p) {
     OS_CreateThread(thread, id, entry, arg, sp, p);

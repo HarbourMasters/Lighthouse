@@ -1299,6 +1299,7 @@ void lair_func_8038E0B0(void) {
                     }
                     s32 ffLifeThreshold = 1;
                     CALL_EVENT(OnFurnaceFunDialog, &ffLifeThreshold);
+//                  if ((ff_tile_type == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) == 1)) {
                     if ((ff_tile_type == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) == ffLifeThreshold)) {
                         progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_AB_LAST_LIFE_ON_SKULL);
                     } else if (item_getCount(ITEM_14_HEALTH) == 1) {
