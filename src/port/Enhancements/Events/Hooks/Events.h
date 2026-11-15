@@ -1389,6 +1389,7 @@ typedef enum VBehaviorID {
     // #### `result`
     // ```c
     // !(i == 0) && !(i == 2) // the Lair page
+    // !((i == 0) || (i == 2)) // the Lair page, in PAUSE_STATE_D_PAGE_OPENING
     // !(i == 0) && !(i == 1) // Spiral Mountain's page
     // 1                      // every other page
     // ```
