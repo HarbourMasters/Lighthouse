@@ -845,9 +845,12 @@ void cubeList_init(){
         }
     }
     sCubeList.unk3C = (Cube *)bk_malloc(sizeof(Cube));
-    sCubeList.unk3C->x = 16;
-    sCubeList.unk3C->y = 16;
-    sCubeList.unk3C->z = 16;
+//  sCubeList.unk3C->x = 16;
+    sCubeList.unk3C->x = -16;
+//  sCubeList.unk3C->y = 16;
+    sCubeList.unk3C->y = -16;
+//  sCubeList.unk3C->z = 16;
+    sCubeList.unk3C->z = -16;
     sCubeList.unk3C->prop2Ptr = NULL;
     sCubeList.unk3C->prop1Ptr = NULL;
     sCubeList.unk3C->prop2Cnt = 0;
@@ -856,9 +859,12 @@ void cubeList_init(){
 
 
     sCubeList.unk40 = (Cube *)bk_malloc(sizeof(Cube));
-    sCubeList.unk40->x = 16;
-    sCubeList.unk40->y = 16;
-    sCubeList.unk40->z = 16;
+//  sCubeList.unk40->x = 16;
+    sCubeList.unk40->x = -16;
+//  sCubeList.unk40->y = 16;
+    sCubeList.unk40->y = -16;
+//  sCubeList.unk40->z = 16;
+    sCubeList.unk40->z = -16;
     sCubeList.unk40->prop2Ptr = NULL;
     sCubeList.unk40->prop1Ptr = NULL;
     sCubeList.unk40->prop2Cnt = 0;
