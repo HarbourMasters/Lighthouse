@@ -17,6 +17,7 @@
 
 // #include "Enhancements/Trackers/ItemTracker/ItemTracker.h"
 // #include "Enhancements/Trackers/ItemTracker/ItemTrackerSettings.h"
+#include "port/Enhancements/Backports/Crosshair.h"
 #include "port/Enhancements/Cosmetics/CosmeticsEditor.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
 #include "port/Enhancements/Trackers/WorldTracker/WorldTracker.h"
@@ -25,7 +26,6 @@
 #include "port/Rando/CheckTracker/CheckTracker.h"
 
 #include "Notification.h"
-#include "Crosshair.h"
 #include "port/Controller/Mapper.h"
 #include "port/Network/Anchor/Anchor.h"
 #include "LighthouseMenu.h"

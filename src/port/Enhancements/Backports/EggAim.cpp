@@ -6,7 +6,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
-#include "port/UI/Crosshair.h"
+#include "port/Enhancements/Backports/Crosshair.h"
 
 #include "enums.h"
 #include "functions.h"
