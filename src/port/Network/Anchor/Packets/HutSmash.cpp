@@ -20,7 +20,6 @@ extern enum bundle_e chBGSMudHutDrops[6];
 s32 gsworld_getUnk0();
 void __chhut_spawnExplosion(ActorMarker* self);
 void chMudHut_spawnExplosion(ActorMarker* self);
-Actor* spawnQueue_bundle_f32(u32 bundle, f32 x, f32 y, f32 z);
 }
 
 /**
@@ -66,8 +65,7 @@ static void dropRecordedBundle(Actor* hut, int32_t loot, bool fullBundle) {
     f32 pos[3] = { hut->position_x, hut->position_y + (mm ? 125.0f : 130.0f), hut->position_z };
     u32 bits[3];
     memcpy(bits, pos, sizeof(bits));
-    __spawnQueue_add_4((GenFunction_4)spawnQueue_bundle_f32, mm ? kMmHutDrops[loot] : chBGSMudHutDrops[loot], bits[0],
-                       bits[1], bits[2]);
+    SPAWNQUEUE_ADD_4(spawnQueue_bundle_f32, mm ? kMmHutDrops[loot] : chBGSMudHutDrops[loot], bits[0], bits[1], bits[2]);
 }
 
 static void replaySmash(Actor* hut, int32_t loot) {
@@ -78,7 +76,7 @@ static void replaySmash(Actor* hut, int32_t loot) {
         subaddie_set_state(hut, HUT_STATE_1_DAMAGED);
         actor_playAnimationOnce(hut);
         if (EventSystem_Should(VB_MM_HUT_SPAWN_EXPLOSION, true, hut)) {
-            __spawnQueue_add_1((GenFunction_1)__chhut_spawnExplosion, (uintptr_t)hut->marker);
+            SPAWNQUEUE_ADD_1(__chhut_spawnExplosion, (uintptr_t)hut->marker);
         }
         bundle_setYaw(hut->yaw);
     } else {
@@ -89,7 +87,7 @@ static void replaySmash(Actor* hut, int32_t loot) {
         if (loot == 5 && Anchor_InEarshot(hut->position)) {
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         }
-        __spawnQueue_add_1((GenFunction_1)chMudHut_spawnExplosion, (uintptr_t)hut->marker);
+        SPAWNQUEUE_ADD_1(chMudHut_spawnExplosion, (uintptr_t)hut->marker);
     }
     dropRecordedBundle(hut, loot, true);
 }

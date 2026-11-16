@@ -6,7 +6,6 @@
 #include "prop.h"
 
 void func_803869A0(Actor*, f32, f32);
-Actor *spawnQueue_bundle_f32(s32, f32, f32, f32);
 void SM_func_80386EF4(Actor *this);
 void SM_func_80386A00(Actor *this);
 
@@ -115,7 +114,7 @@ void SM_func_80386D68(Actor *this){
 //  if (this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor)) {
     if (EventSystem_Should(VB_SPAWN_EMPTY_HONEYCOMB, this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor), HONEYCOMB_18_SM_QUARRIES)) {
         func_802CA1CC(HONEYCOMB_18_SM_QUARRIES);
-        __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
+        SPAWNQUEUE_ADD_BUNDLE_F32(BUNDLE_1F_SM_EMPTY_HONEYCOMB, this->position[0], this->position[1], this->position[2]);
         CALL_EVENT(OnHoneycombDropSpawn, HONEYCOMB_18_SM_QUARRIES, BUNDLE_1F_SM_EMPTY_HONEYCOMB, this->position[0], this->position[1], this->position[2]);
     }
 

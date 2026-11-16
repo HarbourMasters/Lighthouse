@@ -58,8 +58,8 @@ static void TreasureHuntTick() {
 
     if (chtreasureHunt_puzzleCurrentStep < 5) {
         chtreasureHunt_puzzleCurrentStep++;
-        __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
-        __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
+        SPAWNQUEUE_ADD_0(__chTreasurehunt_spawnActorForNextStep);
+        SPAWNQUEUE_ADD_0(__chTreasurehunt_spawnRedXForNextStep);
     } else {
         chtreasureHunt_puzzleCurrentStep++;
         if (!jiggyscore_isSpawned(JIGGY_11_TTC_RED_X) && !jiggyscore_isCollected(JIGGY_11_TTC_RED_X)) {
@@ -67,9 +67,8 @@ static void TreasureHuntTick() {
             sTreasurePosition[1] = sChTreasurehunt_stepPositions[5][1];
             sTreasurePosition[2] = sChTreasurehunt_stepPositions[5][2];
             sTreasurePosition[1] = mapModel_getFloorY(sTreasurePosition);
-            __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_F4_BURIED_TREASURE,
-                               *(s32*)&sTreasurePosition[0], *(s32*)&sTreasurePosition[1],
-                               *(s32*)&sTreasurePosition[2]);
+            SPAWNQUEUE_ADD_4(spawnQueue_actor_f32, ACTOR_F4_BURIED_TREASURE, *(s32*)&sTreasurePosition[0],
+                             *(s32*)&sTreasurePosition[1], *(s32*)&sTreasurePosition[2]);
         }
     }
 }

@@ -206,7 +206,7 @@ void chWozza_update(Actor *this){
             this->position[0] = local->unkC[0];\
             this->position[1] = local->unkC[1];\
             this->position[2] = local->unkC[2];
-            __spawnQueue_add_1((GenFunction_1)chWozza_spawnJiggy, (uintptr_t)this->marker);
+            SPAWNQUEUE_ADD_1(chWozza_spawnJiggy, (uintptr_t)this->marker);
             local->unk30 = false;
         }
     }//L8038F910

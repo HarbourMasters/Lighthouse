@@ -397,7 +397,7 @@ void chsnacker_setControlState(SnackerCtlState control_state) {
         s_chSnacker_spawnTimer += dt;
         if ((s_chSnacker_respawnDelay_s < s_chSnacker_spawnTimer) && (control_state != SNACKER_CTL_STATE_0_INACTIVE)) {
             if (EventSystem_Should(VB_DISABLE_SNACKER, true)) {
-                __spawnQueue_add_0(chSnacker_spawn);
+                SPAWNQUEUE_ADD_0(chSnacker_spawn);
             }
             s_chSnacker_respawnDelay_s = 1.0f;
         }

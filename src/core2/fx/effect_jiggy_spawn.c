@@ -15,7 +15,7 @@ void func_80347B10(Struct81s *arg0){
 }
 
 void func_80347B54(Struct81s *arg0){
-    __spawnQueue_add_1((GenFunction_1)func_80347B10, (uintptr_t)arg0); 
+    SPAWNQUEUE_ADD_1(func_80347B10, (uintptr_t)arg0); 
 }
 
 void func_80347B80(Struct81s *arg0) {

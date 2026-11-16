@@ -192,7 +192,7 @@ void CarryThrow_SetCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOff
     sRemoteCarry[slot].marker = NULL;
     sRemoteCarry[slot].throwPending = 0;
     setPose(slot, offset, yawOffset);
-    __spawnQueue_add_2(spawnMethod, markerId, clientId);
+    SPAWNQUEUE_ADD_2(spawnMethod, markerId, clientId);
 }
 
 static void remoteThrow(u32 clientId, s32 markerId, f32 start[3], f32 target[3]) {
@@ -213,7 +213,7 @@ static void remoteThrow(u32 clientId, s32 markerId, f32 start[3], f32 target[3])
             return;
         }
         sRemoteCarry[slot].clientId = clientId;
-        __spawnQueue_add_2(spawnMethod, markerId, clientId);
+        SPAWNQUEUE_ADD_2(spawnMethod, markerId, clientId);
     }
     sRemoteCarry[slot].markerId = markerId;
     sRemoteCarry[slot].throwPending = 1;

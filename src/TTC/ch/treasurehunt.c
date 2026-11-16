@@ -128,8 +128,8 @@ static void __chTreasurehunt_checkStepProgress(s32 currentStep){
 
         chtreasureHunt_puzzleCurrentStep++;
         CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_XHUNT, (1 << chtreasureHunt_puzzleCurrentStep) - 1); // [port]
-        __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
-        __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
+        SPAWNQUEUE_ADD_0(__chTreasurehunt_spawnActorForNextStep);
+        SPAWNQUEUE_ADD_0(__chTreasurehunt_spawnRedXForNextStep);
     }
 }
 
@@ -162,7 +162,7 @@ void chTreasurehunt_checkStepProgress5(NodeProp *this, ActorMarker *arg1){
         particleTargetPosition[1] = (f32)this->position_y;
         particleTargetPosition[2] = (f32)this->position_z;
         particleTargetPosition[1] =  mapModel_getFloorY(particleTargetPosition);
-        __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0xF4, reinterpret_cast(s32, particleTargetPosition[0]), reinterpret_cast(s32, particleTargetPosition[1]), reinterpret_cast(s32, particleTargetPosition[2]));
+        SPAWNQUEUE_ADD_ACTOR_F32(0xF4, particleTargetPosition[0], particleTargetPosition[1], particleTargetPosition[2]);
         particleEmitter = partEmitMgr_newEmitter(3);
         particleEmitter_setRGB(particleEmitter, sChTreasurehuntParticleRGB);
         particleEmitter_setSprite(particleEmitter, ASSET_700_SPRITE_DUST);

@@ -77,7 +77,7 @@ void func_80387E00(ActorMarker *arg0){
     Actor * this = marker_getActor(arg0);
 
     func_803262E4(this);
-    __spawnQueue_add_2((GenFunction_2)func_80387D18, reinterpret_cast(uintptr_t, arg0), 0x1E);
+    SPAWNQUEUE_ADD_2(func_80387D18, reinterpret_cast(uintptr_t, arg0), 0x1E);
 }
 
 void func_80387E40(ActorMarker * arg0){
@@ -109,7 +109,7 @@ void chCroctus_activateNextCroctus(ActorMarker *caller, enum asset_e text_id, s3
 //      func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
         if (EventSystem_Should(VB_PLAY_PUZZLE_CUTSCENE, true, this)) timed_setStaticCameraToNode(0.8f, 9);
         if (EventSystem_Should(VB_PLAY_PUZZLE_DIALOG, true, this)) func_80324DBC(3.4f, VER_SELECT(ASSET_C87_DIALOG_CROCTUS_SECOND_SPAWN, 0x9CA, 0, 0), 0xE, NULL, NULL, chCroctus_activateNextCroctus, NULL);
-        __spawnQueue_add_2((GenFunction_2) func_80387D18, reinterpret_cast(uintptr_t, this->marker), 0x46);
+        SPAWNQUEUE_ADD_2(func_80387D18, reinterpret_cast(uintptr_t, this->marker), 0x46);
     }
     else{
 //      timed_exitStaticCamera(0.0f);
@@ -190,7 +190,7 @@ void chCroctus_update(Actor *this){
                 } else {
                     timedFunc_set_1(0.8f, (GenFunction_1)chCroctus_jiggySpawn, reinterpret_cast(uintptr_t, this->marker));
                 }
-                __spawnQueue_add_2((GenFunction_2)func_80387D18, reinterpret_cast(uintptr_t, this->marker), 0x46);
+                SPAWNQUEUE_ADD_2(func_80387D18, reinterpret_cast(uintptr_t, this->marker), 0x46);
             }
         }
     }//L80388348

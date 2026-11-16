@@ -495,7 +495,7 @@ void chSmBottles_update(Actor *this) {
     }//L80389B20
 
     if (!this->volatile_initialized) {
-        __spawnQueue_add_1((GenFunction_1) __chSmBottles_spawnMolehill, (uintptr_t)this->marker);
+        SPAWNQUEUE_ADD_1(__chSmBottles_spawnMolehill, (uintptr_t)this->marker);
         this->volatile_initialized = true;
     }//L80389B4C
 

@@ -33,8 +33,8 @@ void ucode_stub2(void) {
 #endif
 }
 
-s32 ucode_stub3(void) {
-    return 0;
+bool ucode_stub3(void) {
+    return FALSE;
 }
 
 void ucode_getPtrAndSize(void **ptr, u32 *size) {

@@ -69,7 +69,7 @@ void func_8038A948(Actor *this){
         this->initialized = true;
         this->marker->propPtr->unk8_3 = true;
         actor_collisionOff(this);
-        __spawnQueue_add_1((GenFunction_1)func_8038A8CC, (uintptr_t)this->marker);
+        SPAWNQUEUE_ADD_1(func_8038A8CC, (uintptr_t)this->marker);
         this->velocity_y = 0.0f;
     }
 }
@@ -85,7 +85,7 @@ void GV_func_8038A9C0(Actor *this){
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = true;
         actor_collisionOff(this);
-        __spawnQueue_add_1((GenFunction_1)func_8038A8CC, (uintptr_t)this->marker);
+        SPAWNQUEUE_ADD_1(func_8038A8CC, (uintptr_t)this->marker);
         sp24 = subaddie_getLinkedActor(this);
         this->unk1C[1] = this->unk48;
         this->pitch = 0.0f;

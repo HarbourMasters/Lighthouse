@@ -54,6 +54,6 @@ void Anchor::HandlePacket_SpawnHoneycomb(nlohmann::json& payload) {
     const f32 pos[3] = { payload.at("x").get<f32>(), payload.at("y").get<f32>(), payload.at("z").get<f32>() };
     u32 bits[3];
     memcpy(bits, pos, sizeof(bits));
-    __spawnQueue_add_5(spawnDrop, (uintptr_t)honeycombId, (uintptr_t)payload.at("bundle").get<s32>(), bits[0], bits[1],
-                       bits[2]);
+    SPAWNQUEUE_ADD_5(spawnDrop, (uintptr_t)honeycombId, (uintptr_t)payload.at("bundle").get<s32>(), bits[0], bits[1],
+                     bits[2]);
 }

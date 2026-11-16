@@ -1,17 +1,13 @@
 // BanjoDecomp: core2/spawnqueue.c
 #include <ultra64.h>
-#include "core1/core1.h"
 #include "functions.h"
 #include "port/ShipUtils.h" // BK_LOG_*
-#include "variables.h"
+#include "core1/core1.h"
+#include "core2/core2.h"
 #include "actor.h"
 #include "prop.h"
-#include "functions.h"
 #include "core2/ch/snacker.h"
 #include "port/Patches/Patches.h" // GraphicsPatches_GetDrawDistanceSetting
-
-void spawnQueue_unlock(void);
-void spawnQueue_lock(void);
 
 Actor *func_802D7558(s32 *, s32, ActorInfo*, u32);
 Actor *func_802D75B4(s32 *, s32, ActorInfo*, u32);
@@ -160,26 +156,10 @@ extern ActorInfo lairBottlesDialog;
 extern ActorInfo D_803732E0;
 extern ActorInfo D_80373DC0;
 
-
-typedef struct function_queue_s{
-    union {
-        void (* func0)(void);
-        void (* func1)(uintptr_t);
-        void (* func2)(uintptr_t, uintptr_t);
-        void (* func3)(uintptr_t, uintptr_t, uintptr_t);
-        void (* func4)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
-        void (* func5)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
-    };
-    uintptr_t  arg[5];
-    s32  arg_cnt;
-}FunctionQueue;
-
-/* .data */
-u8 spawnQueueLock = 0;
+u8 spawnQueueLock = FALSE;
 u8 spawnQueueLength = 0;
-FunctionQueue *spawnQueue = NULL;
+SpawnQueueFunction *spawnQueue = NULL;
 
-/* .code */
 // [port] N64 used 15 entries, sized for the N64's draw distance.
 // Scales with the Draw Distance enhancement.
 #define SPAWN_QUEUE_DEFAULT_SIZE 15
@@ -195,44 +175,49 @@ static u32 __spawnQueue_getMax(void) {
     return sSpawnQueueMax;
 }
 
-void spawnQueue_malloc(void){
+void spawnQueue_init(void) {
 #if 0
-    u32 tmp = __spawnQueue_getMax();
-    spawnQueue = (FunctionQueue *) bk_malloc(tmp * sizeof(FunctionQueue));
+    u32 max_length = (gsworld_getMap() == MAP_90_GL_BATTLEMENTS)? 50 : 15;
+    spawnQueue = (SpawnQueueFunction *) bk_malloc(max_length * sizeof(SpawnQueueFunction));
 #endif
     u32 base = (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
     // [port] The setting, not the render-time level: this runs during a map load, where
     // GraphicsPatches_GetDrawDistanceLevel() clamps to 1x and would under-size the queue for the
     // gameplay that follows.
     sSpawnQueueMax = base * (u32) GraphicsPatches_GetDrawDistanceSetting();
-    spawnQueue = (FunctionQueue *) bk_malloc(sSpawnQueueMax * sizeof(FunctionQueue));
+    spawnQueue = (SpawnQueueFunction *) bk_malloc(sSpawnQueueMax * sizeof(SpawnQueueFunction));
 }
 
-void spawnQueue_reset(void){
-    enum overlay_e loaded_asm_file = overlayManager_getLoadedID();
+void spawnQueue_reset(void) {
+    enum overlay_e overlay_id = overlayManager_getLoadedID();
+
     spawnQueue_lock();
     spawnQueueLength = 0;
+
     chmumbo_func_802D1724();
     chSnacker_initialize();
-    switch(loaded_asm_file){
+
+    switch (overlay_id) {
         case OVERLAY_2_WHALE:
             CC_func_803870E0();
             break;
+
         case OVERLAY_4_DESERT:
             GV_func_80387118();
             break;
+
         case OVERLAY_5_BEACH:
             break;
+
         case OVERLAY_7_SWAMP:
             BGS_func_803885DC();
-            break;
-        default:
             break;
     }
 
     func_80305D38(); 
     func_803062D0();
     func_80325F8C();
+
     spawnableActorList_new();
     spawnableActorList_add(&D_80367160, actor_new, ACTOR_FLAG_NONE); //cutscene Trigger?
     spawnableActorList_add(&D_803675F0, actor_new, ACTOR_FLAG_UNKNOWN_6);
@@ -373,64 +358,77 @@ void spawnQueue_reset(void){
     spawnableActorList_addIfMapVisited(&chClucker, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 |ACTOR_FLAG_UNKNOWN_25, MAP_40_CCW_HUB); //clucker
     spawnableActorList_addIfMapVisited(&chScarabBeetle, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_25, MAP_12_GV_GOBIS_VALLEY); //scarab
     spawnableActorList_addIfMapVisited(&chSnowman, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_25, MAP_27_FP_FREEZEEZY_PEAK); //sirslush
-    switch(loaded_asm_file){
-        default:
-            break;
+
+    switch (overlay_id) {
         case OVERLAY_D_WITCH:
-            lair_func_8038A0C4();
+            lair_addSpawnableActors();
             break;
+
         case OVERLAY_E_BATTLE:
             fight_addSpawnableActors();
             break;
+
         case OVERLAY_C_INTRO:
-            cutscene_func_8038C4E0();
+            cutscene_addSpawnableActors();
             break;
+
         case OVERLAY_B_TRAINING:
-            SM_resetSpawnableActors();
+            SM_addSpawnableActors();
             break;
+
         case OVERLAY_3_HAUNTED:
-            MMM_func_803890E0();
+            MMM_addSpawnableActors();
             break;
+
         case OVERLAY_2_WHALE:
-            CC_func_80387DA0();
+            CC_addSpawnableActors();
             break;
+
         case OVERLAY_4_DESERT:
-            GV_func_8038F154();
+            GV_addSpawnableActors();
             break;
+
         case OVERLAY_5_BEACH:
-            code26D0_resetSpawnableActorsForTTC();
+            TTC_addSpawnableActors();
             break;
+
         case OVERLAY_6_JUNGLE:
-            MM_func_803888B0();
+            MM_addSpawnableActors();
             break;
+
         case OVERLAY_7_SWAMP:
-            bgs_updateSpawnableActors();
+            BGS_addSpawnableActors();
             break;
+
         case OVERLAY_8_SHIP:
-            RBB_func_80386C48();
+            RBB_addSpawnableActors();
             break;
+
         case OVERLAY_9_SNOW:
-            FP_func_80391324();
+            FP_addSpawnableActors();
             spawnableActorList_add(&chBluePresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
             spawnableActorList_add(&chGreenPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
             spawnableActorList_add(&chRedPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
             break;
+
         case OVERLAY_A_TREE:
-            CCW_func_8038DB6C();
+            CCW_addSpawnableActors();
             break;
     }
 
-    CALL_EVENT(OnSpawnableActorsReset, loaded_asm_file); // [port]
+    CALL_EVENT(OnSpawnableActorsReset, overlay_id); // [port]
 
-    if(ucode_stub3() == 0 || loaded_asm_file == 0 ){
+    if (!ucode_stub3() || (overlay_id == OVERLAY_0_CORE2)) {
         cubeList_spawnActors();
     }
+
     func_80305990(1);
     func_8032A5F8();
+
     spawnQueue_unlock();
 }
 
-void spawnQueue_free(void){
+void spawnQueue_free(void) {
     spawnableActorList_free();
     actorArray_free();
     func_80305D94();
@@ -438,48 +436,58 @@ void spawnQueue_free(void){
     spawnQueue = NULL;
     spawnQueueLength = 0;
     sSpawnQueueMax = 0; // [port] no capacity without an allocation
-    
 }
 
-void spawnQueue_func_802C39D4(void){
+void spawnQueue_func_802C39D4(void) {
     func_803268B4();
-    if(!levelSpecificFlags_validateCRC2()){
+
+#if ANTI_TAMPER
+    if (!levelSpecificFlags_validateCRC2()) {
         eeprom_writeBlocks(0, 0, (void *)(uintptr_t) PHYS_TO_K0(0x00749530), EEPROM_MAXBLOCKS);
     }
+#endif
 }
 
-void spawnQueue_func_802C3A18(void){
+void spawnQueue_func_802C3A18(void) {
     func_803283BC();
 }
 
-void spawnQueue_flush(void){
-    s32 i;
+void spawnQueue_flush(void) {
+    int i;
 
     spawnQueue_lock();
-    for(i = 0; i < spawnQueueLength; i++){
-        switch(spawnQueue[i].arg_cnt){
+
+    for (i = 0; i < spawnQueueLength; i++) {
+        switch (spawnQueue[i].arg_count) {
             case 0:
                 spawnQueue[i].func0();
                 break;
+
             case 1:
-                spawnQueue[i].func1(spawnQueue[i].arg[0]);
+                spawnQueue[i].func1(spawnQueue[i].args[0]);
                 break;
+
             case 2:
-                spawnQueue[i].func2(spawnQueue[i].arg[0], spawnQueue[i].arg[1]);
+                spawnQueue[i].func2(spawnQueue[i].args[0], spawnQueue[i].args[1]);
                 break;
+
             case 3:
-                spawnQueue[i].func3(spawnQueue[i].arg[0], spawnQueue[i].arg[1], spawnQueue[i].arg[2]);
+                spawnQueue[i].func3(spawnQueue[i].args[0], spawnQueue[i].args[1], spawnQueue[i].args[2]);
                 break;
+
             case 4:
-                spawnQueue[i].func4(spawnQueue[i].arg[0], spawnQueue[i].arg[1], spawnQueue[i].arg[2], spawnQueue[i].arg[3]);
+                spawnQueue[i].func4(spawnQueue[i].args[0], spawnQueue[i].args[1], spawnQueue[i].args[2], spawnQueue[i].args[3]);
                 break;
+
             case 5:
-                spawnQueue[i].func5(spawnQueue[i].arg[0], spawnQueue[i].arg[1], spawnQueue[i].arg[2], spawnQueue[i].arg[3], spawnQueue[i].arg[4]);
+                spawnQueue[i].func5(spawnQueue[i].args[0], spawnQueue[i].args[1], spawnQueue[i].args[2], spawnQueue[i].args[3], spawnQueue[i].args[4]);
                 break;
+
             default:
                 break;
         }
     }
+
     spawnQueueLength = 0;
     func_803283D4();
 }
@@ -492,88 +500,94 @@ void spawnQueue_lock(void) {
     spawnQueueLock = TRUE;
 }
 
-void __spawnQueue_add_0(GenFunction_0 arg0){
-    u32 tmp = __spawnQueue_getMax();
-    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func0 = arg0;
-        spawnQueue[spawnQueueLength].arg_cnt = 0;
+void spawnQueue_add_0(spawnqueue_add_0_callback_f func) {
+    u32 max_length = __spawnQueue_getMax();
+
+    if (max_length > spawnQueueLength) { // [port] decomp used !=; < also holds if length ever exceeds max_length
+        spawnQueue[spawnQueueLength].func0 = func;
+        spawnQueue[spawnQueueLength].arg_count = 0;
         spawnQueueLength++;
     } else {
-        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_0 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_0 entry", max_length);
     }
 }
 
-void __spawnQueue_add_1(GenFunction_1 arg0, uintptr_t arg1){
-    u32 tmp = __spawnQueue_getMax();
-    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func1 = arg0;
-        spawnQueue[spawnQueueLength].arg[0] = arg1;
-        spawnQueue[spawnQueueLength].arg_cnt = 1;
+void spawnQueue_add_1(spawnqueue_add_1_callback_f func, uintptr_t arg1) {
+    u32 max_length = __spawnQueue_getMax();
+    
+    if (max_length > spawnQueueLength) { // [port] decomp used !=; < also holds if length ever exceeds max_length
+        spawnQueue[spawnQueueLength].func1 = func;
+        spawnQueue[spawnQueueLength].args[0] = arg1;
+        spawnQueue[spawnQueueLength].arg_count = 1;
         spawnQueueLength++;
     } else {
-        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_1 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_1 entry", max_length);
     }
 }
 
-void __spawnQueue_add_2(GenFunction_2 arg0, uintptr_t arg1, uintptr_t arg2){
-    u32 tmp = __spawnQueue_getMax();
-    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func2 = arg0;
-        spawnQueue[spawnQueueLength].arg[0] = arg1;
-        spawnQueue[spawnQueueLength].arg[1] = arg2;
-        spawnQueue[spawnQueueLength].arg_cnt = 2;
+void spawnQueue_add_2(spawnqueue_add_2_callback_f func, uintptr_t arg1, uintptr_t arg2) {
+    u32 max_length = __spawnQueue_getMax();
+    
+    if (max_length > spawnQueueLength) { // [port] decomp used !=; < also holds if length ever exceeds max_length
+        spawnQueue[spawnQueueLength].func2 = func;
+        spawnQueue[spawnQueueLength].args[0] = arg1;
+        spawnQueue[spawnQueueLength].args[1] = arg2;
+        spawnQueue[spawnQueueLength].arg_count = 2;
         spawnQueueLength++;
     } else {
-        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_2 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_2 entry", max_length);
     }
 }
 
-void __spawnQueue_add_3(GenFunction_3 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3){
-    u32 tmp = __spawnQueue_getMax();
-    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func3 = arg0;
-        spawnQueue[spawnQueueLength].arg[0] = arg1;
-        spawnQueue[spawnQueueLength].arg[1] = arg2;
-        spawnQueue[spawnQueueLength].arg[2] = arg3;
-        spawnQueue[spawnQueueLength].arg_cnt = 3;
+void spawnQueue_add_3(spawnqueue_add_3_callback_f func, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3) {
+    u32 max_length = __spawnQueue_getMax();
+    
+    if (max_length > spawnQueueLength) { // [port] decomp used !=; < also holds if length ever exceeds max_length
+        spawnQueue[spawnQueueLength].func3 = func;
+        spawnQueue[spawnQueueLength].args[0] = arg1;
+        spawnQueue[spawnQueueLength].args[1] = arg2;
+        spawnQueue[spawnQueueLength].args[2] = arg3;
+        spawnQueue[spawnQueueLength].arg_count = 3;
         spawnQueueLength++;
     } else {
-        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_3 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_3 entry", max_length);
     }
 }
 
-void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4){
-    u32 tmp = __spawnQueue_getMax();
-    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func4 = arg0;
-        spawnQueue[spawnQueueLength].arg[0] = arg1;
-        spawnQueue[spawnQueueLength].arg[1] = arg2;
-        spawnQueue[spawnQueueLength].arg[2] = arg3;
-        spawnQueue[spawnQueueLength].arg[3] = arg4;
-        spawnQueue[spawnQueueLength].arg_cnt = 4;
+void spawnQueue_add_4(spawnqueue_add_4_callback_f func, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4) {
+    u32 max_length = __spawnQueue_getMax();
+    
+    if (max_length > spawnQueueLength) { // [port] decomp used !=; < also holds if length ever exceeds max_length
+        spawnQueue[spawnQueueLength].func4 = func;
+        spawnQueue[spawnQueueLength].args[0] = arg1;
+        spawnQueue[spawnQueueLength].args[1] = arg2;
+        spawnQueue[spawnQueueLength].args[2] = arg3;
+        spawnQueue[spawnQueueLength].args[3] = arg4;
+        spawnQueue[spawnQueueLength].arg_count = 4;
         spawnQueueLength++;
     } else {
-        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_4 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_4 entry", max_length);
     }
 }
 
-void __spawnQueue_add_5(GenFunction_5 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5){
-    u32 tmp = __spawnQueue_getMax();
-    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func5 = arg0;
-        spawnQueue[spawnQueueLength].arg[0] = arg1;
-        spawnQueue[spawnQueueLength].arg[1] = arg2;
-        spawnQueue[spawnQueueLength].arg[2] = arg3;
-        spawnQueue[spawnQueueLength].arg[3] = arg4;
-        spawnQueue[spawnQueueLength].arg[4] = arg5;
-        spawnQueue[spawnQueueLength].arg_cnt = 5;
+void spawnQueue_add_5(spawnqueue_add_5_callback_f func, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5) {
+    u32 max_length = __spawnQueue_getMax();
+    
+    if (max_length > spawnQueueLength) { // [port] decomp used !=; < also holds if length ever exceeds max_length
+        spawnQueue[spawnQueueLength].func5 = func;
+        spawnQueue[spawnQueueLength].args[0] = arg1;
+        spawnQueue[spawnQueueLength].args[1] = arg2;
+        spawnQueue[spawnQueueLength].args[2] = arg3;
+        spawnQueue[spawnQueueLength].args[3] = arg4;
+        spawnQueue[spawnQueueLength].args[4] = arg5;
+        spawnQueue[spawnQueueLength].arg_count = 5;
         spawnQueueLength++;
     } else {
-        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_5 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_5 entry", max_length);
     }
 }
 
-Actor *spawnQueue_actor_f32(enum actor_e actor_id, uintptr_t x, uintptr_t y, uintptr_t z) {
+Actor *spawnQueue_actor_f32(s32 actor_id, uintptr_t x, uintptr_t y, uintptr_t z) {
     f32 position[3];
     position[0] = reinterpret_cast(f32, x);
     position[1] = reinterpret_cast(f32, y);
@@ -602,7 +616,7 @@ Actor *spawnQueue_bundle_f32(uintptr_t bundle_id, uintptr_t x, uintptr_t y, uint
     position[0] = reinterpret_cast(f32, x);
     position[1] = reinterpret_cast(f32, y);
     position[2] = reinterpret_cast(f32, z);
-    return bundle_spawn_f32(reinterpret_cast(s32, bundle_id), position);
+    return bundle_spawn_f32(reinterpret_cast(enum bundle_e, bundle_id), position);
 }
 
 Actor *spawnQueue_bundleWithYaw_f32(uintptr_t bundle_id, uintptr_t x, uintptr_t y, uintptr_t z, uintptr_t yaw) {
@@ -611,7 +625,7 @@ Actor *spawnQueue_bundleWithYaw_f32(uintptr_t bundle_id, uintptr_t x, uintptr_t 
     position[1] = reinterpret_cast(f32, y);
     position[2] = reinterpret_cast(f32, z);
     bundle_setYaw(reinterpret_cast(f32, yaw));
-    return bundle_spawn_f32(reinterpret_cast(s32, bundle_id), position);
+    return bundle_spawn_f32(reinterpret_cast(enum bundle_e, bundle_id), position);
 }
 
 Actor *spawnQueue_bundle_s32(uintptr_t bundle_id, uintptr_t x, uintptr_t y, uintptr_t z) {
@@ -619,7 +633,7 @@ Actor *spawnQueue_bundle_s32(uintptr_t bundle_id, uintptr_t x, uintptr_t y, uint
     position[0] = reinterpret_cast(s32, x);
     position[1] = reinterpret_cast(s32, y);
     position[2] = reinterpret_cast(s32, z);
-    return bundle_spawn_s32(reinterpret_cast(s32, bundle_id), position);
+    return bundle_spawn_s32(reinterpret_cast(enum bundle_e, bundle_id), position);
 }
 
 Actor *spawnQueue_bundle_s32_2(uintptr_t bundle_id, uintptr_t x, uintptr_t y, uintptr_t z) {
@@ -631,8 +645,7 @@ Actor *spawnQueue_bundle_s32_2(uintptr_t bundle_id, uintptr_t x, uintptr_t y, ui
 }
 
 void spawnQueue_defrag(void) {
-    FunctionQueue *arg0 = spawnQueue;
-    if (arg0 != NULL) {
-        spawnQueue = (FunctionQueue *) defrag(spawnQueue);
+    if (spawnQueue) {
+        spawnQueue = (SpawnQueueFunction *) defrag(spawnQueue);
     }
 }

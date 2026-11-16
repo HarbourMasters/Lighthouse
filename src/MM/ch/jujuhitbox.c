@@ -73,7 +73,7 @@ void func_80388BEC(NodeProp *node, ActorMarker *marker) {
                 CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_MM_JUJU, (1 << ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4) - 1); // [port]
                 func_803892A8(((ActorLocal_JujuHitbox *) &closest_actor->local)->jujus);
                 func_80353580(marker);
-                __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x58, *(s32 *)&position[0], *(s32 *)&position[1], *(s32 *)&position[2]);
+                SPAWNQUEUE_ADD_ACTOR_F32(0x58, position[0], position[1], position[2]);
             }
         }
     }
@@ -129,7 +129,7 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        __spawnQueue_add_2((GenFunction_2) __chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4);
+        SPAWNQUEUE_ADD_2(__chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4);
         __chjujuhitbox_playRubbingSfx(this);
         return;
     }

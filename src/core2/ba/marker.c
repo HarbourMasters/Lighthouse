@@ -170,7 +170,7 @@ void __baMarker_8028B9A8(uintptr_t arg0){
 }
 
 void __baMarker_8028BA00(s32 arg0){
-    __spawnQueue_add_1((GenFunction_1)__baMarker_8028B9A8, (uintptr_t)arg0);
+    SPAWNQUEUE_ADD_1(__baMarker_8028B9A8, (uintptr_t)arg0);
 }
 
 
@@ -573,7 +573,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     if(EventSystem_Should(VB_JINJO_JINGLE_LOOK_AT, comusic_isTrackQueued(COMUSIC_30_5TH_JINJO_COLLECTED))){
                         __baMarker_8028B8DC();
                     }
-                    __spawnQueue_add_4((GenFunction_4)__baMarker_8028B904, reinterpret_cast(u32, other_prop->actorProp.position_x), reinterpret_cast(u32, other_prop->actorProp.position_y), reinterpret_cast(u32, other_prop->actorProp.position_z), jiggy_id);
+                    SPAWNQUEUE_ADD_4(__baMarker_8028B904, reinterpret_cast(u32, other_prop->actorProp.position_x), reinterpret_cast(u32, other_prop->actorProp.position_y), reinterpret_cast(u32, other_prop->actorProp.position_z), jiggy_id);
                     marker_despawn(marker);
                 }
             }
@@ -606,7 +606,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
             case 0x54: //L8028C820
                 coMusicPlayer_playMusic(COMUSIC_19_LOW_PITCH_FLUTES, 28000);
                 func_803012F8();
-                __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_s16, 0x4E, reinterpret_cast(u32, other_prop->actorProp.position_x), reinterpret_cast(u32, other_prop->actorProp.position_y), reinterpret_cast(u32, other_prop->actorProp.position_z));
+                SPAWNQUEUE_ADD_ACTOR_S16(0x4E, other_prop->actorProp.position_x, other_prop->actorProp.position_y, other_prop->actorProp.position_z);
                 marker_despawn(marker);
                 break;
 
@@ -786,7 +786,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 baflag_set(BA_FLAG_E_TOUCHING_WADING_BOOTS);
                 func_802A6388(chwadingboots_802D6E4C(actor));
                 bs_checkInterrupt(BS_INTR_1B);
-                __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_s16, 0x4E, reinterpret_cast(u32, other_prop->actorProp.position_x), reinterpret_cast(u32, other_prop->actorProp.position_y), reinterpret_cast(u32, other_prop->actorProp.position_z));
+                SPAWNQUEUE_ADD_ACTOR_S16(0x4E, other_prop->actorProp.position_x, other_prop->actorProp.position_y, other_prop->actorProp.position_z);
                 chwadingboots_802D6E54(actor);
                 break;
 
@@ -810,7 +810,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 baflag_set(BA_FLAG_10_TOUCHING_TURBO_TRAINERS);
                 set_turbo_duration(chtrainers_getDuration(actor));
                 bs_checkInterrupt(BS_INTR_1A);
-                __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_s16, 0x4E, reinterpret_cast(u32, other_prop->actorProp.position_x), reinterpret_cast(u32, other_prop->actorProp.position_y), reinterpret_cast(u32, other_prop->actorProp.position_z));
+                SPAWNQUEUE_ADD_ACTOR_S16(0x4E, other_prop->actorProp.position_x, other_prop->actorProp.position_y, other_prop->actorProp.position_z);
                 chtrainers_pickup(actor);
                 break;
 

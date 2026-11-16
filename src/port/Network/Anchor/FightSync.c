@@ -351,7 +351,7 @@ static void FightSync_CatchupTick(Actor* boss) {
 
     if (sFightNetSnap.pad && !sFightNetCatchupPadDone) {
         sFightNetCatchupPadDone = 1;
-        __spawnQueue_add_1((GenFunction_1)chfinalboss_spawnFlightPad, 0);
+        SPAWNQUEUE_ADD_1(chfinalboss_spawnFlightPad, 0);
     }
     if (sFightNetSnap.barrier && !sFightNetCatchupBarrierDone) {
         sFightNetCatchupBarrierDone = 1;
@@ -483,9 +483,9 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                 D_80392778[i] = v2[i];
             }
             if (a == 2) {
-                __spawnQueue_add_1((GenFunction_1)chfinalboss_func_80386EC0, 0);
+                SPAWNQUEUE_ADD_1(chfinalboss_func_80386EC0, 0);
             } else if (a == 1) {
-                __spawnQueue_add_1((GenFunction_1)chfinalboss_func_80387074, 0);
+                SPAWNQUEUE_ADD_1(chfinalboss_func_80387074, 0);
             }
             break;
 
@@ -493,7 +493,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsFollower()) {
                 return;
             }
-            __spawnQueue_add_1((GenFunction_1)chfinalboss_spawnFlightPad, 0);
+            SPAWNQUEUE_ADD_1(chfinalboss_spawnFlightPad, 0);
             break;
 
         case FIGHT_EV_PAD_DESPAWN:

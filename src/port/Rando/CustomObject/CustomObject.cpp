@@ -319,8 +319,8 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
                         Rando::StaticData::Checks[shuffledObject.shuffledCheckId].worldId);
 
                     if (jiggyCheckId != RC_UNKNOWN) {
-                        __spawnQueue_add_4((GenFunction_4)SpawnJinjoJiggy, jiggyCheckId, (uintptr_t)spawnPosition[0],
-                                           (uintptr_t)spawnPosition[1], (uintptr_t)spawnPosition[2]);
+                        SPAWNQUEUE_ADD_4(SpawnJinjoJiggy, jiggyCheckId, (uintptr_t)spawnPosition[0],
+                                         (uintptr_t)spawnPosition[1], (uintptr_t)spawnPosition[2]);
                     }
                 }
             }

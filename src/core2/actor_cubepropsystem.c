@@ -19,7 +19,6 @@
 #define MARKER_BITMAP_BYTES (MARKER_POOL_SIZE / 8)
 
 extern f32 vtxList_getGlobalNorm(BKVertexList *);
-extern void spawnQueue_func_802C39D4(void);
 extern bool func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
 extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]);
 extern s32 bkmodelunk14list_func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList *arg5, f32 arg6[3], f32 arg7, f32 arg8[3]);

@@ -49,7 +49,7 @@ void func_802DC6E4(void) {
 
 void func_802DC748(NodeProp *arg0, ActorMarker *arg1){
     if(D_8037DE50 == NULL){
-        __spawnQueue_add_0(func_802DC6E4);
+        SPAWNQUEUE_ADD_0(func_802DC6E4);
     }
 }
 
