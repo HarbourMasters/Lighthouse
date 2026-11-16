@@ -196,7 +196,7 @@ void func_80324D54(f32 time, enum sfx_e sfx_id, f32 arg2, s32 arg3, f32 position
 }
 
 void func_80324DBC(f32 time, enum asset_e text_id, s32 arg2, f32 position[3], ActorMarker *caller, void (*callback_method_1)(ActorMarker *, enum asset_e, s32), void (*callback_method_2)(ActorMarker *, enum asset_e, s32)) {
-    if (!EventSystem_Should(VB_OVERRIDE_TIMED_DIALOGUE, false, text_id)) {
+    if (EventSystem_Should(VB_QUEUE_TIMED_DIALOG, true, text_id)) {
         DelayedTextCallback sp20;
         s32 pad;
 

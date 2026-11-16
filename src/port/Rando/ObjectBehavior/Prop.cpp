@@ -13,7 +13,7 @@
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
 
 void Rando::ObjectBehavior::InitPropBehavior() {
-    COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_SPAWN_PROP, EVENT_PRIORITY_NORMAL, true, {
         s16* spawnPosition = va_arg(args, s16*);
 
         if (!IS_RANDO) {
@@ -31,16 +31,16 @@ void Rando::ObjectBehavior::InitPropBehavior() {
 
         RandoCheckId randoCheckId = Rando::StaticData::GetCheckByPosition(position[0], position[1], position[2]);
         if (randoCheckId == RC_UNKNOWN) {
-            *should = false;
+            *should = true;
             return;
         }
 
         if (!Rando::Logic::IsCheckShuffled(randoCheckId)) {
-            *should = false;
+            *should = true;
             return;
         }
 
         Actor* randoCustomActor = CustomObject::ShouldCreateCustomActorEX(randoCheckId, position, true);
-        *should = true;
+        *should = false;
     })
 }

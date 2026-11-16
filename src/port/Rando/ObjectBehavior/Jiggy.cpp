@@ -60,7 +60,7 @@ void Rando::ObjectBehavior::InitJiggyBehavior() {
         }
     })
 
-    COND_VB_SHOULD(VB_OVERRIDE_JIGGY_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_SPAWN_JIGGY, EVENT_PRIORITY_NORMAL, true, {
         jiggy_e jiggyId = (jiggy_e)va_arg(args, int);
         f32* position = va_arg(args, f32*);
 
@@ -99,7 +99,7 @@ void Rando::ObjectBehavior::InitJiggyBehavior() {
         // Stand in for the jiggyscore_setSpawned this override skips, for the
         // jiggies the world reads back as state rather than as a collectable.
         MarkWorldStateFromJiggySpawn(randoCheckId);
-        *should = true;
+        *should = false;
     })
 
     // If Banjo isn't near the jiggy when it's first rewarded, the tooth asks for it every frame.

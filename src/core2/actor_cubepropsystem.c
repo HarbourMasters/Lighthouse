@@ -1038,7 +1038,7 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                 if (!(flags & 1) && !((flags >> 1) & 1)) {
                     propSpriteAsset = ((s32)((word0 >> 20) & 0xFFF)) + 0x572;
                 }
-                if (!EventSystem_Should(VB_OVERRIDE_PROP_SPAWN, false, pos, propSpriteAsset)) {
+                if (EventSystem_Should(VB_SPAWN_PROP, true, pos, propSpriteAsset)) {
                 // Extract flag bits using N64 BE bit positions within the u16
                     {
                         bool mf = flags & 1;            // markerFlag (BE bit 0)

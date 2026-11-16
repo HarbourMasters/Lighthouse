@@ -254,7 +254,7 @@ static void __chSmBottles_textActions(ActorMarker *marker, enum asset_e text_id,
 void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
     Actor *actor = marker_getActor(marker);
 
-    if (!EventSystem_Should(VB_OVERRIDE_BOTTLES_TEXT_CALLBACK, false, actor)) {
+    if (EventSystem_Should(VB_RUN_BOTTLES_TEXT_CALLBACK, true, actor)) {
         if (!mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && chmole_learnedAllSpiralMountainAbilities()) {
             mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
             gcdialog_showDialog(ASSET_E12_DIALOG_BOTTLES_LEARNED_TUTORIAL_MOVES, 0xe, actor->position, actor->marker, __chSmBottles_textCallback, NULL);
@@ -338,7 +338,7 @@ void __chSmBottles_talk(Actor *this) {
     text_flags = 0xe;
     text_id = 0;
 
-    if (!EventSystem_Should(VB_OVERRIDE_MOLEHILL_ABILITY, false, this, &text_id, &text_flags)) {
+    if (EventSystem_Should(VB_TEACH_MOLEHILL_ABILITY, true, this, &text_id, &text_flags)) {
     switch (this->actorTypeSpecificField) {
         case CH_SM_MOLE_ID_1_INTRO://L8038965C
             if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) {

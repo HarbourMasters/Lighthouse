@@ -418,35 +418,35 @@ typedef enum VBehaviorID {
 
     // Rando object behavior
 
-    // A listener that returns true skips Bottles' text callback in Spiral Mountain.
+    // A listener that returns false skips Bottles' text callback in Spiral Mountain.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `*Actor` (Bottles)
-    VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,
+    VB_RUN_BOTTLES_TEXT_CALLBACK,
 
-    // A listener that returns true skips Bottles' lesson and has to set the text id and flags he shows.
+    // A listener that returns false skips Bottles' lesson and has to set the text id and flags he shows.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `*Actor` (Bottles)
     // - `*s32` (the text id)
     // - `*s32` (the text flags)
-    VB_OVERRIDE_MOLEHILL_ABILITY,
+    VB_TEACH_MOLEHILL_ABILITY,
 
-    // A listener that returns true skips the jiggy's spawn.
+    // A listener that returns false skips the jiggy's spawn.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `s32` (jiggy_e)
     // - `*f32` (the position)
-    VB_OVERRIDE_JIGGY_SPAWN,
+    VB_SPAWN_JIGGY,
 
     // A witch switch jiggy's jingle in the lair, whose track a listener may change. The result is unused.
     // #### `result`
@@ -469,15 +469,15 @@ typedef enum VBehaviorID {
     // - `*f32` (the position)
     VB_CC_TOOTH_PLACE_JIGGY,
 
-    // A listener that returns true leaves the prop out as its cube loads.
+    // A listener that returns false leaves the prop out as its cube loads.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `*s16` (the position)
     // - `s32` (enum asset_e, the sprite; -1 for a marker or model prop)
-    VB_OVERRIDE_PROP_SPAWN,
+    VB_SPAWN_PROP,
 
     // A spawned actor taking its prop's secondary id, selector and scale.
     // #### `result`
@@ -488,10 +488,10 @@ typedef enum VBehaviorID {
     // - `*Actor` (the actor)
     VB_APPLY_CUBE_PROP_DATA,
 
-    // A listener that returns true skips spawning one of a bundle's actors, and can hand back one it spawned instead.
+    // A listener that returns false skips spawning one of a bundle's actors, and can hand back one it spawned instead.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `s32` (bundle_e)
@@ -499,7 +499,7 @@ typedef enum VBehaviorID {
     // - `s32` (the actor's index in the bundle)
     // - `*f32` (the position)
     // - `**Actor` (the actor)
-    VB_OVERRIDE_BUNDLE_SPAWN,
+    VB_SPAWN_BUNDLE_ACTOR,
 
     // A listener that returns true skips giving a jiggy list spawn its slot and jiggy id.
     // #### `result`
@@ -518,25 +518,25 @@ typedef enum VBehaviorID {
     // - None
     VB_NAPPER_SET_JIGGY_POSITION,
 
-    // A listener that returns true skips a Stop 'N' Swop egg's map check, which marks the map's egg collected at pickup
-    // and can despawn the egg at spawn.
+    // A listener that returns false skips a Stop 'N' Swop egg's map check, which marks the map's egg collected at
+    // pickup and can despawn the egg at spawn.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `s32` (SNS_MAP_CHECK_PICKUP or SNS_MAP_CHECK_SPAWN)
     // - `*Actor` (the egg)
-    VB_OVERRIDE_SNS_MAP_CHECK,
+    VB_RUN_SNS_MAP_CHECK,
 
-    // A listener that returns true keeps a delayed dialog from showing.
+    // A listener that returns false keeps a delayed dialog from showing.
     // #### `result`
     // ```c
-    // false
+    // true
     // ```
     // #### `args`
     // - `s32` (the text id)
-    VB_OVERRIDE_TIMED_DIALOGUE,
+    VB_QUEUE_TIMED_DIALOG,
 
     // A listener that returns true skips counting a collected jinjo and OnJinjoCollected.
     // #### `result`
@@ -590,11 +590,11 @@ typedef enum VBehaviorID {
     // A listener that returns true keeps a dialog from showing.
     // #### `result`
     // ```c
-    // false
+    // volatileFlag_get(VOLATILE_FLAG_1) || func_802D686C()
     // ```
     // #### `args`
     // - `s32` (the text id)
-    VB_OVERRIDE_DIALOG_SHOW,
+    VB_REFUSE_DIALOG,
 
     // Rendering and performance
 

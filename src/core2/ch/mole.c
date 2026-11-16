@@ -240,7 +240,7 @@ int chmole_learnAbility(Actor *this){
     s32 teach_text_id;
     s32 sp28 = 0xe;
     // [port] Rando hands out its own item here, whether or not the vanilla move is known.
-    if (!EventSystem_Should(VB_OVERRIDE_MOLEHILL_ABILITY, false, this, &teach_text_id, &sp28)) {
+    if (EventSystem_Should(VB_TEACH_MOLEHILL_ABILITY, true, this, &teach_text_id, &sp28)) {
         // Known Ability: Refresher Dialog
         if(player_isAbilityUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
             sp28 = 0xf;

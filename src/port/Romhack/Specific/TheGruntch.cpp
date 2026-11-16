@@ -438,9 +438,10 @@ static void Gruntch_EnableActGate() {
 
 // Mumbo's token dialogs are rendered by the hack once his jiggy is collected
 static void Gruntch_EnableMumboTokenDialogs() {
-    REGISTER_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_LOW, {
+    REGISTER_VB_SHOULD(VB_REFUSE_DIALOG, EVENT_PRIORITY_LOW, {
         const s32 textId = va_arg(args, s32);
-        if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
+        if (*should ||
+            (textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
              textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
             gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
             return;

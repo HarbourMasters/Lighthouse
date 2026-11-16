@@ -169,9 +169,10 @@ constexpr int kSnowGlowSuppressedDialogs[] = {
 void SnowGlow_EnableDialogGates() {
     REGISTER_VB_SHOULD(VB_PROGRESS_FLAG_DIALOG, EVENT_PRIORITY_NORMAL, { *should = false; });
     REGISTER_VB_SHOULD(VB_LAIR_GRUNTY_TAUNTS, EVENT_PRIORITY_NORMAL, { *should = false; });
-    REGISTER_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_LOW, {
+    REGISTER_VB_SHOULD(VB_REFUSE_DIALOG, EVENT_PRIORITY_LOW, {
         const s32 textId = va_arg(args, s32);
-        if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
+        if (*should ||
+            (textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
              textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
             gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
             return;
@@ -483,7 +484,7 @@ void SnowGlow_EnableStopNSwop() {
         }
     });
 
-    REGISTER_VB_SHOULD(VB_OVERRIDE_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, {
+    REGISTER_VB_SHOULD(VB_RUN_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, {
         const s32 site = va_arg(args, s32);
         const s32 map = gsworld_getMap();
 
@@ -494,7 +495,7 @@ void SnowGlow_EnableStopNSwop() {
                     break;
                 }
             }
-            *should = true;
+            *should = false;
             return;
         }
 
@@ -511,10 +512,10 @@ void SnowGlow_EnableStopNSwop() {
         if (!keep && self != NULL && self->marker != NULL) {
             marker_despawn(self->marker);
         }
-        *should = true;
+        *should = false;
     });
 
-    REGISTER_VB_SHOULD(VB_OVERRIDE_TIMED_DIALOGUE, EVENT_PRIORITY_NORMAL, {
+    REGISTER_VB_SHOULD(VB_QUEUE_TIMED_DIALOG, EVENT_PRIORITY_NORMAL, {
         const s32 textId = va_arg(args, s32);
         if (sEmittingSnsDialog || textId < kSnsEggTextLo || textId > kSnsEggTextHi) {
             return;
@@ -524,7 +525,7 @@ void SnowGlow_EnableStopNSwop() {
             if (entry.map != map) {
                 continue;
             }
-            *should = true;
+            *should = false;
             sEmittingSnsDialog = true;
             func_80324DBC(kSnsEggDialogDelay, (enum asset_e)entry.textId, 0x20, NULL, NULL, NULL, NULL);
             sEmittingSnsDialog = false;

@@ -82,12 +82,12 @@ static bool isConsumableActor(s32 actorId) {
 static bool sSpawningDrop = false;
 
 static void RegisterConsumableRetention_Init() {
-    COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
+    COND_VB_SHOULD(VB_SPAWN_PROP, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
         s16* position = va_arg(args, s16*);
         s32 spriteAsset = va_arg(args, s32);
         if (systemActive() && isConsumableSprite(spriteAsset) &&
             isCollected(pickupAt(position[0], position[1], position[2]))) {
-            *should = true;
+            *should = false;
         }
     });
 
@@ -102,7 +102,7 @@ static void RegisterConsumableRetention_Init() {
     });
 
     // Always on: every consumable bundle drop spawns here (see DropLocal).
-    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_SPAWN_BUNDLE_ACTOR, EVENT_PRIORITY_NORMAL, true, {
         bundle_e bundleId = (bundle_e)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
         s32 index = va_arg(args, s32);
@@ -112,7 +112,7 @@ static void RegisterConsumableRetention_Init() {
         if (!systemActive() || !isConsumableActor(bundleInfo->actor_id)) {
             return;
         }
-        *should = true;
+        *should = false;
 
         const bool hutDrop = bundleId == BUNDLE_1_MM_HUT_BLUE_EGG || bundleId == BUNDLE_6_MM_HUT_EXTRA_LIFE;
         const ConsumablePickup pickup = pickupAt(position[0], position[1], position[2], index + 1);
