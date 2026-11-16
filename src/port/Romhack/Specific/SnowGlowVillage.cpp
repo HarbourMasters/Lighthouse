@@ -169,9 +169,10 @@ constexpr int kSnowGlowSuppressedDialogs[] = {
 void SnowGlow_EnableDialogGates() {
     REGISTER_VB_SHOULD(VB_PROGRESS_FLAG_DIALOG, EVENT_PRIORITY_NORMAL, { *should = false; });
     REGISTER_VB_SHOULD(VB_LAIR_GRUNTY_TAUNTS, EVENT_PRIORITY_NORMAL, { *should = false; });
-    REGISTER_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_LOW, {
+    REGISTER_VB_SHOULD(VB_REFUSE_DIALOG, EVENT_PRIORITY_LOW, {
         const s32 textId = va_arg(args, s32);
-        if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
+        if (*should ||
+            (textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
              textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
             gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
             return;

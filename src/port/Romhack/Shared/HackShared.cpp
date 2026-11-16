@@ -152,7 +152,7 @@ void ApplyPauseRowVisibility() {
 
 // Suppress a caller-supplied set of dialogs
 void ApplyDialogSuppression() {
-    COND_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_NORMAL, sSuppressedDialogCount > 0, {
+    COND_VB_SHOULD(VB_REFUSE_DIALOG, EVENT_PRIORITY_NORMAL, sSuppressedDialogCount > 0, {
         const s32 textId = va_arg(args, s32);
         for (int i = 0; i < sSuppressedDialogCount; i++) {
             if (sSuppressedDialogs[i] == textId) {

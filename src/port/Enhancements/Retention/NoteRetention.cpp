@@ -360,7 +360,7 @@ void RegisterNoteRetention_Init() {
     });
 
     // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress them.
-    COND_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_REFUSE_DIALOG, EVENT_PRIORITY_NORMAL, true, {
         s32 textId = va_arg(args, s32);
         // Bottles' 50-note-door line assumes vanilla note-door costs, which
         // romhacks retune, so it is wrong for them whether or not retention is

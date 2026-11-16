@@ -590,11 +590,11 @@ typedef enum VBehaviorID {
     // A listener that returns true keeps a dialog from showing.
     // #### `result`
     // ```c
-    // false
+    // volatileFlag_get(VOLATILE_FLAG_1) || func_802D686C()
     // ```
     // #### `args`
     // - `s32` (the text id)
-    VB_OVERRIDE_DIALOG_SHOW,
+    VB_REFUSE_DIALOG,
 
     // Rendering and performance
 
