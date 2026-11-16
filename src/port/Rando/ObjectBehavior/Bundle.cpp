@@ -43,7 +43,7 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         }
     })
 
-    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, IS_RANDO, {
+    COND_VB_SHOULD(VB_SPAWN_BUNDLE_ACTOR, EVENT_PRIORITY_NORMAL, IS_RANDO, {
         bundle_e bundleId = (bundle_e)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
         s32 bundleCount = va_arg(args, s32);
@@ -61,7 +61,7 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         if (bundleId == BUNDLE_16__HONEYCOMB &&
             (currentMap == MAP_43_CCW_SPRING || currentMap == MAP_B_CC_CLANKERS_CAVERN)) {
             if (CheckEnemyOverlapPosition(spawnPosition)) {
-                *should = false;
+                *should = true;
                 return;
             }
         }
@@ -282,7 +282,7 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
             *actor = CustomObject::ShouldCreateCustomActorEX(randoCheckId, spawnPosition, false);
 
             if (*actor == NULL) {
-                *should = true;
+                *should = false;
                 return;
             }
 
@@ -293,6 +293,6 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
             }
         }
 
-        *should = true;
+        *should = false;
     })
 }

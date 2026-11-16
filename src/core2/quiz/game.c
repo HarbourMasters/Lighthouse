@@ -531,7 +531,7 @@ void chSnsEgg_update(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         func_802D3CE8(this);
-        if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false, SNS_MAP_CHECK_SPAWN, this)) {
+        if (EventSystem_Should(VB_RUN_SNS_MAP_CHECK, true, SNS_MAP_CHECK_SPAWN, this)) {
             switch (gsworld_getMap()) {
             case MAP_1D_MMM_CELLAR: //L802D4058
                 if (sns_get_item_state(SNS_ITEM_EGG_CYAN, 1) && !sns_get_item_state(SNS_ITEM_EGG_CYAN, 0)) {

@@ -146,7 +146,7 @@ Actor *__bundle_spawnWithFirstActor(enum bundle_e bundle_id, f32 position[3], Ac
         }
 
         //L802C9114
-        if (!EventSystem_Should(VB_OVERRIDE_BUNDLE_SPAWN, false, bundle_id, bundle_info, i, position, &actor)) {
+        if (EventSystem_Should(VB_SPAWN_BUNDLE_ACTOR, true, bundle_id, bundle_info, i, position, &actor)) {
             actor = (i == 0 && firstActor) ? firstActor : actor_spawnWithYaw_f32(bundle_info->actor_id, position, 0);
             //}
             // [port] Suppressed spawn: a cancelled OnActorSpawn returns the listener's actor,

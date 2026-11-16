@@ -483,7 +483,7 @@ void SnowGlow_EnableStopNSwop() {
         }
     });
 
-    REGISTER_VB_SHOULD(VB_OVERRIDE_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, {
+    REGISTER_VB_SHOULD(VB_RUN_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, {
         const s32 site = va_arg(args, s32);
         const s32 map = gsworld_getMap();
 
@@ -494,7 +494,7 @@ void SnowGlow_EnableStopNSwop() {
                     break;
                 }
             }
-            *should = true;
+            *should = false;
             return;
         }
 
@@ -511,10 +511,10 @@ void SnowGlow_EnableStopNSwop() {
         if (!keep && self != NULL && self->marker != NULL) {
             marker_despawn(self->marker);
         }
-        *should = true;
+        *should = false;
     });
 
-    REGISTER_VB_SHOULD(VB_OVERRIDE_TIMED_DIALOGUE, EVENT_PRIORITY_NORMAL, {
+    REGISTER_VB_SHOULD(VB_QUEUE_TIMED_DIALOG, EVENT_PRIORITY_NORMAL, {
         const s32 textId = va_arg(args, s32);
         if (sEmittingSnsDialog || textId < kSnsEggTextLo || textId > kSnsEggTextHi) {
             return;
@@ -524,7 +524,7 @@ void SnowGlow_EnableStopNSwop() {
             if (entry.map != map) {
                 continue;
             }
-            *should = true;
+            *should = false;
             sEmittingSnsDialog = true;
             func_80324DBC(kSnsEggDialogDelay, (enum asset_e)entry.textId, 0x20, NULL, NULL, NULL, NULL);
             sEmittingSnsDialog = false;

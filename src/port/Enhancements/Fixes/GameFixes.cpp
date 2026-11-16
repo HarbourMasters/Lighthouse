@@ -250,9 +250,9 @@ void RegisterChimpySoftlock_Init() {
         }
     });
 
-    REGISTER_VB_SHOULD(VB_OVERRIDE_JIGGY_SPAWN, EVENT_PRIORITY_LOW, {
+    REGISTER_VB_SHOULD(VB_SPAWN_JIGGY, EVENT_PRIORITY_LOW, {
         if (va_arg(args, int) == JIGGY_9_MM_CHIMPY && jiggyscore_isCollected(JIGGY_9_MM_CHIMPY)) {
-            *should = true;
+            *should = false;
         }
     });
 }

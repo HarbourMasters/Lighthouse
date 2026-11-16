@@ -38,13 +38,13 @@ void Rando::ObjectBehavior::ModifyStopNSwopWorldBehavior(void* snsActor) {
 }
 
 void Rando::ObjectBehavior::InitStopNSwopBehavior() {
-    COND_VB_SHOULD(VB_OVERRIDE_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, { *should = true; })
-    COND_VB_SHOULD(VB_OVERRIDE_TIMED_DIALOGUE, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, {
+    COND_VB_SHOULD(VB_RUN_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, { *should = false; })
+    COND_VB_SHOULD(VB_QUEUE_TIMED_DIALOG, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, {
         asset_e textId = (asset_e)va_arg(args, int);
 
         if (textId == ASSET_DB3_DIALOG_SNS_EGG_1_TEXT || textId == ASSET_DB5_DIALOG_ICE_KEY_TEXT ||
             textId == ASSET_DB2_DIALOG_MUMBO_MISTAKE_2) {
-            *should = true;
+            *should = false;
         }
     })
 

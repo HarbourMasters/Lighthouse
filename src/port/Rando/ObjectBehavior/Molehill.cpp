@@ -92,7 +92,7 @@ static void MarkBridgeRepairedDialogComplete() {
 }
 
 void Rando::ObjectBehavior::InitMolehillBehavior() {
-    COND_VB_SHOULD(VB_OVERRIDE_MOLEHILL_ABILITY, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_TEACH_MOLEHILL_ABILITY, EVENT_PRIORITY_NORMAL, true, {
         Actor* molehillActor = va_arg(args, Actor*);
         s32* textId = va_arg(args, s32*);
         s32* isLearned = va_arg(args, s32*);
@@ -114,7 +114,7 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
 
         RandoSaveCheck shuffledMolehill = Rando::Logic::GetShuffledObject(randoCheckId);
         ChMoleDescription moleInfo = GetMoleDescriptionByAbility(shuffledMolehill.randoCollectionId);
-        *should = true;
+        *should = false;
 
         func_80347A14(0);
         molehillActor->has_met_before = true;
@@ -169,7 +169,7 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
         }
     })
 
-    COND_VB_SHOULD(VB_OVERRIDE_BOTTLES_TEXT_CALLBACK, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_RUN_BOTTLES_TEXT_CALLBACK, EVENT_PRIORITY_NORMAL, true, {
         Actor* molehillActor = va_arg(args, Actor*);
 
         if (!IS_RANDO && !OPTION_ENABLED) {
@@ -177,7 +177,7 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
         }
 
         if (CheckBridgeState() && !RANDO_SAVE_FLAGS[RANDO_INF_BRIDGE_REPAIRED_DIALOG_COMPLETE].flagState) {
-            *should = true;
+            *should = false;
         }
     })
 

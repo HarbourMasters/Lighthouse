@@ -240,7 +240,7 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
     Struct_core2_ABC00_0 *temp_v0;
 
     jiggy_id = ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) ? JIGGY_A_MM_CONGA : jiggy_id;
-    if (!EventSystem_Should(VB_OVERRIDE_JIGGY_SPAWN, false, jiggy_id, pos)) {
+    if (EventSystem_Should(VB_SPAWN_JIGGY, true, jiggy_id, pos)) {
         temp_v0 = &jiggylist_list[jiggy_id - 1];
         if (jiggylist_list[jiggy_id - 1].unk10.marker == NULL) {
             temp_v0->unk10.position[0] = pos[0];

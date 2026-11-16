@@ -235,7 +235,7 @@ void RegisterJinjoRetention_Init() {
         event->Cancelled = true;
     });
 
-    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
+    COND_VB_SHOULD(VB_SPAWN_BUNDLE_ACTOR, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
         (void)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
         (void)va_arg(args, s32);
@@ -253,7 +253,7 @@ void RegisterJinjoRetention_Init() {
         if (!retentionActiveForLevel(level) || !(collectedBits(level) & bit)) {
             return;
         }
-        *should = true;
+        *should = false;
     });
 }
 

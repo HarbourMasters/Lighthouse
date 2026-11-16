@@ -285,7 +285,7 @@ extern "C" void NoteRetention_SetForced(int32_t forced) {
 
 void RegisterNoteRetention_Init() {
     // Bundle notes continue the map's index counter; identity stored in actor->local.
-    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_SPAWN_BUNDLE_ACTOR, EVENT_PRIORITY_NORMAL, true, {
         bundle_e bundleId = (bundle_e)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
         va_arg(args, s32); // index within the bundle (unused)
@@ -303,7 +303,7 @@ void RegisterNoteRetention_Init() {
         }
 
         // We own this note: suppress the vanilla bundle spawn.
-        *should = true;
+        *should = false;
 
         int64_t key = noteKey(mapId, noteIndex);
         if (activeNoteSet.count(key)) {
@@ -408,7 +408,7 @@ static void RegisterRetentionSaving_Init() {
         event->Cancelled = true;
     });
 
-    COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_SPAWN_PROP, EVENT_PRIORITY_NORMAL, true, {
         s16* spawnPosition = va_arg(args, s16*);
         s32 spriteAsset = va_arg(args, s32);
 
@@ -428,7 +428,7 @@ static void RegisterRetentionSaving_Init() {
         }
 
         // We own this note: suppress the static sprite prop.
-        *should = true;
+        *should = false;
 
         if (activeNoteSet.count(noteKey(mapId, noteIndex))) {
             return; // a live actor already exists (re-parse)
