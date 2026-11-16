@@ -102,7 +102,7 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     thisActor->unk124_6 = 0;
     CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_BGS_PINKEGG, 1 << ((ActorLocal_PinkEgg *) &thisActor->local)->actorId); // [port]
     if(D_803906C4[(tmp = (ActorLocal_PinkEgg *) &thisActor->local)->actorId] != 0){
-        __spawnQueue_add_2((GenFunction_2)chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->actorId);
+        SPAWNQUEUE_ADD_2(chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->actorId);
     } else {
 //      jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
 //      coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);

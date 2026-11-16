@@ -6,7 +6,6 @@
 #include <bk_math.h>
 
 extern f32 mapModel_getFloorY(f32*);
-extern Actor * spawnQueue_bundle_f32(s32, f32, f32, f32);
 extern void timed_mapSpecificFlags_setTrue(f32 time, enum sm_specific_flags flag);
 extern void subaddie_set_state_with_direction(Actor* , s32, f32, s32);
 
@@ -222,7 +221,7 @@ static void __chVegetables_vegetableDeathParticles(Actor* this) {
     if (EventSystem_Should(VB_SPAWN_EMPTY_HONEYCOMB, this->unk38_31, HONEYCOMB_17_SM_COLLIWOBBLE)) {
         this->position_y += 100.0f;
         func_802CA1CC(HONEYCOMB_17_SM_COLLIWOBBLE);
-        __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position_x), reinterpret_cast(s32, this->position_y), reinterpret_cast(s32, this->position_z));
+        SPAWNQUEUE_ADD_BUNDLE_F32(BUNDLE_1F_SM_EMPTY_HONEYCOMB, this->position[0], this->position[1], this->position[2]);
         CALL_EVENT(OnHoneycombDropSpawn, HONEYCOMB_17_SM_COLLIWOBBLE, BUNDLE_1F_SM_EMPTY_HONEYCOMB, this->position_x, this->position_y, this->position_z);
     }
 

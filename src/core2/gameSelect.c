@@ -361,7 +361,7 @@ void gameSelect_update(Actor *this){
     }
 
     if(!this->initialized){
-        __spawnQueue_add_1((GenFunction_1)spawnGameSelectProps, (uintptr_t)this->marker);
+        SPAWNQUEUE_ADD_1(spawnGameSelectProps, (uintptr_t)this->marker);
         func_802C7318(this);
         this->unk130 = func_802C71F0;
         if(game_number == CH_GAME_SELECT_SAVEFILE_0_BED){

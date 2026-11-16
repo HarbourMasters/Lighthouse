@@ -377,7 +377,7 @@ void chfinalboss_func_80386F5C(ActorMarker * arg0, f32 arg1[3], f32 arg2, f32 ar
     D_80392758[2] = (f32) arg1[2];
     D_80392768[1] = arg2;
     D_80392768[2] = arg3;
-    SPAWNQUEUE_ADD_1(chfinalboss_func_80386EC0, arg0);
+    SPAWNQUEUE_ADD_1(chfinalboss_func_80386EC0, reinterpret_cast(uintptr_t, arg0));
 }
 
 void chfinalboss_func_80386FD8(s32 arg0) {
@@ -432,10 +432,10 @@ void chfinalboss_throwObject(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 arg
     }
     if (arg3 == 0) {
         CALL_EVENT(OnFinalBossFireballThrow, arg2); // [port]
-        SPAWNQUEUE_ADD_1(chfinalboss_func_80386FD8, marker);
+        SPAWNQUEUE_ADD_1(chfinalboss_func_80386FD8, reinterpret_cast(uintptr_t, marker));
     }
     else{
-        SPAWNQUEUE_ADD_1(chfinalboss_func_80387074, marker);
+        SPAWNQUEUE_ADD_1(chfinalboss_func_80387074, reinterpret_cast(uintptr_t, marker));
     }
 }
 
@@ -826,7 +826,7 @@ void chfinalboss_phase1_setState(Actor *this, s32 next_state) {
         case FINALBOSS_STATE_D_PHASE1_HIT:
             func_8030E878(SFX_131_GRUNTY_WEEEGH, randf2(0.95f, 1.05f), 32000, this->position, 5000.0f, 12000.0f);
             if ((s32) local->hits >= 4) {
-                SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, this->marker);
+                SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, reinterpret_cast(uintptr_t, this->marker));
                 chfinalboss_func_80388110(this->marker, 0, 0);
             }
             break;
@@ -1093,7 +1093,7 @@ void chfinalboss_phase2_setState(Actor *this, s32 arg1){
 }
 
 void chfinalboss_phase2_endTextCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
-    SPAWNQUEUE_ADD_1(chfinalboss_spawnFlightPad, marker);
+    SPAWNQUEUE_ADD_1(chfinalboss_spawnFlightPad, reinterpret_cast(uintptr_t, marker));
 }
 
 void chfinalboss_phase2_update(ActorMarker *marker) {
@@ -1214,7 +1214,7 @@ void __chfinalboss_spawnStatue(enum ch_bossjinjo_e statue_id) {
 }
 
 void chfinalboss_spawnStatue(s32 statue_id) {
-    SPAWNQUEUE_ADD_1(__chfinalboss_spawnStatue, statue_id);
+    SPAWNQUEUE_ADD_1(__chfinalboss_spawnStatue, reinterpret_cast(s32, statue_id));
 }
 
 void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
@@ -1227,7 +1227,7 @@ void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
 }
 
 void chfinalboss_spawnSpellBarrier(ActorMarker *arg0) {
-    SPAWNQUEUE_ADD_1(__chfinalboss_spawnSpellBarrier, arg0);
+    SPAWNQUEUE_ADD_1(__chfinalboss_spawnSpellBarrier, reinterpret_cast(uintptr_t, arg0));
 }
 
 void chfinalboss_phase3_endTextCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
@@ -1275,7 +1275,7 @@ void chfinalboss_phase3_setState(Actor *this, s32 next_state) {
 }
 
 void chfinalboss_dropHealth(ActorMarker *marker) {
-    SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, marker);
+    SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, reinterpret_cast(uintptr_t, marker));
 }
 
 void chfinalboss_phase3_update(ActorMarker *marker) {
@@ -1446,7 +1446,7 @@ void chfinalboss_phase4_setState(Actor *this, s32 next_state) {
         case FINALBOSS_STATE_21_PHASE4_FALL:
             FUNC_8030E624(SFX_131_GRUNTY_WEEEGH, 1.0f, 32000);
             timed_playSfx(0.6f, SFX_61_CARTOONY_FALL, 1.0f, 32000);
-            SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, this->marker);
+            SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, reinterpret_cast(uintptr_t, this->marker));
             FUNC_8030E624(SFX_D9_WOODEN_CRATE_BREAKING_1, 1.0f, 32000);
             chfinalboss_func_80386628(this->marker, 0);
             chfinalboss_createBroomstickParticles(this->position, ASSET_552_MODEL_BROOMSTICK_PIECE_HEAD,   1);
@@ -2052,7 +2052,7 @@ void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker
                 local->hits++;
                 chfinalboss_phase3_setState(this, FINALBOSS_STATE_19_PHASE3_WEEEGH);
                 if (local->hits == 4) {
-                    SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, this->marker);
+                    SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, reinterpret_cast(uintptr_t, this->marker));
                 }
             }
             break;
@@ -2123,7 +2123,7 @@ void chfinalboss_update(Actor *this){
             __chFinalBossJinjoStatueMarker[i] = NULL;
         }
 
-        __spawnQueue_add_1((GenFunction_1) chfinalboss_spawnShadow, (uintptr_t)this->marker);
+        SPAWNQUEUE_ADD_1(chfinalboss_spawnShadow, (uintptr_t)this->marker);
         chfinalboss_setPhase(this->marker, FINALBOSS_PHASE_0_INTRO);
         local->hits = 0;
         chfinalboss_func_80386600(this->marker, 0);

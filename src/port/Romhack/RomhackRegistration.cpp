@@ -55,7 +55,7 @@ constexpr RomhackPort kRomhackPorts[] = {
 
 // spawnQueue_reset's case for the snow overlay.
 void AddSnowSpawnableActors() {
-    FP_func_80391324();
+    FP_addSpawnableActors();
     spawnableActorList_add(&chBluePresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
     spawnableActorList_add(&chGreenPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
     spawnableActorList_add(&chRedPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
@@ -67,13 +67,13 @@ struct OverlaySpawnList {
 };
 
 constexpr OverlaySpawnList kOverlaySpawnLists[] = {
-    { OVERLAY_D_WITCH, lair_func_8038A0C4 },     { OVERLAY_E_BATTLE, fight_addSpawnableActors },
-    { OVERLAY_C_INTRO, cutscene_func_8038C4E0 }, { OVERLAY_B_TRAINING, SM_resetSpawnableActors },
-    { OVERLAY_3_HAUNTED, MMM_func_803890E0 },    { OVERLAY_2_WHALE, CC_func_80387DA0 },
-    { OVERLAY_4_DESERT, GV_func_8038F154 },      { OVERLAY_5_BEACH, code26D0_resetSpawnableActorsForTTC },
-    { OVERLAY_6_JUNGLE, MM_func_803888B0 },      { OVERLAY_7_SWAMP, bgs_updateSpawnableActors },
-    { OVERLAY_8_SHIP, RBB_func_80386C48 },       { OVERLAY_9_SNOW, AddSnowSpawnableActors },
-    { OVERLAY_A_TREE, CCW_func_8038DB6C },
+    { OVERLAY_D_WITCH, lair_addSpawnableActors },     { OVERLAY_E_BATTLE, fight_addSpawnableActors },
+    { OVERLAY_C_INTRO, cutscene_addSpawnableActors }, { OVERLAY_B_TRAINING, SM_addSpawnableActors },
+    { OVERLAY_3_HAUNTED, MMM_addSpawnableActors },    { OVERLAY_2_WHALE, CC_addSpawnableActors },
+    { OVERLAY_4_DESERT, GV_addSpawnableActors },      { OVERLAY_5_BEACH, TTC_addSpawnableActors },
+    { OVERLAY_6_JUNGLE, MM_addSpawnableActors },      { OVERLAY_7_SWAMP, BGS_addSpawnableActors },
+    { OVERLAY_8_SHIP, RBB_addSpawnableActors },       { OVERLAY_9_SNOW, AddSnowSpawnableActors },
+    { OVERLAY_A_TREE, CCW_addSpawnableActors },
 };
 
 // Romhacks globalize the overlays: any actor can spawn on any map, so every overlay's actors join the spawnable list.

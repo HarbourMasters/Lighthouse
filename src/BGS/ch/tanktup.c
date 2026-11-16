@@ -125,7 +125,7 @@ void chTanktup_update(Actor *this)
         {
             if (local->unk0[sp44] == 0)
             {
-                __spawnQueue_add_3((GenFunction_3)func_8038F470, reinterpret_cast(uintptr_t, this->marker), local->unk0[sp44], sp44);
+                SPAWNQUEUE_ADD_3(func_8038F470, reinterpret_cast(uintptr_t, this->marker), local->unk0[sp44], sp44);
             }
         }
 

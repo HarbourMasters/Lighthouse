@@ -550,18 +550,6 @@ void func_80293D48(f32, f32);
 // --- core2/spline_pathfollow.c ---
 void func_80343DEC(Actor *self);
 
-// --- core2/spawnqueue.c ---
-Actor *spawnQueue_actor_f32(enum actor_e actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
-Actor *spawnQueue_actor_s32(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
-Actor *spawnQueue_actor_s16(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
-void __spawnQueue_add_0(GenFunction_0);
-void __spawnQueue_add_1(GenFunction_1, uintptr_t);
-void __spawnQueue_add_2(GenFunction_2, uintptr_t, uintptr_t);
-void __spawnQueue_add_3(GenFunction_3, uintptr_t, uintptr_t, uintptr_t);
-void __spawnQueue_add_4(GenFunction_4, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
-void __spawnQueue_add_5(GenFunction_5, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
-#define SPAWNQUEUE_ADD_1(method, arg0) __spawnQueue_add_1((GenFunction_1) (method), reinterpret_cast(uintptr_t, (arg0)))
-
 // --- core2/fx/commonParticle.c ---
 void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2);
 int commonParticle_new(enum common_particle_e particle_id, int arg1);
@@ -644,7 +632,7 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
 int ResourceMgr_OTRSigCheck(char* imgData);
 
 // --- BGS/bgsspawnqueue.c ---
-void bgs_updateSpawnableActors(void);
+void BGS_addSpawnableActors(void);
 
 // --- BGS/ch/croctus.c ---
 void BGS_func_803885DC(void);
@@ -689,7 +677,7 @@ void chMrVileMinigame_newPiece(ActorMarker *game_marker, ActorMarker *piece_mark
 void chMrVileMinigame_removePiece(ActorMarker *game_marker, ActorMarker *piece_marker);
 
 // --- CC/ccspawnqueue.c ---
-void CC_func_80387DA0(void);
+void CC_addSpawnableActors(void);
 
 // --- CC/ch/clankertoothext.c ---
 void CC_func_803870E0(void);
@@ -719,7 +707,7 @@ s32 maClankerRings_isMinigameActive(void);
 void maClankerRings_passRing(s32);
 
 // --- CCW/ccwspawnqueue.c ---
-void CCW_func_8038DB6C(void);
+void CCW_addSpawnableActors(void);
 
 // --- CCW/nabnut_winter.c ---
 void chAutumnOutsideNabnut_getPosition(f32 dst[3]);
@@ -737,7 +725,7 @@ void chZubbaFight_zubbaDisappear(ActorMarker *marker);
 void chZubbaFight_zubbaScore(ActorMarker *marker, s32 *score, s32 *total);
 
 // --- FP/fpspawnqueue.c ---
-void FP_func_80391324(void);
+void FP_addSpawnableActors(void);
 
 // --- FP/ch/boggy2.c ---
 void func_8038A09C(f32 arg0[3]);
@@ -781,7 +769,7 @@ void func_80391994(void);
 
 // --- GV/gvspawnqueue.c ---
 s32 code7FF0_getMagicCarpetState(Actor *arg0, s32 arg1);
-void GV_func_8038F154(void);
+void GV_addSpawnableActors(void);
 
 // --- GV/ch/ancientone.c ---
 void GV_func_80387118(void);
@@ -841,7 +829,7 @@ void gv_waterCtrl_init(void);
 void gv_waterCtrl_update(void);
 
 // --- MM/mmspawnqueue.c ---
-void MM_func_803888B0(void);
+void MM_addSpawnableActors(void);
 
 // --- MM/ch/hut.c ---
 void mm_resetHuts(void);
@@ -857,7 +845,7 @@ void func_803892A8(ActorMarker **ptr);
 void chjujuhitbox_setJuju(Actor *self, s32 slave_id, Actor *slavePtr);
 
 // --- MMM/mmmspawnqueue.c ---
-void MMM_func_803890E0(void);
+void MMM_addSpawnableActors(void);
 
 // --- MMM/organ_tiles.c ---
 void func_8038B5D8(Struct5Fs *arg0, Struct68s *arg1, s32 arg2, s32 arg3);
@@ -905,7 +893,7 @@ void func_803895B0(s32 arg0);
 void func_8038966C(void);
 
 // --- RBB/rbbspawnqueue.c ---
-void RBB_func_80386C48(void);
+void RBB_addSpawnableActors(void);
 
 // --- RBB/ch/eggtoll1.c ---
 void func_8038685C(ActorMarker *marker);
@@ -926,14 +914,14 @@ void rbb_propellorCtrl_update(void);
 bool codeBF0_shouldSpawnQuarrieHoneyComb(ActorMarker *marker);
 
 // --- SM/smspawnqueue.c ---
-void SM_resetSpawnableActors();
+void SM_addSpawnableActors();
 void codeF0_breakAbilitiesIfChecksumsFail();
 
 // --- SM/model_visibility.c ---
 void code2900_checkSMChecksums(void);
 
 // --- TTC/actor_spawninit.c ---
-void code26D0_resetSpawnableActorsForTTC(void);
+void TTC_addSpawnableActors(void);
 
 // --- TTC/ch/leaky.c ---
 bool chLeaky_eggCollision(ActorMarker *marker);
@@ -2795,15 +2783,6 @@ void func_802FBDFC(void);
 // --- core2/scorequeue/queue_major_items.c ---
 bool func_802FC390(void);
 
-// --- core2/spawnqueue.c ---
-void spawnQueue_flush(void);
-void spawnQueue_free(void);
-void spawnQueue_func_802C3A18(void);
-void spawnQueue_lock(void);
-void spawnQueue_malloc(void);
-void spawnQueue_reset(void);
-void spawnQueue_unlock(void);
-
 // --- core2/spline_bezier.c ---
 
 // --- core2/fx/commonParticle.c ---
@@ -2914,13 +2893,13 @@ void func_8034C97C(void);
 void func_8034C9B0(int arg0);
 
 // --- cutscenes/cutscenesspawnqueue.c ---
-void cutscene_func_8038C4E0(void);
+void cutscene_addSpawnableActors(void);
 
 // --- fight/fight.c ---
 void fight_addSpawnableActors(void);
 
 // --- lair/lairspawnqueue.c ---
-void lair_func_8038A0C4(void);
+void lair_addSpawnableActors(void);
 
 // --- lair/ch/brentilda.c ---
 void gzquiz_initGruntyQuestions(void);
@@ -3056,9 +3035,6 @@ void itemscore_timeScores_fromSaveData(u16 *savedata);
 int savedata_8033CE40(void *buffer);
 int savedata_8033CC98(s32 filenum, void *buffer);
 void savedata_clear(void *savedata);
-
-// --- core2/spawnqueue.c ---
-void spawnQueue_defrag(void);
 
 // --- port/MemShims.c ---
 void bkmemcpy64(void *dest, void *src, s32 size);

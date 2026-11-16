@@ -24,7 +24,6 @@ extern void func_802F2C78(Struct64s *);
 extern void func_802F2D8C(Struct64s *);
 
 f32 func_80257204(f32, f32, f32, f32);
-extern Actor *spawnQueue_bundleWithYaw_f32(enum bundle_e bundle_id, s32 x, s32 y, s32 z, s32 yaw);
 f32 func_8033229C(ActorMarker *);
 f32 player_getYaw(void);
 extern void func_8032B3A0(Actor *, ActorMarker *);
@@ -1002,8 +1001,8 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
         suLastBaddie->marker->unk50 = func_803406B0();
     }
 
-    if(flags & ACTOR_FLAG_UNKNOWN_4){
-        suLastBaddie->unk124_31 = -1;
+    if (flags & ACTOR_FLAG_UNKNOWN_4) {
+        suLastBaddie->unk124_31 = 0xFFF;
     }
 
     if(flags & ACTOR_FLAG_UNKNOWN_7){
@@ -1955,13 +1954,13 @@ void actors_applyFromSavestate(void *savestate_ptr, ActorListSaveState *savestat
 
 // only used for GV Jinxy Head 2
 void func_8032A5F8(void) {
-    Actor *var_s0;
+    Actor *i_actor;
 
     if (suBaddieActorArray != NULL) {
-        for(var_s0 = &suBaddieActorArray->data[0]; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
-            if (var_s0->unk124_31 == 0xfff) {
-                var_s0->unk124_31 = 0;
-                func_8032A6A8(var_s0);
+        for (i_actor = &suBaddieActorArray->data[0]; i_actor < &suBaddieActorArray->data[suBaddieActorArray->cnt]; i_actor++) {
+            if (i_actor->unk124_31 == 0xFFF) {
+                i_actor->unk124_31 = 0;
+                func_8032A6A8(i_actor);
             }
         }
     }
@@ -1969,19 +1968,18 @@ void func_8032A5F8(void) {
 
 // only used by GV Jinxy Head 2
 void func_8032A6A8(Actor *arg0) {
-    f32 var_f0;
-    f32 var_f2;
-    Actor *var_v0;
-
+    f32 var_f0, var_f2;
+    Actor *i_actor;
 
     if (arg0->unk44_14 != -1) {
         var_f0 = 1.0f;
-        for(var_v0 = &suBaddieActorArray->data[0]; var_v0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_v0++){
-            if ((arg0->unk44_14 == var_v0->unk44_14) && (arg0 != var_v0)) {
-                var_f2 = var_v0->unk48;
+
+        for (i_actor = &suBaddieActorArray->data[0]; i_actor < &suBaddieActorArray->data[suBaddieActorArray->cnt]; i_actor++) {
+            if ((arg0->unk44_14 == i_actor->unk44_14) && (arg0 != i_actor)) {
+                var_f2 = i_actor->unk48;
                 if ((var_f2 <= var_f0) && (arg0->unk48 <= var_f2)) {
-                    if (var_v0->secondaryId != 0) {
-                        arg0->unk124_31 = var_v0->secondaryId;
+                    if (i_actor->secondaryId != 0) {
+                        arg0->unk124_31 = i_actor->secondaryId;
                         var_f0 = var_f2;
                     }
                 }
@@ -1992,17 +1990,18 @@ void func_8032A6A8(Actor *arg0) {
 
 // only used by GV Jinxy Head 2
 Actor *func_8032A7AC(Actor *arg0) {
-    Actor *var_a0;
+    Actor *i_actor;
 
     if (arg0->unk124_31 != 0) {
         if (suBaddieActorArray != NULL) {
-            for(var_a0 = &suBaddieActorArray->data[0]; var_a0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_a0++){
-                if (arg0->unk124_31 == var_a0->secondaryId) {
-                    return var_a0;
+            for (i_actor = &suBaddieActorArray->data[0]; i_actor < &suBaddieActorArray->data[suBaddieActorArray->cnt]; i_actor++) {
+                if (arg0->unk124_31 == i_actor->secondaryId) {
+                    return i_actor;
                 }
             }
         }
     }
+
     return NULL;
 }
 
@@ -2265,12 +2264,12 @@ void func_8032B258(Actor *this, enum collision_e arg1) {
             vec3fArray_get_vec3f( this->marker->unk44, 0x20, sp38);
         }
         if (((uintptr_t)this->marker->unk44 > 1) && ((sp38[0] != 0.0f) || (sp38[1] != 0.0f) || (sp38[2] != 0.0f))) {
-            __spawnQueue_add_5((GenFunction_5) spawnQueue_bundleWithYaw_f32, this->unk138_27 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp38[0]), reinterpret_cast(s32, sp38[1]), reinterpret_cast(s32, sp38[2]), reinterpret_cast(s32, sp44));
+            SPAWNQUEUE_ADD_BUNDLE_WITH_YAW_F32(this->unk138_27 + BUNDLE_15__JIGGY, sp38[0], sp38[1], sp38[2], sp44);
             return;
         }
         else{
             sp34 = this->position[1] + 50.0f;
-            __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, this->unk138_27 + BUNDLE_15__JIGGY, reinterpret_cast(s32,this->position[0]), reinterpret_cast(s32,sp34), reinterpret_cast(s32,this->position[2]), reinterpret_cast(s32,sp44));
+            SPAWNQUEUE_ADD_BUNDLE_WITH_YAW_F32(this->unk138_27 + BUNDLE_15__JIGGY, this->position[0], sp34, this->position[2], sp44);
         }
     }
 }
@@ -2389,15 +2388,15 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
                     }
                     func_8032EE0C((GenFunction_2)func_8032B38C, (uintptr_t)this);
                     if (((uintptr_t)arg0->unk44 > 1) && ((sp50[0] != 0.0f) || (sp50[1] != 0.0f) || (sp50[2] != 0.0f))) { // [port] N64 used (s32)<0; unk44 is 0=NULL, 1=flag, or valid ptr
-                        __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
+                        SPAWNQUEUE_ADD_BUNDLE_WITH_YAW_F32(sp70 + BUNDLE_15__JIGGY, sp50[0], sp50[1], sp50[2], player_yaw);
                     } else if (this->unk16C_3 && func_803048E0(sp3C, &sp4C, &sp48, 3, (s32) (func_8033229C(arg0) * 4.0f))) {
                         sp50[0] = (f32) sp48->position_x;
                         sp50[1] = (f32) sp48->position_y;
                         sp50[2] = (f32) sp48->position_z;
-                        __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
+                        SPAWNQUEUE_ADD_BUNDLE_WITH_YAW_F32(sp70 + BUNDLE_15__JIGGY, sp50[0], sp50[1], sp50[2], player_yaw);
                     } else {
                         sp38 = this->position[1] + func_8033229C(arg0);
-                        __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, sp38), reinterpret_cast(s32, this->position[2]), reinterpret_cast(s32, player_yaw));
+                        SPAWNQUEUE_ADD_BUNDLE_WITH_YAW_F32(sp70 + BUNDLE_15__JIGGY, this->position[0], sp38, this->position[2], player_yaw);
                     }
                     func_8032EE20();
                 }
