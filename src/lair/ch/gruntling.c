@@ -33,9 +33,15 @@ void chGruntling_die(ActorMarker *marker, ActorMarker *other_marker) {
 
     this = marker_getActor(marker);
     local = (Humanoid_Baddies_Actor *)&this->local;
-    subaddie_set_state_with_direction(this, 5, 0.0f, 1);
+    subaddie_set_state_with_direction(this, CHHUMANOIDBADDIE_STATE_5_DIE, 0.0f, 1);
     actor_playAnimationOnce(this);
-    func_8030E878(SFX_C2_GRUBLIN_EGH, local->baddieSpecific*0.1 + 0.8, 32000, this->position, 1250.0f, 2500.0f);
+    func_8030E878(
+        SFX_C2_GRUBLIN_EGH,
+        local->baddieSpecific * 0.1 + 0.8, // 1.0, 0.9, 0.8
+        32000,
+        this->position,
+        1250.0f,
+        2500.0f);
     SPAWNQUEUE_ADD_ACTOR_F32(ACTOR_4C_STEAM, this->position[0], this->position[1], this->position[2]);
     actor_collisionOff(this);
     this->has_met_before = true;
