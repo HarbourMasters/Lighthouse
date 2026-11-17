@@ -215,4 +215,15 @@ void AnchorPuzzles_RegisterRustyBucketBay(bool connected) {
                 *ev->should = false;
             }
         });
+
+    // A teammate's press (map flag 0) pops the boathouse honeycomb out here too; its ding plays only within earshot.
+    COND_VB_SHOULD(VB_SWITCH_HONEYCOMB_DING, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 id = va_arg(args, s32);
+        const s32* position = va_arg(args, s32*);
+        f32 pos[3] = { (f32)position[0], (f32)position[1], (f32)position[2] };
+        if (id == HONEYCOMB_F_RBB_BOAT_HOUSE &&
+            Anchor_WasMapFlagSetRemotely(RBB_BOAT_ROOM_SPECIFIC_FLAG_0_HONEYCOMB_SPAWNED) && !Anchor_InEarshot(pos)) {
+            *should = false;
+        }
+    });
 }
