@@ -223,8 +223,6 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_DamagePlayer(payload);
             else if (packetType == DISABLE_ANCHOR)
                 HandlePacket_DisableAnchor(payload);
-            else if (packetType == ENTRANCE_DISCOVERED)
-                HandlePacket_EntranceDiscovered(payload);
             else if (packetType == GAME_COMPLETE)
                 HandlePacket_GameComplete(payload);
             else if (packetType == PLAYER_ANIM)
