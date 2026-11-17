@@ -224,6 +224,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
         return true;
     }
+    // Furnace Fun's map flags run each player's board: its fireball count, Grunty's lines and Tooty's walk to the
+    // prizes.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) {
+        return true;
+    }
     return false;
 }
 
