@@ -213,6 +213,12 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         index == CCW_WINTER_SPECIFIC_FLAG_6_CUTSCENE_EEYRIE_ADULT) {
         return true;
     }
+    // First meeting dialogs.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC &&
+        ((gsworld_getMap() == MAP_5B_CCW_SPRING_ZUBBA_HIVE && index == CCW_ZUBBA_SPECIFIC_FLAG_7_SPRING_DIALOG) ||
+         (gsworld_getMap() == MAP_5C_CCW_AUTUMN_ZUBBA_HIVE && index == CCW_ZUBBA_SPECIFIC_FLAG_8_AUTUMN_DIALOG))) {
+        return true;
+    }
     // SM map flags are entirely Bottles-tutorial choreography;
     // syncing any of them runs someone else's state machine.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
