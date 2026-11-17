@@ -1060,7 +1060,8 @@ static void __maCastle_checkIfBannedCheatCodeEntered(s32 secret_cheat_code_index
         }
         for (i = 0; sBannedCheatCodeRanges[i].minId != 0; i++)
         {
-            if ((sSecretsCheatCodes[secret_cheat_code_index].id >= sBannedCheatCodeRanges[i].minId) && (sBannedCheatCodeRanges[i].maxId >= sSecretsCheatCodes[secret_cheat_code_index].id))
+//          if ((sSecretsCheatCodes[secret_cheat_code_index].id >= sBannedCheatCodeRanges[i].minId) && (sBannedCheatCodeRanges[i].maxId >= sSecretsCheatCodes[secret_cheat_code_index].id))
+            if (EventSystem_Should(VB_SANDCASTLE_CODE_BANNED, (sSecretsCheatCodes[secret_cheat_code_index].id >= sBannedCheatCodeRanges[i].minId) && (sBannedCheatCodeRanges[i].maxId >= sSecretsCheatCodes[secret_cheat_code_index].id)))
             {
                 switch (__maCastle_getNumberOfBannedCheatCodesEntered())
                 {

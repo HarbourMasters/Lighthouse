@@ -50,15 +50,15 @@ static void CCGrateUpdate(IEvent* event) {
     }
 }
 
-// A teammate's eggs in this tooth. Each tooth has three bits.
+// A teammate's eggs in this tooth.
 static void ClankerToothUpdate(IEvent* event) {
     Actor* tooth = ((ShouldActorUpdate*)event)->actor;
     auto* local = (ActorLocal_CC_BF0*)&tooth->local;
     if (!tooth->volatile_initialized) {
         return;
     }
-    const s32 bits = (PuzzleStep_GetBits(ANCHOR_PUZZLE_CC_CLANKER_TEETH) >> ((local->unk0 - 1) * 3)) & 0x7;
-    const s32 eggs = (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
+    const s32 eggs =
+        PuzzleStep_GetCount((local->unk0 == 1) ? ANCHOR_COUNT_CC_TOKEN_TOOTH_EGGS : ANCHOR_COUNT_CC_JIGGY_TOOTH_EGGS);
     while (tooth->state == CLANKER_TOOTH_STATE_1_UPRIGHT && local->egg_count < eggs) {
         local->egg_count++;
         if (local->egg_count == 3) {

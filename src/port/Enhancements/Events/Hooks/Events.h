@@ -290,7 +290,7 @@ typedef enum VBehaviorID {
     // true
     // ```
     // #### `args`
-    // - None
+    // - `*Actor` (the stump)
     VB_MM_CHIMPY_STUMP_RUMBLE,
 
     // #### `result`
@@ -1207,6 +1207,17 @@ typedef enum VBehaviorID {
     // #### `args`
     // - `*Actor` (the box)
     VB_FP_TWINKLY_START,
+
+    // A secret sandcastle code in a banned range, which counts a strike toward erasing the game. Returning false
+    // applies its cheat without the strike.
+    // #### `result`
+    // ```c
+    // (sSecretsCheatCodes[secret_cheat_code_index].id >= sBannedCheatCodeRanges[i].minId) &&
+    //     (sBannedCheatCodeRanges[i].maxId >= sSecretsCheatCodes[secret_cheat_code_index].id)
+    // ```
+    // #### `args`
+    // - None
+    VB_SANDCASTLE_CODE_BANNED,
 
     // Romhack port gates
 
