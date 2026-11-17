@@ -229,6 +229,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) {
         return true;
     }
+    // The flight pad breaks on flag 1 once its hourglass runs out; each copy's timer sets it, and a teammate's would
+    // break ours early.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_6F_GL_FP_LOBBY && index == 1) {
+        return true;
+    }
     return false;
 }
 
