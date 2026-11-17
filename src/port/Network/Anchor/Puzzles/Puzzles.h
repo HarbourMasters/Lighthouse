@@ -15,6 +15,7 @@ void AnchorPuzzles_RegisterRustyBucketBay(bool connected);
 void AnchorPuzzles_RegisterClickClockWood(bool connected);
 void AnchorPuzzles_RegisterLair(bool connected);
 void AnchorPuzzles_MarkNapperTeammateCollect();
+void AnchorPuzzles_HoldChurchDoorPress();
 void AnchorPuzzles_ReplayJiggyCrane(int32_t stage, int32_t ticks);
 void AnchorPuzzles_ResendJiggyCrane();
 void AnchorPuzzles_ReplayNoteDoorDance(float position[3]);

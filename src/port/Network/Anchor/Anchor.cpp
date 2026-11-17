@@ -429,6 +429,12 @@ void Anchor::RevealSwitchHoneycomb() {
     __baMarker_8028BA00(uid);
 }
 
+// A teammate's clock-switch press that our church door held until it shut: it opens from shut, as the presser's did.
+void Anchor::ReplayChurchDoorPress() {
+    ApplyRemote([] { mapSpecificFlags_set(MMM_SPECIFIC_FLAG_0_UNKNOWN, true); });
+    Anchor_MarkMapFlagsRemote(1u << MMM_SPECIFIC_FLAG_0_UNKNOWN);
+}
+
 void Anchor::RemoveDummy(uint32_t clientId) {
     if (dummies.contains(clientId)) {
         dummies[clientId]->dummy_despawnActor();
