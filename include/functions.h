@@ -331,13 +331,9 @@ enum AnchorPuzzle {
     ANCHOR_PUZZLE_BGS_TANKTUP = 1,
     ANCHOR_PUZZLE_BGS_CROCTUS = 2,
     ANCHOR_PUZZLE_BGS_PINKEGG = 3,
-    // CC clanker teeth: bits 0-2 = token tooth egg count, bits 3-5 = jiggy tooth.
-    ANCHOR_PUZZLE_CC_CLANKER_TEETH = 4,
     ANCHOR_PUZZLE_GV_JINXY_DOOR = 5,
     // MM Juju totem: bits 0-3, count of the 4 segments knocked off.
     ANCHOR_PUZZLE_MM_JUJU = 6,
-    // TTC Nipper: bits 0-2, count of hits taken (all 3 = dead, shell open).
-    ANCHOR_PUZZLE_TTC_NIPPER = 7,
     // TTC Blubber: bit 0 = first bullion delivered, bit 1 = second (jiggy spawned, Blubber leaves).
     ANCHOR_PUZZLE_TTC_BLUBBER = 8,
     // TTC treasure hunt: bits 0-5, count of beak-busted X steps (bit 5 = treasure dug up).
@@ -359,6 +355,9 @@ enum AnchorPuzzle {
 enum AnchorPuzzleCount {
     ANCHOR_COUNT_CCW_EYRIE_FED = 0,
     ANCHOR_COUNT_CCW_NABNUT_ACORNS = 1,
+    ANCHOR_COUNT_TTC_NIPPER_HITS = 2,
+    ANCHOR_COUNT_CC_TOKEN_TOOTH_EGGS = 3,
+    ANCHOR_COUNT_CC_JIGGY_TOOTH_EGGS = 4,
 };
 
 // --- core2/dialog/progressDialog.c ---

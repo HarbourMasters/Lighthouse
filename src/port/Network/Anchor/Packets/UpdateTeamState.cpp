@@ -312,7 +312,10 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         auto& state = payload["state"];
         // Direct byte copy bypasses the setters; no OnGameFlagSet / collectible events fire.
         if (state.contains("fileProgressFlags")) {
+            // The banned codes' strike count stays each player's.
+            const s32 strikes = fileProgressFlag_getN(FILEPROG_FD_BANNED_CHEATCODES_ENTERED, 2);
             ApplyTeamBytes(state["fileProgressFlags"], fileProgressFlag_getSizeAndPtr);
+            fileProgressFlag_setN(FILEPROG_FD_BANNED_CHEATCODES_ENTERED, strikes, 2);
         }
         if (state.contains("volatileFlags")) {
             ApplyTeamBytes(state["volatileFlags"], volatileFlag_getSizeAndPtr);

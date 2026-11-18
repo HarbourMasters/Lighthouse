@@ -192,8 +192,11 @@ static bool IsChimpyWalkOffReplay() {
 }
 
 void RegisterChimpyStumpRumble_Init() {
-    COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
-                   { *should = !jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY); });
+    COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
+        if (jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY)) {
+            *should = false;
+        }
+    });
     COND_VB_SHOULD(VB_MM_CHIMPY_NOISE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
         if (IsChimpyWalkOffReplay()) {
             *should = false;

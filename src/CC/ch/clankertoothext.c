@@ -117,7 +117,7 @@ void maClankerTooth_update(Actor *this){
     if(this->state == CLANKER_TOOTH_STATE_1_UPRIGHT && D_80389F80 == local->unk0){
         D_80389F80 = 0;
         local->egg_count++;
-        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_CC_CLANKER_TEETH, ((1 << local->egg_count) - 1) << ((local->unk0 - 1) * 3)); // [port]
+        CALL_EVENT(OnPuzzleCountAdd, (local->unk0 == 1) ? ANCHOR_COUNT_CC_TOKEN_TOOTH_EGGS : ANCHOR_COUNT_CC_JIGGY_TOOTH_EGGS, 1); // [port]
         if(local->egg_count == 3){
             maClankerTooth_setNextState(this, CLANKER_TOOTH_STATE_2_FALLING_OVER);
         }else{

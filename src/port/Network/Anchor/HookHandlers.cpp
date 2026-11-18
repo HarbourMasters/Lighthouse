@@ -131,6 +131,19 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED || index == MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT)) {
         return true;
     }
+    // First meeting dialogs.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN &&
+        (index == MM_SPECIFIC_FLAG_8_HIT_WITH_ORANGE || index == MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS)) {
+        return true;
+    }
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_C_MM_TICKERS_TOWER && index == 0) {
+        return true;
+    }
+    if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
+        (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_1_MUMBOS_MOUNTAIN &&
+        (index == LEVEL_FLAG_B_MM_UNKNOWN || index == LEVEL_FLAG_C_MM_UNKNOWN)) {
+        return true;
+    }
     // Holds every mutie in its greeting while one player reads it (crab.c); each client sets its own.
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
         (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_3_CLANKERS_CAVERN &&
@@ -145,6 +158,12 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     }
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE &&
         index <= TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG) {
+        return true;
+    }
+    // First meeting dialogs.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE &&
+        (index == TTC_SPECIFIC_FLAG_5_CLAM_FIRST_MEET_TEXT_SHOWN ||
+         index == TTC_SPECIFIC_FLAG_7_NIPPER_FIRST_MEET_TEXT_SHOWN || index == 8 || index == 9 || index == 0xA)) {
         return true;
     }
     // FP xmas tree star minigame (flags 2/3): per-player, kept local; result syncs via ANCHOR_PUZZLE_FP_TREE_ICE.
@@ -257,14 +276,19 @@ static bool Anchor_LocalFlagClear(s32 space, s32 index) {
 
 static bool sAttackTutorialMovesKnown = false;
 
+// Whether the team has answered the SM tutorial offer, or knows a move.
+static bool Anchor_SmTutorialAnswered() {
+    // By level, not map: a romhack's Spiral Mountain may be a different map id.
+    return __chSmBottles_isAnySpiralMountainAbilityLearned() ||
+           (PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1);
+}
+
 // Whether the SM tutorial offer is ours to answer; claims it for us when it's free.
 static bool Anchor_SmTutorialChoiceOpen() {
     if (!Anchor_IsWorldSyncActive()) {
         return true;
     }
-    // By level, not map: a romhack's Spiral Mountain may be a different map id.
-    if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
-        (PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+    if (Anchor_SmTutorialAnswered()) {
         return false;
     }
     if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) && !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
@@ -662,6 +686,10 @@ void Anchor::RegisterHooks() {
             return;
         }
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
+        // The banned codes' strike count is each player's, and a team state keeps ours.
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_FILE_PROGRESS && ev->index == FILEPROG_FD_BANNED_CHEATCODES_ENTERED) {
+            return;
+        }
         // A multi-bit field (a counter) goes as one packet. Sent a bit at a time, a receiver can
         // apply part of it and see a count nobody set: a podium going 4 -> 3 passes 5 and 7.
         if (ev->length > 1 && ev->flagSpace != ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
@@ -807,12 +835,14 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // SM intro Bottles: the tutorial offer is first-answer-wins for the team. An offer a teammate holds or has
-    // answered sets SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES on ours.
+    // SM intro Bottles: the tutorial offer is first-answer-wins for the team. An offer a teammate holds stays shut on
+    // ours until the claim drops; one the team has answered sets SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES on ours.
     COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
         Actor* bottles = va_arg(args, Actor*);
         if (*should && bottles->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO && !Anchor_SmTutorialChoiceOpen()) {
-            mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+            if (Anchor_SmTutorialAnswered()) {
+                mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+            }
             *should = false;
         }
     });
@@ -832,6 +862,13 @@ void Anchor::RegisterHooks() {
         }
     });
 
+    // The banned sandcastle codes apply without a strike in a room, so nothing erases the game or stops it saving.
+    COND_VB_SHOULD(VB_SANDCASTLE_CODE_BANNED, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_IsWorldSyncActive()) {
+            *should = false;
+        }
+    });
+
     // An answer to a choice a teammate owns folds a skip into the tutorial. Recorded team-wide as it lands, so a
     // second pending offer folds before any move is learned.
     COND_HOOK(OnBottlesTutorialAnswer, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
@@ -847,8 +884,7 @@ void Anchor::RegisterHooks() {
     COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
         const s32 mole = va_arg(args, Actor*)->actorTypeSpecificField;
         if (mole != CH_SM_MOLE_ID_1_INTRO && mole != CH_SM_MOLE_ID_8_BRIDGE && Anchor_IsWorldSyncActive() &&
-            !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
-            !(PuzzleStep_GetBitsForLevel(LEVEL_B_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+            !Anchor_SmTutorialAnswered()) {
             *should = false;
         }
     });
