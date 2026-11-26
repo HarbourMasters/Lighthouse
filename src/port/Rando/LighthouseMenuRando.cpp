@@ -166,6 +166,25 @@ void LighthouseMenu::AddMenuRando() {
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
 
+    AddWidget(path, "Traps", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Enable Traps", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_TRAPS].cvar)
+        .Options(CheckboxOptions().Tooltip("Replaces some shuffled Blue Eggs, Extra Lives and Beehive Honeycombs with "
+                                           "traps. Needs at least one of those shuffles enabled."));
+    AddWidget(path, "Trap Percentage", WIDGET_CVAR_SLIDER_INT)
+        .CVar(Rando::StaticData::Options[RO_TRAP_PERCENTAGE].cvar)
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = CVarGetInteger(Rando::StaticData::Options[RO_TRAPS].cvar, RO_GENERIC_OFF) == RO_GENERIC_OFF;
+        })
+        .Options(IntSliderOptions()
+                     .Min(0)
+                     .Max(100)
+                     .DefaultValue(Rando::StaticData::Options[RO_TRAP_PERCENTAGE].defaultValue)
+                     .ShowButtons(true)
+                     .Format("%d%%")
+                     .Tooltip("Share of shuffled Blue Eggs, Extra Lives and Beehive Honeycombs that become traps."));
+
     path.column = SECTION_COLUMN_2;
 
     AddWidget(path, "Win Conditions", WIDGET_SEPARATOR_TEXT);

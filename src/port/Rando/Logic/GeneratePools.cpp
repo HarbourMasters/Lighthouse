@@ -1,4 +1,5 @@
 #include "Logic.h"
+#include "port/Rando/Traps/Traps.h"
 // #include "port/Rando/Spoiler/Spoiler.h"
 #include "port/UI/Notification.h"
 #include "port/UI/cvar_prefixes.h"
@@ -162,6 +163,11 @@ bool GenerateShufflePool(SaveData* saveData) {
 
         shuffledPool.push_back(randoShuffleEntry);
         RANDO_SAVE_CHECKS[checkPool[i]] = randoShuffleEntry;
+    }
+
+    Rando::Traps::Place(shuffledPool, randoFinalSeed);
+    for (auto& entry : shuffledPool) {
+        RANDO_SAVE_CHECKS[entry.randoCheckId] = entry;
     }
 
     if (!abilityCheckPool.empty()) {

@@ -2041,6 +2041,7 @@ typedef enum {
     RITYPE_SNS_EGG,
     RITYPE_SNS_KEY,
     RITYPE_AP_ITEM,
+    RITYPE_TRAP,
     RITYPE_MAX,
 } RandoItemType;
 
@@ -2147,6 +2148,9 @@ typedef enum {
     RI_STOP_N_SWOP_EGG_YELLOW,
     RI_STOP_N_SWOP_ICE_KEY,
     RI_AP_ITEM_PROGRESSION,
+    RI_TRAP_DAMAGE,
+    RI_TRAP_SLIDE,
+    RI_TRAP_STUN,
     RI_MAX,
 } RandoItemId;
 
@@ -2366,6 +2370,8 @@ typedef enum {
     RO_SHUFFLE_MUMBO_TOKENS,
     RO_SHUFFLE_MUSIC_NOTES,
     RO_SHUFFLE_STOP_N_SWOP,
+    RO_TRAPS,
+    RO_TRAP_PERCENTAGE,
     RO_MAX,
 } RandoOptionId;
 

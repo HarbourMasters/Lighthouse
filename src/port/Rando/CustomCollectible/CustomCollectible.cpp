@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <queue>
+#include <vector>
 
 extern "C" {
 #include "functions.h"
@@ -129,15 +130,37 @@ void CustomCollectible::FacePlayer(Actor* actor) {
     __chJinjo_802CDC9C(actor, sp66);
 }
 
+RandoItemId CustomCollectible::GetDisplayItem(RandoCheckId randoCheckId) {
+    RandoItemId randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId;
+    if (Rando::StaticData::Items[randoItemId].randoItemType != RITYPE_TRAP) {
+        return randoItemId;
+    }
+
+    std::vector<RandoItemId> disguises;
+    for (int i = RC_UNKNOWN; i < RC_MAX; i++) {
+        if (!RANDO_SAVE_CHECKS[i].isShuffled) {
+            continue;
+        }
+        RandoItemId candidate = RANDO_SAVE_CHECKS[i].randoItemId;
+        RandoItemType candidateType = Rando::StaticData::Items[candidate].randoItemType;
+        if (candidateType != RITYPE_UNKNOWN && candidateType != RITYPE_TRAP) {
+            disguises.push_back(candidate);
+        }
+    }
+
+    return disguises.empty() ? RI_AP_ITEM_PROGRESSION : disguises[randoCheckId % disguises.size()];
+}
+
 Actor* CustomCollectible::AttachCustomVariables(RandoCheckId randoCheckId, Actor* customCollectible) {
     ActorLocal_CustomCollectible* customLocal = (ActorLocal_CustomCollectible*)&customCollectible->local;
 
     RandoItemId randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId;
+    RandoItemId displayItemId = GetDisplayItem(randoCheckId);
 
     customLocal->randoCheckId = randoCheckId;
     customLocal->randoItemId = randoItemId;
-    customLocal->actorId = (actor_e)Rando::StaticData::Items[randoItemId].actorId;
-    customLocal->itemType = Rando::StaticData::Items[randoItemId].randoItemType;
+    customLocal->actorId = (actor_e)Rando::StaticData::Items[displayItemId].actorId;
+    customLocal->itemType = Rando::StaticData::Items[displayItemId].randoItemType;
 
     return customCollectible;
 }
@@ -147,7 +170,7 @@ Actor* CustomCollectible::Spawn(int32_t position[3], RandoCheckId randoCheckId) 
 
     int32_t flags = ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21;
 
-    RandoItemId randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId;
+    RandoItemId randoItemId = GetDisplayItem(randoCheckId);
     RandoItemType itemType = Rando::StaticData::Items[randoItemId].randoItemType;
 
     // actor_new stores the ActorInfo* permanently, so it must outlive Spawn()

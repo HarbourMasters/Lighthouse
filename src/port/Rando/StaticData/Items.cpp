@@ -120,6 +120,9 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_STOP_N_SWOP_EGG_YELLOW,               "a",    "Mystery Yellow Egg",       RITYPE_SNS_EGG,             ACTOR_25E_SNS_EGG,                  LEVEL_8_CLICK_CLOCK_WOOD),
     RI(RI_STOP_N_SWOP_ICE_KEY,                  "a",    "Mystery Ice Key",          RITYPE_SNS_KEY,             ACTOR_25D_ICE_KEY,                  LEVEL_5_FREEZEEZY_PEAK),
     RI(RI_AP_ITEM_PROGRESSION,                  "a",    "AP Progression Item",      RITYPE_AP_ITEM,             ACTOR_3CD_CUSTOM_COLLECTIBLE,       LEVEL_D_CUTSCENE),
+    RI(RI_TRAP_DAMAGE,                          "a",    "Damage Trap",              RITYPE_TRAP,                ACTOR_3CD_CUSTOM_COLLECTIBLE,       LEVEL_D_CUTSCENE),
+    RI(RI_TRAP_SLIDE,                           "a",    "Slide Trap",               RITYPE_TRAP,                ACTOR_3CD_CUSTOM_COLLECTIBLE,       LEVEL_D_CUTSCENE),
+    RI(RI_TRAP_STUN,                            "a",    "Stun Trap",                RITYPE_TRAP,                ACTOR_3CD_CUSTOM_COLLECTIBLE,       LEVEL_D_CUTSCENE),
 };
 // clang-format on
 

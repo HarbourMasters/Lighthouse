@@ -6,6 +6,7 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/Helpers/Helpers.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
+#include "port/Rando/StaticData/StaticData.h"
 
 #include "functions.h"
 extern "C" {
@@ -46,7 +47,10 @@ void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     }
 
     CustomCollectible::DespawnByRC(rc);
-    ItemQueue::GiveItem(RANDO_SAVE_CHECKS[rc].randoItemId);
+    // Traps only hit whoever picked them up
+    if (Rando::StaticData::Items[RANDO_SAVE_CHECKS[rc].randoItemId].randoItemType != RITYPE_TRAP) {
+        ItemQueue::GiveItem(RANDO_SAVE_CHECKS[rc].randoItemId);
+    }
 }
 
 void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
