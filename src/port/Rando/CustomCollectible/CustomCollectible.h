@@ -37,6 +37,7 @@ private:
     static void OnCollect(struct actorMarker_s* self, struct actorMarker_s* other);
     static ActorInfo GetActorAndDrawInfo(RandoItemId randoItemId);
     static uint32_t GetSNSEggColor(RandoItemId randoItemId);
+    static RandoItemId GetDisplayItem(RandoCheckId randoCheckId);
 
 public:
     static Actor* Spawn(int32_t position[3], RandoCheckId randoCheckId);

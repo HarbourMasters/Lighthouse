@@ -11,6 +11,7 @@
 #include "port/Rando/CheckTracker/CheckTracker.h"
 #include "port/Rando/Helpers/Helpers.h"
 #include "port/Rando/StaticData/StaticData.h"
+#include "port/Rando/Traps/Traps.h"
 
 extern "C" {
 #include "actor.h"
@@ -52,6 +53,15 @@ void ItemQueue::Process() {
 
     // Grant item
     RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+
+    // Put trap at the back of the queue if it isn't safe to give yet
+    if (!randoSaveCheck.received && Rando::StaticData::Items[randoSaveCheck.randoItemId].randoItemType == RITYPE_TRAP &&
+        !Rando::Traps::CanApply(randoSaveCheck.randoItemId)) {
+        itemQueue.pop();
+        itemQueue.push(randoCheckId);
+        return;
+    }
+
     if (!randoSaveCheck.received) {
         ItemQueue::GiveItem(randoSaveCheck.randoItemId);
         if (CVAR_SHOW_RANDO_NOTIFICATIONS) {
@@ -258,6 +268,9 @@ void ItemQueue::GiveItem(RandoItemId randoItemId) {
             comusic_playTrack(COMUSIC_88_BIG_SNS_FANFARE);
             break;
         case RITYPE_AP_ITEM:
+            break;
+        case RITYPE_TRAP:
+            Rando::Traps::Apply(randoItemId);
             break;
         default:
             break;
