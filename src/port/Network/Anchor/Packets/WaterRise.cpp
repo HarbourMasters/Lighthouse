@@ -117,7 +117,7 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
             func_802F9F80(rumble, 0.0f, kLength[p1 - 1], kFade[p1 - 1]);
         }
     } else if (kind == WATERRISE_KIND_CC) {
-        // Only replay while in the water's map; on later entry func_80388104 snaps it on its own.
+        // Only replay while in the water's map; on later entry func_80387F80 snaps it on its own.
         if ((s32)gsworld_getMap() == map) {
             Struct70s* water = func_8034C5AC(p1);
             if (water != nullptr) {

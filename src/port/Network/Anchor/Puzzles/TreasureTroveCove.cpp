@@ -22,10 +22,9 @@ static bool IsBlubberTeammateFinish(Actor* actor) {
     return actor != NULL && actor->modelCacheIndex == ACTOR_115_BLUBBER && sBlubberTeammateFinish;
 }
 
-// The Nipper hits the team landed, one bit each.
+// The Nipper hits the team landed.
 static s32 NipperHits() {
-    const s32 bits = PuzzleStep_GetBits(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
-    return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
+    return PuzzleStep_GetCount(ANCHOR_COUNT_TTC_NIPPER_HITS);
 }
 
 // The hits this Nipper shows: its lifetime drops from 120 to 80 to 40 as he's hit.

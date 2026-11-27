@@ -73,6 +73,14 @@ void AnchorPuzzles_RegisterMumbosMountain(bool connected) {
     });
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sJujuReplay = false; });
 
+    // Chimpy's thanks to a teammate shakes our camera and plays the stump's rumble only within earshot.
+    COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, connected, {
+        Actor* stump = va_arg(args, Actor*);
+        if (Anchor_WasMapFlagSetRemotely(MM_SPECIFIC_FLAG_4_SHAKE) && !Anchor_InEarshot(stump->position)) {
+            *should = false;
+        }
+    });
+
     // A pad a teammate already hit stays hit.
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_57_ORANGE_PAD, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
         Actor* pad = ((ShouldActorUpdate*)event)->actor;

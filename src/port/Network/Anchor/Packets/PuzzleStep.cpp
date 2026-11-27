@@ -51,10 +51,8 @@ static const std::map<int32_t, PuzzleHome>& puzzleHomes() {
         // The egg chain's map isn't pinned down in the decomp; its readback only drives
         // actor state, so the whole level is safe.
         { ANCHOR_PUZZLE_BGS_PINKEGG, { {}, LEVEL_4_BUBBLEGLOOP_SWAMP } },
-        { ANCHOR_PUZZLE_CC_CLANKER_TEETH, { { MAP_B_CC_CLANKERS_CAVERN } } },
         { ANCHOR_PUZZLE_GV_JINXY_DOOR, { { MAP_12_GV_GOBIS_VALLEY } } },
         { ANCHOR_PUZZLE_MM_JUJU, { { MAP_2_MM_MUMBOS_MOUNTAIN } } },
-        { ANCHOR_PUZZLE_TTC_NIPPER, { { MAP_7_TTC_TREASURE_TROVE_COVE } } },
         { ANCHOR_PUZZLE_TTC_BLUBBER, { { MAP_7_TTC_TREASURE_TROVE_COVE } } },
         { ANCHOR_PUZZLE_TTC_XHUNT, { { MAP_7_TTC_TREASURE_TROVE_COVE } } },
         { ANCHOR_PUZZLE_FP_TREE_ICE, { { MAP_53_FP_CHRISTMAS_TREE } } },

@@ -129,7 +129,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     func_8032B4DC(this, other_marker, 7);
 
     if (this->lifetime_value == 40.0f) {
-        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x7); // [port]
+        CALL_EVENT(OnPuzzleCountAdd, ANCHOR_COUNT_TTC_NIPPER_HITS, 1); // [port]
         subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
         actor_playAnimationOnce(this);
         for(i = 0; i < 3; i++){
@@ -143,13 +143,13 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     }
 
     if (this->lifetime_value == 80.0f) {
-        CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x3); // [port]
+        CALL_EVENT(OnPuzzleCountAdd, ANCHOR_COUNT_TTC_NIPPER_HITS, 1); // [port]
         __chNipper_playDeathAnimation(this);
         this->lifetime_value = 40.0f;
         return;
     }
 
-    CALL_EVENT(OnPuzzleStep, ANCHOR_PUZZLE_TTC_NIPPER, 0x1); // [port]
+    CALL_EVENT(OnPuzzleCountAdd, ANCHOR_COUNT_TTC_NIPPER_HITS, 1); // [port]
     __chNipper_playDeathAnimation(this);
     this->lifetime_value = 80.0f;
     gcdialog_showDialog(VER_SELECT(ASSET_A10_DIALOG_NIPPER_HURT, 0x910, 0, 0), 4, NULL, NULL, NULL, NULL);
