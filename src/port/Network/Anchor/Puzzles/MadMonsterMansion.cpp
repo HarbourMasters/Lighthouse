@@ -20,6 +20,16 @@ void AnchorPuzzles_MarkNapperTeammateCollect() {
     sNapperTeammateCollect = true;
 }
 
+// A teammate's press landed while our church door was open or swinging shut, so our flag was already set.
+static bool sChurchDoorPressHeld = false;
+
+void AnchorPuzzles_HoldChurchDoorPress() {
+    Actor* door = actorArray_findActorFromActorId(ACTOR_114_CHURCH_DOOR);
+    if (door != NULL && (door->state == 7 || door->state == 8)) {
+        sChurchDoorPressHeld = true;
+    }
+}
+
 static bool IsTeammateStep(Actor* actor) {
     if (actor == NULL) {
         return false;
@@ -90,7 +100,22 @@ void AnchorPuzzles_RegisterMadMonsterMansion(bool connected) {
         }
     });
     // Always on, with the hooks that read it.
-    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) { sNapperTeammateCollect = false; });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        sNapperTeammateCollect = false;
+        sChurchDoorPressHeld = false;
+    });
+
+    // A held press opens our church door once it has shut, and doesn't outlive the connection.
+    if (!connected) {
+        sChurchDoorPressHeld = false;
+    }
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_114_CHURCH_DOOR, EVENT_PRIORITY_NORMAL, connected, [](IEvent* event) {
+        Actor* door = ((ShouldActorUpdate*)event)->actor;
+        if (sChurchDoorPressHeld && door->state == 1 && !mapSpecificFlags_get(MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
+            sChurchDoorPressHeld = false;
+            Anchor::GetInstance()->ReplayChurchDoorPress();
+        }
+    });
 
     // A teammate beat Motzhand and his jiggy is out: our game ends, outside its dialogs.
     COND_VB_SHOULD(VB_ORGAN_GAME_IDLE, EVENT_PRIORITY_NORMAL, connected, {

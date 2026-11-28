@@ -1,4 +1,5 @@
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/Puzzles/Puzzles.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
@@ -90,6 +91,10 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
                     mapSpecificFlags_set(bit, value);
                     if (value && !wasSet && bit >= 0 && bit < 32) {
                         sMapFlagSetRemotely |= (1u << bit);
+                    }
+                    if (value && wasSet && bit == MMM_SPECIFIC_FLAG_0_UNKNOWN &&
+                        ctx == MAP_1B_MMM_MAD_MONSTER_MANSION) {
+                        AnchorPuzzles_HoldChurchDoorPress();
                     }
                 }
             });

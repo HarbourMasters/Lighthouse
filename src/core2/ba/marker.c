@@ -164,7 +164,9 @@ void __baMarker_8028B9A8(uintptr_t arg0){
     if (EventSystem_Should(VB_SPAWN_EMPTY_HONEYCOMB, true, (s32)arg0)) {
         func_802CA1CC(arg0);
         actor_spawnWithYaw_s32(ACTOR_47_EMPTY_HONEYCOMB, &ideal_yaw, 0);
-        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+        if (EventSystem_Should(VB_SWITCH_HONEYCOMB_DING, true, (s32)arg0, ideal_yaw)) {
+            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+        }
     }
 
 }

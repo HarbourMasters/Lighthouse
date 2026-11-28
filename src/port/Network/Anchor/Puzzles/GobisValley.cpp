@@ -203,6 +203,16 @@ void AnchorPuzzles_RegisterGobisValley(bool connected) {
         }
     });
 
+    // A teammate's press (map flag 0xD) pops the cactus honeycomb out here too; its ding plays only within earshot.
+    COND_VB_SHOULD(VB_SWITCH_HONEYCOMB_DING, EVENT_PRIORITY_NORMAL, connected, {
+        const s32 id = va_arg(args, s32);
+        const s32* position = va_arg(args, s32*);
+        f32 pos[3] = { (f32)position[0], (f32)position[1], (f32)position[2] };
+        if (id == HONEYCOMB_B_GV_CACTUS && Anchor_WasMapFlagSetRemotely(0xD) && !Anchor_InEarshot(pos)) {
+            *should = false;
+        }
+    });
+
     // A teammate's press opens our door too, but its countdown takes the hourglass only while it's free.
     COND_VB_SHOULD(VB_GV_DOOR_HOURGLASS_START, EVENT_PRIORITY_NORMAL, connected, {
         static const s32 kDoorFlag[] = { 3, 5, 6 }; // GV_DOOR_CAM_SUN, _STAR and _KAZOOIE

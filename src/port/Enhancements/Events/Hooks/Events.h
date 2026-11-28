@@ -1013,6 +1013,15 @@ typedef enum VBehaviorID {
     // - `s32` (honeycomb_e)
     VB_SPAWN_EMPTY_HONEYCOMB,
 
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (honeycomb_e)
+    // - `*s32` (the honeycomb's position)
+    VB_SWITCH_HONEYCOMB_DING,
+
     // The crane's hourglass starting as the cage finishes rising. A listener that returns false has to hold the cage
     // up, since chCageUpSwitch_update lowers it once the hourglass timer is empty.
     // #### `result`
