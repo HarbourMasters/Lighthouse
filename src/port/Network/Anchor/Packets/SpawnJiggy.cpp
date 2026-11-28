@@ -96,7 +96,8 @@ void Anchor::SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z) {
     }
 
     s32 map = (s32)gsworld_getMap();
-    recordJiggySpawn(map, jiggyId, x, y, z);
+    // Our own spawn is still in the spawn queue, so its marker isn't linked yet.
+    recordJiggySpawn(map, jiggyId, x, y, z).inFlight = true;
 
     nlohmann::json payload;
     payload["type"] = JIGGY_SPAWN;

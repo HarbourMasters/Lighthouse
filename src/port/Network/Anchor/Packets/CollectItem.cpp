@@ -53,6 +53,9 @@ void Anchor::SendPacket_CollectItem(u8 kind, s32 id) {
     payload["kind"] = kind;
     payload["id"] = id;
     payload["map"] = (s32)gsworld_getMap();
+    if (kind == ANCHOR_COLLECTIBLE_JINJO) {
+        payload["jinjos"] = collectedBits(level_get());
+    }
 
     SendJsonToRemote(payload);
 }
@@ -129,7 +132,9 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             NoteRetention_ApplyRemoteCollect(map, id, sameMap ? 1 : 0);
             break;
         case ANCHOR_COLLECTIBLE_JINJO:
-            JinjoRetention_ApplyRemoteCollect(map, id, sameMap ? 1 : 0);
+            // Simultaneous claims go to the lowest client id.
+            JinjoRetention_ApplyRemoteCollect(map, id, sameMap ? 1 : 0, payload.value("jinjos", 0x1F),
+                                              ownClientId < payload.value("clientId", 0u) ? 1 : 0);
             break;
         case ANCHOR_COLLECTIBLE_CATERPILLAR:
         case ANCHOR_COLLECTIBLE_ACORN:

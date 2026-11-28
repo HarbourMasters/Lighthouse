@@ -36,7 +36,9 @@ void JinjoRetention_GetSizeAndPtr(int32_t* size, uint8_t** addr);
 // Same as the note variant, for ITEM_12_JINJOS.
 void JinjoRetention_RequestReseed(void);
 
-void JinjoRetention_ApplyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap);
+// senderBits: the sender's bits after its collect. spawnsOnRace: we spawn the jiggy if that collect raced ours.
+void JinjoRetention_ApplyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap, int32_t senderBits,
+                                       int32_t spawnsOnRace);
 
 // Force retention on/off regardless of the user CVar (Anchor uses this while connected).
 void JinjoRetention_SetForced(int32_t forced);

@@ -122,11 +122,25 @@ static int32_t jinjoActorFromBit(u8 bit) {
     }
 }
 
-extern "C" void JinjoRetention_ApplyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap) {
+// Our last collect that left the level short of five, and where its jiggy would appear.
+static u8 sShortBit = 0;
+static int32_t sShortMap = 0;
+static f32 sShortJiggyPos[3];
+
+extern "C" void JinjoRetention_ApplyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap, int32_t senderBits,
+                                                  int32_t spawnsOnRace) {
     int32_t level = map_getLevel((enum map_e)map);
+    u8 before = collectedBits(level);
     JinjoRetentionSaveData* s = store();
     if (s != nullptr && levelInRange(level)) {
         s->collected[level] |= (u8)bit;
+    }
+    // The sender collected the fifth without our collect's bit, so neither collect latched the jiggy. Of the two of
+    // us, the one with the lower client id spawns it above their Jinjo.
+    if (spawnsOnRace && before != kAllJinjos && collectedBits(level) == kAllJinjos && (sShortBit & ~senderBits) &&
+        (int32_t)gsworld_getMap() == sShortMap) {
+        sShortBit = 0;
+        jiggy_spawn(jinjoJiggy(level), sShortJiggyPos);
     }
     // ITEM_12_JINJOS is per-level, not per-map; sub-areas are separate maps but share the count.
     if (level == (int32_t)level_get()) {
@@ -157,6 +171,15 @@ static void recordLocalJinjo(int32_t markerId) {
     bool wasSet = (s != nullptr) && levelInRange(level) && ((s->collected[level] & bit) != 0);
     if (s != nullptr && levelInRange(level)) {
         s->collected[level] |= bit;
+    }
+    sShortBit = 0;
+    Actor* a = actorArray_findActorFromActorId((enum actor_e)jinjoActorFromBit(bit));
+    if (collectedBits(level) != kAllJinjos && a != nullptr) {
+        sShortBit = bit;
+        sShortMap = (int32_t)gsworld_getMap();
+        sShortJiggyPos[0] = a->position_x;
+        sShortJiggyPos[1] = a->position_y + 50.0f;
+        sShortJiggyPos[2] = a->position_z;
     }
     if (!wasSet) {
         CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_JINJO, bit);

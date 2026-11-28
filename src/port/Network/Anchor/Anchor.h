@@ -166,7 +166,6 @@ private:
     void HandlePacket_AuthorityState(nlohmann::json& payload);
     void HandlePacket_DamagePlayer(nlohmann::json& payload);
     void HandlePacket_DisableAnchor(nlohmann::json& payload);
-    void HandlePacket_EntranceDiscovered(nlohmann::json& payload);
     void HandlePacket_GameComplete(nlohmann::json& payload);
     void HandlePacket_MapLoad(nlohmann::json& payload);
     void HandlePacket_PlayerSfx(nlohmann::json& payload);
@@ -222,7 +221,6 @@ public:
     inline static const std::string AUTHORITY_STATE = "AUTHORITY_STATE";
     inline static const std::string DAMAGE_PLAYER = "DAMAGE_PLAYER";
     inline static const std::string DISABLE_ANCHOR = "DISABLE_ANCHOR";
-    inline static const std::string ENTRANCE_DISCOVERED = "ENTRANCE_DISCOVERED";
     inline static const std::string GAME_COMPLETE = "GAME_COMPLETE";
     inline static const std::string HANDSHAKE = "HANDSHAKE";
     inline static const std::string MAP_LOAD = "MAP_LOAD";
@@ -319,7 +317,6 @@ public:
     void ClearMismatchedTeamState(std::string teamId);
     bool LocalGameMatchesRoom();
     void SendPacket_DamagePlayer(u32 clientId, u8 damageEffect, u8 damage);
-    void SendPacket_EntranceDiscovered(u16 entranceIndex);
     void SendPacket_GameComplete();
     void SendPacket_Handshake();
     void SendPacket_MapLoad(GameMap map, s32 exit);
